@@ -1,0 +1,23 @@
+letters: α β γ δ ε ζ η θ ι κ λ μ ν ξ ο π ρ σ τ υ φ χ ψ ω
+vowels: α ε η ι ο υ ω
+consonants: letters - vowels
+
+Length:
+  always short : ε ο
+  always long : η ω
+  either short or long : α ι υ
+
+always have case: letters
+
+can have iota subscript: α η ω
+
+can have diaeresis : vowels
+can have breathing : vowels ρ
+can have length mark : either short or long vowels
+
+Accent:
+  can have acute : vowels
+  can have grave : vowels
+  can have circumflex : long vowels -- diphthong?
+
+can have final form : σ
