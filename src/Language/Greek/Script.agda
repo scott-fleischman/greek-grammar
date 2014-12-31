@@ -56,6 +56,18 @@ data LetterBreathing : Letter → Breathing → Set where
 data Final : Letter → Set where
   ς : Final (consonant σ)
 
+data MarkedLetter : Set where
+  letter : (Letter) → MarkedLetter
+  final : ∀ {ℓ} → (Final ℓ) → MarkedLetter
+  vowelAccent : ∀ {v a} → (VowelAccent v a) → MarkedLetter
+  letterBreathing : ∀ {ℓ b} → (LetterBreathing ℓ b) → MarkedLetter
+  vowelAccentBreathing : ∀ {v a b} → (VowelAccent v a) → (LetterBreathing (vowel v) b) → MarkedLetter
+  vowelDiaeresis : ∀ {v} → (VowelDiaeresis v) → MarkedLetter
+  vowelAccentDiaeresis : ∀ {v a} → (VowelAccent v a) → (VowelDiaeresis v) → MarkedLetter
+  vowelAccentLengthMark : ∀ {v a m} → (VowelAccent v a) → (VowelLengthMark v m) → MarkedLetter
+  vowelAccentBreathingLengthMark : ∀ {v a b m} → (VowelAccent v a) → (LetterBreathing (vowel v) b) → (VowelLengthMark v m) → (VowelDiaeresis v) → MarkedLetter
+  vowelAccentDiaeresisLengthMark : ∀ {v a m} → (VowelAccent v a) → (VowelDiaeresis v) → (VowelLengthMark v m) → MarkedLetter
+  
 
 -- proofs about iota subscript
 
