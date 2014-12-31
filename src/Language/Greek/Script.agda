@@ -12,17 +12,13 @@ data Letter : Set where
   vowel : Vowel → Letter
   consonant : Consonant → Letter
 
-data Length : Set where
-  short long : Length
+data LengthMark : Set where
+  breve macron : LengthMark
 
-data VowelLength : Vowel → Length → Set where
-  either-α : ∀ {l} → VowelLength α l
-  either-ι : ∀ {l} → VowelLength ι l
-  either-υ : ∀ {l} → VowelLength υ l
-  short-ε : VowelLength ε short
-  short-ο : VowelLength ο short
-  long-η : VowelLength η long
-  long-ω : VowelLength ω long
+data VowelLengthMark : Vowel → LengthMark → Set where
+  either-α : ∀ {l} → VowelLengthMark α l
+  either-ι : ∀ {l} → VowelLengthMark ι l
+  either-υ : ∀ {l} → VowelLengthMark υ l
 
 data Case : Set where
   upper lower : Case
@@ -30,39 +26,49 @@ data Case : Set where
 data LetterCase : Letter → Case → Set where
   any-case : ∀ {l c} → LetterCase l c
 
-data IotaSubscript : Vowel → Set where
-  α_ι : IotaSubscript α
-  η_ι : IotaSubscript η
-  ω_ι : IotaSubscript ω
+data VowelIotaSubscript : Vowel → Set where
+  ᾳ : VowelIotaSubscript α
+  ῃ : VowelIotaSubscript η
+  ῳ : VowelIotaSubscript ω
 
+data VowelDiaeresis : Vowel → Set where
+  diaeresis : ∀ {v} → VowelDiaeresis v
 
--- proofs about length
+data Accent : Set where
+  acute grave circumflex : Accent
 
-ε-not-long : ¬ VowelLength ε long
-ε-not-long ()
+data VowelAccent : Vowel → Accent → Set where
+  vowelAcute : ∀ {v} → VowelAccent v acute
+  vowelGrave : ∀ {v} → VowelAccent v grave
+  vowelCircumflex-α : VowelAccent α circumflex
+  vowelCircumflex-η : VowelAccent η circumflex
+  vowelCircumflex-ι : VowelAccent ι circumflex
+  vowelCircumflex-υ : VowelAccent υ circumflex
+  vowelCircumflex-ω : VowelAccent ω circumflex
 
-ο-not-long : ¬ VowelLength ο long
-ο-not-long ()
+data Breathing : Set where
+  smooth rough : Breathing
 
-η-not-short : ¬ VowelLength η short
-η-not-short ()
+data LetterBreathing : Letter → Breathing → Set where
+  vowelBreathing : ∀ {v b} → LetterBreathing v b
+  rhoBreathing : ∀ {b} → LetterBreathing (consonant ρ) b
 
-ω-not-short : ¬ VowelLength ω short
-ω-not-short ()
+data Final : Letter → Set where
+  ς : Final (consonant σ)
 
 
 -- proofs about iota subscript
 
-ε-no-subscript : ¬ IotaSubscript ε
+ε-no-subscript : ¬ VowelIotaSubscript ε
 ε-no-subscript ()
 
-ι-no-subscript : ¬ IotaSubscript ι
+ι-no-subscript : ¬ VowelIotaSubscript ι
 ι-no-subscript ()
 
-ο-no-subscript : ¬ IotaSubscript ο
+ο-no-subscript : ¬ VowelIotaSubscript ο
 ο-no-subscript ()
 
-υ-no-subscript : ¬ IotaSubscript υ
+υ-no-subscript : ¬ VowelIotaSubscript υ
 υ-no-subscript ()
 
 
