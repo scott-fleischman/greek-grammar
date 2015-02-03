@@ -1,4 +1,4 @@
 GreekGrammar
 ============
 
-Formalizations of Greek Grammar in Agda
+Greek grammar analysis tools
