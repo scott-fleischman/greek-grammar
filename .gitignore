@@ -1,1 +1,5 @@
 *.agdai
+.DS_Store
+dist/
+.cabal-sandbox/
+cabal.sandbox.config
