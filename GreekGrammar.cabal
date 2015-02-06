@@ -16,6 +16,10 @@ executable GreekGrammar
   main-is:             Main.hs
   -- other-modules:       
   -- other-extensions:    
-  build-depends:       base >=4.7 && <4.8
+  build-depends:       base >=4.7 && <4.8,
+                       text >=1.2,
+                       basic-prelude >=0.3,
+                       containers >=0.5,
+                       xml-conduit >=1.2
   hs-source-dirs:      src/haskell
   default-language:    Haskell2010
