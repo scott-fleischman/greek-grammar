@@ -6,20 +6,18 @@ module Main where
 import GHC.Base ((.), ($), Int, Ord, Eq)
 import GHC.Num ((+))
 import GHC.Show (Show, show)
-import System.IO (IO)
 import Control.Monad (mapM_)
 import Data.Functor (fmap)
-import Data.Maybe (Maybe(Just, Nothing))
-import Data.Char (ord)
 import Data.List (foldl', concatMap, reverse)
 import Data.Map (lookup)
+import Data.Maybe (Maybe(Just, Nothing))
 import Data.Set (fromList, toList)
-import Data.Text (Text, pack, unpack, concat)
+import Data.Text (Text, pack, concat)
 import Data.Text.IO (putStrLn)
 import Filesystem.Path (FilePath, (</>), (<.>))
-import Numeric (showHex)
-import Text.XML
-import Text.XML.Cursor
+import System.IO (IO)
+import Text.XML (readFile, nameLocalName, def, elementName, elementAttributes, Node (NodeElement), Name (Name), Document)
+import Text.XML.Cursor (Cursor, fromNode, ($//), ($/), (>=>), (&.//), descendant, fromDocument, Axis, element, node, content, attributeIs, attribute)
 
 data BibleVerse = BibleVerse
   { bibleVerse :: Text
