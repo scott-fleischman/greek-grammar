@@ -11,6 +11,7 @@ category:            Language
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
+ghc-options:         -Wall
 
 executable GreekGrammar
   main-is:             Main.hs

@@ -1,10 +1,17 @@
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Main where
 
-import Prelude hiding (lookup, toList, readFile, concat, FilePath, putStrLn)
+import GHC.Base ((.), ($), Int, Ord, Eq)
+import GHC.Num ((+))
+import GHC.Show (Show, show)
+import System.IO (IO)
+import Control.Monad (mapM_)
+import Data.Functor (fmap)
+import Data.Maybe (Maybe(Just, Nothing))
 import Data.Char (ord)
-import Data.List (foldl')
+import Data.List (foldl', concatMap, reverse)
 import Data.Map (lookup)
 import Data.Set (fromList, toList)
 import Data.Text (Text, pack, unpack, concat)
