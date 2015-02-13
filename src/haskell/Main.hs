@@ -1,13 +1,15 @@
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Main where
 
-import BasicPrelude hiding (readFile, Word, lookup)
+import Prelude hiding (lookup, toList, readFile, concat, FilePath, putStrLn)
 import Data.Char (ord)
+import Data.List (foldl')
 import Data.Map (lookup)
 import Data.Set (fromList, toList)
-import Data.Text (pack, unpack)
+import Data.Text (Text, pack, unpack, concat)
+import Data.Text.IO (putStrLn)
+import Filesystem.Path (FilePath, (</>), (<.>))
 import Numeric (showHex)
 import Text.XML
 import Text.XML.Cursor
@@ -16,7 +18,7 @@ data BibleVerse = BibleVerse
   { bibleVerse :: Text
   } deriving (Show)
 
-newtype ParagraphIndex = ParagraphIndex { paragraphIndex :: Word32 }
+newtype ParagraphIndex = ParagraphIndex { paragraphIndex :: Int }
   deriving (Eq, Ord, Show)
 
 data Word = Word
@@ -88,11 +90,14 @@ distinctBySet :: Ord a => [a] -> [a]
 distinctBySet = toList . fromList
 
 showWords :: Builder -> [Text]
-showWords = fmap (\(Word t v i) -> concat [bibleVerse v, " [p=", show . paragraphIndex $ i, "] ", t] ) . reverse . builderWords
+showWords = fmap (\(Word t v i) -> concat [bibleVerse v, " [p=", pack . show . paragraphIndex $ i, "] ", t] ) . reverse . builderWords
+
+sblgntPath :: FilePath
+sblgntPath = ".." </> "sblgnt" </> "osis" </> "SBLGNT" <.> "osis" <.> "xml" -- http://sblgnt.com/
 
 main :: IO ()
 main = do
-  sblgntDocument <- readFile def $ ".." </> "sblgnt" </> "osis" </> "SBLGNT" <.> "osis" <.> "xml" -- http://sblgnt.com/
+  sblgntDocument <- readFile def sblgntPath
   let r = loadSblgnt sblgntDocument
   putStrLn $ resourceName r
   mapM_ putStrLn $ showWords . resourceBuilder $ r
