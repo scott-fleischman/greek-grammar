@@ -3,14 +3,12 @@
 
 module Main where
 
-import GHC.Base ((.), ($), Int, Ord, Eq)
-import GHC.Num ((+))
-import GHC.Show (Show, show)
-import Control.Monad (mapM_)
-import Data.Functor (fmap)
+import Prelude.Basic
+import Prelude.Number.Num
+import Prelude.String.Show
+import Prelude.TypeClass
 import Data.List (foldl', concatMap, reverse)
 import Data.Map (lookup)
-import Data.Maybe (Maybe(Just, Nothing))
 import Data.Set (fromList, toList)
 import Data.Text (Text, pack, concat)
 import Data.Text.IO (putStrLn)

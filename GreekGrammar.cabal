@@ -15,10 +15,12 @@ executable GreekGrammar
   ghc-options:         -Wall
   other-extensions:    NoImplicitPrelude,
                        OverloadedStrings
-  build-depends:       base >=4.7,
-                       text >=1.2,
-                       system-filepath >=0.4,
-                       containers >=0.5,
-                       xml-conduit >=1.2
+  build-depends:
+    base >=4.7,
+    cafeteria-prelude >=0.1,
+    text >=1.2,
+    system-filepath >=0.4,
+    containers >=0.5,
+    xml-conduit >=1.2
   hs-source-dirs:      src/haskell
   default-language:    Haskell2010
