@@ -1,0 +1,3 @@
+[submodule "data/sblgnt-osis"]
+	path = data/sblgnt-osis
+	url = https://github.com/scott-fleischman/sblgnt-osis.git
