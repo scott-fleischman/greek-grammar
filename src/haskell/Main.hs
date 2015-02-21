@@ -13,7 +13,7 @@ import Text.Greek.NewTestament.Bible ()
 import Text.Greek.NewTestament.SBL
 
 sblgntPath :: FilePath
-sblgntPath = ".." </> "sblgnt" </> "osis" </> "SBLGNT" <.> "osis" <.> "xml" -- http://sblgnt.com/
+sblgntPath = "data" </> "sblgnt-osis" </> "SBLGNT" <.> "osis" <.> "xml"
 
 main :: IO ()
 main = do
