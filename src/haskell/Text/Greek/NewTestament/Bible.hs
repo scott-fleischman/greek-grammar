@@ -16,10 +16,20 @@ data Book = Book
   } deriving (Eq, Show)
 
 data Segment =
-    Paragraph
-  | Chapter Text
-  | Verse Text
+    SegmentParagraph (Milestone Paragraph)
+  | SegmentChapter (Milestone Chapter)
+  | SegmentVerse (Milestone Verse)
   | SectionTitle Text
   | Separator Text
   | Word Text
+  deriving (Eq, Show)
+
+data (Eq a, Show a) => Milestone a = Start a | End a
+  deriving (Eq, Show)
+
+data Paragraph = Paragraph
+  deriving (Eq, Show)
+data Chapter = Chapter Text
+  deriving (Eq, Show)
+data Verse = Verse Text
   deriving (Eq, Show)
