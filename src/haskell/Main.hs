@@ -23,13 +23,16 @@ showBookStats :: Book -> Text
 showBookStats (Book _ t ss) = concat
   [ t
   , ": "
-  , pack . show . length $ filter (\x -> case x of { (SegmentChapter (Start (Chapter _))) -> True ; _ -> False } ) ss
+  , report $ \x -> case x of { (SegmentParagraph (Start Paragraph)) -> True ; _ -> False }
+  , " \x00B6s, "
+  , report $ \x -> case x of { (SegmentChapter (Start (Chapter _))) -> True ; _ -> False }
   , " chs, "
-  , pack . show . length $ filter (\x -> case x of { (SegmentVerse (Start (Verse _))) -> True ; _ -> False } ) ss
+  , report $ \x -> case x of { (SegmentVerse (Start (Verse _))) -> True ; _ -> False }
   , " vss, "
-  , pack . show . length $ filter (\x -> case x of { (Word _) -> True ; _ -> False } ) ss
+  , report $ \x -> case x of { (Word _) -> True ; _ -> False }
   , " words"
   ]
+  where report f = pack . show . length $ filter f ss
 
 showResults :: Either SBLError Bible -> [Text]
 showResults (Left b) = [append "Error: " $ pack . show $ b]
