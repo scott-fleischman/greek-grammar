@@ -1,0 +1,32 @@
+Preprocessing executable 'GreekGrammar' for GreekGrammar-0.1.0.0...
+Running GreekGrammar...
+Bible.grc.SBLGNT.2010
+The Greek New Testament: SBL Edition
+Books: 27
+ΚΑΤΑ ΜΑΘΘΑΙΟΝ        210 ¶s, 28 chs, 1068 vss, 18329 words
+ΚΑΤΑ ΜΑΡΚΟΝ          124 ¶s, 16 chs,  673 vss, 11286 words
+ΚΑΤΑ ΛΟΥΚΑΝ          210 ¶s, 24 chs, 1149 vss, 19446 words
+ΚΑΤΑ ΙΩΑΝΝΗΝ         136 ¶s, 20 chs,  866 vss, 15438 words
+ΠΡΑΞΕΙΣ ΑΠΟΣΤΟΛΩΝ    162 ¶s, 28 chs, 1002 vss, 18412 words
+ΠΡΟΣ ΡΩΜΑΙΟΥΣ         84 ¶s, 16 chs,  430 vss,  7055 words
+ΠΡΟΣ ΚΟΡΙΝΘΙΟΥΣ Α     86 ¶s, 16 chs,  437 vss,  6812 words
+ΠΡΟΣ ΚΟΡΙΝΘΙΟΥΣ Β     47 ¶s, 13 chs,  256 vss,  4473 words
+ΠΡΟΣ ΓΑΛΑΤΑΣ          30 ¶s,  6 chs,  149 vss,  2226 words
+ΠΡΟΣ ΕΦΕΣΙΟΥΣ         24 ¶s,  6 chs,  155 vss,  2416 words
+ΠΡΟΣ ΦΙΛΙΠΠΗΣΙΟΥΣ     22 ¶s,  4 chs,  104 vss,  1626 words
+ΠΡΟΣ ΚΟΛΟΣΣΑΕΙΣ       19 ¶s,  4 chs,   95 vss,  1580 words
+ΠΡΟΣ ΘΕΣΣΑΛΟΝΙΚΕΙΣ Α  16 ¶s,  5 chs,   89 vss,  1473 words
+ΠΡΟΣ ΘΕΣΣΑΛΟΝΙΚΕΙΣ Β  10 ¶s,  3 chs,   47 vss,   820 words
+ΠΡΟΣ ΤΙΜΟΘΕΟΝ Α       25 ¶s,  6 chs,  113 vss,  1591 words
+ΠΡΟΣ ΤΙΜΟΘΕΟΝ Β       16 ¶s,  4 chs,   83 vss,  1235 words
+ΠΡΟΣ ΤΙΤΟΝ            13 ¶s,  3 chs,   46 vss,   659 words
+ΠΡΟΣ ΦΙΛΗΜΟΝΑ          6 ¶s,  1 chs,   25 vss,   334 words
+ΠΡΟΣ ΕΒΡΑΙΟΥΣ         56 ¶s, 13 chs,  303 vss,  4935 words
+ΙΑΚΩΒΟΥ               24 ¶s,  5 chs,  108 vss,  1739 words
+ΠΕΤΡΟΥ Α              20 ¶s,  5 chs,  105 vss,  1678 words
+ΠΕΤΡΟΥ Β              12 ¶s,  3 chs,   61 vss,  1098 words
+ΙΩΑΝΝΟΥ Α             22 ¶s,  5 chs,  105 vss,  2137 words
+ΙΩΑΝΝΟΥ Β              3 ¶s,  1 chs,   13 vss,   245 words
+ΙΩΑΝΝΟΥ Γ              7 ¶s,  1 chs,   15 vss,   219 words
+ΙΟΥΔΑ                  7 ¶s,  1 chs,   25 vss,   459 words
+ΑΠΟΚΑΛΥΨΙΣ ΙΩΑΝΝΟΥ   135 ¶s, 22 chs,  405 vss,  9833 words
