@@ -122,7 +122,7 @@ makeSegment (NodeElement e)
 
   | eName "w" = state $ \s ->
     case s of
-      MilestoneState (Just _) (Just _) (Just _) -> (Right [Word $ e ^. text], s)
+      MilestoneState (Just _) (Just _) (Just _) -> (Right [SegmentWord $ e ^. text], s)
       MilestoneState _ _ _ -> (Left $ WordOutsideMilestone s e, s)
 
   | otherwise = state $ \s -> (Left $ UnexpectedElement s e, s)

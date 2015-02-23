@@ -21,7 +21,7 @@ data Segment =
   | SegmentVerse (Milestone Verse)
   | SectionTitle Text
   | Separator Text
-  | Word Text
+  | SegmentWord Text
   deriving (Eq, Show)
 
 data (Eq a, Show a) => Milestone a = Start a | End a

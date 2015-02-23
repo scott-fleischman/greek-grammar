@@ -29,7 +29,7 @@ showBookStats (Book _ t ss) = concat
   , " chs, "
   , report $ \x -> case x of { (SegmentVerse (Start (Verse _))) -> True ; _ -> False }
   , " vss, "
-  , report $ \x -> case x of { (Word _) -> True ; _ -> False }
+  , report $ \x -> case x of { (SegmentWord _) -> True ; _ -> False }
   , " words"
   ]
   where report f = pack . show . length $ filter f ss
