@@ -35,6 +35,7 @@ data SBLError =
   | NestedParagraph MilestoneState Element
   | NestedVerse MilestoneState Element
   | UnexpectedContentInVerse MilestoneState Node
+  | UnexpectedElement MilestoneState Element
   | UnexpectedNode MilestoneState Node
   | UnmatchedEndChapter MilestoneState Element
   | UnmatchedEndVerse MilestoneState Element
@@ -124,7 +125,7 @@ makeSegment (NodeElement e)
       MilestoneState (Just _) (Just _) (Just _) -> (Right [Word $ e ^. text], s)
       MilestoneState _ _ _ -> (Left $ WordOutsideMilestone s e, s)
 
-  | otherwise = return $ Right []
+  | otherwise = state $ \s -> (Left $ UnexpectedElement s e, s)
   where
     eName t = elementName e == osisName t
 makeSegment n@(NodeContent c) = state $ \s ->
