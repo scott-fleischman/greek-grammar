@@ -2,14 +2,14 @@
 
 module Main where
 
-import Prelude ((.), ($), Show(show), Bool(..))
+import Prelude ((.), ($), Bool(..))
 import Control.Applicative ((<$>))
 import Control.Monad (mapM_)
 import Data.Default (def)
 import Data.Either (Either(..))
 import Data.List (filter, (++), maximum)
-import Data.Text (Text, append, pack)
-import Data.Text.Format (Only(..), Format, format, right, left)
+import Data.Text (Text)
+import Data.Text.Format (Only(..), Shown(..), Format, format, right, left)
 import Data.Text.Format.Params (Params)
 import Data.Text.IO (putStrLn)
 import Data.Text.Lazy (toStrict)
@@ -47,7 +47,7 @@ showBookStats bs (Book _ t ss) = format' "{} {} \x00B6s, {} chs, {} vss, {} word
     formatSegmentCount ss' f = (format' "{}") (Only . L.length . filter f $ ss')
 
 showResults :: Either SBLError Bible -> [Text]
-showResults (Left b) = [append "Error: " $ pack . show $ b]
+showResults (Left b) = [format' "Error: {}" (Only $ Shown b)]
 showResults (Right (Bible id title books)) =
   [ id
   , title
