@@ -12,10 +12,9 @@ import Data.Either (Either(..))
 import Data.Functor (fmap)
 import Data.List (filter, (++), maximum)
 import Data.Text (Text)
-import Data.Text.Format (Only(..), Shown(..), Format, format, right, left)
-import Data.Text.Format.Params (Params)
+import Data.Text.Format (Only(..), Shown(..), right, left)
+import Data.Text.Format.Strict (format')
 import Data.Text.IO (putStrLn)
-import Data.Text.Lazy (toStrict)
 import Filesystem.Path (FilePath, (</>), (<.>))
 import System.IO (IO)
 import Text.XML (readFile)
@@ -26,9 +25,6 @@ import qualified Data.Text as T (length)
 
 sblgntPath :: FilePath
 sblgntPath = "data" </> "sblgnt-osis" </> "SBLGNT" <.> "osis" <.> "xml"
-
-format' :: Params s => Format -> s -> Text
-format' fmt ps = toStrict . format fmt $ ps
 
 getBookStats :: Book -> (Text, Text, Text, Text, Text)
 getBookStats (Book _ t ss) = (t, count paragraphs, count chapters, count verses, count words)
