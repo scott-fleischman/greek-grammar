@@ -18,7 +18,7 @@ import Data.Text.IO (putStrLn)
 import Filesystem.Path (FilePath, (</>), (<.>))
 import System.IO (IO)
 import Text.XML (readFile)
-import Text.Greek.NewTestament.Bible
+import Text.Greek.Corpus.Bible
 import Text.Greek.NewTestament.SBL
 import qualified Data.List as L (length)
 import qualified Data.Text as T (length)

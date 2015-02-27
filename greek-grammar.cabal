@@ -24,7 +24,7 @@ library
     xml-lens >=0.1
   exposed-modules:
     Data.Text.Format.Strict
-    Text.Greek.NewTestament.Bible
+    Text.Greek.Corpus.Bible
     Text.Greek.NewTestament.SBL
   ghc-options: -Wall -fwarn-tabs -O2 -ddump-splices
   hs-source-dirs:   src

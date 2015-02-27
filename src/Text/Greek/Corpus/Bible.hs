@@ -1,4 +1,4 @@
-module Text.Greek.NewTestament.Bible where
+module Text.Greek.Corpus.Bible where
 
 import Prelude (Eq, Show)
 import Data.Text (Text)

@@ -18,7 +18,7 @@ import Data.List (elem)
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.Text (Text, unpack)
 import Data.Traversable (sequence)
-import Text.Greek.NewTestament.Bible (Bible(Bible), Book(Book), Segment(..), Milestone(Start,End), Paragraph(..), Chapter(..), Verse(..))
+import Text.Greek.Corpus.Bible (Bible(Bible), Book(Book), Segment(..), Milestone(Start,End), Paragraph(..), Chapter(..), Verse(..))
 import Text.XML (elementName, Node (NodeElement, NodeContent), Name (Name), Document, Element)
 import Text.XML.Lens ((./), attr, el, root, text, attributeIs, nodes)
 
