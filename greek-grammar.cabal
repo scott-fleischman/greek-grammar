@@ -18,6 +18,7 @@ library
     text-format >=0.3,
     system-filepath >=0.4,
     containers >=0.5,
+    vector >=0.10,
     data-default >=0.5,
     xml-conduit >=1.2,
     lens >=4.7,
@@ -37,6 +38,7 @@ executable sblgnt
     text-format,
     data-default,
     system-filepath,
+    vector,
     xml-conduit,
     lens,
     greek-grammar

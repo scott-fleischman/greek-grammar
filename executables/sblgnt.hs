@@ -2,11 +2,12 @@
 
 module Main where
 
-import Prelude ((.), ($), Bool(..))
+import Prelude ((.), ($), Bool(..), Int)
+import qualified Prelude as Unsafe ((!!))
 import Control.Applicative ((<$>))
 import Control.Lens ((^.))
 import Control.Lens.Tuple (_1, _2, _3, _4, _5)
-import Control.Monad (mapM_)
+import Control.Monad (mapM_, Monad(..))
 import Data.Default (def)
 import Data.Either (Either(..))
 import Data.Functor (fmap)
@@ -50,8 +51,24 @@ showResults (Right (Bible id title books)) =
     t s = right (maximum $ (\s' -> T.length $ s' ^. _1) <$> stats) ' ' (s ^. _1)
     leftPad g s = left (max g) ' ' (s ^. g)
 
-main :: IO ()
-main = do
+load :: IO (Either SBLError Bible)
+load = do
   doc <- readFile def sblgntPath
-  let bibleResult = loadOsis doc
-  mapM_ putStrLn $ showResults bibleResult
+  return $ loadOsis doc
+
+main :: IO ()
+main = dumpCharacters 24
+
+dumpBible :: IO ()
+dumpBible = do
+ bibleResult <- load
+ mapM_ putStrLn $ showResults bibleResult
+
+-- for working in GHCi
+getBook :: Int -> IO (Book)
+getBook n = load >>= \ (Right bible) -> return . (Unsafe.!! n) . bibleBooks $ bible
+
+dumpCharacters :: Int -> IO ()
+dumpCharacters bookIndex = do
+  book <- getBook bookIndex
+  mapM_ (\(Character c (Word t _ _) _ _) -> putStrLn $ format' "{} {}" (c, t)) $ wordsToCharacters . segmentsToWords . segments $ book

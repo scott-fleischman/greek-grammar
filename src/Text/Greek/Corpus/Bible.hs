@@ -1,7 +1,14 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections #-}
+
 module Text.Greek.Corpus.Bible where
 
-import Prelude (Eq, Show)
-import Data.Text (Text)
+import Prelude (Eq, Show, Int, ($), (.), flip, concat, (+), Char, snd, fmap, concatMap)
+import Data.List (mapAccumL)
+import Data.Text (Text, unpack)
+import Data.Traversable (mapM)
+import Data.Vector (Vector)
+import Control.Monad.State.Lazy (State, evalState, state)
 
 data Bible = Bible
   { bibleId :: Text
@@ -33,3 +40,31 @@ data Chapter = Chapter Text
   deriving (Eq, Show)
 data Verse = Verse Text
   deriving (Eq, Show)
+
+data Word = Word
+  { wordText :: Text
+  , wordVerse :: Verse
+  , wordIndex :: Int
+  } deriving (Eq, Show)
+
+segmentToState :: Segment -> State (Verse, Int) [Word]
+segmentToState (SegmentVerse (Start v)) = state $ \(_, i) -> ([], (v, i))
+segmentToState (SegmentWord t) = state $ \(v, i) -> ([Word t v i], (v, i + 1))
+segmentToState _ = state ([], )
+
+segmentsToWords :: [Segment] -> [Word]
+segmentsToWords = concat . flip evalState (Verse "", 0) . mapM segmentToState
+
+data Character = Character
+  { character :: Char
+  , characterWord :: Word
+  , characterIndexInWord :: Int
+  , characterIndex :: Int
+  } deriving (Eq, Show)
+
+wordsToCharacters :: [Word] -> [Character]
+wordsToCharacters = accumIndex (\i (c, w, iiw) -> Character c w iiw i) . concatMap wordToCharacters where
+
+  wordToCharacters w = accumIndex (\i c -> (c, w, i)) (unpack . wordText $ w)
+
+  accumIndex f xs = snd $ mapAccumL (\acc x -> (acc + 1, f acc x)) 0 xs

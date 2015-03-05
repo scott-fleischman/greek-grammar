@@ -76,7 +76,7 @@ makeSegment (NodeElement e)
     case s ^. paragraphState of
       Nothing ->
         ( concat <$> sequence
-          [ Right $ [SegmentParagraph $ Start Paragraph]
+          [ Right [SegmentParagraph $ Start Paragraph]
           , es
           , Right [SegmentParagraph $ End Paragraph]
           ]
