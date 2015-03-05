@@ -1,9 +1,9 @@
-Greek Grammar
-============
+## Modeling the Morphophonology of Ancient Greek
+A Human-directed Computational Approach
 
 [![Build Status](https://travis-ci.org/scott-fleischman/greek-grammar.svg?branch=master)](https://travis-ci.org/scott-fleischman/greek-grammar)
 
-## Building
+### Building
 - Download [GHC](https://www.haskell.org/ghc/) and [Cabal](https://www.haskell.org/cabal/). For Mac, you can download them both in a single package [here](http://ghcformacosx.github.io/).
 - Run the following commands in a terminal:
 ```Shell
@@ -12,10 +12,19 @@ cd greek-grammar
 ./build.sh
 ```
 
-## Introduction
+### Running
+Dump SBLGNT stats:
+```Shell
+cabal run sblgnt
+```
+
+### Abstract
+Current methods of computational morphological tagging provide no information with respect to the phonological processes that led to a given form’s inclusion in a particular morphological category. In order to retrieve this information for a particular form, one must undertake the cumbersome task of consulting the abstract phonological schemes in standard grammars and then attempt to manually apply those schemes to reconstruct the derivational path of the form in question (e.g. θεσος → -σ → θεός ). In light this state of affairs, it is our contention that a computational morphophonemic model is needed. This model would utilize both deductive and inductive approaches to verify and display the morphophonemic derivational patterns of existing lexical forms in ancient Greek. The deductive aspect of the project would entail leveraging the phonological and morphological paradigms contained in various grammars as well as existing texts with rich information to establish a set of formalized morphophonemic rules that are manually encoded into a functional computer language. This program is then run against a text in order to isolate patterns that betray information as to where and how this rule applies. Moreover, the inductive aspect of the project will entail applying the aforementioned rules to a unicode phonological script (i.e. consonants, vowels, and diacritics) in an effort to computationally construct the phonological derivation of existing morphological and lexical forms. In short, we are proposing a dynamic morphophonemic data set for ancient Greek that is partly manual and partly automated. We manually specify prototypical patterns along with exceptions to the patterns; the computer then applies those patterns, showing where they occur.
+
+### Introduction
 In the beginning of his book The Morphology of Biblical Greek, William Mounce states that “morphology is directly controlled by phonology” (pg. 2). Despite the veracity of this axiom, current methods of computational morphological tagging provide no information with respect to the phonological processes that led to a given form’s inclusion in a particular morphological category. Moreover, in order to retrieve this information for a particular form, one must still undertake the cumbersome task of consulting the abstract phonological schemes in the grammars (e.g. Smyth, Mounce, inter alia) and then attempt to manually apply those schemes to reconstruct the derivational path of the form in question (e.g. θεσος → -σ → θεός ). Adding to the complexity of this process, existing grammars typically only provide prototypical phonological patterns, making it all the more difficult to reconstruct the derivational path of non-prototypical forms.
 
-## Our Approach
+### Our Approach
 In light this state of affairs, it is our contention that a computational morphophonemic model is needed. This model would utilize both deductive and inductive approaches to verify and display the morphophonemic derivational patterns of existing lexical forms in Ancient Greek. The deductive aspect of the project would entail leveraging the phonological and morphological paradigms contained in various grammars (e.g. Mounce, 1994; Smyth, 1956; inter alia) as well as existing texts with rich information (e.g. SBLGNT; Perseus) to establish a set of formalized morphophonemic rules that are manually encoded into a functional computer language (e.g. Haskell). This program is then run against a text in order to isolate patterns that betray information as to where and how this rule applies. Moreover, the inductive aspect of the project will entail applying the aforementioned rules to a unicode phonological script (i.e. consonants, vowels, and diacritics) in an effort to computationally construct the phonological derivation of existing  morphological and lexical forms. 
 
 This computational approach will involve the following steps:
