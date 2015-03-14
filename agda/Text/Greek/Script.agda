@@ -64,13 +64,13 @@ data Token : Letter → Case → Set where
   with-accent : ∀ {ℓ c} → ℓ accent → Token ℓ c
   with-breathing : ∀ {ℓ c} → ℓ ⟦ c ⟧-breathing → Token ℓ c
   with-accent-breathing : ∀ {ℓ c} → ℓ accent → ℓ ⟦ c ⟧-breathing → Token ℓ c
-  with-accent-breathing-iota : ∀ {ℓ c} → ℓ accent → ℓ ⟦ c ⟧-breathing → ℓ iota-subscript → Token ℓ c
-  with-diaeresis : ∀ {ℓ c} → ℓ diaeresis → Token ℓ c
-  with-accent-diaeresis : ∀ {ℓ c} → ℓ accent → ℓ diaeresis → Token ℓ c
-  with-accent-iota : ∀ {ℓ c} → ℓ accent → ℓ iota-subscript → Token ℓ c
-  with-breathing-iota : ∀ {ℓ c} → ℓ ⟦ c ⟧-breathing → ℓ iota-subscript → Token ℓ c
-  with-iota : ∀ {ℓ c} → ℓ iota-subscript → Token ℓ c
-  final : ∀ {ℓ c} → ℓ ⟦ c ⟧-final → Token ℓ c
+  with-accent-breathing-iota : ∀ {ℓ c} → ℓ accent → ℓ ⟦ c ⟧-breathing → ⦃ p : ℓ iota-subscript ⦄ → Token ℓ c
+  with-diaeresis : ∀ {ℓ c} → ⦃ p : ℓ diaeresis ⦄ → Token ℓ c
+  with-accent-diaeresis : ∀ {ℓ c} → ℓ accent → ⦃ p : ℓ diaeresis ⦄ → Token ℓ c
+  with-accent-iota : ∀ {ℓ c} → ℓ accent → ⦃ p : ℓ iota-subscript ⦄ → Token ℓ c
+  with-breathing-iota : ∀ {ℓ c} → ℓ ⟦ c ⟧-breathing → ⦃ p : ℓ iota-subscript ⦄ → Token ℓ c
+  with-iota : ∀ {ℓ c} → ⦃ p : ℓ iota-subscript ⦄ → Token ℓ c
+  final : ∀ {ℓ c} → ⦃ p : ℓ ⟦ c ⟧-final ⦄ → Token ℓ c
 
 -- Constructions
 
@@ -93,7 +93,7 @@ instance Α-smooth : α′ ⟦ upper ⟧-smooth
 instance α-rough : α′ with-rough
 α-rough = add-rough-vowel
 
-α-iota-subscript : α′ iota-subscript
+instance α-iota-subscript : α′ iota-subscript
 α-iota-subscript = add-iota-subscript here
 
 -- Ε ε
@@ -329,51 +329,51 @@ instance ι-rough : ι′ with-rough
 
 -- U+1F8x
 ᾀ : Token α′ lower
-ᾀ = with-breathing-iota smooth α-iota-subscript
+ᾀ = with-breathing-iota smooth
 ᾁ : Token α′ lower
-ᾁ = with-breathing-iota rough α-iota-subscript
+ᾁ = with-breathing-iota rough
 ᾂ : Token α′ lower
-ᾂ = with-accent-breathing-iota grave smooth α-iota-subscript
+ᾂ = with-accent-breathing-iota grave smooth
 ᾃ : Token α′ lower
-ᾃ = with-accent-breathing-iota grave rough α-iota-subscript
+ᾃ = with-accent-breathing-iota grave rough
 ᾄ : Token α′ lower
-ᾄ = with-accent-breathing-iota acute smooth α-iota-subscript
+ᾄ = with-accent-breathing-iota acute smooth
 ᾅ : Token α′ lower
-ᾅ = with-accent-breathing-iota acute rough α-iota-subscript
+ᾅ = with-accent-breathing-iota acute rough
 ᾆ : Token α′ lower
-ᾆ = with-accent-breathing-iota circumflex smooth α-iota-subscript
+ᾆ = with-accent-breathing-iota circumflex smooth
 ᾇ : Token α′ lower
-ᾇ = with-accent-breathing-iota circumflex rough α-iota-subscript
+ᾇ = with-accent-breathing-iota circumflex rough
 ᾈ : Token α′ upper
-ᾈ = with-breathing-iota smooth α-iota-subscript
+ᾈ = with-breathing-iota smooth
 ᾉ : Token α′ upper
-ᾉ = with-breathing-iota rough α-iota-subscript
+ᾉ = with-breathing-iota rough
 ᾊ : Token α′ upper
-ᾊ = with-accent-breathing-iota grave smooth α-iota-subscript
+ᾊ = with-accent-breathing-iota grave smooth
 ᾋ : Token α′ upper
-ᾋ = with-accent-breathing-iota grave rough α-iota-subscript
+ᾋ = with-accent-breathing-iota grave rough
 ᾌ : Token α′ upper
-ᾌ = with-accent-breathing-iota acute smooth α-iota-subscript
+ᾌ = with-accent-breathing-iota acute smooth
 ᾍ : Token α′ upper
-ᾍ = with-accent-breathing-iota acute rough α-iota-subscript
+ᾍ = with-accent-breathing-iota acute rough
 ᾎ : Token α′ upper
-ᾎ = with-accent-breathing-iota circumflex smooth α-iota-subscript
+ᾎ = with-accent-breathing-iota circumflex smooth
 ᾏ : Token α′ upper
-ᾏ = with-accent-breathing-iota circumflex rough α-iota-subscript
+ᾏ = with-accent-breathing-iota circumflex rough
 
 -- U+1FBx
 -- ᾰ
 -- ᾱ
 ᾲ : Token α′ lower
-ᾲ = with-accent-iota grave α-iota-subscript
+ᾲ = with-accent-iota grave
 ᾳ : Token α′ lower
-ᾳ = with-iota α-iota-subscript
+ᾳ = with-iota
 ᾴ : Token α′ lower
-ᾴ = with-accent-iota acute α-iota-subscript
+ᾴ = with-accent-iota acute
 ᾶ : Token α′ lower
 ᾶ = with-accent circumflex
 ᾷ : Token α′ lower
-ᾷ = with-accent-iota circumflex α-iota-subscript
+ᾷ = with-accent-iota circumflex
 -- Ᾰ
 -- Ᾱ
 Ὰ : Token α′ upper
@@ -381,7 +381,7 @@ instance ι-rough : ι′ with-rough
 Ά : Token α′ upper
 Ά = with-accent acute
 ᾼ : Token α′ upper
-ᾼ = with-iota α-iota-subscript
+ᾼ = with-iota
 
 -- Mapping
 
@@ -396,9 +396,9 @@ letter-to-accent circumflex = circumflex-mark
 get-accent : ∀ {ℓ c} → Token ℓ c → Maybe Accent
 get-accent (with-accent a) = just (letter-to-accent a)
 get-accent (with-accent-breathing a _) = just (letter-to-accent a)
-get-accent (with-accent-breathing-iota a _ _) = just (letter-to-accent a)
-get-accent (with-accent-diaeresis a _) = just (letter-to-accent a)
-get-accent (with-accent-iota a _) = just (letter-to-accent a)
+get-accent (with-accent-breathing-iota a _) = just (letter-to-accent a)
+get-accent (with-accent-diaeresis a) = just (letter-to-accent a)
+get-accent (with-accent-iota a) = just (letter-to-accent a)
 get-accent _ = nothing
 
 data Breathing : Set where
@@ -411,30 +411,30 @@ letter-to-breathing rough = rough-mark
 get-breathing : ∀ {ℓ c} → Token ℓ c → Maybe Breathing
 get-breathing (with-breathing x) = just (letter-to-breathing x)
 get-breathing (with-accent-breathing _ x) = just (letter-to-breathing x)
-get-breathing (with-accent-breathing-iota _ x _) = just (letter-to-breathing x)
-get-breathing (with-breathing-iota x _) = just (letter-to-breathing x)
+get-breathing (with-accent-breathing-iota _ x) = just (letter-to-breathing x)
+get-breathing (with-breathing-iota x) = just (letter-to-breathing x)
 get-breathing _ = nothing
 
 data IotaSubscript : Set where
   iota-subscript-mark : IotaSubscript
 
 get-iota-subscript : ∀ {ℓ c} → Token ℓ c → Maybe IotaSubscript
-get-iota-subscript (with-accent-breathing-iota _ _ _) = just iota-subscript-mark
-get-iota-subscript (with-accent-iota _ _) = just iota-subscript-mark
-get-iota-subscript (with-breathing-iota _ _) = just iota-subscript-mark
+get-iota-subscript (with-accent-breathing-iota _ _) = just iota-subscript-mark
+get-iota-subscript (with-accent-iota _) = just iota-subscript-mark
+get-iota-subscript (with-breathing-iota _) = just iota-subscript-mark
 get-iota-subscript _ = nothing
 
 data Diaeresis : Set where
   diaeresis-mark : Diaeresis
 
 get-diaeresis : ∀ {ℓ c} → Token ℓ c → Maybe Diaeresis
-get-diaeresis (with-diaeresis _) = just diaeresis-mark
-get-diaeresis (with-accent-diaeresis _ _) = just diaeresis-mark
+get-diaeresis with-diaeresis = just diaeresis-mark
+get-diaeresis (with-accent-diaeresis _) = just diaeresis-mark
 get-diaeresis _ = nothing
 
 data FinalForm : Set where
   final-form : FinalForm
 
 get-final-form : ∀ {ℓ c} → Token ℓ c → Maybe FinalForm
-get-final-form (final _) = just final-form
+get-final-form final = just final-form
 get-final-form _ = nothing
