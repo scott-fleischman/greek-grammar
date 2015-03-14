@@ -57,7 +57,7 @@ data _long-vowel : Letter → Set where
 data _accent : Letter → Set where
   acute : ∀ {ℓ} → ⦃ p : ℓ vowel ⦄ → ℓ accent
   grave : ∀ {ℓ} → ⦃ p : ℓ vowel ⦄ → ℓ accent
-  add-circumflex : ∀ {ℓ} → ℓ long-vowel → ℓ accent
+  circumflex : ∀ {ℓ} → ⦃ p : ℓ long-vowel ⦄ → ℓ accent
 
 data Token : Letter → Case → Set where
   unmarked : ∀ {ℓ c} → Token ℓ c
@@ -81,11 +81,8 @@ instance α-vowel : α′ vowel
 ¬α-always-short : ¬ α′ always-short
 ¬α-always-short (is-always-short (there (there ())))
 
-α-long-vowel : α′ long-vowel
+instance α-long-vowel : α′ long-vowel
 α-long-vowel = make-long-vowel ¬α-always-short
-
-α-circumflex : α′ accent
-α-circumflex = add-circumflex α-long-vowel
 
 α-smooth : α′ ⟦ lower ⟧-breathing
 α-smooth = add-smooth add-smooth-lower-vowel
@@ -128,11 +125,8 @@ instance η-vowel : η′ vowel
 ¬η-always-short : ¬ η′ always-short
 ¬η-always-short (is-always-short (there (there ())))
 
-η-long-vowel : η′ long-vowel
+instance η-long-vowel : η′ long-vowel
 η-long-vowel = make-long-vowel ¬η-always-short
-
-η-circumflex : η′ accent
-η-circumflex = add-circumflex η-long-vowel
 
 η-smooth : η′ ⟦ lower ⟧-breathing
 η-smooth = add-smooth add-smooth-lower-vowel
@@ -157,14 +151,11 @@ instance ι-vowel : ι′ vowel
 ¬ι-always-short : ¬ ι′ always-short
 ¬ι-always-short (is-always-short (there (there ())))
 
-ι-long-vowel : ι′ long-vowel
+instance ι-long-vowel : ι′ long-vowel
 ι-long-vowel = make-long-vowel ¬ι-always-short
 
 ι-not-υ : ι′ ≢ υ′
 ι-not-υ ()
-
-ι-circumflex : ι′ accent
-ι-circumflex = add-circumflex ι-long-vowel
 
 ι-smooth : ι′ ⟦ lower ⟧-breathing
 ι-smooth = add-smooth add-smooth-lower-vowel
@@ -319,9 +310,9 @@ instance ι-vowel : ι′ vowel
 ἅ : Token α′ lower
 ἅ = with-accent-breathing acute α-rough
 ἆ : Token α′ lower
-ἆ = with-accent-breathing α-circumflex α-smooth
+ἆ = with-accent-breathing circumflex α-smooth
 ἇ : Token α′ lower
-ἇ = with-accent-breathing α-circumflex α-rough
+ἇ = with-accent-breathing circumflex α-rough
 Ἀ : Token α′ upper
 Ἀ = with-breathing Α-smooth
 Ἁ : Token α′ upper
@@ -335,9 +326,9 @@ instance ι-vowel : ι′ vowel
 Ἅ : Token α′ upper
 Ἅ = with-accent-breathing acute Α-rough
 Ἆ : Token α′ upper
-Ἆ = with-accent-breathing α-circumflex Α-smooth
+Ἆ = with-accent-breathing circumflex Α-smooth
 Ἇ : Token α′ upper
-Ἇ = with-accent-breathing α-circumflex Α-rough
+Ἇ = with-accent-breathing circumflex Α-rough
 
 -- U+1F7x
 ὰ : Token α′ lower
@@ -359,9 +350,9 @@ instance ι-vowel : ι′ vowel
 ᾅ : Token α′ lower
 ᾅ = with-accent-breathing-iota acute α-rough α-iota-subscript
 ᾆ : Token α′ lower
-ᾆ = with-accent-breathing-iota α-circumflex α-smooth α-iota-subscript
+ᾆ = with-accent-breathing-iota circumflex α-smooth α-iota-subscript
 ᾇ : Token α′ lower
-ᾇ = with-accent-breathing-iota α-circumflex α-rough α-iota-subscript
+ᾇ = with-accent-breathing-iota circumflex α-rough α-iota-subscript
 ᾈ : Token α′ upper
 ᾈ = with-breathing-iota Α-smooth α-iota-subscript
 ᾉ : Token α′ upper
@@ -375,9 +366,9 @@ instance ι-vowel : ι′ vowel
 ᾍ : Token α′ upper
 ᾍ = with-accent-breathing-iota acute Α-rough α-iota-subscript
 ᾎ : Token α′ upper
-ᾎ = with-accent-breathing-iota α-circumflex Α-smooth α-iota-subscript
+ᾎ = with-accent-breathing-iota circumflex Α-smooth α-iota-subscript
 ᾏ : Token α′ upper
-ᾏ = with-accent-breathing-iota α-circumflex Α-rough α-iota-subscript
+ᾏ = with-accent-breathing-iota circumflex Α-rough α-iota-subscript
 
 -- U+1FBx
 -- ᾰ
@@ -389,9 +380,9 @@ instance ι-vowel : ι′ vowel
 ᾴ : Token α′ lower
 ᾴ = with-accent-iota acute α-iota-subscript
 ᾶ : Token α′ lower
-ᾶ = with-accent α-circumflex
+ᾶ = with-accent circumflex
 ᾷ : Token α′ lower
-ᾷ = with-accent-iota α-circumflex α-iota-subscript
+ᾷ = with-accent-iota circumflex α-iota-subscript
 -- Ᾰ
 -- Ᾱ
 Ὰ : Token α′ upper
@@ -409,7 +400,7 @@ data Accent : Set where
 letter-to-accent : ∀ {v} → v accent → Accent
 letter-to-accent acute = acute-mark
 letter-to-accent grave = grave-mark
-letter-to-accent (add-circumflex x) = circumflex-mark
+letter-to-accent circumflex = circumflex-mark
 
 get-accent : ∀ {ℓ c} → Token ℓ c → Maybe Accent
 get-accent (with-accent a) = just (letter-to-accent a)
