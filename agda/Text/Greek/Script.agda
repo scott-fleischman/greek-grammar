@@ -40,16 +40,16 @@ data _⟦_⟧-smooth : Letter → Case → Set where
   add-smooth-ρ : ρ′ ⟦ lower ⟧-smooth
   add-smooth-upper-vowel-not-Υ : ∀ {v} → ⦃ p : v vowel ⦄ → v ≢ υ′ → v ⟦ upper ⟧-smooth
 
-data _rough : Letter → Set where
-  add-rough-vowel : ∀ {v} → ⦃ p : v vowel ⦄ → v rough
-  add-rough-ρ : ρ′ rough
+data _with-rough : Letter → Set where
+  add-rough-vowel : ∀ {v} → ⦃ p : v vowel ⦄ → v with-rough
+  add-rough-ρ : ρ′ with-rough
 
 data _iota-subscript : Letter → Set where
   add-iota-subscript : ∀ {v} → ⦃ p : v vowel ⦄ → v ∈ iota-subscript-letters → v iota-subscript
 
 data _⟦_⟧-breathing : Letter → Case → Set where
-  add-smooth : ∀ {ℓ c} → ℓ ⟦ c ⟧-smooth → ℓ ⟦ c ⟧-breathing
-  add-rough : ∀ {ℓ c} → ℓ rough → ℓ ⟦ c ⟧-breathing
+  smooth : ∀ {ℓ c} → ⦃ p : ℓ ⟦ c ⟧-smooth ⦄ → ℓ ⟦ c ⟧-breathing
+  rough : ∀ {ℓ c} → ⦃ p : ℓ with-rough ⦄ → ℓ ⟦ c ⟧-breathing
 
 data _long-vowel : Letter → Set where
   make-long-vowel : ∀ {v} → ⦃ p : v vowel ⦄ → ¬ v always-short → v long-vowel
@@ -84,17 +84,14 @@ instance α-vowel : α′ vowel
 instance α-long-vowel : α′ long-vowel
 α-long-vowel = make-long-vowel ¬α-always-short
 
-α-smooth : α′ ⟦ lower ⟧-breathing
-α-smooth = add-smooth add-smooth-lower-vowel
+instance α-smooth : α′ ⟦ lower ⟧-smooth
+α-smooth = add-smooth-lower-vowel
 
-Α-smooth : α′ ⟦ upper ⟧-breathing
-Α-smooth = add-smooth (add-smooth-upper-vowel-not-Υ (λ ()))
+instance Α-smooth : α′ ⟦ upper ⟧-smooth
+Α-smooth = add-smooth-upper-vowel-not-Υ (λ ())
 
-α-rough : α′ ⟦ lower ⟧-breathing
-α-rough = add-rough add-rough-vowel
-
-Α-rough : α′ ⟦ upper ⟧-breathing
-Α-rough = add-rough add-rough-vowel
+instance α-rough : α′ with-rough
+α-rough = add-rough-vowel
 
 α-iota-subscript : α′ iota-subscript
 α-iota-subscript = add-iota-subscript here
@@ -106,17 +103,14 @@ instance ε-vowel : ε′ vowel
 ε-always-short : ε′ always-short
 ε-always-short = is-always-short here
 
-ε-smooth : ε′ ⟦ lower ⟧-breathing
-ε-smooth = add-smooth add-smooth-lower-vowel
+instance ε-smooth : ε′ ⟦ lower ⟧-smooth
+ε-smooth = add-smooth-lower-vowel
 
-Ε-smooth : ε′ ⟦ upper ⟧-breathing
-Ε-smooth = add-smooth (add-smooth-upper-vowel-not-Υ (λ ()))
+instance Ε-smooth : ε′ ⟦ upper ⟧-smooth
+Ε-smooth = add-smooth-upper-vowel-not-Υ (λ ())
 
-ε-rough : ε′ ⟦ lower ⟧-breathing
-ε-rough = add-rough add-rough-vowel
-
-Ε-rough : ε′ ⟦ upper ⟧-breathing
-Ε-rough = add-rough add-rough-vowel
+instance ε-rough : ε′ with-rough
+ε-rough = add-rough-vowel
 
 -- Η η
 instance η-vowel : η′ vowel
@@ -128,17 +122,14 @@ instance η-vowel : η′ vowel
 instance η-long-vowel : η′ long-vowel
 η-long-vowel = make-long-vowel ¬η-always-short
 
-η-smooth : η′ ⟦ lower ⟧-breathing
-η-smooth = add-smooth add-smooth-lower-vowel
+instance η-smooth : η′ ⟦ lower ⟧-smooth
+η-smooth = add-smooth-lower-vowel
 
-Η-smooth : η′ ⟦ upper ⟧-breathing
-Η-smooth = add-smooth (add-smooth-upper-vowel-not-Υ (λ ()))
+instance Η-smooth : η′ ⟦ upper ⟧-smooth
+Η-smooth = add-smooth-upper-vowel-not-Υ (λ ())
 
-η-rough : η′ ⟦ lower ⟧-breathing
-η-rough = add-rough add-rough-vowel
-
-Η-rough : η′ ⟦ upper ⟧-breathing
-Η-rough = add-rough add-rough-vowel
+instance η-rough : η′ with-rough
+η-rough = add-rough-vowel
 
 η-iota-subscript : η′ iota-subscript
 η-iota-subscript = add-iota-subscript (there here)
@@ -157,14 +148,14 @@ instance ι-long-vowel : ι′ long-vowel
 ι-not-υ : ι′ ≢ υ′
 ι-not-υ ()
 
-ι-smooth : ι′ ⟦ lower ⟧-breathing
-ι-smooth = add-smooth add-smooth-lower-vowel
+instance ι-smooth : ι′ ⟦ lower ⟧-smooth
+ι-smooth = add-smooth-lower-vowel
 
-Ι-smooth : ι′ ⟦ upper ⟧-breathing
-Ι-smooth = add-smooth (add-smooth-upper-vowel-not-Υ (λ ()))
+instance Ι-smooth : ι′ ⟦ upper ⟧-smooth
+Ι-smooth = add-smooth-upper-vowel-not-Υ (λ ())
 
-ι-rough : ι′ ⟦ lower ⟧-breathing
-ι-rough = add-rough add-rough-vowel
+instance ι-rough : ι′ with-rough
+ι-rough = add-rough-vowel
 
 -- Ο ο
 
@@ -298,37 +289,37 @@ instance ι-long-vowel : ι′ long-vowel
 
 
 ἀ : Token α′ lower
-ἀ = with-breathing α-smooth
+ἀ = with-breathing smooth
 ἁ : Token α′ lower
-ἁ = with-breathing α-rough
+ἁ = with-breathing rough
 ἂ : Token α′ lower
-ἂ = with-accent-breathing grave α-smooth
+ἂ = with-accent-breathing grave smooth
 ἃ : Token α′ lower
-ἃ = with-accent-breathing grave α-rough
+ἃ = with-accent-breathing grave rough
 ἄ : Token α′ lower
-ἄ = with-accent-breathing acute α-smooth
+ἄ = with-accent-breathing acute smooth
 ἅ : Token α′ lower
-ἅ = with-accent-breathing acute α-rough
+ἅ = with-accent-breathing acute rough
 ἆ : Token α′ lower
-ἆ = with-accent-breathing circumflex α-smooth
+ἆ = with-accent-breathing circumflex smooth
 ἇ : Token α′ lower
-ἇ = with-accent-breathing circumflex α-rough
+ἇ = with-accent-breathing circumflex rough
 Ἀ : Token α′ upper
-Ἀ = with-breathing Α-smooth
+Ἀ = with-breathing smooth
 Ἁ : Token α′ upper
-Ἁ = with-breathing Α-rough
+Ἁ = with-breathing rough
 Ἂ : Token α′ upper
-Ἂ = with-accent-breathing grave Α-smooth
+Ἂ = with-accent-breathing grave smooth
 Ἃ : Token α′ upper
-Ἃ = with-accent-breathing grave Α-rough
+Ἃ = with-accent-breathing grave rough
 Ἄ : Token α′ upper
-Ἄ = with-accent-breathing acute Α-smooth
+Ἄ = with-accent-breathing acute smooth
 Ἅ : Token α′ upper
-Ἅ = with-accent-breathing acute Α-rough
+Ἅ = with-accent-breathing acute rough
 Ἆ : Token α′ upper
-Ἆ = with-accent-breathing circumflex Α-smooth
+Ἆ = with-accent-breathing circumflex smooth
 Ἇ : Token α′ upper
-Ἇ = with-accent-breathing circumflex Α-rough
+Ἇ = with-accent-breathing circumflex rough
 
 -- U+1F7x
 ὰ : Token α′ lower
@@ -338,37 +329,37 @@ instance ι-long-vowel : ι′ long-vowel
 
 -- U+1F8x
 ᾀ : Token α′ lower
-ᾀ = with-breathing-iota α-smooth α-iota-subscript
+ᾀ = with-breathing-iota smooth α-iota-subscript
 ᾁ : Token α′ lower
-ᾁ = with-breathing-iota α-rough α-iota-subscript
+ᾁ = with-breathing-iota rough α-iota-subscript
 ᾂ : Token α′ lower
-ᾂ = with-accent-breathing-iota grave α-smooth α-iota-subscript
+ᾂ = with-accent-breathing-iota grave smooth α-iota-subscript
 ᾃ : Token α′ lower
-ᾃ = with-accent-breathing-iota grave α-rough α-iota-subscript
+ᾃ = with-accent-breathing-iota grave rough α-iota-subscript
 ᾄ : Token α′ lower
-ᾄ = with-accent-breathing-iota acute α-smooth α-iota-subscript
+ᾄ = with-accent-breathing-iota acute smooth α-iota-subscript
 ᾅ : Token α′ lower
-ᾅ = with-accent-breathing-iota acute α-rough α-iota-subscript
+ᾅ = with-accent-breathing-iota acute rough α-iota-subscript
 ᾆ : Token α′ lower
-ᾆ = with-accent-breathing-iota circumflex α-smooth α-iota-subscript
+ᾆ = with-accent-breathing-iota circumflex smooth α-iota-subscript
 ᾇ : Token α′ lower
-ᾇ = with-accent-breathing-iota circumflex α-rough α-iota-subscript
+ᾇ = with-accent-breathing-iota circumflex rough α-iota-subscript
 ᾈ : Token α′ upper
-ᾈ = with-breathing-iota Α-smooth α-iota-subscript
+ᾈ = with-breathing-iota smooth α-iota-subscript
 ᾉ : Token α′ upper
-ᾉ = with-breathing-iota Α-rough α-iota-subscript
+ᾉ = with-breathing-iota rough α-iota-subscript
 ᾊ : Token α′ upper
-ᾊ = with-accent-breathing-iota grave Α-smooth α-iota-subscript
+ᾊ = with-accent-breathing-iota grave smooth α-iota-subscript
 ᾋ : Token α′ upper
-ᾋ = with-accent-breathing-iota grave Α-rough α-iota-subscript
+ᾋ = with-accent-breathing-iota grave rough α-iota-subscript
 ᾌ : Token α′ upper
-ᾌ = with-accent-breathing-iota acute Α-smooth α-iota-subscript
+ᾌ = with-accent-breathing-iota acute smooth α-iota-subscript
 ᾍ : Token α′ upper
-ᾍ = with-accent-breathing-iota acute Α-rough α-iota-subscript
+ᾍ = with-accent-breathing-iota acute rough α-iota-subscript
 ᾎ : Token α′ upper
-ᾎ = with-accent-breathing-iota circumflex Α-smooth α-iota-subscript
+ᾎ = with-accent-breathing-iota circumflex smooth α-iota-subscript
 ᾏ : Token α′ upper
-ᾏ = with-accent-breathing-iota circumflex Α-rough α-iota-subscript
+ᾏ = with-accent-breathing-iota circumflex rough α-iota-subscript
 
 -- U+1FBx
 -- ᾰ
@@ -414,8 +405,8 @@ data Breathing : Set where
   smooth-mark rough-mark : Breathing
 
 letter-to-breathing : ∀ {ℓ c} → ℓ ⟦ c ⟧-breathing → Breathing
-letter-to-breathing (add-smooth x) = smooth-mark
-letter-to-breathing (add-rough x) = rough-mark
+letter-to-breathing smooth = smooth-mark
+letter-to-breathing rough = rough-mark
 
 get-breathing : ∀ {ℓ c} → Token ℓ c → Maybe Breathing
 get-breathing (with-breathing x) = just (letter-to-breathing x)
