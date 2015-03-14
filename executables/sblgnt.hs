@@ -57,7 +57,7 @@ load = do
   return $ loadOsis doc
 
 main :: IO ()
-main = dumpCharacters 24
+main = dumpWords 22
 
 dumpBible :: IO ()
 dumpBible = do
@@ -67,6 +67,11 @@ dumpBible = do
 -- for working in GHCi
 getBook :: Int -> IO (Book)
 getBook n = load >>= \ (Right bible) -> return . (Unsafe.!! n) . bibleBooks $ bible
+
+dumpWords :: Int -> IO ()
+dumpWords bookIndex = do
+  book <- getBook bookIndex
+  mapM_ (\(Word t (Verse v) _) -> putStrLn $ format' "{}\t\t{}" (t, v)) $ segmentsToWords . segments $ book
 
 dumpCharacters :: Int -> IO ()
 dumpCharacters bookIndex = do
