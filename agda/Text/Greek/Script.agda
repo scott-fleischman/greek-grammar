@@ -27,36 +27,36 @@ data _vowel : Letter → Set where
   is-vowel : ∀ {v} → v ∈ vowels → v vowel
 
 data _always-short : Letter → Set where
-  is-always-short : ∀ {v} → v vowel → v ∈ always-short-letters → v always-short
+  is-always-short : ∀ {v} → ⦃ p : v vowel ⦄ → v ∈ always-short-letters → v always-short
 
 data _diaeresis : Letter → Set where
-  add-diaeresis : ∀ {v} → v vowel → v ∈ diaeresis-letters → v diaeresis
+  add-diaeresis : ∀ {v} → ⦃ p : v vowel ⦄ → v ∈ diaeresis-letters → v diaeresis
 
 data _⟦_⟧-final : Letter → Case → Set where
   make-final : σ′ ⟦ lower ⟧-final
 
 data _⟦_⟧-smooth : Letter → Case → Set where
-  add-smooth-lower-vowel : ∀ {v} → v vowel → v ⟦ lower ⟧-smooth
+  add-smooth-lower-vowel : ∀ {v} → ⦃ p : v vowel ⦄ → v ⟦ lower ⟧-smooth
   add-smooth-ρ : ρ′ ⟦ lower ⟧-smooth
-  add-smooth-upper-vowel-not-Υ : ∀ {v} → v vowel → v ≢ υ′ → v ⟦ upper ⟧-smooth
+  add-smooth-upper-vowel-not-Υ : ∀ {v} → ⦃ p : v vowel ⦄ → v ≢ υ′ → v ⟦ upper ⟧-smooth
 
 data _rough : Letter → Set where
-  add-rough-vowel : ∀ {v} → v vowel → v rough
+  add-rough-vowel : ∀ {v} → ⦃ p : v vowel ⦄ → v rough
   add-rough-ρ : ρ′ rough
 
 data _iota-subscript : Letter → Set where
-  add-iota-subscript : ∀ {v} → v vowel → v ∈ iota-subscript-letters → v iota-subscript
+  add-iota-subscript : ∀ {v} → ⦃ p : v vowel ⦄ → v ∈ iota-subscript-letters → v iota-subscript
 
 data _⟦_⟧-breathing : Letter → Case → Set where
   add-smooth : ∀ {ℓ c} → ℓ ⟦ c ⟧-smooth → ℓ ⟦ c ⟧-breathing
   add-rough : ∀ {ℓ c} → ℓ rough → ℓ ⟦ c ⟧-breathing
 
 data _long-vowel : Letter → Set where
-  make-long-vowel : ∀ {v} → v vowel → ¬ v always-short → v long-vowel
+  make-long-vowel : ∀ {v} → ⦃ p : v vowel ⦄ → ¬ v always-short → v long-vowel
 
 data _accent : Letter → Set where
-  add-acute : ∀ {ℓ} → ℓ vowel → ℓ accent
-  add-grave : ∀ {ℓ} → ℓ vowel → ℓ accent
+  add-acute : ∀ {ℓ} → ⦃ p : ℓ vowel ⦄ → ℓ accent
+  add-grave : ∀ {ℓ} → ⦃ p : ℓ vowel ⦄ → ℓ accent
   add-circumflex : ∀ {ℓ} → ℓ long-vowel → ℓ accent
 
 data Token : Letter → Case → Set where
@@ -75,137 +75,131 @@ data Token : Letter → Case → Set where
 -- Constructions
 
 -- Α α
-α-vowel : α′ vowel
+instance α-vowel : α′ vowel
 α-vowel = is-vowel here
 
 ¬α-always-short : ¬ α′ always-short
-¬α-always-short (is-always-short α-vowel (there (there ())))
+¬α-always-short (is-always-short (there (there ())))
 
 α-long-vowel : α′ long-vowel
-α-long-vowel = make-long-vowel α-vowel ¬α-always-short
+α-long-vowel = make-long-vowel ¬α-always-short
 
 α-acute : α′ accent
-α-acute = add-acute α-vowel
+α-acute = add-acute
 
 α-grave : α′ accent
-α-grave = add-grave α-vowel
+α-grave = add-grave
 
 α-circumflex : α′ accent
 α-circumflex = add-circumflex α-long-vowel
 
 α-smooth : α′ ⟦ lower ⟧-breathing
-α-smooth = add-smooth (add-smooth-lower-vowel α-vowel)
+α-smooth = add-smooth add-smooth-lower-vowel
 
 Α-smooth : α′ ⟦ upper ⟧-breathing
-Α-smooth = add-smooth (add-smooth-upper-vowel-not-Υ α-vowel (λ ()))
+Α-smooth = add-smooth (add-smooth-upper-vowel-not-Υ (λ ()))
 
 α-rough : α′ ⟦ lower ⟧-breathing
-α-rough = add-rough (add-rough-vowel α-vowel)
+α-rough = add-rough add-rough-vowel
 
 Α-rough : α′ ⟦ upper ⟧-breathing
-Α-rough = add-rough (add-rough-vowel α-vowel)
+Α-rough = add-rough add-rough-vowel
 
 α-iota-subscript : α′ iota-subscript
-α-iota-subscript = add-iota-subscript α-vowel here
+α-iota-subscript = add-iota-subscript here
 
 -- Ε ε
-ε-vowel : ε′ vowel
+instance ε-vowel : ε′ vowel
 ε-vowel = is-vowel (there here)
 
 ε-always-short : ε′ always-short
-ε-always-short = is-always-short ε-vowel here
+ε-always-short = is-always-short here
 
 ε-acute : ε′ accent
-ε-acute = add-acute ε-vowel
+ε-acute = add-acute
 
 ε-grave : ε′ accent
-ε-grave = add-grave ε-vowel
+ε-grave = add-grave
 
 ε-smooth : ε′ ⟦ lower ⟧-breathing
-ε-smooth = add-smooth (add-smooth-lower-vowel ε-vowel)
+ε-smooth = add-smooth add-smooth-lower-vowel
 
 Ε-smooth : ε′ ⟦ upper ⟧-breathing
-Ε-smooth = add-smooth (add-smooth-upper-vowel-not-Υ ε-vowel (λ ()))
+Ε-smooth = add-smooth (add-smooth-upper-vowel-not-Υ (λ ()))
 
 ε-rough : ε′ ⟦ lower ⟧-breathing
-ε-rough = add-rough (add-rough-vowel ε-vowel)
+ε-rough = add-rough add-rough-vowel
 
 Ε-rough : ε′ ⟦ upper ⟧-breathing
-Ε-rough = add-rough (add-rough-vowel ε-vowel)
+Ε-rough = add-rough add-rough-vowel
 
 -- Η η
-η-vowel : η′ vowel
+instance η-vowel : η′ vowel
 η-vowel = is-vowel (there (there here))
 
 ¬η-always-short : ¬ η′ always-short
-¬η-always-short (is-always-short η-vowel (there (there ())))
+¬η-always-short (is-always-short (there (there ())))
 
 η-long-vowel : η′ long-vowel
-η-long-vowel = make-long-vowel η-vowel ¬η-always-short
+η-long-vowel = make-long-vowel ¬η-always-short
 
 η-acute : η′ accent
-η-acute = add-acute η-vowel
+η-acute = add-acute
 
 η-grave : η′ accent
-η-grave = add-grave η-vowel
+η-grave = add-grave
 
 η-circumflex : η′ accent
 η-circumflex = add-circumflex η-long-vowel
 
 η-smooth : η′ ⟦ lower ⟧-breathing
-η-smooth = add-smooth (add-smooth-lower-vowel η-vowel)
+η-smooth = add-smooth add-smooth-lower-vowel
 
 Η-smooth : η′ ⟦ upper ⟧-breathing
-Η-smooth = add-smooth (add-smooth-upper-vowel-not-Υ η-vowel (λ ()))
+Η-smooth = add-smooth (add-smooth-upper-vowel-not-Υ (λ ()))
 
 η-rough : η′ ⟦ lower ⟧-breathing
-η-rough = add-rough (add-rough-vowel η-vowel)
+η-rough = add-rough add-rough-vowel
 
 Η-rough : η′ ⟦ upper ⟧-breathing
-Η-rough = add-rough (add-rough-vowel η-vowel)
+Η-rough = add-rough add-rough-vowel
 
 η-iota-subscript : η′ iota-subscript
-η-iota-subscript = add-iota-subscript η-vowel (there here)
+η-iota-subscript = add-iota-subscript (there here)
 
 -- Ι ι
 
-instance
-  ι-vowel : ι′ vowel
-  ι-vowel = is-vowel (there (there (there here)))
+instance ι-vowel : ι′ vowel
+ι-vowel = is-vowel (there (there (there here)))
 
-  ¬ι-always-short : ¬ ι′ always-short
-  ¬ι-always-short (is-always-short ι-vowel (there (there ())))
+¬ι-always-short : ¬ ι′ always-short
+¬ι-always-short (is-always-short (there (there ())))
 
-  ι-long-vowel : ι′ long-vowel
-  ι-long-vowel = make-long-vowel ι-vowel ¬ι-always-short
+ι-long-vowel : ι′ long-vowel
+ι-long-vowel = make-long-vowel ¬ι-always-short
 
-  ι-not-υ : ι′ ≢ υ′
-  ι-not-υ ()
+ι-not-υ : ι′ ≢ υ′
+ι-not-υ ()
 
 ι-acute : ι′ accent
-ι-acute = add-acute ι-vowel
+ι-acute = add-acute
 
 ι-grave : ι′ accent
-ι-grave = add-grave ι-vowel
+ι-grave = add-grave
 
 ι-circumflex : ι′ accent
 ι-circumflex = add-circumflex ι-long-vowel
 
 ι-smooth : ι′ ⟦ lower ⟧-breathing
-ι-smooth = add-smooth (add-smooth-lower-vowel ι-vowel)
+ι-smooth = add-smooth add-smooth-lower-vowel
 
 Ι-smooth : ι′ ⟦ upper ⟧-breathing
-Ι-smooth = add-smooth (add-smooth-upper-vowel-not-Υ ι-vowel (λ ()))
+Ι-smooth = add-smooth (add-smooth-upper-vowel-not-Υ (λ ()))
 
 ι-rough : ι′ ⟦ lower ⟧-breathing
-ι-rough = add-rough (add-rough-vowel ι-vowel)
+ι-rough = add-rough add-rough-vowel
 
 -- Ο ο
-f : ∀ {ℓ} → {{ p : ℓ vowel }} → ℓ accent
-f {{ p }} = add-acute p
-
-ι-acutes : Token ι′ lower
-ι-acutes = with-accent f
 
 -- Unicode
 -- U+0390 - U+03CE
@@ -437,8 +431,8 @@ data Accent : Set where
   acute-mark grave-mark circumflex-mark : Accent
 
 letter-to-accent : ∀ {v} → v accent → Accent
-letter-to-accent (add-acute x) = acute-mark
-letter-to-accent (add-grave x) = grave-mark
+letter-to-accent add-acute = acute-mark
+letter-to-accent add-grave = grave-mark
 letter-to-accent (add-circumflex x) = circumflex-mark
 
 get-accent : ∀ {ℓ c} → Token ℓ c → Maybe Accent
