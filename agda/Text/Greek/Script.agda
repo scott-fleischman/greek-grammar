@@ -131,7 +131,7 @@ instance Η-smooth : η′ ⟦ upper ⟧-smooth
 instance η-rough : η′ with-rough
 η-rough = add-rough-vowel
 
-η-iota-subscript : η′ iota-subscript
+instance η-iota-subscript : η′ iota-subscript
 η-iota-subscript = add-iota-subscript (there here)
 
 -- Ι ι
@@ -145,9 +145,6 @@ instance ι-vowel : ι′ vowel
 instance ι-long-vowel : ι′ long-vowel
 ι-long-vowel = make-long-vowel ¬ι-always-short
 
-ι-not-υ : ι′ ≢ υ′
-ι-not-υ ()
-
 instance ι-smooth : ι′ ⟦ lower ⟧-smooth
 ι-smooth = add-smooth-lower-vowel
 
@@ -157,12 +154,82 @@ instance Ι-smooth : ι′ ⟦ upper ⟧-smooth
 instance ι-rough : ι′ with-rough
 ι-rough = add-rough-vowel
 
+instance ι-diaeresis : ι′ diaeresis
+ι-diaeresis = add-diaeresis here
+
 -- Ο ο
+instance ο-vowel : ο′ vowel
+ο-vowel = is-vowel (there (there (there (there here))))
+
+ο-always-short : ο′ always-short
+ο-always-short = is-always-short (there here)
+
+instance ο-smooth : ο′ ⟦ lower ⟧-smooth
+ο-smooth = add-smooth-lower-vowel
+
+instance Ο-smooth : ο′ ⟦ upper ⟧-smooth
+Ο-smooth = add-smooth-upper-vowel-not-Υ (λ ())
+
+instance ο-rough : ο′ with-rough
+ο-rough = add-rough-vowel
+
+-- Ρ ρ
+instance ρ-smooth : ρ′ ⟦ lower ⟧-smooth
+ρ-smooth = add-smooth-ρ
+
+instance ρ-rough : ρ′ with-rough
+ρ-rough = add-rough-ρ
+
+-- Σ σ
+instance σ-final : σ′ ⟦ lower ⟧-final
+σ-final = make-final
+
+-- Υ υ
+instance υ-vowel : υ′ vowel
+υ-vowel = is-vowel (there (there (there (there (there here)))))
+
+¬υ-always-short : ¬ υ′ always-short
+¬υ-always-short (is-always-short (there (there ())))
+
+instance υ-long-vowel : υ′ long-vowel
+υ-long-vowel = make-long-vowel ¬υ-always-short
+
+instance υ-smooth : υ′ ⟦ lower ⟧-smooth
+υ-smooth = add-smooth-lower-vowel
+
+instance υ-rough : υ′ with-rough
+υ-rough = add-rough-vowel
+
+instance υ-diaeresis : υ′ diaeresis
+υ-diaeresis = add-diaeresis (there here)
+
+-- Ω ω
+instance ω-vowel : ω′ vowel
+ω-vowel = is-vowel (there (there (there (there (there (there here))))))
+
+¬ω-always-short : ¬ ω′ always-short
+¬ω-always-short (is-always-short (there (there ())))
+
+instance ω-long-vowel : ω′ long-vowel
+ω-long-vowel = make-long-vowel ¬ω-always-short
+
+instance ω-smooth : ω′ ⟦ lower ⟧-smooth
+ω-smooth = add-smooth-lower-vowel
+
+instance Ω-smooth : ω′ ⟦ upper ⟧-smooth
+Ω-smooth = add-smooth-upper-vowel-not-Υ (λ ())
+
+instance ω-rough : ω′ with-rough
+ω-rough = add-rough-vowel
+
+instance ω-iota-subscript : ω′ iota-subscript
+ω-iota-subscript = add-iota-subscript (there (there here))
+
 
 -- Unicode
 -- U+0390 - U+03CE
 ΐ : Token ι′ lower -- U+0390 GREEK SMALL LETTER IOTA WITH DIALYTIKA AND TONOS
-ΐ = unmarked
+ΐ = with-accent-diaeresis acute
 Α : Token α′ upper -- U+0391 GREEK CAPITAL LETTER ALPHA
 Α = unmarked
 Β : Token β′ upper -- U+0392 GREEK CAPITAL LETTER BETA
@@ -213,19 +280,19 @@ instance ι-rough : ι′ with-rough
 Ω : Token ω′ upper -- U+03A9 GREEK CAPITAL LETTER OMEGA
 Ω = unmarked
 Ϊ : Token ι′ upper -- U+03AA GREEK CAPITAL LETTER IOTA WITH DIALYTIKA
-Ϊ = unmarked
+Ϊ = with-diaeresis
 Ϋ : Token υ′ upper -- U+03AB GREEK CAPITAL LETTER UPSILON WITH DIALYTIKA
-Ϋ = unmarked
+Ϋ = with-diaeresis
 ά : Token α′ lower -- U+03AC GREEK SMALL LETTER ALPHA WITH TONOS
-ά = unmarked
+ά = with-accent acute
 έ : Token ε′ lower -- U+03AD GREEK SMALL LETTER EPSILON WITH TONOS
-έ = unmarked
+έ = with-accent acute
 ή : Token η′ lower -- U+03AE GREEK SMALL LETTER ETA WITH TONOS
-ή = unmarked
+ή = with-accent acute
 ί : Token ι′ lower -- U+03AF GREEK SMALL LETTER IOTA WITH TONOS
-ί = unmarked
+ί = with-accent acute
 ΰ : Token υ′ lower -- U+03B0 GREEK SMALL LETTER UPSILON WITH DIALYTIKA AND TONOS
-ΰ = unmarked
+ΰ = with-accent-diaeresis acute
 α : Token α′ lower -- U+03B1 GREEK SMALL LETTER ALPHA
 α = unmarked
 β : Token β′ lower -- U+03B2 GREEK SMALL LETTER BETA
@@ -261,7 +328,7 @@ instance ι-rough : ι′ with-rough
 ρ : Token ρ′ lower -- U+03C1 GREEK SMALL LETTER RHO
 ρ = unmarked
 ς : Token σ′ lower -- U+03C2 GREEK SMALL LETTER FINAL SIGMA
-ς = unmarked
+ς = final
 σ : Token σ′ lower -- U+03C3 GREEK SMALL LETTER SIGMA
 σ = unmarked
 τ : Token τ′ lower -- U+03C4 GREEK SMALL LETTER TAU
@@ -277,15 +344,15 @@ instance ι-rough : ι′ with-rough
 ω : Token ω′ lower -- U+03C9 GREEK SMALL LETTER OMEGA
 ω = unmarked
 ϊ : Token ι′ lower -- U+03CA GREEK SMALL LETTER IOTA WITH DIALYTIKA
-ϊ = unmarked
+ϊ = with-diaeresis
 ϋ : Token υ′ lower -- U+03CB GREEK SMALL LETTER UPSILON WITH DIALYTIKA
-ϋ = unmarked
+ϋ = with-diaeresis
 ό : Token ο′ lower -- U+03CC GREEK SMALL LETTER OMICRON WITH TONOS
-ό = unmarked
+ό = with-accent acute
 ύ : Token υ′ lower -- U+03CD GREEK SMALL LETTER UPSILON WITH TONOS
-ύ = unmarked
+ύ = with-accent acute
 ώ : Token ω′ lower -- U+03CE GREEK SMALL LETTER OMEGA WITH TONOS
-ώ = unmarked
+ώ = with-accent acute
 
 
 ἀ : Token α′ lower
