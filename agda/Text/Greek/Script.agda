@@ -55,8 +55,8 @@ data _long-vowel : Letter → Set where
   make-long-vowel : ∀ {v} → ⦃ p : v vowel ⦄ → ¬ v always-short → v long-vowel
 
 data _accent : Letter → Set where
-  add-acute : ∀ {ℓ} → ⦃ p : ℓ vowel ⦄ → ℓ accent
-  add-grave : ∀ {ℓ} → ⦃ p : ℓ vowel ⦄ → ℓ accent
+  acute : ∀ {ℓ} → ⦃ p : ℓ vowel ⦄ → ℓ accent
+  grave : ∀ {ℓ} → ⦃ p : ℓ vowel ⦄ → ℓ accent
   add-circumflex : ∀ {ℓ} → ℓ long-vowel → ℓ accent
 
 data Token : Letter → Case → Set where
@@ -84,12 +84,6 @@ instance α-vowel : α′ vowel
 α-long-vowel : α′ long-vowel
 α-long-vowel = make-long-vowel ¬α-always-short
 
-α-acute : α′ accent
-α-acute = add-acute
-
-α-grave : α′ accent
-α-grave = add-grave
-
 α-circumflex : α′ accent
 α-circumflex = add-circumflex α-long-vowel
 
@@ -115,12 +109,6 @@ instance ε-vowel : ε′ vowel
 ε-always-short : ε′ always-short
 ε-always-short = is-always-short here
 
-ε-acute : ε′ accent
-ε-acute = add-acute
-
-ε-grave : ε′ accent
-ε-grave = add-grave
-
 ε-smooth : ε′ ⟦ lower ⟧-breathing
 ε-smooth = add-smooth add-smooth-lower-vowel
 
@@ -142,12 +130,6 @@ instance η-vowel : η′ vowel
 
 η-long-vowel : η′ long-vowel
 η-long-vowel = make-long-vowel ¬η-always-short
-
-η-acute : η′ accent
-η-acute = add-acute
-
-η-grave : η′ accent
-η-grave = add-grave
 
 η-circumflex : η′ accent
 η-circumflex = add-circumflex η-long-vowel
@@ -180,12 +162,6 @@ instance ι-vowel : ι′ vowel
 
 ι-not-υ : ι′ ≢ υ′
 ι-not-υ ()
-
-ι-acute : ι′ accent
-ι-acute = add-acute
-
-ι-grave : ι′ accent
-ι-grave = add-grave
 
 ι-circumflex : ι′ accent
 ι-circumflex = add-circumflex ι-long-vowel
@@ -335,13 +311,13 @@ instance ι-vowel : ι′ vowel
 ἁ : Token α′ lower
 ἁ = with-breathing α-rough
 ἂ : Token α′ lower
-ἂ = with-accent-breathing α-grave α-smooth
+ἂ = with-accent-breathing grave α-smooth
 ἃ : Token α′ lower
-ἃ = with-accent-breathing α-grave α-rough
+ἃ = with-accent-breathing grave α-rough
 ἄ : Token α′ lower
-ἄ = with-accent-breathing α-acute α-smooth
+ἄ = with-accent-breathing acute α-smooth
 ἅ : Token α′ lower
-ἅ = with-accent-breathing α-acute α-rough
+ἅ = with-accent-breathing acute α-rough
 ἆ : Token α′ lower
 ἆ = with-accent-breathing α-circumflex α-smooth
 ἇ : Token α′ lower
@@ -351,13 +327,13 @@ instance ι-vowel : ι′ vowel
 Ἁ : Token α′ upper
 Ἁ = with-breathing Α-rough
 Ἂ : Token α′ upper
-Ἂ = with-accent-breathing α-grave Α-smooth
+Ἂ = with-accent-breathing grave Α-smooth
 Ἃ : Token α′ upper
-Ἃ = with-accent-breathing α-grave Α-rough
+Ἃ = with-accent-breathing grave Α-rough
 Ἄ : Token α′ upper
-Ἄ = with-accent-breathing α-acute Α-smooth
+Ἄ = with-accent-breathing acute Α-smooth
 Ἅ : Token α′ upper
-Ἅ = with-accent-breathing α-acute Α-rough
+Ἅ = with-accent-breathing acute Α-rough
 Ἆ : Token α′ upper
 Ἆ = with-accent-breathing α-circumflex Α-smooth
 Ἇ : Token α′ upper
@@ -365,9 +341,9 @@ instance ι-vowel : ι′ vowel
 
 -- U+1F7x
 ὰ : Token α′ lower
-ὰ = with-accent α-grave
+ὰ = with-accent grave
 ά : Token α′ lower
-ά = with-accent α-acute
+ά = with-accent acute
 
 -- U+1F8x
 ᾀ : Token α′ lower
@@ -375,13 +351,13 @@ instance ι-vowel : ι′ vowel
 ᾁ : Token α′ lower
 ᾁ = with-breathing-iota α-rough α-iota-subscript
 ᾂ : Token α′ lower
-ᾂ = with-accent-breathing-iota α-grave α-smooth α-iota-subscript
+ᾂ = with-accent-breathing-iota grave α-smooth α-iota-subscript
 ᾃ : Token α′ lower
-ᾃ = with-accent-breathing-iota α-grave α-rough α-iota-subscript
+ᾃ = with-accent-breathing-iota grave α-rough α-iota-subscript
 ᾄ : Token α′ lower
-ᾄ = with-accent-breathing-iota α-acute α-smooth α-iota-subscript
+ᾄ = with-accent-breathing-iota acute α-smooth α-iota-subscript
 ᾅ : Token α′ lower
-ᾅ = with-accent-breathing-iota α-acute α-rough α-iota-subscript
+ᾅ = with-accent-breathing-iota acute α-rough α-iota-subscript
 ᾆ : Token α′ lower
 ᾆ = with-accent-breathing-iota α-circumflex α-smooth α-iota-subscript
 ᾇ : Token α′ lower
@@ -391,13 +367,13 @@ instance ι-vowel : ι′ vowel
 ᾉ : Token α′ upper
 ᾉ = with-breathing-iota Α-rough α-iota-subscript
 ᾊ : Token α′ upper
-ᾊ = with-accent-breathing-iota α-grave Α-smooth α-iota-subscript
+ᾊ = with-accent-breathing-iota grave Α-smooth α-iota-subscript
 ᾋ : Token α′ upper
-ᾋ = with-accent-breathing-iota α-grave Α-rough α-iota-subscript
+ᾋ = with-accent-breathing-iota grave Α-rough α-iota-subscript
 ᾌ : Token α′ upper
-ᾌ = with-accent-breathing-iota α-acute Α-smooth α-iota-subscript
+ᾌ = with-accent-breathing-iota acute Α-smooth α-iota-subscript
 ᾍ : Token α′ upper
-ᾍ = with-accent-breathing-iota α-acute Α-rough α-iota-subscript
+ᾍ = with-accent-breathing-iota acute Α-rough α-iota-subscript
 ᾎ : Token α′ upper
 ᾎ = with-accent-breathing-iota α-circumflex Α-smooth α-iota-subscript
 ᾏ : Token α′ upper
@@ -407,11 +383,11 @@ instance ι-vowel : ι′ vowel
 -- ᾰ
 -- ᾱ
 ᾲ : Token α′ lower
-ᾲ = with-accent-iota α-grave α-iota-subscript
+ᾲ = with-accent-iota grave α-iota-subscript
 ᾳ : Token α′ lower
 ᾳ = with-iota α-iota-subscript
 ᾴ : Token α′ lower
-ᾴ = with-accent-iota α-acute α-iota-subscript
+ᾴ = with-accent-iota acute α-iota-subscript
 ᾶ : Token α′ lower
 ᾶ = with-accent α-circumflex
 ᾷ : Token α′ lower
@@ -419,9 +395,9 @@ instance ι-vowel : ι′ vowel
 -- Ᾰ
 -- Ᾱ
 Ὰ : Token α′ upper
-Ὰ = with-accent α-grave
+Ὰ = with-accent grave
 Ά : Token α′ upper
-Ά = with-accent α-acute
+Ά = with-accent acute
 ᾼ : Token α′ upper
 ᾼ = with-iota α-iota-subscript
 
@@ -431,8 +407,8 @@ data Accent : Set where
   acute-mark grave-mark circumflex-mark : Accent
 
 letter-to-accent : ∀ {v} → v accent → Accent
-letter-to-accent add-acute = acute-mark
-letter-to-accent add-grave = grave-mark
+letter-to-accent acute = acute-mark
+letter-to-accent grave = grave-mark
 letter-to-accent (add-circumflex x) = circumflex-mark
 
 get-accent : ∀ {ℓ c} → Token ℓ c → Maybe Accent
