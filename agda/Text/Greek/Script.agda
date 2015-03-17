@@ -59,18 +59,18 @@ data _accent : Letter → Set where
   grave : ∀ {ℓ} → ⦃ p : ℓ vowel ⦄ → ℓ accent
   circumflex : ∀ {ℓ} → ⦃ p : ℓ long-vowel ⦄ → ℓ accent
 
-data Token : Letter → Case → Set where
-  unmarked : ∀ {ℓ c} → Token ℓ c
-  with-accent : ∀ {ℓ c} → ℓ accent → Token ℓ c
-  with-breathing : ∀ {ℓ c} → ℓ ⟦ c ⟧-breathing → Token ℓ c
-  with-accent-breathing : ∀ {ℓ c} → ℓ accent → ℓ ⟦ c ⟧-breathing → Token ℓ c
-  with-accent-breathing-iota : ∀ {ℓ c} → ℓ accent → ℓ ⟦ c ⟧-breathing → ⦃ p : ℓ iota-subscript ⦄ → Token ℓ c
-  with-diaeresis : ∀ {ℓ c} → ⦃ p : ℓ diaeresis ⦄ → Token ℓ c
-  with-accent-diaeresis : ∀ {ℓ c} → ℓ accent → ⦃ p : ℓ diaeresis ⦄ → Token ℓ c
-  with-accent-iota : ∀ {ℓ c} → ℓ accent → ⦃ p : ℓ iota-subscript ⦄ → Token ℓ c
-  with-breathing-iota : ∀ {ℓ c} → ℓ ⟦ c ⟧-breathing → ⦃ p : ℓ iota-subscript ⦄ → Token ℓ c
-  with-iota : ∀ {ℓ c} → ⦃ p : ℓ iota-subscript ⦄ → Token ℓ c
-  final : ∀ {ℓ c} → ⦃ p : ℓ ⟦ c ⟧-final ⦄ → Token ℓ c
+data Token : Set where
+  unmarked : (ℓ : Letter) → (c : Case) → Token
+  with-accent : (ℓ : Letter) → (c : Case) → ℓ accent → Token
+  with-breathing : (ℓ : Letter) → (c : Case) → ℓ ⟦ c ⟧-breathing → Token
+  with-accent-breathing : (ℓ : Letter) → (c : Case) → ℓ accent → ℓ ⟦ c ⟧-breathing → Token
+  with-accent-breathing-iota : (ℓ : Letter) → (c : Case) → ℓ accent → ℓ ⟦ c ⟧-breathing → ⦃ p : ℓ iota-subscript ⦄ → Token
+  with-diaeresis : (ℓ : Letter) → (c : Case) → ⦃ p : ℓ diaeresis ⦄ → Token
+  with-accent-diaeresis : (ℓ : Letter) → (c : Case) → ℓ accent → ⦃ p : ℓ diaeresis ⦄ → Token
+  with-accent-iota : (ℓ : Letter) → (c : Case) → ℓ accent → ⦃ p : ℓ iota-subscript ⦄ → Token
+  with-breathing-iota : (ℓ : Letter) → (c : Case) → ℓ ⟦ c ⟧-breathing → ⦃ p : ℓ iota-subscript ⦄ → Token
+  with-iota : (ℓ : Letter) → (c : Case) → ⦃ p : ℓ iota-subscript ⦄ → Token
+  final : (ℓ : Letter) → (c : Case) → ⦃ p : ℓ ⟦ c ⟧-final ⦄ → Token
 
 -- Constructions
 
@@ -228,6 +228,32 @@ instance ω-iota-subscript : ω iota-subscript
 
 -- Mapping
 
+get-letter : Token → Letter
+get-letter (unmarked ℓ _) = ℓ
+get-letter (with-accent ℓ _ _) = ℓ
+get-letter (with-breathing ℓ _ _) = ℓ
+get-letter (with-accent-breathing ℓ _ _ _) = ℓ
+get-letter (with-accent-breathing-iota ℓ _ _ _) = ℓ
+get-letter (with-diaeresis ℓ _) = ℓ
+get-letter (with-accent-diaeresis ℓ _ _) = ℓ
+get-letter (with-accent-iota ℓ _ _) = ℓ
+get-letter (with-breathing-iota ℓ _ _) = ℓ
+get-letter (with-iota ℓ _) = ℓ
+get-letter (final ℓ _) = ℓ
+
+get-case : Token → Case
+get-case (unmarked _ c) = c
+get-case (with-accent _ c _) = c
+get-case (with-breathing _ c _) = c
+get-case (with-accent-breathing _ c _ _) = c
+get-case (with-accent-breathing-iota _ c _ _) = c
+get-case (with-diaeresis _ c) = c
+get-case (with-accent-diaeresis _ c _) = c
+get-case (with-accent-iota _ c _) = c
+get-case (with-breathing-iota _ c _) = c
+get-case (with-iota _ c) = c
+get-case (final _ c) = c
+
 data Accent : Set where
   acute-mark grave-mark circumflex-mark : Accent
 
@@ -236,12 +262,12 @@ letter-to-accent acute = acute-mark
 letter-to-accent grave = grave-mark
 letter-to-accent circumflex = circumflex-mark
 
-get-accent : ∀ {ℓ c} → Token ℓ c → Maybe Accent
-get-accent (with-accent a) = just (letter-to-accent a)
-get-accent (with-accent-breathing a _) = just (letter-to-accent a)
-get-accent (with-accent-breathing-iota a _) = just (letter-to-accent a)
-get-accent (with-accent-diaeresis a) = just (letter-to-accent a)
-get-accent (with-accent-iota a) = just (letter-to-accent a)
+get-accent : Token → Maybe Accent
+get-accent (with-accent _ _ a) = just (letter-to-accent a)
+get-accent (with-accent-breathing _ _ a _) = just (letter-to-accent a)
+get-accent (with-accent-breathing-iota _ _ a _) = just (letter-to-accent a)
+get-accent (with-accent-diaeresis _ _ a) = just (letter-to-accent a)
+get-accent (with-accent-iota _ _ a) = just (letter-to-accent a)
 get-accent _ = nothing
 
 data Breathing : Set where
@@ -251,33 +277,33 @@ letter-to-breathing : ∀ {ℓ c} → ℓ ⟦ c ⟧-breathing → Breathing
 letter-to-breathing smooth = smooth-mark
 letter-to-breathing rough = rough-mark
 
-get-breathing : ∀ {ℓ c} → Token ℓ c → Maybe Breathing
-get-breathing (with-breathing x) = just (letter-to-breathing x)
-get-breathing (with-accent-breathing _ x) = just (letter-to-breathing x)
-get-breathing (with-accent-breathing-iota _ x) = just (letter-to-breathing x)
-get-breathing (with-breathing-iota x) = just (letter-to-breathing x)
+get-breathing : Token → Maybe Breathing
+get-breathing (with-breathing _ _ x) = just (letter-to-breathing x)
+get-breathing (with-accent-breathing _ _ _ x) = just (letter-to-breathing x)
+get-breathing (with-accent-breathing-iota _ _ _ x) = just (letter-to-breathing x)
+get-breathing (with-breathing-iota _ _ x) = just (letter-to-breathing x)
 get-breathing _ = nothing
 
 data IotaSubscript : Set where
   iota-subscript-mark : IotaSubscript
 
-get-iota-subscript : ∀ {ℓ c} → Token ℓ c → Maybe IotaSubscript
-get-iota-subscript (with-accent-breathing-iota _ _) = just iota-subscript-mark
-get-iota-subscript (with-accent-iota _) = just iota-subscript-mark
-get-iota-subscript (with-breathing-iota _) = just iota-subscript-mark
+get-iota-subscript : Token → Maybe IotaSubscript
+get-iota-subscript (with-accent-breathing-iota _ _ _ _) = just iota-subscript-mark
+get-iota-subscript (with-accent-iota _ _ _) = just iota-subscript-mark
+get-iota-subscript (with-breathing-iota _ _ _) = just iota-subscript-mark
 get-iota-subscript _ = nothing
 
 data Diaeresis : Set where
   diaeresis-mark : Diaeresis
 
-get-diaeresis : ∀ {ℓ c} → Token ℓ c → Maybe Diaeresis
-get-diaeresis with-diaeresis = just diaeresis-mark
-get-diaeresis (with-accent-diaeresis _) = just diaeresis-mark
+get-diaeresis : Token → Maybe Diaeresis
+get-diaeresis (with-diaeresis _ _) = just diaeresis-mark
+get-diaeresis (with-accent-diaeresis _ _ _) = just diaeresis-mark
 get-diaeresis _ = nothing
 
 data FinalForm : Set where
   final-form : FinalForm
 
-get-final-form : ∀ {ℓ c} → Token ℓ c → Maybe FinalForm
-get-final-form final = just final-form
+get-final-form : Token → Maybe FinalForm
+get-final-form (final _ _) = just final-form
 get-final-form _ = nothing
