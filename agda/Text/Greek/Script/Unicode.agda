@@ -1,30 +1,6 @@
 module Text.Greek.Script.Unicode where
 
-open import Text.Greek.Script renaming
-  ( α to α′
-  ; β to β′
-  ; γ to γ′
-  ; δ to δ′
-  ; ε to ε′
-  ; ζ to ζ′
-  ; η to η′
-  ; θ to θ′
-  ; ι to ι′
-  ; κ to κ′
-  ; μ to μ′
-  ; ν to ν′
-  ; ξ to ξ′
-  ; ο to ο′
-  ; π to π′
-  ; ρ to ρ′
-  ; σ to σ′
-  ; τ to τ′
-  ; υ to υ′
-  ; φ to φ′
-  ; χ to χ′
-  ; ψ to ψ′
-  ; ω to ω′
-  )
+open import Text.Greek.Script
 
 -- U+0390 - U+03CE
 ΐ : Token -- U+0390 GREEK SMALL LETTER IOTA WITH DIALYTIKA AND TONOS
