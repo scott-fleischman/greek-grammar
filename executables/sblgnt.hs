@@ -2,17 +2,18 @@
 
 module Main where
 
-import Prelude ((.), ($), Bool(..), Int)
+import Prelude ((.), ($), Bool(..), (==), Int, not)
 import qualified Prelude as Unsafe ((!!))
 import Control.Applicative ((<$>))
 import Control.Lens ((^.))
 import Control.Lens.Tuple (_1, _2, _3, _4, _5)
 import Control.Monad (mapM_, Monad(..))
+import Data.Char (isPunctuation)
 import Data.Default (def)
 import Data.Either (Either(..))
 import Data.Functor (fmap)
-import Data.List (filter, (++), maximum)
-import Data.Text (Text)
+import Data.List (filter, (++), maximum, intersperse, concat)
+import Data.Text (Text, replace, unpack)
 import Data.Text.Format (Only(..), Shown(..), right, left)
 import Data.Text.Format.Strict (format')
 import Data.Text.IO (putStrLn)
@@ -57,7 +58,7 @@ load = do
   return $ loadOsis doc
 
 main :: IO ()
-main = dumpWords 22
+main = dumpAgda 22
 
 dumpBible :: IO ()
 dumpBible = do
@@ -77,3 +78,14 @@ dumpCharacters :: Int -> IO ()
 dumpCharacters bookIndex = do
   book <- getBook bookIndex
   mapM_ (\(Character c (Word t _ _) _ _) -> putStrLn $ format' "{} {}" (c, t)) $ wordsToCharacters . segmentsToWords . segments $ book
+
+dumpAgda :: Int -> IO ()
+dumpAgda bookIndex = do
+  book <- getBook bookIndex
+  putStrLn $ format' "{}" (Only $ replace " " "-" $ bookTitle book)
+  mapM_ (\(Word t _ _) -> wordToAgdaList t) $ segmentsToWords . segments $ book
+    where
+      wordToAgdaList w = putStrLn $ format' "  ∷ ({} ∷ [])" (Only . concat . intersperse " ∷ " . fmap escapeLambda . fmap (\x -> [x]) . filter (not . isPunctuation) $ (unpack w))
+      escapeLambda c = case c == "λ" of
+        True -> "∙λ"
+        False -> c
