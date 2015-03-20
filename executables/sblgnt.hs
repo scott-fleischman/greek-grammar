@@ -2,9 +2,9 @@
 
 module Main where
 
-import Prelude ((.), ($), Bool(..), (==), (/=), Int)
+import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int)
 import qualified Prelude as Unsafe ((!!))
-import Control.Applicative ((<$>))
+import Control.Applicative ((<$>), pure)
 import Control.Lens ((^.))
 import Control.Lens.Tuple (_1, _2, _3, _4, _5)
 import Control.Monad (mapM_, Monad(..))
@@ -15,17 +15,20 @@ import Data.List (filter, (++), maximum, intersperse, concat)
 import Data.Text (Text, replace, unpack)
 import Data.Text.Format (Only(..), Shown(..), right, left)
 import Data.Text.Format.Strict (format')
-import Data.Text.IO (putStrLn)
-import Filesystem.Path (FilePath, (</>), (<.>))
+import Data.Text.IO (putStrLn, writeFile)
+import Filesystem.Path.CurrentOS (FilePath, (</>), (<.>), encodeString, fromText)
 import System.IO (IO)
 import Text.XML (readFile)
 import Text.Greek.Corpus.Bible
 import Text.Greek.NewTestament.SBL
 import qualified Data.List as L (length)
-import qualified Data.Text as T (length)
+import qualified Data.Text as T (length, concat)
 
 sblgntPath :: FilePath
 sblgntPath = "data" </> "sblgnt-osis" </> "SBLGNT" <.> "osis" <.> "xml"
+
+agdaPath :: FilePath
+agdaPath = "agda" </> "Text" </> "Greek" </> "SBLGNT"
 
 getBookStats :: Book -> (Text, Text, Text, Text, Text)
 getBookStats (Book _ t ss) = (t, count paragraphs, count chapters, count verses, count words)
@@ -57,7 +60,7 @@ load = do
   return $ loadOsis doc
 
 main :: IO ()
-main = dumpAgda 22
+main = writeSblgntAgda
 
 dumpBible :: IO ()
 dumpBible = do
@@ -78,13 +81,59 @@ dumpCharacters bookIndex = do
   book <- getBook bookIndex
   mapM_ (\(Character c (Word t _ _) _ _) -> putStrLn $ format' "{} {}" (c, t)) $ wordsToCharacters . segmentsToWords . segments $ book
 
-dumpAgda :: Int -> IO ()
-dumpAgda bookIndex = do
-  book <- getBook bookIndex
-  putStrLn $ format' "{}" (Only $ replace " " "-" $ bookTitle book)
-  mapM_ (\(Word t _ _) -> wordToAgdaList t) $ segmentsToWords . segments $ book
-    where
-      wordToAgdaList w = putStrLn $ format' "  ∷ ({} ∷ [])" (Only . concat . intersperse " ∷ " . fmap escapeLambda . fmap (\x -> [x]) . filter (/= '’') $ (unpack w))
-      escapeLambda c = case c == "λ" of
-        True -> "∙λ"
-        False -> c
+writeSblgntAgda :: IO ()
+writeSblgntAgda = do
+  bibleResult <- load
+  case bibleResult of
+    Left _ -> putStrLn "Error"
+    Right bible -> do
+      writeFile (encodeString $ agdaPath <.> "agda") (indexAgda bible)
+      mapM_ writeBookAgda (bibleBooks bible)
+
+indexAgda :: Bible -> Text
+indexAgda bible = format' "module Text.Greek.SBLGNT where\n\
+\\n\
+\open import Data.List\n\
+\open import Text.Greek.Bible\n\
+\{}\
+\\n\
+\books : List (List (Word))\n\
+\books =\n\
+\    {}\n\
+\  ∷ []\n\
+\" (is, bs) where
+  is = T.concat . fmap (\b -> format' "open import Text.Greek.SBLGNT.{}\n" (Only $ bookId b)) $ books
+  bs = T.concat . intersperse "\n  ∷ " . fmap (agdaBookName . bookTitle) $ books
+  books = bibleBooks bible
+
+writeBookAgda :: Book -> IO ()
+writeBookAgda book = writeFile (encodeString $ agdaPath </> fromText (bookId book) <.> "agda") (bookToAgda book)
+
+bookToAgda :: Book -> Text
+bookToAgda (Book i t ss) = format' "module Text.Greek.SBLGNT.{} where\n\
+\\n\
+\open import Data.List\n\
+\open import Text.Greek.Bible\n\
+\open import Text.Greek.Script\n\
+\open import Text.Greek.Script.Unicode\n\
+\\n\
+\{} : List (Word)\n\
+\{} =\n\
+\    {}\n\
+\  ∷ []\n\
+\" (i, agdaBook, agdaBook, wt) where
+  wt = (T.concat . intersperse "\n  ∷ " . fmap wordToAgda . segmentsToWords $ ss)
+  agdaBook = agdaBookName t
+
+agdaBookName :: Text -> Text
+agdaBookName b = replace " " "-" b
+
+wordToAgda :: Word -> Text
+wordToAgda (Word wt (Verse v) _) = format' "word ({}) \"{}\"" (wordTextToAgda wt, v)
+
+wordTextToAgda :: Text -> Text
+wordTextToAgda wt = format' "{} ∷ []" (Only . concat . intersperse " ∷ " . fmap escapeLambda . fmap pure . filter (\c -> c /= '’' && c /= '᾽') $ (unpack wt))
+  where
+    escapeLambda c = case c == "λ" of
+      True -> "∙λ"
+      False -> c
