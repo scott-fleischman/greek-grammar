@@ -2,13 +2,12 @@
 
 module Main where
 
-import Prelude ((.), ($), Bool(..), (==), Int, not)
+import Prelude ((.), ($), Bool(..), (==), (/=), Int)
 import qualified Prelude as Unsafe ((!!))
 import Control.Applicative ((<$>))
 import Control.Lens ((^.))
 import Control.Lens.Tuple (_1, _2, _3, _4, _5)
 import Control.Monad (mapM_, Monad(..))
-import Data.Char (isPunctuation)
 import Data.Default (def)
 import Data.Either (Either(..))
 import Data.Functor (fmap)
@@ -58,7 +57,7 @@ load = do
   return $ loadOsis doc
 
 main :: IO ()
-main = dumpAgda 2
+main = dumpAgda 22
 
 dumpBible :: IO ()
 dumpBible = do
@@ -85,7 +84,7 @@ dumpAgda bookIndex = do
   putStrLn $ format' "{}" (Only $ replace " " "-" $ bookTitle book)
   mapM_ (\(Word t _ _) -> wordToAgdaList t) $ segmentsToWords . segments $ book
     where
-      wordToAgdaList w = putStrLn $ format' "  ∷ ({} ∷ [])" (Only . concat . intersperse " ∷ " . fmap escapeLambda . fmap (\x -> [x]) . filter (not . isPunctuation) $ (unpack w))
+      wordToAgdaList w = putStrLn $ format' "  ∷ ({} ∷ [])" (Only . concat . intersperse " ∷ " . fmap escapeLambda . fmap (\x -> [x]) . filter (/= '’') $ (unpack w))
       escapeLambda c = case c == "λ" of
         True -> "∙λ"
         False -> c
