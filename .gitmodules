@@ -1,3 +1,6 @@
 [submodule "data/sblgnt-osis"]
 	path = data/sblgnt-osis
 	url = https://github.com/scott-fleischman/sblgnt-osis.git
+[submodule "data/ucd"]
+	path = data/ucd
+	url = https://github.com/scott-fleischman/ucd.git
