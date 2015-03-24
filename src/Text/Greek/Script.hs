@@ -4,12 +4,11 @@
 
 module Text.Greek.Script where
 
-import Prelude (Bool(..), Eq, Show, not, ($), (==), (/=), (||), and, (&&))
-import Control.Applicative ((<$>))
+import Prelude (Bool(..), Eq, Show, not, ($), (==), (/=), (||), (&&))
 import Control.Lens (makeLenses)
+import Data.Foldable (concatMap)
 import Data.List (elem)
-import Data.Maybe (Maybe(..))
-import Data.Traversable (sequenceA)
+import Data.Maybe (Maybe(..), maybeToList)
 
 data Letter =
     Alpha | Beta | Gamma | Delta | Epsilon | Zeta | Eta | Theta | Iota | Kappa | Lambda
@@ -48,28 +47,28 @@ isValidBreathing el Uppercase Smooth = el `elem` vowels && el /= Upsilon
 isValidBreathing el _ Rough = el `elem` vowels || el == Rho
 
 isValidIotaSubscript :: Letter -> IotaSubscript -> Bool
-isValidIotaSubscript el _ = el `elem` iotaSubscriptVowels
-  where iotaSubscriptVowels = [Alpha, Eta, Omega]
+isValidIotaSubscript el _ = el `elem` [Alpha, Eta, Omega]
 
 isValidDiaeresis :: Letter -> Diaeresis -> Bool
-isValidDiaeresis el _ = el `elem` diaeresisVowels
-  where diaeresisVowels = [Iota, Upsilon]
+isValidDiaeresis el _ = el `elem` [Iota, Upsilon]
 
 isValidFinalForm :: Letter -> LetterCase -> FinalForm -> Bool
 isValidFinalForm Sigma Lowercase _ = True
 isValidFinalForm _ _ _ = False
 
-isValidToken :: Token -> Bool
-isValidToken (Token el c a b is d f) =
-  case (sequenceA validations) of
-    Just rs -> and rs
-    _ -> True
-  where
-    validations :: [Maybe Bool]
-    validations =
-      [ isValidAccent el <$> a
-      , isValidBreathing el c <$> b
-      , isValidIotaSubscript el <$> is
-      , isValidDiaeresis el <$> d
-      , isValidFinalForm el c <$> f
-      ]
+data ValidationError = AccentError | BreathingError | IotaSubscriptError | DiaeresisError | FinalFormError deriving (Show)
+
+validateItem :: (a -> Bool) -> Maybe a -> ValidationError -> Maybe ValidationError
+validateItem _ Nothing _ = Nothing
+validateItem isValid (Just v) e = case isValid v of
+  True -> Nothing
+  False -> Just e
+
+validateToken :: Token -> [ValidationError]
+validateToken (Token el c a b is d f) = concatMap maybeToList $
+  [ validateItem (isValidAccent el) a AccentError
+  , validateItem (isValidBreathing el c) b BreathingError
+  , validateItem (isValidIotaSubscript el) is IotaSubscriptError
+  , validateItem (isValidDiaeresis el) d DiaeresisError
+  , validateItem (isValidFinalForm el c) f FinalFormError
+  ]
