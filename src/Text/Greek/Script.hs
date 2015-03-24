@@ -1,57 +1,75 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TemplateHaskell #-}
+
 module Text.Greek.Script where
 
-{-
-letters: α β γ δ ε ζ η θ ι κ λ μ ν ξ ο π ρ σ τ υ φ χ ψ ω
-vowels: α ε η ι ο υ ω
-consonants: letters except vowels
-
-always have case: letters
-
-can have iota subscript: α η ω
-can have diaeresis : vowels
-can have breathing : vowels ρ
-
-can have acute accent : vowels
-can have grave accent : vowels
-can have circumflex : vowels
-
-can have final form : σ
--}
-
-data BasicConsonant = Beta | Gamma | Delta | Zeta | Theta | Kappa | Lambda | Mu | Nu | Xi | Pi | Tau | Phi | Chi | Psi
-data Rho
-data Sigma
-data BasicVowel = Epsilon | Iota | Omicron | Upsilon
-data IotaSubscriptVowel = Alpha | Eta | Omega
-data Case = Lowercase | Uppercase
-data Accent = Acute | Grave | Circumflex
-data Breathing = Smooth | Rough
-data IotaSubscript
-data Diaeresis
-data Final
+import Prelude (Bool(..), Eq, Show, not, ($), (==), (/=), (||), and, (&&))
+import Control.Applicative ((<$>))
+import Control.Lens (makeLenses)
+import Data.List (elem)
+import Data.Maybe (Maybe(..))
+import Data.Traversable (sequenceA)
 
 data Letter =
-    LetterBasicConsonant BasicConsonant
-  | LetterRho Rho
-  | LetterSigma Sigma
-  | LetterBasicVowel BasicVowel
-  | LetterIotaSubscriptVowel IotaSubscriptVowel
+    Alpha | Beta | Gamma | Delta | Epsilon | Zeta | Eta | Theta | Iota | Kappa | Lambda
+  | Mu | Nu | Xi | Omicron | Pi | Rho | Sigma | Tau | Upsilon | Phi | Chi | Psi | Omega
+  deriving (Eq, Show)
+data LetterCase = Lowercase | Uppercase deriving (Eq, Show)
+data Accent = Acute | Grave | Circumflex deriving (Eq, Show)
+data Breathing = Smooth | Rough deriving (Eq, Show)
+data IotaSubscript
+data Diaeresis
+data FinalForm
 
-data VowelMarks = VowelMarks
-  { accent :: Maybe Accent
-  , breathing :: Maybe Breathing
-  , diaeresis :: Maybe Diaeresis
+data Token = Token
+  { _letter :: Letter
+  , _letterCase :: LetterCase
+  , _accent :: Maybe Accent
+  , _breathing :: Maybe Breathing
+  , _iotaSubscript :: Maybe IotaSubscript
+  , _diaeresis :: Maybe Diaeresis
+  , _finalForm :: Maybe FinalForm
   }
+makeLenses ''Token
 
-data MarkedLetter =
-    BasicConsonant
-  | MarkedRho Rho (Maybe Breathing)
-  | MarkedSigma Sigma (Maybe Final)
-  | BasicVowel BasicVowel VowelMarks
-  | IotaSubscriptVowel IotaSubscriptVowel (Maybe IotaSubscript) VowelMarks
+vowels :: [Letter]
+vowels = [Alpha, Epsilon, Eta, Iota, Omicron, Upsilon, Omega]
 
-data CasedLetter a = CasedLetter
-  { letterMarked :: MarkedLetter
-  , letterCase :: Case
-  , letterSource :: a
-  }
+isValidAccent :: Letter -> Accent -> Bool
+isValidAccent el Acute = el `elem` vowels
+isValidAccent el Grave = el `elem` vowels
+isValidAccent el Circumflex = not $ el `elem` alwaysShortVowels
+  where alwaysShortVowels = [Epsilon, Omicron]
+
+isValidBreathing :: Letter -> LetterCase -> Breathing -> Bool
+isValidBreathing el Lowercase Smooth = el `elem` vowels || el == Rho
+isValidBreathing el Uppercase Smooth = el `elem` vowels && el /= Upsilon
+isValidBreathing el _ Rough = el `elem` vowels || el == Rho
+
+isValidIotaSubscript :: Letter -> IotaSubscript -> Bool
+isValidIotaSubscript el _ = el `elem` iotaSubscriptVowels
+  where iotaSubscriptVowels = [Alpha, Eta, Omega]
+
+isValidDiaeresis :: Letter -> Diaeresis -> Bool
+isValidDiaeresis el _ = el `elem` diaeresisVowels
+  where diaeresisVowels = [Iota, Upsilon]
+
+isValidFinalForm :: Letter -> LetterCase -> FinalForm -> Bool
+isValidFinalForm Sigma Lowercase _ = True
+isValidFinalForm _ _ _ = False
+
+isValidToken :: Token -> Bool
+isValidToken (Token el c a b is d f) =
+  case (sequenceA validations) of
+    Just rs -> and rs
+    _ -> True
+  where
+    validations :: [Maybe Bool]
+    validations =
+      [ isValidAccent el <$> a
+      , isValidBreathing el c <$> b
+      , isValidIotaSubscript el <$> is
+      , isValidDiaeresis el <$> d
+      , isValidFinalForm el c <$> f
+      ]

@@ -44,6 +44,6 @@ executable sblgnt
     lens,
     greek-grammar
   main-is: sblgnt.hs
-  ghc-options: -Wall -fwarn-tabs -O2
+  ghc-options: -Wall -fwarn-tabs -O2 -ddump-splices
   hs-source-dirs: executables
   default-language: Haskell2010
