@@ -3,8 +3,10 @@
 module Main where
 
 import Prelude hiding (readFile)
+import Data.Char
 import Data.Default (def)
 import Data.Either
+import Numeric
 import Test.Framework
 import Test.Framework.Providers.HUnit
 import Test.Framework.TH
@@ -17,7 +19,7 @@ import Text.Greek.Script.Unicode
 import Text.XML (readFile)
 
 case_valid_tokens = do
-  mapM_ (\p -> 0 @=? (length . validateToken . snd $ p)) unicodeTokenPairs
+  mapM_ (\p -> assertEqual (showString "'\\x" . showHex (ord . fst $ p) $ "'") [] (validateToken . snd $ p)) unicodeTokenPairs
 
 case_load_sblgnt = do
   sblgnt <- readFile def sblgntOsisPath

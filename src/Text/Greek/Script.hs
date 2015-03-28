@@ -59,7 +59,7 @@ isValidFinalForm :: Letter -> LetterCase -> FinalForm -> Bool
 isValidFinalForm Sigma Lowercase _ = True
 isValidFinalForm _ _ _ = False
 
-data ValidationError = AccentError | BreathingError | IotaSubscriptError | DiaeresisError | FinalFormError deriving (Show)
+data ValidationError = AccentError | BreathingError | IotaSubscriptError | DiaeresisError | FinalFormError deriving (Eq, Show)
 
 validateItem :: (a -> Bool) -> Maybe a -> ValidationError -> Maybe ValidationError
 validateItem _ Nothing _ = Nothing
