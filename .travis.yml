@@ -2,3 +2,6 @@ language: haskell
 ghc: 7.8
 notifications:
   email: true
+before_install:
+  cabal install happy alex
+  export PATH=$HOME/.cabal/bin:$PATH
