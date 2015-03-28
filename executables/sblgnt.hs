@@ -16,19 +16,14 @@ import Data.Text (Text, replace, unpack)
 import Data.Text.Format (Only(..), Shown(..), right, left)
 import Data.Text.Format.Strict (format')
 import Data.Text.IO (putStrLn, writeFile)
-import Filesystem.Path.CurrentOS (FilePath, (</>), (<.>), encodeString, fromText)
+import Filesystem.Path.CurrentOS ((</>), (<.>), encodeString, fromText)
 import System.IO (IO)
 import Text.XML (readFile)
 import Text.Greek.Corpus.Bible
 import Text.Greek.NewTestament.SBL
+import Text.Greek.Paths
 import qualified Data.List as L (length)
 import qualified Data.Text as T (length, concat)
-
-sblgntPath :: FilePath
-sblgntPath = "data" </> "sblgnt-osis" </> "SBLGNT" <.> "osis" <.> "xml"
-
-agdaPath :: FilePath
-agdaPath = "agda" </> "Text" </> "Greek" </> "SBLGNT"
 
 getBookStats :: Book -> (Text, Text, Text, Text, Text)
 getBookStats (Book _ t ss) = (t, count paragraphs, count chapters, count verses, count words)
@@ -56,7 +51,7 @@ showResults (Right (Bible id title books)) =
 
 load :: IO (Either SBLError Bible)
 load = do
-  doc <- readFile def sblgntPath
+  doc <- readFile def sblgntOsisPath
   return $ loadOsis doc
 
 main :: IO ()
@@ -87,7 +82,7 @@ writeSblgntAgda = do
   case bibleResult of
     Left _ -> putStrLn "Error"
     Right bible -> do
-      writeFile (encodeString $ agdaPath <.> "agda") (indexAgda bible)
+      writeFile (encodeString $ agdaSblgntPath <.> "agda") (indexAgda bible)
       mapM_ writeBookAgda (bibleBooks bible)
 
 indexAgda :: Bible -> Text
@@ -107,7 +102,7 @@ indexAgda bible = format' "module Text.Greek.SBLGNT where\n\
   books = bibleBooks bible
 
 writeBookAgda :: Book -> IO ()
-writeBookAgda book = writeFile (encodeString $ agdaPath </> fromText (bookId book) <.> "agda") (bookToAgda book)
+writeBookAgda book = writeFile (encodeString $ agdaSblgntPath </> fromText (bookId book) <.> "agda") (bookToAgda book)
 
 bookToAgda :: Book -> Text
 bookToAgda (Book i t ss) = format' "module Text.Greek.SBLGNT.{} where\n\

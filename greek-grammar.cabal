@@ -27,6 +27,7 @@ library
     Data.Text.Format.Strict
     Text.Greek.Corpus.Bible
     Text.Greek.NewTestament.SBL
+    Text.Greek.Paths
     Text.Greek.Script
     Text.Greek.Script.Unicode
   ghc-options: -Wall -fwarn-tabs -O2
@@ -56,7 +57,8 @@ executable unicode-script
     system-filepath,
     containers,
     lens,
-    text-format
+    text-format,
+    greek-grammar
   main-is: unicode-script.hs
   ghc-options: -Wall -fwarn-tabs -O2
   hs-source-dirs: executables

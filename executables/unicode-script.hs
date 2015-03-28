@@ -13,21 +13,12 @@ import Data.List (filter, elem, intersperse)
 import Data.Maybe (Maybe(..), maybeToList)
 import Data.Map.Strict (fromList, lookup, member)
 import Data.Text (Text, lines, split, concat)
-import Data.Text.Format (Only(..), Format, format)
-import Data.Text.Format.Params (Params)
+import Data.Text.Format (Only(..))
+import Data.Text.Format.Strict (format')
 import Data.Text.IO (readFile, writeFile)
-import Data.Text.Lazy (toStrict)
-import Filesystem.Path.CurrentOS (FilePath, (</>), (<.>), encodeString)
+import Filesystem.Path.CurrentOS (encodeString)
+import Text.Greek.Paths
 import System.IO (IO)
-
-ucdPath :: FilePath
-ucdPath = "data" </> "ucd" </> "UnicodeData" <.> "txt"
-
-unicodeScriptPath :: FilePath
-unicodeScriptPath = "src" </> "Text" </> "Greek" </> "Script" </> "Unicode" <.> "hs"
-
-format' :: Params s => Format -> s -> Text
-format' fmt ps = toStrict . format fmt $ ps
 
 data TextRecord = TextRecord
   { textRecordCodePoint :: Text
@@ -227,6 +218,6 @@ toHaskellScript c = format' "module Text.Greek.Script.Unicode where \n\
 
 main :: IO ()
 main = do
-  content <- readFile $ encodeString ucdPath
-  writeFile (encodeString unicodeScriptPath) (toHaskellScript content)
+  content <- readFile $ encodeString unicodeDataPath
+  writeFile (encodeString haskellUnicodeScriptPath) (toHaskellScript content)
   return ()
