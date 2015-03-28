@@ -17,9 +17,9 @@ data Letter =
 data LetterCase = Lowercase | Uppercase deriving (Eq, Show)
 data Accent = Acute | Grave | Circumflex deriving (Eq, Show)
 data Breathing = Smooth | Rough deriving (Eq, Show)
-data IotaSubscript
-data Diaeresis
-data FinalForm
+data IotaSubscript = IotaSubscript
+data Diaeresis = Diaeresis
+data FinalForm = FinalForm
 
 data Token = Token
   { _letter :: Letter

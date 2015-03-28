@@ -4,20 +4,30 @@
 
 module Main where
 
-import Prelude (($), return, (.), flip, (==), putStrLn, Show(..), not, (&&), Bool(..))
+import Prelude (($), return, (.), flip, (==), Show(..), not, (&&), Bool(..))
 import Control.Applicative (Applicative(..), (<$>))
-import Control.Lens (makeLenses, (.~), (&))
+import Control.Lens (makeLenses, (.~), (&), (^.))
 import Data.Foldable (concatMap)
-import Data.List (length, filter, elem)
+import Data.Functor (fmap)
+import Data.List (filter, elem, intersperse)
 import Data.Maybe (Maybe(..), maybeToList)
 import Data.Map.Strict (fromList, lookup, member)
-import Data.Text (Text, lines, split)
-import Data.Text.IO (readFile)
+import Data.Text (Text, lines, split, concat)
+import Data.Text.Format (Only(..), Format, format)
+import Data.Text.Format.Params (Params)
+import Data.Text.IO (readFile, writeFile)
+import Data.Text.Lazy (toStrict)
 import Filesystem.Path.CurrentOS (FilePath, (</>), (<.>), encodeString)
 import System.IO (IO)
 
 ucdPath :: FilePath
 ucdPath = "data" </> "ucd" </> "UnicodeData" <.> "txt"
+
+unicodeScriptPath :: FilePath
+unicodeScriptPath = "src" </> "Text" </> "Greek" </> "Script" </> "Unicode" <.> "hs"
+
+format' :: Params s => Format -> s -> Text
+format' fmt ps = toStrict . format fmt $ ps
 
 data TextRecord = TextRecord
   { textRecordCodePoint :: Text
@@ -90,7 +100,7 @@ diaeresisNames :: [(Text, Text)]
 diaeresisNames = [("DIALYTIKA", "Diaeresis")]
 
 finalFormNames :: [(Text, Text)]
-finalFormNames = [("FINAL", "Final")]
+finalFormNames = [("FINAL", "FinalForm")]
 
 accentNames :: [(Text, Text)]
 accentNames =
@@ -115,7 +125,21 @@ data TextToken = TextToken
   , _diaeresis :: Maybe Text
   , _finalForm :: Maybe Text
   }
+  deriving (Show)
 makeLenses ''TextToken
+
+maybeToHaskell :: Maybe Text -> Text
+maybeToHaskell Nothing = "Nothing"
+maybeToHaskell (Just t) = format' "(Just {})" (Only t)
+
+tokenToHaskell :: TextToken -> Text
+tokenToHaskell t = format' "Token {} {} {} {} {} {} {}" (t ^. letter, t ^. letterCase, haskellAccent, haskellBreathing, haskellIotaSubscript, haskellDiaeresis, haskellFinalForm)
+  where
+    haskellAccent = maybeToHaskell $ t ^. accent
+    haskellBreathing = maybeToHaskell $ t ^. breathing
+    haskellIotaSubscript = maybeToHaskell $ t ^. iotaSubscript
+    haskellDiaeresis = maybeToHaskell $ t ^. diaeresis
+    haskellFinalForm = maybeToHaskell $ t ^. finalForm
 
 makePlainTextToken :: Text -> Text -> TextToken
 makePlainTextToken el c = TextToken el c Nothing Nothing Nothing Nothing Nothing
@@ -180,9 +204,29 @@ toTextRecord = toSplitTextRecord . split (== ';')
 toTextRecords :: Text -> [TextRecord]
 toTextRecords = concatMap (maybeToList . toTextRecord) . lines
 
+toCodePointTextToken :: TextRecord -> Maybe (Text, TextToken)
+toCodePointTextToken tr = (,) <$> pure (textRecordCodePoint tr) <*> (namesToToken . toSplitName . textRecordName $ tr)
+
+toTextTokens :: [TextRecord] -> [(Text, TextToken)]
+toTextTokens = concatMap (maybeToList . toCodePointTextToken)
+
+toHaskellToken :: (Text, TextToken) -> Text
+toHaskellToken (cp, tt) = format' "('\\x{}', {})" (cp, tokenToHaskell tt)
+
+toHaskellScript :: Text -> Text
+toHaskellScript c = format' "module Text.Greek.Script.Unicode where \n\
+\\n\
+\import Text.Greek.Script\n\
+\\n\
+\unicodeTokenPairs :: [(Char, Token)]\n\
+\unicodeTokenPairs =\n\
+\  [ {}\n\
+\  ]\n\
+\" (Only tokenText)
+  where tokenText = concat . intersperse "\n  , " . fmap toHaskellToken . toTextTokens . toTextRecords $ c
+
 main :: IO ()
 main = do
   content <- readFile $ encodeString ucdPath
-  let records = toTextRecords content
-  putStrLn . show $ length records
+  writeFile (encodeString unicodeScriptPath) (toHaskellScript content)
   return ()
