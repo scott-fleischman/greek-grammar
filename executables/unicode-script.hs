@@ -207,7 +207,7 @@ toHaskellToken (cp, tt) = format' "('\\x{}', {})" (cp, tokenToHaskell tt)
 toHaskellScript :: Text -> Text
 toHaskellScript c = format' "module Text.Greek.Script.Unicode where \n\
 \\n\
-\import Text.Greek.Script\n\
+\import Text.Greek.Script.Token\n\
 \\n\
 \unicodeTokenPairs :: [(Char, Token)]\n\
 \unicodeTokenPairs =\n\

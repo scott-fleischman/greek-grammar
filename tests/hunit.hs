@@ -15,7 +15,6 @@ import Text.Greek.Corpus.Bible
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
 import Text.Greek.Script
-import Text.Greek.Script.Unicode
 import Text.XML (readFile)
 
 case_valid_tokens = do

@@ -3,11 +3,10 @@
 
 module Text.Greek.Corpus.Bible where
 
-import Prelude (Eq, Show, Int, ($), (.), flip, concat, (+), Char, snd, fmap, concatMap)
+import Prelude (Eq, Show, Int, ($), (.), flip, concat, (+), Char, snd, concatMap)
 import Data.List (mapAccumL)
 import Data.Text (Text, unpack)
 import Data.Traversable (mapM)
-import Data.Vector (Vector)
 import Control.Monad.State.Lazy (State, evalState, state)
 
 data Bible = Bible

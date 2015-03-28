@@ -1,6 +1,6 @@
 module Text.Greek.Script.Unicode where 
 
-import Text.Greek.Script
+import Text.Greek.Script.Token
 
 unicodeTokenPairs :: [(Char, Token)]
 unicodeTokenPairs =
