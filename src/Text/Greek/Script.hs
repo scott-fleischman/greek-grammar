@@ -32,13 +32,16 @@ data Token = Token
   }
 makeLenses ''Token
 
+unmarkedLetter :: Letter -> LetterCase -> Token
+unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing
+
 vowels :: [Letter]
 vowels = [Alpha, Epsilon, Eta, Iota, Omicron, Upsilon, Omega]
 
 isValidAccent :: Letter -> Accent -> Bool
 isValidAccent el Acute = el `elem` vowels
 isValidAccent el Grave = el `elem` vowels
-isValidAccent el Circumflex = not $ el `elem` alwaysShortVowels
+isValidAccent el Circumflex = el `elem` vowels && not (el `elem` alwaysShortVowels)
   where alwaysShortVowels = [Epsilon, Omicron]
 
 isValidBreathing :: Letter -> LetterCase -> Breathing -> Bool

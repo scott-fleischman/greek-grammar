@@ -28,7 +28,7 @@ library
     Text.Greek.Corpus.Bible
     Text.Greek.NewTestament.SBL
     Text.Greek.Script
-  ghc-options: -Wall -fwarn-tabs -O2 -ddump-splices
+  ghc-options: -Wall -fwarn-tabs -O2
   hs-source-dirs:   src
   default-language: Haskell2010
 
@@ -44,7 +44,7 @@ executable sblgnt
     lens,
     greek-grammar
   main-is: sblgnt.hs
-  ghc-options: -Wall -fwarn-tabs -O2 -ddump-splices
+  ghc-options: -Wall -fwarn-tabs -O2
   hs-source-dirs: executables
   default-language: Haskell2010
 
@@ -52,7 +52,9 @@ executable unicode-script
   build-depends:
     base,
     text,
-    system-filepath
+    system-filepath,
+    containers,
+    lens
   main-is: unicode-script.hs
   ghc-options: -Wall -fwarn-tabs -O2
   hs-source-dirs: executables
