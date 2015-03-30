@@ -1,5 +1,5 @@
 language: haskell
-ghc: 7.8
+ghc: 7.10
 notifications:
   email: true
 before_install:
