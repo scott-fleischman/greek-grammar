@@ -14,7 +14,6 @@ import Data.Char (isPunctuation, isSpace)
 import Data.Either (Either(Left, Right))
 import Data.Foldable (all, concat)
 import Data.Functor (fmap)
-import Data.List (elem)
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.Text (Text, unpack)
 import Data.Traversable (sequence)
@@ -131,7 +130,7 @@ makeSegment (NodeElement e)
 makeSegment n@(NodeContent c) = state $ \s ->
   case s of
     MilestoneState (Just _) (Just _) (Just _) ->
-      case all (\x -> isSpace x || isPunctuation x || elem x "12") $ unpack c of
+      case all (\x -> isSpace x || isPunctuation x || x == '1' || x == '2') $ unpack c of
         True -> (Right [Separator c], s)
         False -> (Left $ UnexpectedContentInVerse s n, s)
     MilestoneState _ _ _ ->
