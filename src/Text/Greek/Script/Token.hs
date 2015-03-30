@@ -38,6 +38,9 @@ unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing
 vowels :: [Letter]
 vowels = [Alpha, Epsilon, Eta, Iota, Omicron, Upsilon, Omega]
 
+diphthongSecondVowels :: [Letter]
+diphthongSecondVowels = [Iota, Upsilon]
+
 isValidAccent :: Letter -> Accent -> Bool
 isValidAccent el Acute = el `elem` vowels
 isValidAccent el Grave = el `elem` vowels
@@ -53,7 +56,7 @@ isValidIotaSubscript :: Letter -> IotaSubscript -> Bool
 isValidIotaSubscript el _ = el `elem` [Alpha, Eta, Omega]
 
 isValidDiaeresis :: Letter -> Diaeresis -> Bool
-isValidDiaeresis el _ = el `elem` [Iota, Upsilon]
+isValidDiaeresis el _ = el `elem` diphthongSecondVowels
 
 isValidFinalForm :: Letter -> LetterCase -> FinalForm -> Bool
 isValidFinalForm Sigma Lowercase _ = True
