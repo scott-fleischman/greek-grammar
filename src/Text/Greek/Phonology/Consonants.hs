@@ -29,10 +29,10 @@ mapping =
  , (Rho, (Voiceless, Velar, LiquidFricative, Nothing))
  , (Rho, (Voiced, Velar, LiquidFricative, Nothing))
  , (Sigma, (Voiceless, Velar, Sibilant, Nothing))
--- , (FinalSigma, (Voicless, Velar, Spirant, Nothing))
+-- , (FinalSigma, (Voiceless, Velar, Spirant, Nothing))
  , (Tau, (Voiceless, Dental, Stop, Nothing))
  , (Phi, (Aspirate, Labial, Stop, Nothing))
  , (Chi, (Voiced, Velar, DoubleConsonant, Nothing))
  , (Psi, (Voiced, Labial, DoubleConsonant, Nothing))
--- , (RoughBreathing, (Voicless, Gutteral, Fricative, Nothing))
+-- , (RoughBreathing, (Voiceless, Gutteral, Fricative, Nothing))
  ]
