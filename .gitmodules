@@ -4,3 +4,6 @@
 [submodule "data/ucd"]
 	path = data/ucd
 	url = https://github.com/scott-fleischman/ucd.git
+[submodule "data/sblgnt-agda"]
+	path = data/sblgnt-agda
+	url = https://github.com/scott-fleischman/sblgnt-agda.git
