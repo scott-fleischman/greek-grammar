@@ -4,16 +4,16 @@
 
 module Text.Greek.Script.Token where
 
-import Prelude (Bool(..), Eq, Show, not, ($), (==), (/=), (||), (&&))
+import Prelude (Bool(..), Eq, Show, Ord, not, ($), (.), (==), (/=), (||), (&&), fmap, snd)
 import Control.Lens (makeLenses)
 import Data.Foldable (concatMap)
-import Data.List (elem)
+import Data.List (elem, nub)
 import Data.Maybe (Maybe(..), maybeToList)
 
 data Letter =
     Alpha | Beta | Gamma | Delta | Epsilon | Zeta | Eta | Theta | Iota | Kappa | Lambda
   | Mu | Nu | Xi | Omicron | Pi | Rho | Sigma | Tau | Upsilon | Phi | Chi | Psi | Omega
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 data LetterCase = Lowercase | Uppercase deriving (Eq, Show)
 data Accent = Acute | Grave | Circumflex deriving (Eq, Show)
 data Breathing = Smooth | Rough deriving (Eq, Show)
@@ -38,8 +38,23 @@ unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing
 vowels :: [Letter]
 vowels = [Alpha, Epsilon, Eta, Iota, Omicron, Upsilon, Omega]
 
+iotaSubscriptVowels :: [Letter]
+iotaSubscriptVowels = [Alpha, Eta, Omega]
+
+diphthongs :: [(Letter, Letter)]
+diphthongs =
+  [ (Alpha, Iota)
+  , (Epsilon, Iota)
+  , (Omicron, Iota)
+  , (Upsilon, Iota)
+  , (Alpha, Upsilon)
+  , (Epsilon, Upsilon)
+  , (Omicron, Upsilon)
+  , (Eta, Upsilon)
+  ]
+
 diphthongSecondVowels :: [Letter]
-diphthongSecondVowels = [Iota, Upsilon]
+diphthongSecondVowels = nub . fmap snd $ diphthongs
 
 isValidAccent :: Letter -> Accent -> Bool
 isValidAccent el Acute = el `elem` vowels
@@ -53,7 +68,7 @@ isValidBreathing el Uppercase Smooth = el `elem` vowels && el /= Upsilon
 isValidBreathing el _ Rough = el `elem` vowels || el == Rho
 
 isValidIotaSubscript :: Letter -> IotaSubscript -> Bool
-isValidIotaSubscript el _ = el `elem` [Alpha, Eta, Omega]
+isValidIotaSubscript el _ = el `elem` iotaSubscriptVowels
 
 isValidDiaeresis :: Letter -> Diaeresis -> Bool
 isValidDiaeresis el _ = el `elem` diphthongSecondVowels
