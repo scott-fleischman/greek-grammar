@@ -55,7 +55,7 @@ load = do
   return $ loadOsis doc
 
 main :: IO ()
-main = writeSblgntAgda
+main = dumpBible
 
 dumpBible :: IO ()
 dumpBible = do
