@@ -3,7 +3,6 @@
 module Text.Greek.Script.Sound where
 
 import Control.Lens
-import Data.List
 import Data.Set
 import Text.Greek.Script.Token
 
@@ -25,6 +24,7 @@ tokenToSound [] = []
 tokenToSound (t1 : t2 : ts)
   | el1 <- t1 ^. letter
   , el2 <- t2 ^. letter
+  , Nothing <- t2 ^. diaeresis
   , True <- (el1, el2) `member` diphthongSet
   = (VowelSound $ Diphthong t1 t2) : (tokenToSound ts)
 
