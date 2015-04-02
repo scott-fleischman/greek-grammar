@@ -32,6 +32,12 @@ data Token = Token
   }
 makeLenses ''Token
 
+data TokenContext a = TokenContext
+  { _token :: Token
+  , _context :: a
+  }
+makeLenses ''TokenContext
+
 unmarkedLetter :: Letter -> LetterCase -> Token
 unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing
 
