@@ -2,7 +2,7 @@
 
 module Main where
 
-import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int)
+import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, snd)
 import qualified Prelude as Unsafe ((!!))
 import Control.Applicative ((<$>), pure)
 import Control.Lens ((^.))
@@ -20,6 +20,7 @@ import Filesystem.Path.CurrentOS ((</>), (<.>), encodeString, fromText)
 import System.IO (IO)
 import Text.XML (readFile)
 import Text.Greek.Corpus.Bible
+import Text.Greek.Script.Token
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
 import qualified Data.List as L (length)
@@ -75,6 +76,9 @@ dumpCharacters :: Int -> IO ()
 dumpCharacters bookIndex = do
   book <- getBook bookIndex
   mapM_ (\(Character c (Word t _ _) _ _) -> putStrLn $ format' "{} {}" (c, t)) $ wordsToCharacters . segmentsToWords . segments $ book
+
+getBookTokens :: Book -> [TokenContext Character]
+getBookTokens = snd . charactersToTokenContexts . wordsToCharacters . segmentsToWords . segments
 
 writeSblgntAgda :: IO ()
 writeSblgntAgda = do

@@ -4,8 +4,8 @@
 
 module Text.Greek.Script.Token where
 
-import Prelude (Bool(..), Eq, Show, Ord, not, ($), (.), (==), (/=), (||), (&&), fmap, snd)
-import Control.Lens (makeLenses)
+import Prelude (Bool(..), Eq, Show(..), Ord, not, ($), (.), (==), (/=), (||), (&&), fmap, snd)
+import Control.Lens (makeLenses, (^.))
 import Data.Foldable (concatMap)
 import Data.List (elem, nub)
 import Data.Maybe (Maybe(..), maybeToList)
@@ -17,9 +17,9 @@ data Letter =
 data LetterCase = Lowercase | Uppercase deriving (Eq, Show)
 data Accent = Acute | Grave | Circumflex deriving (Eq, Show)
 data Breathing = Smooth | Rough deriving (Eq, Show)
-data IotaSubscript = IotaSubscript
-data Diaeresis = Diaeresis
-data FinalForm = FinalForm
+data IotaSubscript = IotaSubscript deriving (Show)
+data Diaeresis = Diaeresis deriving (Show)
+data FinalForm = FinalForm deriving (Show)
 
 data Token = Token
   { _letter :: Letter
@@ -30,6 +30,7 @@ data Token = Token
   , _diaeresis :: Maybe Diaeresis
   , _finalForm :: Maybe FinalForm
   }
+  deriving (Show)
 makeLenses ''Token
 
 data TokenContext a = TokenContext
@@ -37,6 +38,9 @@ data TokenContext a = TokenContext
   , _context :: a
   }
 makeLenses ''TokenContext
+
+instance Show (TokenContext a) where
+  show t = show (t ^. token)
 
 unmarkedLetter :: Letter -> LetterCase -> Token
 unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing

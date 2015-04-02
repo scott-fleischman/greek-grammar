@@ -11,15 +11,18 @@ import Text.Greek.Script.Token
 data Sound a =
     ConsonantSound (Consonant a)
   | VowelSound (Vowel a)
+  deriving (Show)
 
 data Consonant a =
     Consonant (TokenContext a)
   | RoughBreathing (TokenContext a)
+  deriving (Show)
 
 data Vowel a =
     Vowel (TokenContext a)
   | Diphthong (TokenContext a) (TokenContext a)
   | ImproperDiphthong (TokenContext a)
+  deriving (Show)
 
 tokenToSound :: [TokenContext a] -> [Sound a]
 tokenToSound [] = []

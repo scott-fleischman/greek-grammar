@@ -4,10 +4,14 @@
 module Text.Greek.Corpus.Bible where
 
 import Prelude (Eq, Show, Int, ($), (.), flip, concat, (+), Char, snd, concatMap)
-import Data.List (mapAccumL)
+import Data.List (mapAccumL, foldr)
+import Data.Map.Strict (fromList, lookup)
+import Data.Maybe (Maybe(..))
 import Data.Text (Text, unpack)
 import Data.Traversable (mapM)
 import Control.Monad.State.Lazy (State, evalState, state)
+import Text.Greek.Script.Token
+import Text.Greek.Script.Unicode
 
 data Bible = Bible
   { bibleId :: Text
@@ -67,3 +71,11 @@ wordsToCharacters = accumIndex (\i (c, w, iiw) -> Character c w iiw i) . concatM
   wordToCharacters w = accumIndex (\i c -> (c, w, i)) (unpack . wordText $ w)
 
   accumIndex f xs = snd $ mapAccumL (\acc x -> (acc + 1, f acc x)) 0 xs
+
+charactersToTokenContexts :: [Character] -> ([Character], [TokenContext Character])
+charactersToTokenContexts = foldr addCharacter ([], [])
+  where
+    addCharacter c (skipped, ts) = case lookupChar (character c) of
+      Just t -> (skipped, (TokenContext t c) : ts)
+      Nothing -> (c : skipped, ts)
+    lookupChar = flip lookup (fromList unicodeTokenPairs)
