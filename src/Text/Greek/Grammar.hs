@@ -20,5 +20,8 @@ data Part =
 
 data Citation = Citation Source Part
 
-mounce :: Source
-mounce = Source "William D. Mounce" "The Morphology of Biblical Greek" 1994
+mounceSource :: Source
+mounceSource = Source "William D. Mounce" "The Morphology of Biblical Greek" 1994
+
+mounceCitation :: Text -> Citation
+mounceCitation = Citation mounceSource . Section
