@@ -26,6 +26,7 @@ library
   exposed-modules:
     Data.Text.Format.Strict
     Text.Greek.Corpus.Bible
+    Text.Greek.Grammar
     Text.Greek.NewTestament.SBL
     Text.Greek.Paths
     Text.Greek.Phonology.Consonants
