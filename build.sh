@@ -5,5 +5,8 @@ cabal update
 ghc --version
 cabal --version
 cabal sandbox init
+cabal install --constraint=transformers\ installed happy alex
 cabal install --only-dependencies --enable-tests
-cabal configure --enable-tests && cabal build && cabal test
+cabal configure --enable-tests
+cabal build
+cabal test --show-details=always
