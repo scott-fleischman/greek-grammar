@@ -27,6 +27,7 @@ library
     Data.Text.Format.Strict
     Text.Greek.Conversions
     Text.Greek.Corpus.Bible
+    Text.Greek.Corpus.Bible.Stats
     Text.Greek.Grammar
     Text.Greek.NewTestament.SBL
     Text.Greek.Paths
