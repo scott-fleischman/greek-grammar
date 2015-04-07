@@ -19,6 +19,7 @@ import Data.Text.IO (putStrLn, writeFile)
 import Filesystem.Path.CurrentOS ((</>), (<.>), encodeString, fromText)
 import System.IO (IO)
 import Text.XML (readFile)
+import Text.Greek.Conversions
 import Text.Greek.Corpus.Bible
 import Text.Greek.Script.Token
 import Text.Greek.NewTestament.SBL
@@ -76,9 +77,6 @@ dumpCharacters :: Int -> IO ()
 dumpCharacters bookIndex = do
   book <- getBook bookIndex
   mapM_ (\(Character c (Word t _ _) _ _) -> putStrLn $ format' "{} {}" (c, t)) $ wordsToCharacters . segmentsToWords . segments $ book
-
-getBookTokens :: Book -> [TokenContext Character]
-getBookTokens = snd . charactersToTokenContexts . wordsToCharacters . segmentsToWords . segments
 
 writeSblgntAgda :: IO ()
 writeSblgntAgda = do

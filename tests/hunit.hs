@@ -7,7 +7,6 @@ import Prelude hiding (readFile)
 import Data.Char
 import Data.Default (def)
 import Data.Either
-import Data.Map.Strict as M
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -17,6 +16,7 @@ import Test.Framework
 import Test.Framework.Providers.HUnit
 import Test.Framework.TH
 import Test.HUnit
+import Text.Greek.Conversions
 import Text.Greek.Corpus.Bible
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
@@ -39,19 +39,6 @@ case_sound_ai_iotaSubscript = True @=? case textToSounds "ᾳ" of { VowelSound (
 case_sound_a_rough = True @=? case textToSounds "ἁ" of { ConsonantSound (RoughBreathing _) : VowelSound (Vowel _) : [] -> True ; _ -> False }
 case_sound_ai_iotaSubscript_rough = True @=? case textToSounds "ᾁ" of { ConsonantSound (RoughBreathing _) : VowelSound (ImproperDiphthong _) : [] -> True ; _ -> False }
 case_sound_ai_diphthong_rough = True @=? case textToSounds "αἱ" of { ConsonantSound (RoughBreathing _) : VowelSound (Diphthong _ _) : [] -> True ; _ -> False }
-
-textToSounds :: Text -> [Sound ()]
-textToSounds t = tokensToSounds $ textToTokenContexts t
-
-textToTokenContexts :: Text -> [TokenContext ()]
-textToTokenContexts t = fmap emptyTokenContext . textToTokens $ t
-
-emptyTokenContext :: Token -> TokenContext ()
-emptyTokenContext t = TokenContext t ()
-
-textToTokens :: Text -> [Token]
-textToTokens t = concatMap (maybeToList . lookupChar) . T.unpack $ t
-  where lookupChar = flip M.lookup (M.fromList unicodeTokenPairs)
 
 main :: IO ()
 main = $(defaultMainGenerator)
