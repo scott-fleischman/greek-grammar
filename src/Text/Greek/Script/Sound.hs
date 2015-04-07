@@ -15,7 +15,7 @@ data Sound a =
 
 data Consonant a =
     Consonant (TokenContext a)
-  | RoughBreathing (TokenContext a)
+  | RoughBreathing (Sound a)
   deriving (Show)
 
 data Vowel a =
@@ -24,30 +24,43 @@ data Vowel a =
   | ImproperDiphthong (TokenContext a)
   deriving (Show)
 
-tokenToSound :: [TokenContext a] -> [Sound a]
-tokenToSound [] = []
-tokenToSound (t1 : t2 : ts)
-  | el1 <- t1 ^. token . letter
-  , el2 <- t2 ^. token . letter
-  , Nothing <- t2 ^. token . diaeresis
-  , True <- (el1, el2) `member` diphthongSet
-  = (VowelSound $ Diphthong t1 t2) : (tokenToSound ts)
+tokensToSounds :: [TokenContext a] -> [Sound a]
+tokensToSounds [] = []
+tokensToSounds (t1 : t2 : ts)
+  | True <- isDiphthong
+  , (Just Rough) <- t2 ^. token . breathing
+  = (ConsonantSound $ RoughBreathing diphthongSound) : diphthongSound : (tokensToSounds ts)
+
+  | True <- isDiphthong
+  = diphthongSound : (tokensToSounds ts)
 
   where
+    diphthongSound = VowelSound $ Diphthong t1 t2
+    isDiphthong = lacksDiaeresis && isDiphthongPair
+    lacksDiaeresis = case t2 ^. token . diaeresis of { Nothing -> True ; _ -> False }
+    isDiphthongPair = (t1 ^. token . letter, t2 ^. token . letter) `member` diphthongSet
+
     diphthongSet :: Set (Letter, Letter)
     diphthongSet = fromList diphthongs
 
-tokenToSound (t : ts)
-  | (t ^. token . letter) `elem` vowels = (vowelToSounds t) ++ (tokenToSound ts)
-  | True = (ConsonantSound . Consonant $ t) : (tokenToSound ts)
+tokensToSounds (t : ts)
+  | True <- isVowel
+  , (Just Rough) <- t ^. token . breathing
+  = (ConsonantSound $ RoughBreathing singleVowel) : singleVowel : (tokensToSounds ts)
 
-vowelToSounds :: TokenContext a -> [Sound a]
-vowelToSounds t
+  | True <- isVowel
+  = singleVowel : (tokensToSounds ts)
+
+  | True = (ConsonantSound . Consonant $ t) : (tokensToSounds ts)
+
+  where
+    isVowel = (t ^. token . letter) `elem` vowels
+    singleVowel = singleVowelToSound t
+
+singleVowelToSound :: TokenContext a -> Sound a
+singleVowelToSound t
   | (Just IotaSubscript) <- t ^. token . iotaSubscript
-  = [VowelSound . ImproperDiphthong $ t]
-
-  | (Just Rough) <- t ^. token . breathing
-  = [ConsonantSound . RoughBreathing $ t, VowelSound . Vowel $ t]
+  = VowelSound . ImproperDiphthong $ t
 
   | True
-  = [VowelSound . Vowel $ t]
+  = VowelSound . Vowel $ t
