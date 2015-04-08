@@ -86,7 +86,6 @@ mounceAirFlow = AirFlowClassification
   , sibilant = mounce § "11.20" $ [Sigma, ConsonantalIota, Digamma] -- ζ ξ ψ The three double consonants are formed by adding δ (or ι), a velar, or a dental, respectively, to a sigma (§11. 16).
   }
 
--- §11.21 Sonant. A sonant is a consonant that produces a vowel sound either immediately before it or after it in order to aid pronunciation
 
 semivowel :: Cited [ConsonantPhoneme]
 semivowel = mounce § "11.22" $ [ConsonantalIota, Digamma]
