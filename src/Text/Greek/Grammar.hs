@@ -20,13 +20,23 @@ data Part =
 
 data Citation = Citation Source Part
 
-type Cited a = ([Citation], a)
+data Cited a = Cited
+  { citations :: [Citation]
+  , item :: a
+  }
+
+instance Functor Cited where
+  fmap f (Cited cs i) = Cited cs (f i)
+
+instance Applicative Cited where
+  pure a = Cited [] a
+  (Cited cs f) <*> (Cited cs' a) = Cited (cs ++ cs') (f a)
 
 (§) :: Source -> Text -> a -> Cited a
-s § t = (,) [Citation s . Section $ t]
+s § t = Cited [Citation s . Section $ t]
 
 (§§) :: Source -> [Text] -> a -> Cited a
-s §§ ts = (,) (Citation s . Section <$> ts)
+s §§ ts = Cited (Citation s . Section <$> ts)
 
 mounce :: Source
 mounce = Source "William D. Mounce" "The Morphology of Biblical Greek" 1994
