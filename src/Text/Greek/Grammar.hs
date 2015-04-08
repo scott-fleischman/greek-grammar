@@ -20,14 +20,19 @@ data Part =
 
 data Citation = Citation Source Part
 
-mounceSource :: Source
-mounceSource = Source "William D. Mounce" "The Morphology of Biblical Greek" 1994
+type Cited a = ([Citation], a)
 
-mounceCitation :: Text -> Citation
-mounceCitation = Citation mounceSource . Section
+(§) :: Source -> Text -> a -> Cited a
+s § t = (,) [Citation s . Section $ t]
 
-brooksSource :: Source
-brooksSource = Source "James A. Brooks, Carlton L. Winbery" "A Morphology of New Testament Greek" 1994
+(§§) :: Source -> [Text] -> a -> Cited a
+s §§ ts = (,) (Citation s . Section <$> ts)
 
-smythSource :: Source
-smythSource = Source "Herbert Weird Smyth, Gordon M. Messing" "Greek Grammar" 1956 -- revised by Messing; Copyright 1920 Smyth; Copyright 1956, renewed 1984
+mounce :: Source
+mounce = Source "William D. Mounce" "The Morphology of Biblical Greek" 1994
+
+brooksWinbery :: Source
+brooksWinbery = Source "James A. Brooks, Carlton L. Winbery" "A Morphology of New Testament Greek" 1994
+
+smyth :: Source
+smyth = Source "Herbert Weird Smyth, Gordon M. Messing" "Greek Grammar" 1956 -- revised by Messing; Copyright 1920 Smyth; Copyright 1956, renewed 1984
