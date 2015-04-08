@@ -14,7 +14,7 @@ data Fricative = Fricative
 
 data AirFlow =
     Stop
-  | Aspirate (Maybe Fricative) -- mounce 11.17 Stop + Aspiration
+  | Aspirate (Maybe Fricative)
   | Liquid (Maybe Fricative)
   | DoubleConsonant
   | Nasal (Maybe Fricative)
