@@ -23,8 +23,6 @@ data AirFlow =
 data ConsonantPhoneme = Beta | Gamma | GammaNasal | Digamma | Delta | Zeta | Theta | ConsonantalIota | Kappa | Lambda
   | Mu | Nu | Xi | Pi | Rho | RhoRough | Sigma | Tau | Phi | Chi | Psi | RoughBreathing
 
--- GammaNasal : mounce 11.15 A gamma that is followed immediately by a velar (κ γ χ, including the velar double consonant ξ) is a gamma-nasal.
--- mounce 11.18 ρ Initial ρ always has rough breathing.
 
 allConsonantPhonemes :: [ConsonantPhoneme]
 allConsonantPhonemes = [Beta, Gamma, GammaNasal, Digamma, Delta, Zeta, Theta, ConsonantalIota, Kappa, Lambda,
