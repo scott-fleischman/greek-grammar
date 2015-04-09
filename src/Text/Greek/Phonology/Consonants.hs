@@ -1,7 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Text.Greek.Phonology.Consonants where
 
+import Control.Lens
 import Text.Greek.Grammar
 
 data Consonant
@@ -22,70 +25,95 @@ data AirFlow =
 
 data ConsonantPhoneme = Beta | Gamma | GammaNasal | Digamma | Delta | Zeta | Theta | ConsonantalIota | Kappa | Lambda
   | Mu | Nu | Xi | Pi | Rho | RhoRough | Sigma | Tau | Phi | Chi | Psi | RoughBreathing
+  deriving (Eq, Show)
 
 
 allConsonantPhonemes :: [ConsonantPhoneme]
 allConsonantPhonemes = [Beta, Gamma, GammaNasal, Digamma, Delta, Zeta, Theta, ConsonantalIota, Kappa, Lambda,
   Mu, Nu, Xi, Pi, Rho, RhoRough, Sigma, Tau, Phi, Chi, Psi, RoughBreathing]
 
-data ConsonantPhonemeClassification = ConsonantPhonemeClassification
-  { vocalChords :: VocalChordsClassification
-  , partOfMouth :: PartOfMouthClassification
-  , airFlow :: AirFlowClassification
-  }
-
 data VocalChordsClassification = VocalChordsClassification
-  { voiceless :: Cited [ConsonantPhoneme]
-  , voiced :: Cited [ConsonantPhoneme]
+  { _voiceless :: Cited [ConsonantPhoneme]
+  , _voiced :: Cited [ConsonantPhoneme]
   }
+makeLenses ''VocalChordsClassification
 
 data PartOfMouthClassification = PartOfMouthClassification
-  { labial :: Cited [ConsonantPhoneme]
-  , lingual :: Cited [ConsonantPhoneme]
-  , velar :: Cited [ConsonantPhoneme]
-  , dental :: Cited [ConsonantPhoneme]
-  , gutteral :: Cited [ConsonantPhoneme]
+  { _labial :: Cited [ConsonantPhoneme]
+  , _lingual :: Cited [ConsonantPhoneme]
+  , _velar :: Cited [ConsonantPhoneme]
+  , _dental :: Cited [ConsonantPhoneme]
+  , _gutteral :: Cited [ConsonantPhoneme]
   }
+makeLenses ''PartOfMouthClassification
 
 data AirFlowClassification = AirFlowClassification
-  { stop :: Cited [ConsonantPhoneme]
-  , fricative :: Cited [ConsonantPhoneme]
-  , affricate :: Cited [ConsonantPhoneme]
-  , aspirate :: Cited [ConsonantPhoneme]
-  , liquid :: Cited [ConsonantPhoneme]
-  , nasal :: Cited [ConsonantPhoneme]
-  , sibilant :: Cited [ConsonantPhoneme]
+  { _stop :: Cited [ConsonantPhoneme]
+  , _fricative :: Cited [ConsonantPhoneme]
+  , _affricate :: Cited [ConsonantPhoneme]
+  , _aspirate :: Cited [ConsonantPhoneme]
+  , _liquid :: Cited [ConsonantPhoneme]
+  , _nasal :: Cited [ConsonantPhoneme]
+  , _sibilant :: Cited [ConsonantPhoneme]
   }
+makeLenses ''AirFlowClassification
+
+data ConsonantPhonemeClassification = ConsonantPhonemeClassification
+  { _vocalChords :: VocalChordsClassification
+  , _partOfMouth :: PartOfMouthClassification
+  , _airFlow :: AirFlowClassification
+  }
+makeLenses ''ConsonantPhonemeClassification
+
+generateTable :: ConsonantPhonemeClassification -> [ConsonantPhoneme] -> [(ConsonantPhoneme, Maybe VocalChords, Maybe PartOfMouth, Maybe AirFlow)]
+generateTable c = fmap (generateRow c)
+
+generateRow :: ConsonantPhonemeClassification -> ConsonantPhoneme -> (ConsonantPhoneme, Maybe VocalChords, Maybe PartOfMouth, Maybe AirFlow)
+generateRow c p = (p, getVocalChords, getPartOfMouth, Nothing)
+  where
+    getVocalChords
+      | isVocalChords voiceless = Just Voiceless
+      | isVocalChords voiced = Just Voiced
+      | True = Nothing
+    getPartOfMouth
+      | isPartOfMouth labial = Just Labial
+      | isPartOfMouth velar = Just Velar
+      | isPartOfMouth dental = Just Dental
+      | isPartOfMouth gutteral = Just Gutteral
+      | True = Nothing
+    isVocalChords vc = isElem $ vocalChords . vc
+    isPartOfMouth pom = isElem $ partOfMouth . pom
+    isElem path = p `elem` (c ^. path . item)
 
 mounceConsonants :: ConsonantPhonemeClassification
 mounceConsonants = ConsonantPhonemeClassification mounceVocalChords mouncePartOfMouth mounceAirFlow
 
 mounceVocalChords :: VocalChordsClassification
 mounceVocalChords = VocalChordsClassification
-  { voiceless = (++)
+  { _voiceless = (++)
       <$> (mounce § "11.5" $ [Theta, Kappa, Xi, Pi, Sigma, Tau, Phi, Chi, Psi, RhoRough])
       <*> (mounce § "11.12" $ [RoughBreathing])
-  , voiced = mounce § "11.6" $ [Beta, Gamma, Delta, Zeta, Lambda, Mu, Nu, Rho, ConsonantalIota, Digamma, GammaNasal]
+  , _voiced = mounce § "11.6" $ [Beta, Gamma, Delta, Zeta, Lambda, Mu, Nu, Rho, ConsonantalIota, Digamma, GammaNasal]
   }
 
 mouncePartOfMouth :: PartOfMouthClassification
 mouncePartOfMouth = PartOfMouthClassification
-  { labial = mounce § "11.9" $ [Pi, Beta, Phi, Mu, Psi, Digamma]
-  , lingual = mounce § "11.9a" $ [Lambda, Rho, Nu]
-  , velar = mounce § "11.10" $ [Kappa, Gamma, Chi, Xi]
-  , dental = mounce § "11.11" $ [Tau, Delta, Theta, Zeta] -- When MBG refers to “dentals,” ζ is not included.
-  , gutteral = mounce § "11.12" $ [RoughBreathing]
+  { _labial = mounce § "11.9" $ [Pi, Beta, Phi, Mu, Psi, Digamma]
+  , _lingual = mounce § "11.9a" $ [Lambda, Rho, Nu]
+  , _velar = mounce § "11.10" $ [Kappa, Gamma, Chi, Xi]
+  , _dental = mounce § "11.11" $ [Tau, Delta, Theta, Zeta] -- When MBG refers to “dentals,” ζ is not included.
+  , _gutteral = mounce § "11.12" $ [RoughBreathing]
   }
 
 mounceAirFlow :: AirFlowClassification
 mounceAirFlow = AirFlowClassification
-  { stop = mounce § "11.14" $ [Beta, Gamma, Delta, Pi, Kappa, Tau] -- The aspirates (φ χ θ) are sometimes called stops (Square of Stops)
-  , fricative = mounce § "11.15" $ [GammaNasal, Lambda, Mu, Nu, Rho, Sigma, RoughBreathing] -- μ, ν sometimes called a liquid fricative
-  , affricate = mounce § "11.16" $ [Psi, Xi, Zeta]
-  , aspirate = mounce § "11.17" $ [Phi, Theta, Chi, RoughBreathing]
-  , liquid = mounce § "11.18" $ [Lambda, Rho]
-  , nasal = mounce § "11.19" $ [Mu, Nu, GammaNasal]
-  , sibilant = mounce § "11.20" $ [Sigma, ConsonantalIota, Digamma] -- ζ ξ ψ The three double consonants are formed by adding δ (or ι), a velar, or a dental, respectively, to a sigma (§11. 16).
+  { _stop = mounce § "11.14" $ [Beta, Gamma, Delta, Pi, Kappa, Tau] -- The aspirates (φ χ θ) are sometimes called stops (Square of Stops)
+  , _fricative = mounce § "11.15" $ [GammaNasal, Lambda, Mu, Nu, Rho, Sigma, RoughBreathing] -- μ, ν sometimes called a liquid fricative
+  , _affricate = mounce § "11.16" $ [Psi, Xi, Zeta]
+  , _aspirate = mounce § "11.17" $ [Phi, Theta, Chi, RoughBreathing]
+  , _liquid = mounce § "11.18" $ [Lambda, Rho]
+  , _nasal = mounce § "11.19" $ [Mu, Nu, GammaNasal]
+  , _sibilant = mounce § "11.20" $ [Sigma, ConsonantalIota, Digamma] -- ζ ξ ψ The three double consonants are formed by adding δ (or ι), a velar, or a dental, respectively, to a sigma (§11. 16).
   }
 
 

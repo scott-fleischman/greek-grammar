@@ -21,9 +21,10 @@ data Part =
 data Citation = Citation Source Part
 
 data Cited a = Cited
-  { citations :: [Citation]
-  , item :: a
+  { _citations :: [Citation]
+  , _item :: a
   }
+makeLenses ''Cited
 
 instance Functor Cited where
   fmap f (Cited cs i) = Cited cs (f i)
