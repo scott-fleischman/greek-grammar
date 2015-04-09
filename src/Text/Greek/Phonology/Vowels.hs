@@ -2,8 +2,6 @@ module Text.Greek.Phonology.Vowels where
 
 data Vowel = Alpha | Epsilon | Eta | Iota | Omicron | Upsilon | Omega
 
-data Diphthong = Genuine Vowel Vowel | Spurious Vowel Vowel | Improper Vowel  
-
 data VowelLength = Short | Long
 
 data RoundedLip = LipClosed | LipClosedMedium | LipOpen | LipOpenMedium
@@ -13,19 +11,14 @@ data TonguePosition = TongueClosed | TongueClosedMedium | TongueOpen | TongueOpe
 
 data VowelPhoneme =
     VowelPhoneme Vowel VowelLength
-  | DiphthongPhoneme Diphthong
+  | Diphthong Vowel Vowel
+  | ImproperDiphthong Vowel
 
-alphaShort :: VowelPhoneme
-alphaShort = VowelPhoneme Alpha Short
+alpha :: VowelLength -> VowelPhoneme
+alpha len = VowelPhoneme Alpha len
 
-alphaLong :: VowelPhoneme
-alphaLong = VowelPhoneme Alpha Long
-
-ouGenuine :: VowelPhoneme
-ouGenuine = DiphthongPhoneme (Genuine Omicron Upsilon)
-
-ouSpurious :: VowelPhoneme
-ouSpurious = DiphthongPhoneme (Spurious Omicron Omicron)
+omicron :: VowelPhoneme
+omicron = VowelPhoneme Omicron Short
 
 data Contraction = Contraction
   { target :: VowelPhoneme
@@ -35,7 +28,14 @@ data Contraction = Contraction
 
 contractions :: [Contraction]
 contractions =
-  [ Contraction alphaLong alphaShort alphaShort
-  , Contraction alphaLong alphaLong alphaShort
-  , Contraction alphaLong alphaShort alphaLong
+  [ Contraction (alpha Long) (alpha Short) (alpha Short)
+  , Contraction (alpha Long) (alpha Long) (alpha Short)
+  , Contraction (alpha Long) (alpha Short) (alpha Long)
+  , Contraction (Diphthong Omicron Upsilon) omicron omicron
+  ]
+
+properties :: [(VowelPhoneme, RoundedLip)]
+properties =
+  [ (alpha Long, LipOpen)
+  , (alpha Short, LipOpen)
   ]
