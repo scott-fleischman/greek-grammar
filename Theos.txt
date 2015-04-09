@@ -33,7 +33,7 @@ Second Declension Formation
 	Nom		ος = ο + ς					[S 229]			οι = ο + ι		[S 229]
 	Gen		ου = ο +(ι) + ο 			[S 230.1]		ων = ο + ων 	[S 229.b]
 	Dat		ῳ = ο + αι					[S 228.b]		οις/οισι(ν)	= ο + ισ(ιν)
-	Acc		ον = ο + ν					[S 229]			ους = ο + νς 	[S 230.4] 	
+	Acc		ον = ο + ν					[S 229]			ους = ο + νς 	[S 230.4] [M 24.4] 	
 	Voc		ε (ε is thematic vowel)		[S 228.b]		οι = ο + ι 		[S 229]	
 
 
@@ -109,7 +109,7 @@ Accusative Plural
 
 θεσ + ο + νς 		[Root + thematic vowel + original ending (Rule 5)]
 θε -σ + ο + νς 		[Rule 6]
-θε + ο + νς 		[Rule 5]
+θε + ο + νς 		[Rule 5; Rule 7]
 θε + ους 			
 θεους 				[Final Form]
 
@@ -136,8 +136,10 @@ Some Rules Taken from Smyth 229–230:
 	4e) οο also becomes ω in Aeolic and Severer Doric
 5) Accusative Plural ους is from -ον-ς (found in Cretan), that is, the accus. sing. + ς. From -ονς comes -ως Severer Doric, -οις Aeolic, -ος Cretan and in Dor. poetry. -ους is Hom., Ionic, and Milder Doric. [S 230.4]
 
-Rule Taken from Mounce [M 2.10]
+Rules Taken from Mounce [M 2.10]
 6) Roots with σ between two vowels
 	6a) The σ drops out
 	6b) The remaining vowels do not contract
 	6c) When combined with a second word (creating a compound or polysyllabic word), contraction occurs (M 2.10)
+7) ν drops out when immediately followed by σ, and the final stem vowel is lengthened to compensate for the loss (§24.4).
+
