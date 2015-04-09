@@ -27,6 +27,16 @@ epsilon = VowelPhoneme Epsilon Short
 eta :: VowelPhoneme
 eta = VowelPhoneme Eta Long
 
+iota :: VowelLength -> VowelPhoneme
+iota len = VowelPhoneme Iota len
+
+upsilon :: VowelLength -> VowelPhoneme
+upsilon len = VowelPhoneme Upsilon len
+
+omega :: VowelPhoneme
+omega = VowelPhoneme Omega Long
+
+
 data Contraction = Contraction
   { target :: VowelPhoneme
   , first :: VowelPhoneme
@@ -44,7 +54,7 @@ contractions =
   , Contraction (ImproperDiphthong Alpha) (alpha Short) (Diphthong Epsilon Iota)
   , Contraction (alpha Long) (alpha Short) (SpuriousDiphthong Epsilon Iota)
   , Contraction (alpha Long) (alpha Short) eta
-  , Contraction (ImproperDiphthong Alpha) 
+  --, Contraction (ImproperDiphthong Alpha) 
   , Contraction (Diphthong Omicron Upsilon) omicron omicron
   ]
 
@@ -52,12 +62,12 @@ properties :: [(VowelPhoneme, RoundedLip, TonguePosition)]
 properties =
   [ (alpha Long, Unround, TongueOpen)
   , (alpha Short, Unround, TongueOpen)
-  , (epsilon Short, Unround, TongueClosedMedium)
-  , (eta Long, Unround, TongueOpenMedium)
+  , (epsilon, Unround, TongueClosedMedium)
+  , (eta, Unround, TongueOpenMedium)
   , (iota Short, Unround, TongueClosed)
   , (iota Long, Unround, TongueClosed)
-  , (omicron Short, Round, TongueClosedMedium)
+  , (omicron, Round, TongueClosedMedium)
   , (upsilon Short, Round, TongueClosed)
   , (upsilon Long, Round, TongueClosed)
-  , (omega Long, Round, TongueOpenMedium)
+  , (omega, Round, TongueOpenMedium)
   ]
