@@ -36,6 +36,9 @@ upsilon len = VowelPhoneme Upsilon len
 omega :: VowelPhoneme
 omega = VowelPhoneme Omega Long
 
+omicronUpsilon :: VowelPhoneme
+omicronUpsilon = Diphthong Omicron Upsilon
+
 
 data Contraction = Contraction
   { target :: VowelPhoneme
@@ -70,4 +73,5 @@ properties =
   , (upsilon Short, Round, TongueClosed)
   , (upsilon Long, Round, TongueClosed)
   , (omega, Round, TongueOpenMedium)
+  , (omicronUpsilon, Round, TongueClosed)
   ]
