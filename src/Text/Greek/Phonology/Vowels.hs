@@ -4,7 +4,7 @@ data Vowel = Alpha | Epsilon | Eta | Iota | Omicron | Upsilon | Omega
 
 data VowelLength = Short | Long
 
-data RoundedLip = LipClosed | LipClosedMedium | LipOpen | LipOpenMedium
+data RoundedLip = Round | Unround
 
 data TonguePosition = TongueClosed | TongueClosedMedium | TongueOpen | TongueOpenMedium  
 
@@ -45,6 +45,14 @@ contractions =
 
 properties :: [(VowelPhoneme, RoundedLip, TonguePosition)]
 properties =
-  [ (alpha Long, LipOpen, TongueOpen)
-  , (alpha Short, LipOpen, TongueOpen)
+  [ (alpha Long, Unrounded, TongueOpen)
+  , (alpha Short, Unrounded, TongueOpen)
+  , (epsilon Short, Unrounded, TongueClosedMedium)
+  , (eta Long, Unrounded, TongueOpenMedium)
+  , (iota Short, Unrounded, TongueClosed)
+  , (iota Long, Unrounded, TongueClosed)
+  , (omicron Short, Rounded, TongueClosedMedium)
+  , (upsilon Short, Rounded, TongueClosed)
+  , (upsilon Long, Rounded, TongueClosed)
+  , (omega Long, Rounded, TongueOpenMedium)
   ]
