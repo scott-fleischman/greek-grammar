@@ -45,14 +45,14 @@ contractions =
 
 properties :: [(VowelPhoneme, RoundedLip, TonguePosition)]
 properties =
-  [ (alpha Long, Unrounded, TongueOpen)
-  , (alpha Short, Unrounded, TongueOpen)
-  , (epsilon Short, Unrounded, TongueClosedMedium)
-  , (eta Long, Unrounded, TongueOpenMedium)
-  , (iota Short, Unrounded, TongueClosed)
-  , (iota Long, Unrounded, TongueClosed)
-  , (omicron Short, Rounded, TongueClosedMedium)
-  , (upsilon Short, Rounded, TongueClosed)
-  , (upsilon Long, Rounded, TongueClosed)
-  , (omega Long, Rounded, TongueOpenMedium)
+  [ (alpha Long, Unround, TongueOpen)
+  , (alpha Short, Unround, TongueOpen)
+  , (epsilon Short, Unround, TongueClosedMedium)
+  , (eta Long, Unround, TongueOpenMedium)
+  , (iota Short, Unround, TongueClosed)
+  , (iota Long, Unround, TongueClosed)
+  , (omicron Short, Round, TongueClosedMedium)
+  , (upsilon Short, Round, TongueClosed)
+  , (upsilon Long, Round, TongueClosed)
+  , (omega Long, Round, TongueOpenMedium)
   ]
