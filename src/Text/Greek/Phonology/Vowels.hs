@@ -79,3 +79,15 @@ medial Rho Rho is written Rho rough Rho smooth
 
 shortvowel shortvowel = long
 short short = diphthong
+
+______________________________
+data DiacriticClassification = DiacriticClassification 
+	{Circumflex :: Cited [VowelPhoneme]
+	, Diaeresis :: Cited [VowelPhoneme]
+	}
+
+data BreathingClassification = BreathingClassification
+	{Rough :: Cited [VowelPhoneme]
+	,Smooth :: Cited [VowelPhoneme]
+	}
+
