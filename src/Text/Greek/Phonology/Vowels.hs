@@ -34,8 +34,8 @@ contractions =
   , Contraction (Diphthong Omicron Upsilon) omicron omicron
   ]
 
-properties :: [(VowelPhoneme, RoundedLip)]
+properties :: [(VowelPhoneme, RoundedLip, TonguePosition)]
 properties =
-  [ (alpha Long, LipOpen)
-  , (alpha Short, LipOpen)
+  [ (alpha Long, LipOpen, TongueOpen)
+  , (alpha Short, LipOpen, TongueOpen)
   ]
