@@ -62,7 +62,9 @@ mounceConsonants = ConsonantPhonemeClassification mounceVocalChords mouncePartOf
 
 mounceVocalChords :: VocalChordsClassification
 mounceVocalChords = VocalChordsClassification
-  { voiceless = mounce §§ ["11.5", "11.12"] $ [Theta, Kappa, Xi, Pi, Sigma, Tau, Phi, Chi, Psi, RhoRough, RoughBreathing]
+  { voiceless = (++)
+      <$> (mounce § "11.5" $ [Theta, Kappa, Xi, Pi, Sigma, Tau, Phi, Chi, Psi, RhoRough])
+      <*> (mounce § "11.12" $ [RoughBreathing])
   , voiced = mounce § "11.6" $ [Beta, Gamma, Delta, Zeta, Lambda, Mu, Nu, Rho, ConsonantalIota, Digamma, GammaNasal]
   }
 
