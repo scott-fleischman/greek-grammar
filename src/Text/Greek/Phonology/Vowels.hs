@@ -37,13 +37,14 @@ allVowelPhoneme = [Alpha, Epsilon, Eta, Iota, Omicron, Upsilon, Omega, IotaSubsc
 data VowelPhonemeClassification = VowelPhonemeClassification
   { diphthongQuality :: DiphthongQualityClassification
   , vowellength :: VowelLengthClassification
+  , roundedlip :: RoundedLipClassification
+  , toungueposition :: TounguePositionClassification
+  , breathing :: BreathingClassification
+  , diacritic :: DiacriticClassification
   }
 
-data ConsonantPhonemeClassification = ConsonantPhonemeClassification
-  { vocalChords :: VocalChordsClassification
-  , partOfMouth :: PartOfMouthClassification
-  , airFlow :: AirFlowClassification
-  }
+data DiphthongQualityClassification = DiphthongQualityClassification
+  { genuine :: }
 
 data VocalChordsClassification = VocalChordsClassification
   { voiceless :: Cited [ConsonantPhoneme]
