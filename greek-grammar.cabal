@@ -32,6 +32,7 @@ library
     Text.Greek.NewTestament.SBL
     Text.Greek.Paths
     Text.Greek.Phonology.Consonants
+    Text.Greek.Phonology.Vowels
     Text.Greek.Script
     Text.Greek.Script.Sound
     Text.Greek.Script.Token
