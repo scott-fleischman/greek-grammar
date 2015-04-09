@@ -24,6 +24,9 @@ omicron = VowelPhoneme Omicron Short
 epsilon :: VowelPhoneme
 epsilon = VowelPhoneme Epsilon Short
 
+eta :: VowelPhoneme
+eta = VowelPhoneme Eta Long
+
 data Contraction = Contraction
   { target :: VowelPhoneme
   , first :: VowelPhoneme
@@ -40,6 +43,8 @@ contractions =
   , Contraction (alpha Long) (alpha Short) epsilon
   , Contraction (ImproperDiphthong Alpha) (alpha Short) (Diphthong Epsilon Iota)
   , Contraction (alpha Long) (alpha Short) (SpuriousDiphthong Epsilon Iota)
+  , Contraction (alpha Long) (alpha Short) eta
+  , Contraction (ImproperDiphthong Alpha) 
   , Contraction (Diphthong Omicron Upsilon) omicron omicron
   ]
 
