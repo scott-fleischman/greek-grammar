@@ -40,6 +40,44 @@ omicronUpsilon :: VowelPhoneme
 omicronUpsilon = Diphthong Omicron Upsilon
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+alphaIota :: VowelPhoneme
+alphaIota = Diphthong Alpha Iota
+
+epsilonIota :: VowelPhoneme
+epsilonIota = Diphthong Epsilon Iota
+
+spuriousEI :: VowelPhoneme
+spuriousEI = SpuriousDiphthong Epsilon Iota
+
+omicronIota :: VowelPhoneme
+omicronIota = Diphthong Omicron Iota
+
+improperAlpha :: VowelPhoneme
+improperAlpha = ImproperDiphthong Alpha
+
+improperEta :: VowelPhoneme
+improperEta = ImproperDiphthong Eta
+
+improperOmega :: VowelPhoneme
+improperOmega = ImproperDiphthong Omega
+
 data Contraction = Contraction
   { target :: VowelPhoneme
   , first :: VowelPhoneme
