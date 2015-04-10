@@ -34,6 +34,7 @@ library
     Text.Greek.Paths
     Text.Greek.Phonology.Consonants
     Text.Greek.Phonology.Phoneme
+    Text.Greek.Phonology.Shorthand
     Text.Greek.Phonology.Vowels
     Text.Greek.Script
     Text.Greek.Script.Sound

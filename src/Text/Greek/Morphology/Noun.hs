@@ -9,3 +9,5 @@ data Gender = Feminine | Masculine | Neuter
 data Number = Singular | Plural | Dual
 
 data Declension = FirstDeclension | SecondDeclension | ThirdDeclension
+
+
