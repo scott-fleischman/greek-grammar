@@ -22,7 +22,6 @@ import Text.Greek.Corpus.Bible
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
 import Text.Greek.Phonology.Contractions
-import Text.Greek.Phonology.Vowels (alpha, VowelLength(..), omega)
 import Text.Greek.Script
 import Text.Greek.Script.Sound
 import Text.XML (readFile)
