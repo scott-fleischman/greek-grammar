@@ -84,7 +84,8 @@ tonguePosition (VowelPhoneme Omicron _) = TongueClosedMedium
 tonguePosition (VowelPhoneme Upsilon _) = TongueClosed
 tonguePosition (VowelPhoneme Omega _) = TongueOpenMedium
 tonguePosition (Diphthong _ _) = TongueClosing
-tonguePosition _ = TongueOpen
+tonguePosition (ImproperDiphthong _) = TongueClosing
+tonguePosition (SpuriousDiphthong _ _) = TongueClosing
 
 roundedLip :: VowelPhoneme -> RoundedLip
 roundedLip (VowelPhoneme Omicron _) = Round
