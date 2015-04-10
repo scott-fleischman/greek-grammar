@@ -17,8 +17,8 @@ data Contraction = Contraction
   deriving (Show)
 makeLenses ''Contraction
 
-fowardMap :: Map VowelPhoneme (Map VowelPhoneme [VowelPhoneme])
-fowardMap = fmap (fromListWith (++) . fmap makeSndList) outerMap
+forwardMap :: Map VowelPhoneme (Map VowelPhoneme [VowelPhoneme])
+forwardMap = fmap (fromListWith (++) . fmap makeSndList) outerMap
   where
     makeSndList (a, b) = (a, [b])
     outerMap = fromListWith (++) nestedPairs
