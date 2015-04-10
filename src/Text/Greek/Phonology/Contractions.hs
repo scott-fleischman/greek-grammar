@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
@@ -6,6 +7,7 @@ module Text.Greek.Phonology.Contractions where
 import Prelude hiding (lookup)
 import Control.Lens
 import Data.Map.Strict
+import Text.Greek.Grammar
 import Text.Greek.Phonology.Vowels
 
 data Contraction = Contraction
@@ -29,13 +31,12 @@ forwardMap = fmap (fromListWith (++) . fmap makeSndList) outerMap
   where
     makeSndList (a, b) = (a, [b])
     outerMap = fromListWith (++) nestedPairs
-    nestedPairs = fmap nestedPair contractions
+    nestedPairs = fmap nestedPair $ contractions ^. item
     nestedPair c = (c ^. first, [innerPair c])
     innerPair c = (c ^. second, c ^. target)
 
--- smyth 59
-contractions :: [Contraction]
-contractions =
+contractions :: Cited [Contraction]
+contractions = smyth § "59" $
   [ Contraction (alpha Long) (alpha Short) (alpha Short)
   , Contraction (alpha Long) (alpha Long) (alpha Short)
   , Contraction (alpha Long) (alpha Short) (alpha Long)
