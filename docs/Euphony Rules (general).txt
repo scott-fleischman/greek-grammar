@@ -139,7 +139,7 @@ Plural
 3. λυ+ου+σι[v]
 
 Imperfect Active Indicitive 
-PP #1 Secondary Active
+PP #1 (Secondary Active)
 
 Singluar
 1. ε+λυ+ο+ν
@@ -178,12 +178,18 @@ ___________________________
 Future Active Indicative 
 
 Singlular
-1.λυ
-2.
-3.
+1.λυ+σ+ω
+2.λυ+σ+ει+ς
+3.λυ+σ+ει+-
 
 Plural
-1.
-2.
-3.
+1.λυ+σ+ο+μεν
+2.λυ+σ+ε+τε
+3.λυ+σ+ου+σι[ν]
+
+	--all euphony rules of PP #1 equally apply
+
+
+
+
 
