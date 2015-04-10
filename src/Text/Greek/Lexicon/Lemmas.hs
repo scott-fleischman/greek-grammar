@@ -67,6 +67,12 @@ potamos = Lemma [π, ο, τ, ᾰ, μ] mas2D
 arithmos :: Lemma
 arithmos = Lemma [ᾰ, ρ, ῐ, θ, μ] mas2D
 
+plous :: Lemma 
+plous = Lemma [π, λ, ο] mas2D
+
+rous :: Lemma
+rous = Lemma [ρ, ο] mas2D
+
 nesos :: Lemma
 nesos = Lemma [ν, ε, σ] fem2D
 
@@ -87,6 +93,11 @@ pteron = Lemma [π, τ, ε, ρ] neut2D
 
 deipnon :: Lemma
 deipnon = Lemma [δ, ει, π, ν] neut2D
+
+kanoun :: Lemma
+kanoun = Lemma [κ, ᾰ, ν, ε] neut2D
+
+
 
 
 
