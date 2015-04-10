@@ -106,7 +106,26 @@ contractions =
   , Contraction (iota Long) (iota Short) (iota Short)
   , Contraction omega omicron (alpha Short)
   , Contraction (alpha Long) omicron (alpha Short)
-  , Contraction (Diphthong Omicron Upsilon) omicron omicron
+  
+  
+  
+  
+  
+  
+  , Contraction eta eta epsilon
+  , Contraction improperEta eta epsilonIota
+  , Contraction eta eta spuriousEI
+  , Contraction omicronIota omicron improperEta
+  , Contraction improperOmega omicron improperEta
+  , Contraction omicronIota omicron (iota Short)
+  , Contraction spuriousOU omicron omicron
+  , Contraction omicronIota omicron omicronIota
+  , Contraction spuriousOU omicron spuriousOU
+  , Contraction omega omicron omega
+  , Contraction (upsilon Long) (upsilon Short) (upsilon Short)
+  , Contraction omega omega (alpha Short)
+  , Contraction improperOmega omega (iota Short)
+  , Contraction omega omega omega 
   ]
 
 tonguePosition :: VowelPhoneme -> TonguePosition
