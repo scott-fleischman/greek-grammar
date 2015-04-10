@@ -33,6 +33,7 @@ library
     Text.Greek.NewTestament.SBL
     Text.Greek.Paths
     Text.Greek.Phonology.Consonants
+    Text.Greek.Phonology.Contractions
     Text.Greek.Phonology.Phoneme
     Text.Greek.Phonology.Shorthand
     Text.Greek.Phonology.Vowels
