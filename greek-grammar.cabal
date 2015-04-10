@@ -36,8 +36,10 @@ library
     Text.Greek.Paths
     Text.Greek.Phonology.Consonants
     Text.Greek.Phonology.Contractions
+    Text.Greek.Phonology.Euphony
     Text.Greek.Phonology.Phoneme
     Text.Greek.Phonology.Shorthand
+    Text.Greek.Phonology.ShowText
     Text.Greek.Phonology.Vowels
     Text.Greek.Script
     Text.Greek.Script.Sound
