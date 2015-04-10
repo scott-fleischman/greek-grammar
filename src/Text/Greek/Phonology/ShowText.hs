@@ -2,7 +2,7 @@
 
 module Text.Greek.Phonology.ShowText where
 
-import Data.Text (Text)
+import Data.Text (Text, intercalate)
 import Text.Greek.Phonology.Phoneme
 import Text.Greek.Phonology.Consonants
 import Text.Greek.Phonology.Vowels
@@ -56,3 +56,5 @@ showText (MkVowel (Diphthong _ _)) = "unknown diphthong"
 showText (MkVowel (SpuriousDiphthong _ _)) = "unknown spuriousdiphthong"
 showText (MkVowel (ImproperDiphthong _)) = "unknown improperdiphthong"
 
+showWord :: [Phoneme] -> Text
+showWord = intercalate " " . fmap showText
