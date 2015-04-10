@@ -2,6 +2,12 @@ module Text.Greek.Phonology.Contractions where
 
 import Text.Greek.Phonology.Vowels
 
+data Contraction = Contraction
+  { target :: VowelPhoneme
+  , first :: VowelPhoneme
+  , second :: VowelPhoneme
+  }
+
 contractions :: [Contraction]
 contractions =
   [ Contraction (alpha Long) (alpha Short) (alpha Short)

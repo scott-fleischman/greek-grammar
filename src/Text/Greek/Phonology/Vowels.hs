@@ -1,8 +1,10 @@
 module Text.Greek.Phonology.Vowels where
 
 data Vowel = Alpha | Epsilon | Eta | Iota | Omicron | Upsilon | Omega
+  deriving (Eq, Ord, Show)
 
 data VowelLength = Short | Long
+  deriving (Eq, Ord, Show)
 
 data RoundedLip = Round | Unround
 
@@ -14,6 +16,7 @@ data VowelPhoneme =
   | Diphthong Vowel Vowel 
   | ImproperDiphthong Vowel
   | SpuriousDiphthong Vowel Vowel
+  deriving (Eq, Ord, Show)
 
 alpha :: VowelLength -> VowelPhoneme
 alpha len = VowelPhoneme Alpha len
@@ -71,12 +74,6 @@ improperEta = ImproperDiphthong Eta
 
 improperOmega :: VowelPhoneme
 improperOmega = ImproperDiphthong Omega
-
-data Contraction = Contraction
-  { target :: VowelPhoneme
-  , first :: VowelPhoneme
-  , second :: VowelPhoneme
-  }
 
 tonguePosition :: VowelPhoneme -> TonguePosition
 tonguePosition (VowelPhoneme Alpha _) = TongueOpen
