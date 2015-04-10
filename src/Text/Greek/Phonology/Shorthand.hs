@@ -126,3 +126,6 @@ import Text.Greek.Phonology.Vowels
 
 ι' :: Phoneme
 ι' = MkConsonant ConsonantalIota
+
+rough :: Phoneme
+rough = MkConsonant RoughBreathing
