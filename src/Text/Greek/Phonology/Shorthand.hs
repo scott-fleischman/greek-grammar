@@ -118,7 +118,7 @@ import Text.Greek.Phonology.Vowels
 ᾳ = MkVowel improperAlpha
 
 ῃ :: Phoneme
-ῃ = MkVowel improperAlpha
+ῃ = MkVowel improperEta
 
 ῳ :: Phoneme
 ῳ = MkVowel improperOmega
