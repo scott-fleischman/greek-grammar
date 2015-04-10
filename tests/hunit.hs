@@ -7,6 +7,7 @@ import Prelude hiding (readFile)
 import Data.Char
 import Data.Default (def)
 import Data.Either
+import Data.List (sort)
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -20,12 +21,12 @@ import Text.Greek.Conversions
 import Text.Greek.Corpus.Bible
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
+import Text.Greek.Phonology.Contractions
 import Text.Greek.Script
 import Text.Greek.Script.Sound
 import Text.XML (readFile)
 
-case_valid_tokens = do
-  mapM_ (\p -> assertEqual (showString "'\\x" . showHex (ord . fst $ p) $ "'") [] (validateToken . snd $ p)) unicodeTokenPairs
+case_valid_tokens = mapM_ (\p -> assertEqual (showString "'\\x" . showHex (ord . fst $ p) $ "'") [] (validateToken . snd $ p)) unicodeTokenPairs
 
 case_load_sblgnt = do
   sblgnt <- readFile def sblgntOsisPath
@@ -39,6 +40,8 @@ case_sound_ai_iotaSubscript = True @=? case textToSounds "ᾳ" of { VowelSound (
 case_sound_a_rough = True @=? case textToSounds "ἁ" of { ConsonantSound (RoughBreathing _) : VowelSound (Vowel _) : [] -> True ; _ -> False }
 case_sound_ai_iotaSubscript_rough = True @=? case textToSounds "ᾁ" of { ConsonantSound (RoughBreathing _) : VowelSound (ImproperDiphthong _) : [] -> True ; _ -> False }
 case_sound_ai_diphthong_rough = True @=? case textToSounds "αἱ" of { ConsonantSound (RoughBreathing _) : VowelSound (Diphthong _ _) : [] -> True ; _ -> False }
+
+case_forward_contractions = mapM_ (\t@(v1, v2, vs) -> assertEqual (show t) (sort $ getContractions v1 v2) (sort vs)) forwardContractionTests
 
 main :: IO ()
 main = $(defaultMainGenerator)
