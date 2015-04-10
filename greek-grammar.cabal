@@ -29,7 +29,9 @@ library
     Text.Greek.Corpus.Bible
     Text.Greek.Corpus.Bible.Stats
     Text.Greek.Grammar
+    Text.Greek.Lexicon.Lemmas
     Text.Greek.Morphology.Noun
+    Text.Greek.Morphology.PartOfSpeech
     Text.Greek.NewTestament.SBL
     Text.Greek.Paths
     Text.Greek.Phonology.Consonants
