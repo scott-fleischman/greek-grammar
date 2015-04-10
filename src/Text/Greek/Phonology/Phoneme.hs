@@ -6,3 +6,4 @@ import Text.Greek.Phonology.Vowels
 data Phoneme =
     MkConsonant ConsonantPhoneme
   | MkVowel VowelPhoneme
+  deriving (Show)

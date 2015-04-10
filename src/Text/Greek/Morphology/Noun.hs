@@ -74,7 +74,7 @@ caseEnding _ (NounInflection _          Plural   Dative)      = [ῐ, σ]
 
 caseEnding _ (NounInflection Masculine  Plural   Accusative)  = [ν, σ]
 caseEnding _ (NounInflection Feminine   Plural   Accusative)  = [ν, σ]
-caseEnding _ (NounInflection _          Plural   Accusative)  = [ᾰ]
+caseEnding _ (NounInflection Neuter     Plural   Accusative)  = [ᾰ]
 
 caseEnding _ (NounInflection Masculine  Plural   Vocative)    = [ῐ]
 caseEnding _ (NounInflection Feminine   Plural   Vocative)    = [ῐ]
@@ -86,3 +86,7 @@ secondDeclension = VowelDeclension v OptionNomSg_s OptionGenSg_io
     v (NounInflection _ Singular Vocative) = ε
     v _ = ο
 
+nounEnding :: Noun -> Number -> Case -> [Phoneme]
+nounEnding (SecondDeclension g) n c = (secondDeclension ^. thematicVowel $ ni) : caseEnding secondDeclension ni
+  where ni = (NounInflection g n c)
+nounEnding _ _ _ = []
