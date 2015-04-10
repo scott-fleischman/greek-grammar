@@ -1,11 +1,11 @@
 
-rough breathing over initial vowel used to be initial sigma Smyth §119
-sigma preceeding initial vowel -> rough breathing 
+rough breathing over initial vowel used to be initial σ Smyth §119
+σ preceeding initial vowel -> rough breathing 
 
 
-sigma between single vowels is dropped Smyth §120
+σ between single vowels is dropped Smyth §120
 - single vowels are usually short 
-- intervocalic sigma drops before vowel euphony rules applied §55
+- intervocalic σ drops before vowel euphony rules applied §55
 
 Crasis
 crasis occurs usually between words that sytactically belong together §63
@@ -17,14 +17,21 @@ when combining vowels in triplets combine the last vowels first. The resultant c
 
 Square of Stops
 
-labial before sigma becomes Psi
-Velar before sigma becomes Xi
-dental before sigma drops (the dental drops)
-
-voiceless stops (Pi, Tau, Kappa) becomes aspirated (Phi, Theta, Chi) when a rough breathing follows immediately. §64
-
+labial before σ becomes ψ
+Velar before σ becomes ξ
+dental before σ drops (the dental drops)
+voiceless stops (π, τ, κ) becomes aspirated (φ, θ, χ) when a rough breathing follows immediately. §64
 A labial or velar stop before a dental stop must be of the same voice type (voiceless + voiceless, voiced + voiced) §82
-A dental stop before another dental stop becomes sigma §83
+A dental stop before another dental stop becomes σ §83
+A stop standing before labial or velar stop is dropped
+labial stops become μ before μ §85
+palatal stops before μ become γ §85
+γγμ becomes γμ §85b
+μμμ becomes μμ §85b
+dental stop becomes σ before μ §86
+ν before labial becomes μ §91
+ν before velar becomes γ-nasal §92
+ν before μ becomes μ §
 
 
 
@@ -61,4 +68,4 @@ ELISION Smyth §69
 A short vowel at the end of a word may drop out when the following word begins with a vowel.
 An apostrophe is put in place of the elided vowel
 The final vowel of an emphatic personal pronoun is rarely elided
->>>>>>> origin/master
+
