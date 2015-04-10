@@ -66,9 +66,10 @@ Rules Taken from Mounce [M 2.10]
 	6a) The σ drops out
 	6b) The remaining vowels do not contract
 	6c) When combined with a second word (creating a compound or polysyllabic word), contraction occurs (M 2.10)
-7) ν drops out when immediately followed by σ, and the final stem vowel is lengthened to compensate for the loss (§24.4).
+7) ν drops out when immediately followed by σ, and the final stem vowel is lengthened to compensate for the loss [§24.4].
 
 
 Special Comments About 2nd Declension
-1) There are second declension feminine nouns
-2) There are contract 2nd declension nouns that function according to contract euphony rules. For instnce χειμάρρους is from χειμάρρο + ο + ς. ο + ο contract to become ου, thus the ους ending (S 235; M p. 188)
+8) There are second declension feminine nouns
+9) There are contract 2nd declension nouns that function according to contract euphony rules. For instnce χειμάρρους is from χειμάρρο + ο + ς. ο + ο contract to become ου, thus the ους ending [S 235; M p. 188]
+	9a) Homeric and Ionic generally have the open forms. οἰνοχόος wine-pourer does not contract in Attic since it stands for οἰνοχοϝος [S 235]
