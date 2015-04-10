@@ -46,7 +46,7 @@ nom_Sg_MascFem OptionNomSg_null = []
 
 gen_Sg :: OptionGenSg -> [Phoneme]
 gen_Sg OptionGenSg_s = [σ]
-gen_Sg OptionGenSg_io = [ι', ο]
+gen_Sg OptionGenSg_io = [ῐ, ο]
 
 -- smyth 210
 caseEnding :: VowelDeclension -> NounInflection -> [Phoneme]
