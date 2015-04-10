@@ -14,7 +14,10 @@ mas2D :: PartOfSpeech
 mas2D =  MkNoun (SecondDeclension Masculine)
 
 theos :: Lemma
-theos = Lemma [θ, ε, σ] (MkNoun (SecondDeclension Masculine))
+theos = Lemma [θ, ε, σ] mas2D
 
 hippos :: Lemma 
-hippos = Lemma [ῐ, π, π] (MkNoun (SecondDeclension Masculine))
+hippos = Lemma [ῐ, π, π] mas2D
+
+anthropos :: Lemma
+anthropos = Lemma [α, ν, θ, ρ, π] mas2D
