@@ -1,12 +1,27 @@
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TemplateHaskell #-}
+
 module Text.Greek.Phonology.Contractions where
 
+import Control.Lens
+import Data.Function
+import Data.List
+import Data.Map.Strict
 import Text.Greek.Phonology.Vowels
 
 data Contraction = Contraction
-  { target :: VowelPhoneme
-  , first :: VowelPhoneme
-  , second :: VowelPhoneme
+  { _target :: VowelPhoneme
+  , _first :: VowelPhoneme
+  , _second :: VowelPhoneme
   }
+  deriving (Show)
+makeLenses ''Contraction
+
+tryApply :: Contraction -> VowelPhoneme -> VowelPhoneme -> Maybe VowelPhoneme
+tryApply (Contraction t p1 p2) v1 v2 = Nothing
+
+groupedContractions = groupBy (\x y -> x ^. first == y ^. first) $ sortedContractions
+sortedContractions = sortBy (compare `on` _first) contractions
 
 contractions :: [Contraction]
 contractions =
