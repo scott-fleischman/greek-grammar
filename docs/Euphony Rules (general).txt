@@ -61,4 +61,101 @@ ELISION Smyth §69
 A short vowel at the end of a word may drop out when the following word begins with a vowel.
 An apostrophe is put in place of the elided vowel
 The final vowel of an emphatic personal pronoun is rarely elided
->>>>>>> origin/master
+Interior 
+
+Elision does not occure when:
+	Monosyllables (except those that end in ε [e.g. τέ, δέ, γέ])
+	The conjunction ὀτι
+	The prepositions προ, αρχι, μεχρι, περί
+	The dative singular ending ι of the third declension, and in σι (ending of the dative plural)
+	Forms admitting movable ν (except εστι)
+	
+
+λυ
+
+Verb = Tense | Voice | Mood | Person | Number
+Tense = Present | Imperfect | Aorist | Future | Perfect | Pluperfect
+PP = Pres/Impf | Future | Aorist | Perfect | Perfect Passive | Aorist Passive
+Voice = Active | Middle | Passive
+Mood = Indicative | Subjunctive | Imperative | Optitive 
+Person = First | Second | Third
+Number = Singular | Plural 
+Type = ω | μι
+
+Primary Active (pres/fut)
+ω
+(ει)ς
+(ει)-
+(ο)μεν
+(ε)τε
+(ου)σι[ν]
+
+Secondary Active 
+(ο)ν
+(ε)ς
+(ε)ν
+(ο)μεν
+(ε)τε
+(ο)ν, σαν
+
+Primary Middle/Passive
+(ο)μαι
+(ε)σαι, ῃ
+(ε)ται
+(ο)μεθα
+(ε)σθε
+(ο)νται
+
+Secondary Middle/Passive
+μην
+σα,ου
+το
+μεθα
+σθε
+ντο
+
+Present Active Indicitive 
+PP #1 (Primary Active)
+
+Singlular
+1. λυ+ω 
+2. λυ+ει+ς 
+3. λυ+ει+- 
+Plural
+1. λυ+ο+μεν
+2. λυ+ε+τε
+3. λυ+ου+σι[v]
+
+Imperfect Active Indicitive 
+PP #1 Secondary Active
+
+Singluar
+1. ε+λυ+ο+ν
+2. ε+λυ+ε+ς
+3. ε+λυ+ε+[ν]
+Plural
+1. ε+λυ+ο+μεν
+2. ε+λυ+ε+τε
+3. ε+λυ+ο+μεν
+
+
+Present Active 3rd Pl.
+λυ+ο+νσι[v]->-ν->ο->+ου [final ν may occur when the following word begins with a vowel]
+	[ν drops out and ο lenthens to ου] =  λυ+ου+σι[v]
+	[final ν may occur when the following word begins with a vowel]
+	
+Present Active 1st Sing.
+λυ+o->ω [omega comes from the lengthening of the final thematic vowel omicron - not sure why the lengthing] = λυ+ω
+	
+Present Active 2nd. Sing.
+λυ+ει+ς 
+	[λυεσι (homeric) | λυεις (attic) (sigma ending is added analogically)]
+
+Present Active 3rd. Sing.
+λυ+ει+- 
+	[λυετι (homeric) | λυεσι (attic) (τ changes to σ and σ drops out)]
+
+Imperfect Active 3rd Sing.
+ε+λυ+ε+[ν] 
+	[the final τ drops out]
+	[final ν may occur when the following word begins with a vowel]
