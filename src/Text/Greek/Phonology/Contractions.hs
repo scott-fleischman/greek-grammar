@@ -86,3 +86,15 @@ contractions =
   , Contraction improperEta eta alphaIota
   , Contraction omicronUpsilon omicron omicron
   ]
+
+forwardContractionTests :: [(VowelPhoneme, VowelPhoneme, [VowelPhoneme])]
+forwardContractionTests =
+  [ (alpha Long, omega, [])
+  , (omicron, eta, [omega])
+  , (alpha Long, alpha Long, [alpha Long, omega])
+  ]
+
+inverseContractionTests :: [(VowelPhoneme, [(VowelPhoneme, VowelPhoneme)])]
+inverseContractionTests =
+  [ (improperOmega, [(epsilon, omicron), (omicron, epsilon)])
+  ]
