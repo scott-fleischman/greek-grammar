@@ -69,5 +69,5 @@ contractions =
   , Contraction omega epsilon omega
   , Contraction improperOmega epsilon improperOmega
   , Contraction improperEta eta alphaIota
-  , Contraction (Diphthong Omicron Upsilon) omicron omicron
+  , Contraction omicronUpsilon omicron omicron
   ]
