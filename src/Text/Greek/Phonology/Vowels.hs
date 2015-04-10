@@ -90,18 +90,20 @@ contractions =
   , Contraction (Diphthong Omicron Upsilon) omicron omicron
   ]
 
-properties :: [(VowelPhoneme, RoundedLip, TonguePosition)]
-properties =
-  [ (alpha Long, Unround, TongueOpen)
-  , (alpha Short, Unround, TongueOpen)
-  , (epsilon, Unround, TongueClosedMedium)
-  , (eta, Unround, TongueOpenMedium)
-  , (iota Short, Unround, TongueClosed)
-  , (iota Long, Unround, TongueClosed)
-  , (omicron, Round, TongueClosedMedium)
-  , (upsilon Short, Round, TongueClosed)
-  , (upsilon Long, Round, TongueClosed)
-  , (omega, Round, TongueOpenMedium)
-  , (omicronUpsilon, Round, TongueClosed)
-  , (alphaUpsilon, Unround, TongueClosing)
-  ]
+tonguePosition :: VowelPhoneme -> TonguePosition
+tonguePosition (VowelPhoneme Alpha _) = TongueOpen
+tonguePosition (VowelPhoneme Epsilon _) = TongueClosedMedium
+tonguePosition (VowelPhoneme Eta _) = TongueOpenMedium
+tonguePosition (VowelPhoneme Iota _) = TongueClosed
+tonguePosition (VowelPhoneme Omicron _) = TongueClosedMedium
+tonguePosition (VowelPhoneme Upsilon _) = TongueClosed
+tonguePosition (VowelPhoneme Omega _) = TongueOpenMedium
+tonguePosition (Diphthong _ _) = TongueClosing
+tonguePosition _ = TongueOpen
+
+roundedLip :: VowelPhoneme -> RoundedLip
+roundedLip (VowelPhoneme Omicron _) = Round
+roundedLip (VowelPhoneme Upsilon _) = Round
+roundedLip (VowelPhoneme Omega _) = Round
+roundedLip (Diphthong Omicron Upsilon) = Round
+roundedLip _ = Unround
