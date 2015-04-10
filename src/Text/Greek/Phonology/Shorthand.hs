@@ -25,6 +25,9 @@ import Text.Greek.Phonology.Vowels
 ῑ :: Phoneme
 ῑ = MkVowel (iota Long)
 
+ν :: Phoneme
+ν = MkConsonant Nu
+
 ο :: Phoneme
 ο = MkVowel omicron
 
@@ -78,3 +81,6 @@ import Text.Greek.Phonology.Vowels
 ῳ :: Phoneme
 ῳ = MkVowel improperOmega
 
+
+ι' :: Phoneme
+ι' = MkConsonant ConsonantalIota

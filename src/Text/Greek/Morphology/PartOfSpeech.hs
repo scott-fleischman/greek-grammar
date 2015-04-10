@@ -4,3 +4,4 @@ import Text.Greek.Morphology.Noun
 
 data PartOfSpeech =
     MkNoun Noun
+  | MkVerb
