@@ -6,7 +6,7 @@ data VowelLength = Short | Long
 
 data RoundedLip = Round | Unround
 
-data TonguePosition = TongueClosed | TongueClosedMedium | TongueOpen | TongueOpenMedium  
+data TonguePosition = TongueClosed | TongueClosedMedium | TongueOpen | TongueOpenMedium | TongueClosing | TongueOpening
 
 
 data VowelPhoneme =
@@ -38,6 +38,15 @@ omega = VowelPhoneme Omega Long
 
 omicronUpsilon :: VowelPhoneme
 omicronUpsilon = Diphthong Omicron Upsilon
+
+alphaUpsilon :: VowelPhoneme 
+alphaUpsilon = Diphthong Alpha Upsilon
+
+epsilonUpsilon :: VowelPhoneme
+epsilonUpsilon = Diphthong Epsilon Upsilon
+
+etaUpsilon :: VowelPhoneme
+etaUpsilon = Diphthong Eta Upsilon
 
 
 
@@ -112,4 +121,5 @@ properties =
   , (upsilon Long, Round, TongueClosed)
   , (omega, Round, TongueOpenMedium)
   , (omicronUpsilon, Round, TongueClosed)
+  , (alphaUpsilon, Unround, TongueClosing)
   ]
