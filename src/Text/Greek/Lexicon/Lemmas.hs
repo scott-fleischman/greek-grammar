@@ -20,7 +20,7 @@ hippos :: Lemma
 hippos = Lemma [ῐ, π, π] mas2D
 
 anthropos :: Lemma
-anthropos = Lemma [α, ν, θ, ρ, π] mas2D
+anthropos = Lemma [ᾰ, ν, θ, ρ, π] mas2D
 
 doron :: Lemma
 doron = Lemma [δ, ω, ρ] mas2D
@@ -29,4 +29,25 @@ nous :: Lemma
 nous = Lemma [ν, ο] mas2D
 
 periplous :: Lemma
-periplous = [π, ε, ρ, ]
+periplous = Lemma [π, ε, ρ, ῑ, λ, ο] mas2D
+
+ostous :: Lemma
+ostous = Lemma [ο, σ, τ, ε] mas2D
+
+anthropos :: Lemma
+anthropos = [ᾰ, ν, θ, ρ, ω, π] mas2D
+
+odos :: Lemma
+odos = Lemma [ο, δ] mas2D
+
+doron :: Lemma
+doron = Lemma [δ, ω, ρ]
+
+neos :: Lemma
+neos = Lemma [ν, η, ο]
+
+
+
+
+
+
