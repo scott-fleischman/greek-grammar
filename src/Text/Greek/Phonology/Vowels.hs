@@ -48,24 +48,6 @@ epsilonUpsilon = Diphthong Epsilon Upsilon
 etaUpsilon :: VowelPhoneme
 etaUpsilon = Diphthong Eta Upsilon
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 alphaIota :: VowelPhoneme
 alphaIota = Diphthong Alpha Iota
 
