@@ -17,12 +17,19 @@ data Contraction = Contraction
   deriving (Show)
 makeLenses ''Contraction
 
-tryApply :: Contraction -> VowelPhoneme -> VowelPhoneme -> Maybe VowelPhoneme
-tryApply (Contraction t p1 p2) v1 v2 = Nothing
+fowardMap :: Map VowelPhoneme (Map VowelPhoneme [VowelPhoneme])
+fowardMap = fmap (fromListWith (++) . fmap makeSndList) outerMap
+  where
+    makeSndList (a, b) = (a, [b])
+    outerMap = fromListWith (++) nestedPairs
+    nestedPairs = fmap nestedPair sortedContractions
+    nestedPair c = (c ^. first, [innerPair c])
+    innerPair c = (c ^. second, c ^. target)
 
-groupedContractions = groupBy (\x y -> x ^. first == y ^. first) $ sortedContractions
+sortedContractions :: [Contraction]
 sortedContractions = sortBy (compare `on` _first) contractions
 
+-- smyth 59
 contractions :: [Contraction]
 contractions =
   [ Contraction (alpha Long) (alpha Short) (alpha Short)
