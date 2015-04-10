@@ -12,3 +12,6 @@ data Lemma = Lemma
 
 theos :: Lemma
 theos = Lemma [θ, ε, σ] (MkNoun (SecondDeclension Masculine))
+
+hippos :: Lemma 
+hippos = Lemma [ῐ, π, π] (MkNoun (SecondDeclension Masculine))
