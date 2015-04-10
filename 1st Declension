@@ -1,0 +1,90 @@
+Declensions
+
+1st Declension
+
+RULES
+
+	UNIVERSALS
+	1)	Stems: all stems end α | η
+	2)	Gender: most are feminine, a few masculine, never neuter
+	3) 	Number: all plural forms are identical
+	4)	Case: genitive singular ας | ης | ου | α | η
+
+	PARTICULARS
+	1a)	Feminine nouns ending in εα | ια | ρα and a genitive ας:
+			- the α is consistent throughout the singular, except when ρ does not precede final α; then genitive/dative singular ending is η			
+			- Exceptions (Mounce 168)	
+				- 5 nouns end in ρα but follow 1c declension pattern
+				- 9 nouns do not end in εα | ια | ρα but decline as 1a
+
+			n/v singular 	-			n/v plural	ι
+			gen singular 	ς			gen plural	ων
+			dat singular 	ι*[1] 		dat plural 	ις
+			acc singular 	ν 			acc plural	νς*[2]
+
+			*Euphony rules
+				[1] final stem vowel lengthens and the iota subscripts
+				[2] ν drops when immediately followed by σ	
+	
+	1b)	Feminine nouns with stems ending in η and a genitive ης:
+			- the η is consistent throughout the singular
+
+			Same declension as 1a
+
+	1c)	Feminine nouns with α stem ending (except when preceded by ε | ι | ρ) and a genitive ης
+			- gen/dat sing ending is η
+
+			Same declension as 1a
+
+	1d)	Masculine nouns with stems ending in α(ς) and genitive ου:
+			- all but four of the words in this category are proper names (Mounce 175)
+
+			nom singular 	ς*[3]		nom plural	ι
+			gen singular 	ου*[4]		gen plural	ων
+			dat singular 	ι*[1] 	 	dat plural 	ις
+			acc singular 	ν 			acc plural	νς*[2]
+			voc singular 	- 			voc plural 	-
+
+			*Notes
+				[3] first decl masc nouns use alternate ς ending in the nom sg
+				[4] first decl masc nouns don't use ς for gen sg to avoid confusion with nom sg
+
+
+	1e) Masculine nouns with stems ending in α(ς) and genitive α:
+			- no occurences of plural in NT
+
+			nom singular 	ς*[3]			
+			gen singular 	-*[4]			
+			dat singular 	ι*[1] 	 	
+			acc singular 	ν 			
+			voc singular 	- 			
+
+	1f) Masculine nouns with stems ending in η(ς) and genitive ου:
+
+			nom singular 	ς*[3]		nom plural	ι
+			gen singular 	ου*[4]		gen plural	ων
+			dat singular 	ι*[1] 	 	dat plural 	ις
+			acc singular 	ν 			acc plural	νς*[2]
+			voc singular 	α|η*[5]	voc plural 	-
+
+			*Notes
+				- if the stem ends in τη, the voc is α; if the 1f noun ends in anything else, the voc is η
+
+	1g)	Masculine nouns with stems ending in η(ς) and genitive η
+			- only 2 nouns
+
+			nom singular 	ς*[3]			
+			gen singular 	-*[4]			
+			dat singular 	ι*[1] 	 	
+			acc singular 	- 			
+			voc singular 	-
+
+	CONDENSED
+
+	1st Declension = Fem | Masc
+
+	1st Decl Fem = PureAlpha | Mixed | Pure Eta
+
+		PureAlpha = α stem vowel when letter before stem vowel is ε | ι | ρ
+		Mixed = α stem vowel for Nom, Acc, Voc; η for Gen, Dat when letter before stem vowel is a sibilant
+		PureEta = η stem vowel when letter is not ε | ι | ρ | sibilant
