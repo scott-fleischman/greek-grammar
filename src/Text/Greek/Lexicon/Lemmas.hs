@@ -10,6 +10,9 @@ data Lemma = Lemma
   , partOfSpeech :: PartOfSpeech
   }
 
+mas2D :: PartOfSpeech
+mas2D =  MkNoun (SecondDeclension Masculine)
+
 theos :: Lemma
 theos = Lemma [θ, ε, σ] (MkNoun (SecondDeclension Masculine))
 
