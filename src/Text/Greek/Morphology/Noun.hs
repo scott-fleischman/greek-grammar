@@ -1,15 +1,28 @@
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TemplateHaskell #-}
+
 module Text.Greek.Morphology.Noun where
 
+import Control.Lens
 import Text.Greek.Phonology.Phoneme
 import Text.Greek.Phonology.Shorthand
 
-data NounInflection = NounInflection Case Gender Number
-
 data Case = Nominative | Genitive | Dative | Accusative | Vocative
+  deriving (Eq, Show)
 
 data Gender = Feminine | Masculine | Neuter
+  deriving (Eq, Show)
 
-data Number = Singular | Plural | Dual
+data Number = Singular | Plural -- | Dual
+  deriving (Eq, Show)
+
+data NounInflection = NounInflection
+  { _gender :: Gender
+  , _number :: Number
+  , _nounCase :: Case
+  }
+  deriving (Eq, Show)
+makeLenses ''NounInflection
 
 data Noun =
     FirstDeclension
@@ -19,36 +32,57 @@ data Noun =
 
 data OptionNomSg = OptionNomSg_s | OptionNomSg_null
 data OptionGenSg = OptionGenSg_s | OptionGenSg_io
-data OptionDatPl = OptionDatPl_is | OptionDatPl_isi
+
+data VowelDeclension = VowelDeclension
+  { _thematicVowel :: NounInflection -> Phoneme
+  , _optionNomSg :: OptionNomSg
+  , _optionGenSg :: OptionGenSg
+  }
+makeLenses ''VowelDeclension
+
+nom_Sg_MascFem :: OptionNomSg -> [Phoneme]
+nom_Sg_MascFem OptionNomSg_s = [σ]
+nom_Sg_MascFem OptionNomSg_null = []
+
+gen_Sg :: OptionGenSg -> [Phoneme]
+gen_Sg OptionGenSg_s = [σ]
+gen_Sg OptionGenSg_io = [ι', ο]
 
 -- smyth 210
-vowelDeclension_Nom_Sg_MascFem :: OptionNomSg -> [Phoneme]
-vowelDeclension_Nom_Sg_MascFem OptionNomSg_s = [σ]
-vowelDeclension_Nom_Sg_MascFem OptionNomSg_null = []
+caseEnding :: VowelDeclension -> NounInflection -> [Phoneme]
+caseEnding d (NounInflection Masculine  Singular Nominative)  = nom_Sg_MascFem (d ^. optionNomSg)
+caseEnding d (NounInflection Feminine   Singular Nominative)  = nom_Sg_MascFem (d ^. optionNomSg)
+caseEnding _ (NounInflection Neuter     Singular Nominative)  = [ν]
 
-vowelDeclension_Nom_Sg_Neut :: [Phoneme]
-vowelDeclension_Nom_Sg_Neut = [ν]
+caseEnding d (NounInflection _          Singular Genitive)    = gen_Sg (d ^. optionGenSg)
 
-vowelDeclension_Gen_Sg :: OptionGenSg -> [Phoneme]
-vowelDeclension_Gen_Sg OptionGenSg_s = [σ]
-vowelDeclension_Gen_Sg OptionGenSg_io = [ι', ο]
+caseEnding _ (NounInflection _          Singular Dative)      = [ῐ]
 
-vowelDeclension_Dat_Sg :: [Phoneme]
-vowelDeclension_Dat_Sg = [ῐ]
+caseEnding _ (NounInflection _          Singular Accusative)  = [ν]
 
-vowelDeclension_Acc_Sg :: [Phoneme]
-vowelDeclension_Acc_Sg = [ν]
+caseEnding _ (NounInflection Masculine  Singular Vocative)    = []
+caseEnding _ (NounInflection Feminine   Singular Vocative)    = []
+caseEnding _ (NounInflection Neuter     Singular Vocative)    = [ν]
 
-vowelDeclension_Voc_Sg_MascFem :: [Phoneme]
-vowelDeclension_Voc_Sg_MascFem = []
+caseEnding _ (NounInflection Masculine  Plural   Nominative)  = [ῐ]
+caseEnding _ (NounInflection Feminine   Plural   Nominative)  = [ῐ]
+caseEnding _ (NounInflection Neuter     Plural   Nominative)  = [ᾰ]
 
+caseEnding _ (NounInflection _          Plural   Genitive)    = [ω, ν]
 
-secondDeclensionThematicVowel = ο
-secondDeclensionThematicVowel' = ε
+caseEnding _ (NounInflection _          Plural   Dative)      = [ῐ, σ]
 
-secondDeclension :: Gender -> Number -> Case -> [Phoneme]
-secondDeclension Masculine Singular Nominative  = secondDeclensionThematicVowel : vowelDeclension_Nom_Sg_MascFem OptionNomSg_s
-secondDeclension Masculine Singular Genitive    = secondDeclensionThematicVowel : vowelDeclension_Gen_Sg OptionGenSg_io
-secondDeclension Masculine Singular Dative      = secondDeclensionThematicVowel : vowelDeclension_Dat_Sg
-secondDeclension Masculine Singular Accusative  = secondDeclensionThematicVowel : vowelDeclension_Acc_Sg
-secondDeclension _ _ _ = []
+caseEnding _ (NounInflection Masculine  Plural   Accusative)  = [ν, σ]
+caseEnding _ (NounInflection Feminine   Plural   Accusative)  = [ν, σ]
+caseEnding _ (NounInflection _          Plural   Accusative)  = [ᾰ]
+
+caseEnding _ (NounInflection Masculine  Plural   Vocative)    = [ῐ]
+caseEnding _ (NounInflection Feminine   Plural   Vocative)    = [ῐ]
+caseEnding _ (NounInflection Neuter     Plural   Vocative)    = [ᾰ]
+
+secondDeclension :: VowelDeclension
+secondDeclension = VowelDeclension v OptionNomSg_s OptionGenSg_io
+  where
+    v (NounInflection _ Singular Vocative) = ε
+    v _ = ο
+
