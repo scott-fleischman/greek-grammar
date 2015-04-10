@@ -7,8 +7,6 @@ module Text.Greek.Phonology.Consonants where
 import Control.Lens
 import Text.Greek.Grammar
 
-data Consonant
-
 data VocalChords = Voiceless | Voiced
 
 data PartOfMouth = Labial | Velar | Dental | Gutteral
