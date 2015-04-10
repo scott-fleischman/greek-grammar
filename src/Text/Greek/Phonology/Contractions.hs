@@ -3,9 +3,8 @@
 
 module Text.Greek.Phonology.Contractions where
 
+import Prelude hiding (lookup)
 import Control.Lens
-import Data.Function
-import Data.List
 import Data.Map.Strict
 import Text.Greek.Phonology.Vowels
 
@@ -17,17 +16,22 @@ data Contraction = Contraction
   deriving (Show)
 makeLenses ''Contraction
 
+getContractions :: VowelPhoneme -> VowelPhoneme -> [VowelPhoneme]
+getContractions v1 v2 =
+  case lookup v1 forwardMap of
+    Just m -> case lookup v2 m of
+      Just vs -> vs
+      Nothing -> []
+    Nothing -> []
+
 forwardMap :: Map VowelPhoneme (Map VowelPhoneme [VowelPhoneme])
 forwardMap = fmap (fromListWith (++) . fmap makeSndList) outerMap
   where
     makeSndList (a, b) = (a, [b])
     outerMap = fromListWith (++) nestedPairs
-    nestedPairs = fmap nestedPair sortedContractions
+    nestedPairs = fmap nestedPair contractions
     nestedPair c = (c ^. first, [innerPair c])
     innerPair c = (c ^. second, c ^. target)
-
-sortedContractions :: [Contraction]
-sortedContractions = sortBy (compare `on` _first) contractions
 
 -- smyth 59
 contractions :: [Contraction]
