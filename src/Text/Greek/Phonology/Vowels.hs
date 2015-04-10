@@ -11,7 +11,7 @@ data TonguePosition = TongueClosed | TongueClosedMedium | TongueOpen | TongueOpe
 
 data VowelPhoneme =
     VowelPhoneme Vowel VowelLength
-  | Diphthong Vowel Vowel
+  | Diphthong Vowel Vowel 
   | ImproperDiphthong Vowel
   | SpuriousDiphthong Vowel Vowel
 
@@ -38,6 +38,9 @@ omega = VowelPhoneme Omega Long
 
 omicronUpsilon :: VowelPhoneme
 omicronUpsilon = Diphthong Omicron Upsilon
+
+spuriousOU :: VowelPhoneme
+spuriousOU = SpuriousDiphthong Omicron Upsilon 
 
 alphaUpsilon :: VowelPhoneme 
 alphaUpsilon = Diphthong Alpha Upsilon
@@ -80,13 +83,29 @@ contractions =
   [ Contraction (alpha Long) (alpha Short) (alpha Short)
   , Contraction (alpha Long) (alpha Long) (alpha Short)
   , Contraction (alpha Long) (alpha Short) (alpha Long)
-  , Contraction (Diphthong Alpha Iota) (alpha Short) (Diphthong Alpha Iota)
-  , Contraction (ImproperDiphthong Alpha) (alpha Short) (ImproperDiphthong Alpha)
+  , Contraction alphaIota (alpha Short) alphaIota
+  , Contraction improperAlpha (alpha Short) improperAlpha
   , Contraction (alpha Long) (alpha Short) epsilon
-  , Contraction (ImproperDiphthong Alpha) (alpha Short) (Diphthong Epsilon Iota)
-  , Contraction (alpha Long) (alpha Short) (SpuriousDiphthong Epsilon Iota)
+  , Contraction improperAlpha (alpha Short) epsilonIota
+  , Contraction (alpha Long) (alpha Short) spuriousEI
   , Contraction (alpha Long) (alpha Short) eta
-  --, Contraction (ImproperDiphthong Alpha) 
+  , Contraction improperAlpha (alpha Short) improperEta
+  , Contraction alphaIota (alpha Short) (iota Short)
+  , Contraction improperAlpha (alpha Long) (iota Short)
+  , Contraction omega (alpha Short) omicron
+  , Contraction improperOmega (alpha Short) omicronIota
+  , Contraction omega (alpha Short) spuriousOU
+  , Contraction omega (alpha Short) omega
+  , Contraction eta epsilon (alpha Short)
+  , Contraction (alpha Long) epsilon (alpha Short)
+  , Contraction eta epsilon (alpha Long)
+  , Contraction eta eta eta 
+  , Contraction improperEta eta improperEta
+  , Contraction improperOmega eta omicronIota
+  , Contraction improperEta eta (iota Short)
+  , Contraction (iota Long) (iota Short) (iota Short)
+  , Contraction omega omicron (alpha Short)
+  , Contraction (alpha Long) omicron (alpha Short)
   , Contraction (Diphthong Omicron Upsilon) omicron omicron
   ]
 
