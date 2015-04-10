@@ -2,6 +2,7 @@
 rough breathing over initial vowel used to be initial sigma Smyth §119
 sigma preceeding initial vowel -> rough breathing 
 
+
 sigma between single vowels is dropped Smyth §120
 - single vowels are usually short 
 - intervocalic sigma drops before vowel euphony rules applied §55
@@ -9,9 +10,6 @@ sigma between single vowels is dropped Smyth §120
 Crasis
 crasis occurs usually between words that sytactically belong together §63
 the contraction of a vowel at the end of a word with the vowel/diphthong at the beginning of the following word §62
-
-
-
 
 Vowel Rules
 
@@ -30,3 +28,37 @@ A dental stop before another dental stop becomes sigma §83
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ELISION Smyth §69
+
+A short vowel at the end of a word may drop out when the following word begins with a vowel.
+An apostrophe is put in place of the elided vowel
+The final vowel of an emphatic personal pronoun is rarely elided
+>>>>>>> origin/master
