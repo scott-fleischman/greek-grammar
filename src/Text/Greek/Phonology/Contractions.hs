@@ -97,9 +97,9 @@ forwardContractionTests =
 
 inverseContractionTests :: [(VowelPhoneme, [(VowelPhoneme, VowelPhoneme)])]
 inverseContractionTests =
-  [ (improperOmega, [(epsilon, omicron), (omicron, epsilon), (alpha Short, omicronIota), (eta, omicronIota), (epsilon, improperOmega), (omicron, improperEta), (omicron, improperOmega), (omega, iota)])
-  , (iota Long, [(iota Short, iota Short)]
-  , ((upsilon Short, eta), [])
+  [ (improperOmega, [(epsilon, omicron), (omicron, epsilon), (alpha Short, omicronIota), (eta, omicronIota), (epsilon, improperOmega), (omicron, improperEta), (omicron, improperOmega), (omega, iota Short)])
+  , (iota Long, [(iota Short, iota Short)])
+  , (alpha Short, [])
   ]
   
   --Iota/Upsilon can appear in first position when combined with an Iota/Upsilion in second position
