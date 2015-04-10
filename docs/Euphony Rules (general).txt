@@ -1,3 +1,32 @@
 
 rough breathing over initial vowel used to be initial sigma Smyth §119
 sigma preceeding initial vowel -> rough breathing 
+
+sigma between single vowels is dropped Smyth §120
+- single vowels are usually short 
+- intervocalic sigma drops before vowel euphony rules applied §55
+
+Crasis
+crasis occurs usually between words that sytactically belong together §63
+the contraction of a vowel at the end of a word with the vowel/diphthong at the beginning of the following word §62
+
+
+
+
+Vowel Rules
+
+when combining vowels in triplets combine the last vowels first. The resultant combination then combines with the remaining vowel. § 55
+
+Square of Stops
+
+labial before sigma becomes Psi
+Velar before sigma becomes Xi
+dental before sigma drops (the dental drops)
+
+voiceless stops (Pi, Tau, Kappa) becomes aspirated (Phi, Theta, Chi) when a rough breathing follows immediately. §64
+
+A labial or velar stop before a dental stop must be of the same voice type (voiceless + voiceless, voiced + voiced) §82
+A dental stop before another dental stop becomes sigma §83
+
+
+
