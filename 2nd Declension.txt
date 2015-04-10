@@ -1,0 +1,74 @@
+2nd Declension
+
+
+Noun = Case | Gender | Number
+
+Case = Nominative | Genitive | Dative | Accusative | Vocative
+
+Gender = Feminine | Masculine | Neuter
+
+Number = Singular | Plural | Dual
+
+Declension = FirstDeclension | SecondDeclension | ThirdDeclension
+
+
+Second Declension Universal Forms
+
+			Singular				Plural						Dual
+
+	Nom		ο ς						ο-ι 						ω
+	Gen		ου (from ο-(ι)ο)		ων 							ο + ιν
+	Dat		ῳ (from ο-ι)			ο-ις 	or 	ο-ισι(ν)		ο + ιν
+	Acc		ο-ν						ους (from ο-νς) 			ω
+	Voc		ε						ο-ι 						ω
+
+Second Declension Masculine 
+
+			Singular									Plural
+
+	Nom		ος = ο + ς					[S 229]			οι = ο + ι		[S 229]
+	Gen		ου = ο +(ι) + ο 			[S 230.1]		ων = ο + ων 	[S 229.b]
+	Dat		ῳ = ο + αι					[S 228.b]		οις/οισι(ν)	= ο + ισ(ιν)
+	Acc		ον = ο + ν					[S 229]			ους = ο + νς 	[S 230.4] 
+																		[M 24.4] 	
+	Voc		ε (ε is thematic vowel)		[S 228.b]		οι = ο + ι 		[S 229]	
+
+Second Declension Neuter 
+
+			Singular									Plural
+
+	Nom		ος = ο + ν					[S 229]			α (short)		[S 229]
+	Gen		ου = ο +(ι) + ο 			[S 230.1]		ων = ο + ων 	[S 229.b]
+	Dat		ῳ = ο + αι					[S 228.b]		οις/οισι(ν)	= ο + ισ(ιν)
+	Acc		ον = ο + ν					[S 229]			α 				[S 229] 	
+	Voc		ον = ο + ν					[S 229]			α (short) 		[S 229]	
+
+
+
+
+
+
+Some Rules Taken from Smyth 229–230:
+1) The dat. sing. in -ῳ represents the union of the stem vowel -ο and ai, the original case ending in the I. E. languages. [S 228.b]
+1a) Forms in -οι, as οἴκοι at home, may be locatives (-ο + ί, the locative ending). [S 228.b]
+2) Stem vowel varies between ο and ε [S 228.b].
+3) The Gen Plural -ων is due to the onion of -ο + ων, which contracted to -ων in the earliest period of the language [S 228.b].
+4) Genitive Singular:
+	4a) οιο appears in Homer
+	4b) Loses ι and becomes οο
+	4c) Contraction becomes ου in Homer, Ionic, Milder Doric
+	4d) οο also appears as οο in Homer
+	4e) οο also becomes ω in Aeolic and Severer Doric
+5) Accusative Plural ους is from -ον-ς (found in Cretan), that is, the accus. sing. + ς. From -ονς comes -ως Severer Doric, -οις Aeolic, -ος Cretan and in Dor. poetry. -ους is Hom., Ionic, and Milder Doric. [S 230.4]
+
+Rules Taken from Mounce [M 2.10]
+6) Roots with σ between two vowels
+	6a) The σ drops out
+	6b) The remaining vowels do not contract
+	6c) When combined with a second word (creating a compound or polysyllabic word), contraction occurs (M 2.10)
+7) ν drops out when immediately followed by σ, and the final stem vowel is lengthened to compensate for the loss (§24.4).
+
+
+Special Comments About 2nd Declension
+1) There are second declension feminine nouns
+2) There are contract 2nd declension nouns that function according to contract euphony rules. For instnce χειμάρρους is from χειμάρρο + ο + ς. ο + ο contract to become ου, thus the ους ending (S 235; M p. 188)
