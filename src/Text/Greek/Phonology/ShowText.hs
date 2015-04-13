@@ -2,59 +2,77 @@
 
 module Text.Greek.Phonology.ShowText where
 
+import Prelude hiding (lookup)
+import Data.Map.Strict (Map, fromList, lookup)
 import Data.Text (Text, intercalate)
+import Data.Text.Format (Shown(..), Only(..))
+import Data.Text.Format.Strict (format')
+import Data.Tuple (swap)
 import Text.Greek.Phonology.Phoneme
 import Text.Greek.Phonology.Consonants
 import Text.Greek.Phonology.Vowels
 
-showText :: Phoneme -> Text
-showText (MkVowel (VowelPhoneme Alpha Short)) = "ᾰ"
-showText (MkVowel (VowelPhoneme Alpha Long)) = "ᾱ"
-showText (MkVowel (VowelPhoneme Omicron _)) = "ο"
-showText (MkConsonant Theta) = "θ"
-showText (MkVowel (Diphthong Omicron Upsilon)) = "ου"
-showText (MkVowel (VowelPhoneme Epsilon _)) = "ε"
-showText (MkVowel (VowelPhoneme Eta _)) = "η"
-showText (MkVowel (VowelPhoneme Iota Long)) = "ῑ"
-showText (MkVowel (VowelPhoneme Iota Short)) = "ῐ"
-showText (MkVowel (VowelPhoneme Upsilon Long)) = "ῡ"
-showText (MkVowel (VowelPhoneme Upsilon Short)) = "ῠ"
-showText (MkVowel (SpuriousDiphthong Omicron Upsilon)) = "ου'"
-showText (MkVowel (Diphthong Alpha Upsilon)) = "αυ"
-showText (MkVowel (Diphthong Epsilon Upsilon)) = "ευ"
-showText (MkVowel (Diphthong Eta Upsilon)) = "ηυ"
-showText (MkVowel (Diphthong Alpha Iota)) = "αι"
-showText (MkVowel (Diphthong Epsilon Iota)) = "ει" 
-showText (MkVowel (SpuriousDiphthong Epsilon Iota)) = "ει'"
-showText (MkVowel (Diphthong Omicron Iota)) = "οι"
-showText (MkVowel (ImproperDiphthong Alpha)) = "ᾳ"
-showText (MkVowel (ImproperDiphthong Eta)) = "ῃ"
-showText (MkVowel (ImproperDiphthong Omega)) = "ῳ"
-showText (MkConsonant Gamma) = "γ"
-showText (MkConsonant Delta) = "δ"
-showText (MkConsonant Zeta) = "ζ"
-showText (MkConsonant Kappa) = "κ"
-showText (MkConsonant Lambda) = "λ"
-showText (MkConsonant Mu) = "μ"
-showText (MkConsonant Nu) = "ν"
-showText (MkConsonant Xi) = "ξ"
-showText (MkConsonant Pi) = "π"
-showText (MkConsonant Rho) = "ρ"
-showText (MkConsonant Sigma) = "σ"
-showText (MkConsonant Tau) = "τ"
-showText (MkConsonant Phi) = "φ"
-showText (MkConsonant Chi) = "χ"
-showText (MkConsonant Psi) = "ψ"
-showText (MkConsonant ConsonantalIota) = "ι'"
-showText (MkConsonant RoughBreathing) = "h"
-showText (MkConsonant Beta) = "β"
-showText (MkVowel (VowelPhoneme Omega _)) = "ω"
-showText (MkConsonant GammaNasal) = "γγ"
-showText (MkConsonant Digamma) = "ϝ"
-showText (MkConsonant RhoRough) = "hρ"
-showText (MkVowel (Diphthong _ _)) = "unknown diphthong"
-showText (MkVowel (SpuriousDiphthong _ _)) = "unknown spuriousdiphthong"
-showText (MkVowel (ImproperDiphthong _)) = "unknown improperdiphthong"
-
 showWord :: [Phoneme] -> Text
 showWord = intercalate " " . fmap showText
+
+showText :: Phoneme -> Text
+showText p = case lookup p phonemeToText of
+  Just t -> t
+  Nothing -> format' "Unknown phoneme {}" (Only $ Shown p)
+
+parsePhoneme :: Text -> Maybe Phoneme
+parsePhoneme t = lookup t textToPhoneme
+
+textToPhoneme :: Map Text Phoneme
+textToPhoneme = fromList . fmap swap $ phonemeTextPairs
+
+phonemeToText :: Map Phoneme Text
+phonemeToText = fromList phonemeTextPairs
+
+phonemeTextPairs :: [(Phoneme, Text)]
+phonemeTextPairs =
+  [ ((MkVowel (VowelPhoneme Alpha Short)), "ᾰ")
+  , ((MkVowel (VowelPhoneme Alpha Long)), "ᾱ")
+  , ((MkVowel (VowelPhoneme Omicron Short)), "ο")
+  , ((MkConsonant Theta), "θ")
+  , ((MkVowel (Diphthong Omicron Upsilon)), "ου")
+  , ((MkVowel (VowelPhoneme Epsilon Short)), "ε")
+  , ((MkVowel (VowelPhoneme Eta Long)), "η")
+  , ((MkVowel (VowelPhoneme Iota Long)), "ῑ")
+  , ((MkVowel (VowelPhoneme Iota Short)), "ῐ")
+  , ((MkVowel (VowelPhoneme Upsilon Long)), "ῡ")
+  , ((MkVowel (VowelPhoneme Upsilon Short)), "ῠ")
+  , ((MkVowel (SpuriousDiphthong Omicron Upsilon)), "ου'")
+  , ((MkVowel (Diphthong Alpha Upsilon)), "αυ")
+  , ((MkVowel (Diphthong Epsilon Upsilon)), "ευ")
+  , ((MkVowel (Diphthong Eta Upsilon)), "ηυ")
+  , ((MkVowel (Diphthong Alpha Iota)), "αι")
+  , ((MkVowel (Diphthong Epsilon Iota)), "ει" )
+  , ((MkVowel (SpuriousDiphthong Epsilon Iota)), "ει'")
+  , ((MkVowel (Diphthong Omicron Iota)), "οι")
+  , ((MkVowel (ImproperDiphthong Alpha)), "ᾳ")
+  , ((MkVowel (ImproperDiphthong Eta)), "ῃ")
+  , ((MkVowel (ImproperDiphthong Omega)), "ῳ")
+  , ((MkConsonant Gamma), "γ")
+  , ((MkConsonant Delta), "δ")
+  , ((MkConsonant Zeta), "ζ")
+  , ((MkConsonant Kappa), "κ")
+  , ((MkConsonant Lambda), "λ")
+  , ((MkConsonant Mu), "μ")
+  , ((MkConsonant Nu), "ν")
+  , ((MkConsonant Xi), "ξ")
+  , ((MkConsonant Pi), "π")
+  , ((MkConsonant Rho), "ρ")
+  , ((MkConsonant Sigma), "σ")
+  , ((MkConsonant Tau), "τ")
+  , ((MkConsonant Phi), "φ")
+  , ((MkConsonant Chi), "χ")
+  , ((MkConsonant Psi), "ψ")
+  , ((MkConsonant ConsonantalIota), "ι'")
+  , ((MkConsonant RoughBreathing), "h")
+  , ((MkConsonant Beta), "β")
+  , ((MkVowel (VowelPhoneme Omega Long)), "ω")
+  , ((MkConsonant GammaNasal), "γ'")
+  , ((MkConsonant Digamma), "ϝ")
+  , ((MkConsonant RhoRough), "ῥ")
+  ]

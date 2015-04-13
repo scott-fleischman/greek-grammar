@@ -23,7 +23,7 @@ data AirFlow =
 
 data ConsonantPhoneme = Beta | Gamma | GammaNasal | Digamma | Delta | Zeta | Theta | ConsonantalIota | Kappa | Lambda
   | Mu | Nu | Xi | Pi | Rho | RhoRough | Sigma | Tau | Phi | Chi | Psi | RoughBreathing
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
 
 allConsonantPhonemes :: [ConsonantPhoneme]
