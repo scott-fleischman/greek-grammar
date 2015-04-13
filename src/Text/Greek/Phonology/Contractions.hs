@@ -27,13 +27,15 @@ getContractions v1 v2 =
     Nothing -> []
 
 forwardMap :: Map VowelPhoneme (Map VowelPhoneme [VowelPhoneme])
-forwardMap = fmap (fromListWith (++) . fmap makeSndList) outerMap
+forwardMap = forwardMap' (\c -> c ^. first) (\c -> c ^. second) (\c -> c ^. target) $ contractions ^. item
+
+forwardMap' :: forall s a1 a2 a3. (Ord a1, Ord a2) => (s -> a1) -> (s -> a2) -> (s -> a3) -> [s] -> Map a1 (Map a2 [a3])
+forwardMap' f1 f2 f3 ss = fmap (fromListWith (++) . fmap makeSndList) outerMap
   where
     makeSndList (a, b) = (a, [b])
     outerMap = fromListWith (++) nestedPairs
-    nestedPairs = fmap nestedPair $ contractions ^. item
-    nestedPair c = (c ^. first, [innerPair c])
-    innerPair c = (c ^. second, c ^. target)
+    nestedPairs = fmap nestedPair ss
+    nestedPair c = (f1 c, [(f2 c, f3 c)])
 
 contractions :: Cited [Contraction]
 contractions = smyth § "59" $
@@ -115,4 +117,3 @@ inverseContractionTests =
   ]
   
   --Iota/Upsilon can appear in first position when combined with an Iota/Upsilion in second position
-  
