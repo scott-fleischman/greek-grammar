@@ -10,11 +10,20 @@ import Text.Greek.Phonology.Shorthand
 data Case = Nominative | Genitive | Dative | Accusative | Vocative
   deriving (Eq, Show)
 
+allCases :: [Case]
+allCases = [Nominative, Genitive, Dative, Accusative, Vocative]
+
 data Gender = Feminine | Masculine | Neuter
   deriving (Eq, Show)
 
+allGenders :: [Gender]
+allGenders = [Feminine, Masculine, Neuter]
+
 data Number = Singular | Plural -- | Dual
   deriving (Eq, Show)
+
+allNumbers :: [Number]
+allNumbers = [Singular, Plural] -- Dual
 
 data NounInflection = NounInflection
   { _gender :: Gender
@@ -23,6 +32,9 @@ data NounInflection = NounInflection
   }
   deriving (Eq, Show)
 makeLenses ''NounInflection
+
+allNounInflections :: [NounInflection]
+allNounInflections = [NounInflection g n c | g <- allGenders, n <- allNumbers, c <- allCases]
 
 data Noun =
     FirstDeclension
@@ -86,7 +98,12 @@ secondDeclension = VowelDeclension v OptionNomSg_s OptionGenSg_io
     v (NounInflection _ Singular Vocative) = ε
     v _ = ο
 
-nounEnding :: Noun -> Number -> Case -> [Phoneme]
-nounEnding (SecondDeclension g) n c = (secondDeclension ^. thematicVowel $ ni) : caseEnding secondDeclension ni
-  where ni = (NounInflection g n c)
-nounEnding _ _ _ = []
+nounEnding :: Noun -> Number -> Case -> (NounInflection, [Phoneme])
+nounEnding (SecondDeclension g) n c = (ni, ps)
+  where
+    ni = (NounInflection g n c)
+    ps = (secondDeclension ^. thematicVowel $ ni) : caseEnding secondDeclension ni
+nounEnding _ n c = (NounInflection Neuter n c, [])
+
+allNounEndings :: Noun -> [(NounInflection, [Phoneme])]
+allNounEndings noun = [nounEnding noun num c | num <- allNumbers, c <- allCases]

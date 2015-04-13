@@ -1,5 +1,6 @@
 module Text.Greek.Lexicon.Lemmas where
 
+import Control.Lens
 import Text.Greek.Phonology.Phoneme
 import Text.Greek.Phonology.Shorthand
 import Text.Greek.Morphology.Noun
@@ -9,6 +10,10 @@ data Lemma = Lemma
   { stem :: [Phoneme]
   , partOfSpeech :: PartOfSpeech
   }
+
+paradigm :: Lemma -> [(NounInflection, [Phoneme])]
+paradigm (Lemma s (MkNoun n)) = [e & _2 %~ (s ++) | e <- allNounEndings n]
+paradigm _ = []
 
 mas2D :: PartOfSpeech
 mas2D =  MkNoun (SecondDeclension Masculine)
