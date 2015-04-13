@@ -39,12 +39,6 @@ nous = Lemma [ν, ο] mas2D
 periplous :: Lemma
 periplous = Lemma [π, ε, ρ, ῑ, λ, ο] mas2D
 
-ostous :: Lemma
-ostous = Lemma [ο, σ, τ, ε] mas2D
-
-odos :: Lemma
-odos = Lemma [ο, δ] mas2D
-
 neos :: Lemma
 neos = Lemma [ν, η, ο] mas2D
 
@@ -78,6 +72,9 @@ plous = Lemma [π, λ, ο] mas2D
 rous :: Lemma
 rous = Lemma [ρ, ο] mas2D
 
+odos :: Lemma
+odos = Lemma [ο, δ] fem2D
+
 nesos :: Lemma
 nesos = Lemma [ν, ε, σ] fem2D
 
@@ -102,15 +99,5 @@ deipnon = Lemma [δ, ει, π, ν] neut2D
 kanoun :: Lemma
 kanoun = Lemma [κ, ᾰ, ν, ε] neut2D
 
-
-
-
-
-
-
-
-
-
-
-
-
+ostoun :: Lemma
+ostoun = Lemma [ο, σ, τ, ε] neut2D
