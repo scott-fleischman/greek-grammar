@@ -40,7 +40,7 @@ data Noun =
     FirstDeclension
   | SecondDeclension Gender
   | ThirdDeclension
-
+  deriving (Eq, Show)
 
 data OptionNomSg = OptionNomSg_s | OptionNomSg_null
 data OptionGenSg = OptionGenSg_s | OptionGenSg_io

@@ -10,6 +10,7 @@ data Lemma = Lemma
   { stem :: [Phoneme]
   , partOfSpeech :: PartOfSpeech
   }
+  deriving (Eq, Show)
 
 paradigm :: Lemma -> [(NounInflection, [Phoneme])]
 paradigm (Lemma s (MkNoun n)) = [e & _2 %~ (s ++) | e <- allNounEndings n]
