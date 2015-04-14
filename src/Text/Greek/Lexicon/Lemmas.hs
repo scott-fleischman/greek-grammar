@@ -21,7 +21,7 @@ masc2Ds = flip Lemma (MkNoun (SecondDeclension Masculine)) <$>
   , [ᾰ, ρ, γ]
   , [ᾰ, ρ, ῐ, θ, μ]
   , [δ, η, ρ]
-  , [δ, ο, ῠ, λ]
+  , [δ, ου, λ]
   , [θ, ε, σ]
   , [rough, ῐ, π, π]
   , [κ, ῐ, ν, δ, ν]
