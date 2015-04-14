@@ -98,7 +98,6 @@ contractions = smyth § "59" $
   , Contraction omega epsilon omega
   , Contraction improperOmega epsilon improperOmega
   , Contraction improperEta eta alphaIota
-  , Contraction omicronUpsilon omicron omicron
   ]
 
 forwardContractionTests :: [(VowelPhoneme, VowelPhoneme, [VowelPhoneme])]
