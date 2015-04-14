@@ -10,5 +10,5 @@ import Text.Greek.Lexicon.Lemmas
 import Text.Greek.Morphology.Noun
 import Text.Greek.Phonology.ShowText
 
-dumpParadigms :: Lemma -> IO ()
-dumpParadigms lem = mapM_ (\(NounInflection g n c,ps) -> putStrLn $ format' "{} {} {} {}" (Shown g, Shown n, Shown c, showWord ps)) (paradigm lem)
+dumpParadigm :: Lemma -> IO ()
+dumpParadigm lem = mapM_ (\(NounInflection g n c,ps) -> putStrLn $ format' "{} {} {} {}" (Shown g, Shown n, Shown c, showWord ps)) (paradigm lem)

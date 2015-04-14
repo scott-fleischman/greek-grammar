@@ -15,89 +15,40 @@ paradigm :: Lemma -> [(NounInflection, [Phoneme])]
 paradigm (Lemma s (MkNoun n)) = [e & _2 %~ (s ++) | e <- allNounEndings n]
 paradigm _ = []
 
-mas2D :: PartOfSpeech
-mas2D =  MkNoun (SecondDeclension Masculine)
+masc2Ds :: [Lemma]
+masc2Ds = flip Lemma (MkNoun (SecondDeclension Masculine)) <$>
+  [ [ᾰ, ν, θ, ρ, π]
+  , [ᾰ, ρ, γ]
+  , [ᾰ, ρ, ῐ, θ, μ]
+  , [δ, η, ρ]
+  , [δ, ο, ῠ, λ]
+  , [θ, ε, σ]
+  , [rough, ῐ, π, π]
+  , [κ, ῐ, ν, δ, ν]
+  , [λ, ο, γ]
+  , [ν, η, ο]
+  , [ν, ο]
+  , [π, ε, ρ, ῑ, λ, ο]
+  , [π, λ, ο]
+  , [π, ο, λ, ε, μ]
+  , [π, ο, τ, ᾰ, μ]
+  , [ρ, ο]
+  ]
 
-neut2D :: PartOfSpeech
-neut2D = MkNoun (SecondDeclension Neuter)
+fem2Ds :: [Lemma]
+fem2Ds = flip Lemma (MkNoun (SecondDeclension Feminine)) <$>
+  [ [η, π, ει, ρ]
+  , [ν, ε, σ]
+  , [ο, δ]
+  , [τ, ρ, ο, π]
+  ]
 
-fem2D :: PartOfSpeech
-fem2D = MkNoun (SecondDeclension Feminine)
-
-theos :: Lemma
-theos = Lemma [θ, ε, σ] mas2D
-
-hippos :: Lemma 
-hippos = Lemma [ῐ, π, π] mas2D
-
-anthropos :: Lemma
-anthropos = Lemma [ᾰ, ν, θ, ρ, π] mas2D
-
-nous :: Lemma
-nous = Lemma [ν, ο] mas2D
-
-periplous :: Lemma
-periplous = Lemma [π, ε, ρ, ῑ, λ, ο] mas2D
-
-neos :: Lemma
-neos = Lemma [ν, η, ο] mas2D
-
-logos :: Lemma
-logos = Lemma [λ, ο, γ] mas2D
-
-deros :: Lemma
-deros = Lemma [δ, η, ρ] mas2D
-
-doulos :: Lemma
-doulos = Lemma [δ, ο, ῠ, λ] mas2D
-
-kindunos :: Lemma
-kindunos = Lemma [κ, ῐ, ν, δ, ν] mas2D
-
-polemos :: Lemma
-polemos = Lemma [π, ο, λ, ε, μ] mas2D
-
-argos :: Lemma
-argos = Lemma [ᾰ, ρ, γ] mas2D
-
-potamos :: Lemma
-potamos = Lemma [π, ο, τ, ᾰ, μ] mas2D
-
-arithmos :: Lemma
-arithmos = Lemma [ᾰ, ρ, ῐ, θ, μ] mas2D
-
-plous :: Lemma 
-plous = Lemma [π, λ, ο] mas2D
-
-rous :: Lemma
-rous = Lemma [ρ, ο] mas2D
-
-odos :: Lemma
-odos = Lemma [ο, δ] fem2D
-
-nesos :: Lemma
-nesos = Lemma [ν, ε, σ] fem2D
-
-epeiros :: Lemma
-epeiros = Lemma [η, π, ει, ρ] fem2D
-
-tropos :: Lemma
-tropos = Lemma [τ, ρ, ο, π] fem2D
-
-doron :: Lemma
-doron = Lemma [δ, ω, ρ] neut2D
-
-ergon :: Lemma
-ergon = Lemma [ε, ρ, γ] neut2D
-
-pteron :: Lemma
-pteron = Lemma [π, τ, ε, ρ] neut2D
-
-deipnon :: Lemma
-deipnon = Lemma [δ, ει, π, ν] neut2D
-
-kanoun :: Lemma
-kanoun = Lemma [κ, ᾰ, ν, ε] neut2D
-
-ostoun :: Lemma
-ostoun = Lemma [ο, σ, τ, ε] neut2D
+neut2Ds :: [Lemma]
+neut2Ds = flip Lemma (MkNoun (SecondDeclension Neuter)) <$>
+  [ [δ, ει, π, ν]
+  , [δ, ω, ρ]
+  , [ε, ρ, γ]
+  , [κ, ᾰ, ν, ε]
+  , [ο, σ, τ, ε]
+  , [π, τ, ε, ρ]
+  ]
