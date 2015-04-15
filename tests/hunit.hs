@@ -24,6 +24,7 @@ import Text.Greek.Paths
 import Text.Greek.Phonology.Contractions
 import Text.Greek.Script
 import Text.Greek.Script.Sound
+import Text.Greek.Script.Unicode
 import Text.XML (readFile)
 
 case_valid_tokens = mapM_ (\p -> assertEqual (showString "'\\x" . showHex (ord . fst $ p) $ "'") [] (validateToken . snd $ p)) unicodeTokenPairs
@@ -42,6 +43,16 @@ case_sound_ai_iotaSubscript_rough = True @=? case textToSounds "ᾁ" of { Conson
 case_sound_ai_diphthong_rough = True @=? case textToSounds "αἱ" of { ConsonantSound (RoughBreathing _) : VowelSound (Diphthong _ _) : [] -> True ; _ -> False }
 
 case_forward_contractions = mapM_ (\t@(v1, v2, vs) -> assertEqual (show t) (sort $ getContractions v1 v2) (sort vs)) forwardContractionTests
+
+alpha = '\x0391'
+alphaAcute = '\x0386'
+acute = '\x0301'
+smooth = '\x0313'
+
+case_groupMarks_alpha = groupMarks [alpha] @?= GroupMarksResult [] [LetterMarkGroup alpha []]
+case_groupMarks_alphaAcute_polytonic = groupMarks [alphaAcute] @?= GroupMarksResult [] [LetterMarkGroup alphaAcute []]
+case_groupMarks_alpha_acuteMark = groupMarks [alpha, acute] @?= GroupMarksResult [] [LetterMarkGroup alpha [acute]]
+case_groupMarks_alpha_smoothMark_acuteMark = groupMarks [alpha, smooth, acute] @?= GroupMarksResult [] [LetterMarkGroup alpha [acute, smooth]]
 
 main :: IO ()
 main = $(defaultMainGenerator)
