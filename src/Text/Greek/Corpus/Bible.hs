@@ -11,7 +11,7 @@ import Data.Text (Text, unpack)
 import Data.Traversable (mapM)
 import Control.Monad.State.Lazy (State, evalState, state)
 import Text.Greek.Script.Token
-import Text.Greek.Script.Unicode
+import Text.Greek.Script.UnicodeTokenPairs
 
 data Bible = Bible
   { bibleId :: Text

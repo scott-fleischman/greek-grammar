@@ -7,7 +7,7 @@ import Data.Map.Strict (lookup, fromList)
 import Text.Greek.Corpus.Bible
 import Text.Greek.Script.Sound
 import Text.Greek.Script.Token
-import Text.Greek.Script.Unicode
+import Text.Greek.Script.UnicodeTokenPairs
 
 textToSounds :: Text -> [Sound ()]
 textToSounds t = tokensToSounds $ textToTokenContexts t

@@ -15,4 +15,4 @@ unicodeDataPath :: FilePath
 unicodeDataPath = "data" </> "ucd" </> "UnicodeData" <.> "txt"
 
 haskellUnicodeScriptPath :: FilePath
-haskellUnicodeScriptPath = "src" </> "Text" </> "Greek" </> "Script" </> "Unicode" <.> "hs"
+haskellUnicodeScriptPath = "src" </> "Text" </> "Greek" </> "Script" </> "UnicodeTokenPairs" <.> "hs"
