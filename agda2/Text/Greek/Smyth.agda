@@ -4,6 +4,28 @@ open import Data.Char
 open import Data.Maybe
 open import Relation.Nullary using (¬_)
 
+-- Smyth §§C,D
+data Dialect : Set where
+  Aeolic : Dialect -- Aeolic means Lesbian Aeolic; Alcaeus, Saphho; Theocritus idylls
+  Boeotian : Dialect -- Aeolic with "many Doric ingredients"
+  
+  Doric : Dialect -- lyric poets, Pindar; Theocritus bucolic
+  SevererDoric : Dialect -- Old Doric
+  MilderDoric : Dialect -- New Doric
+  
+  Arcadian Cyprian Elean NWGreece : Dialect
+  
+  Ionic : Dialect
+  Epic : Dialect -- Old Ionic (Homer, Hesiod)
+  Homer : Dialect -- Same as Epic?
+  NewIonic : Dialect -- Herodotus, Hippocrates; Archilochus (between New and Old)
+  
+  Attic : Dialect
+  NewAttic : Dialect -- Aristophanes, Xenophon, Lysias, Isocrates, Aeschines, Demosthenes, Plato
+  OldAttic : Dialect -- Aeschylus, Sophocles, Euripides (tragic poets), Thucydides
+
+  Koine : Dialect -- Common
+
 -- Smyth §1
 data Letter : Set where
   α β γ δ ε ζ η θ ι κ λ′ μ ν ξ ο π ρ σ τ υ φ χ ψ ω : Letter
@@ -311,18 +333,55 @@ data DoubleConsonant : ∀ {ℓ} → Consonant ℓ → Set where
   ξ : DoubleConsonant ξ
   ψ : DoubleConsonant ψ
 
-data _+_⇒DoubleConsonant_ : ∀ {ℓ₁ ℓ₂ ℓ₃} → Consonant ℓ₁ → Consonant ℓ₂ → Consonant ℓ₃ → Set where
-  σ+δ⇒DoubleConsonantζ : σ + δ ⇒DoubleConsonant ζ -- Smyth §26 D. Aeolic has σδ for ζ
-  δ+σ⇒DoubleConsonantζ : δ + σ ⇒DoubleConsonant ζ
+data _+_⇒DoubleConsonant⇒_ : ∀ {ℓ₁ ℓ₂ ℓ₃} → Consonant ℓ₁ → Consonant ℓ₂ → Consonant ℓ₃ → Set where
+  σ+δ⇒ζ : σ + δ ⇒DoubleConsonant⇒ ζ -- Smyth §26 D. Aeolic has σδ for ζ
+  δ+σ⇒ζ : δ + σ ⇒DoubleConsonant⇒ ζ
 
-  κ+σ⇒DoubleConsonantξ : κ + σ ⇒DoubleConsonant ξ
-  γ+σ⇒DoubleConsonantξ : γ + σ ⇒DoubleConsonant ξ
-  χ+σ⇒DoubleConsonantξ : χ + σ ⇒DoubleConsonant ξ
+  κ+σ⇒ξ : κ + σ ⇒DoubleConsonant⇒ ξ
+  γ+σ⇒ξ : γ + σ ⇒DoubleConsonant⇒ ξ
+  χ+σ⇒ξ : χ + σ ⇒DoubleConsonant⇒ ξ
 
-  π+σ⇒DoubleConsonantψ : π + σ ⇒DoubleConsonant ψ
-  β+σ⇒DoubleConsonantψ : β + σ ⇒DoubleConsonant ψ
-  φ+σ⇒DoubleConsonantψ : φ + σ ⇒DoubleConsonant ψ
+  π+σ⇒ψ : π + σ ⇒DoubleConsonant⇒ ψ
+  β+σ⇒ψ : β + σ ⇒DoubleConsonant⇒ ψ
+  φ+σ⇒ψ : φ + σ ⇒DoubleConsonant⇒ ψ
 
+-- Smyth §27
+data _⇒QuantitativeVowelGradation⇒_ : ∀ {ℓ₁ ℓ₂} {v₁ : Vowel ℓ₁} {v₂ : Vowel ℓ₂} → VowelWithLength v₁ short → VowelWithLength v₂ long → Set where
+  ᾰ⇒η : ᾰ ⇒QuantitativeVowelGradation⇒ η
+  ε⇒ᾱ : ε ⇒QuantitativeVowelGradation⇒ η
+  ῐ⇒ῑ : ῐ ⇒QuantitativeVowelGradation⇒ ῑ
+  ο⇒ω : ο ⇒QuantitativeVowelGradation⇒ ω
+  ῠ⇒ῡ : ῠ ⇒QuantitativeVowelGradation⇒ ῡ
+
+data VowelSound : VowelLength → Set where
+  ᾰ ε ῐ ο ῠ : VowelSound short
+  ᾱ η ῑ ῡ ω : VowelSound long
+  αι ει-gen ει-sp οι ᾱͅ ῃ ῳ αυ ευ ου-gen ου-sp ηυ υι ωυ : VowelSound long
+
+-- Smyth §28 D. Epic
+data _⇒MetricalLengthening⇒_ : VowelSound short → VowelSound long → Set where
+  ε⇒ει-sp : ε ⇒MetricalLengthening⇒ ει-sp
+  ο⇒ου-sp : ο ⇒MetricalLengthening⇒ ου-sp
+  ο⇒οι : ο ⇒MetricalLengthening⇒ οι -- spurious οι ? "rarely"
+  ᾰ⇒ᾱ : ᾰ ⇒MetricalLengthening⇒ ᾱ
+  ῐ⇒ῑ : ῐ ⇒MetricalLengthening⇒ ῑ
+  ῠ⇒ῡ : ῠ ⇒MetricalLengthening⇒ ῡ
+
+-- Smyth §31 Attic
+data _+_⇒QuantitativeVowelGradation′⇒_ : ∀ {ℓ₁ ℓ₂} {v₁ : Vowel ℓ₁} {v₂ : Vowel ℓ₂} → Letter → VowelWithLength v₁ short → VowelWithLength v₂ long → Set where
+  ε+ᾰ⇒ᾱ : ε + ᾰ ⇒QuantitativeVowelGradation′⇒ ᾱ
+  ι+ᾰ⇒ᾱ : ι + ᾰ ⇒QuantitativeVowelGradation′⇒ ᾱ
+  ρ+ᾰ⇒ᾱ : ρ + ᾰ ⇒QuantitativeVowelGradation′⇒ ᾱ
+
+-- Smyth §§32,33
+data _⇒DialectVocalicChange⇒_ : ∀ {ℓ₁ ℓ₂ len} {v₁ : Vowel ℓ₁} {v₂ : Vowel ℓ₂} → VowelWithLength v₁ len → VowelWithLength v₂ len → Set where
+  η⇒ᾱ : η ⇒DialectVocalicChange⇒ ᾱ
+  ε⇒ᾰ : ε ⇒DialectVocalicChange⇒ ᾰ
+
+{-
+  ᾰ ᾱ ε η ῐ ῑ ο ῠ ῡ ω 
+  αι ει-gen ει-sp οι ᾱͅ ῃ ῳ αυ ευ ου-gen ου-sp ηυ υι ωυ
+-}
 
 -- TODO (needs a unified model)
 
@@ -351,3 +410,9 @@ data _+_⇒DoubleConsonant_ : ∀ {ℓ₁ ℓ₂ ℓ₃} → Consonant ℓ₁ �
 -- Smyth §20 a. Initial υ̯ was written ϝ
 -- Smyth §20 a. Medial ι̯, υ̯ before vowels were often lost, as in τῑμά-(ι̯)ω I honour, βο (υ̯)-ός, gen. of βοῦ-ς ox, cow
 -- Smyth §26. σ was usually like our sharp s; but before voiced consonants (15 a) it probably was soft, like z; thus we find both κόζμος and κόσμος on inscriptions.
+
+-- Metrical lengthening
+-- Smyth §28 D. A short syllable under the rhythmic accent (‘ictus’) is lengthened metrically: (1) in words having three or more short syllables: the first of three shorts (οὐλόμενος), the second of four shorts (ὑπείροχος), the third of five shorts (ἀπερείσια boundless); (2) in words in which the short ictus syllable is followed by two longs and a short (Οὐλύμποιο). A short syllable not under the rhythmic accent is lengthened when it is preceded and followed by a long; thus, any vowel preceded by ϝ (πνείω breathe = πνεϝω), ι or υ before a vowel (προθῡμῑ́ῃσι zeal).
+
+-- Compound words
+-- Smyth §29. The initial short vowel of a word forming the second part of a compound is often lengthened: στρατηγός general (στρατός army + ἄγειν to lead 887 d).
