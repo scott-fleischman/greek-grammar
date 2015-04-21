@@ -76,9 +76,9 @@ get-final-form _ _ _ = not-final-form
 
 -- Smyth §3
 data OlderLetter : Set where
-  Ϝ′ : OlderLetter
-  Ϙ′ : OlderLetter
-  ϡ′ : OlderLetter
+  Ϝ : OlderLetter
+  Ϙ : OlderLetter
+  ϡ : OlderLetter
 
 -- Smyth §4
 data Vowel : Letter → Set where
@@ -270,15 +270,94 @@ data Voiceless : ∀ {ℓ} → ConsonantSound ℓ → Set where
   ψ : Voiceless ψ
   ξ : Voiceless ξ
 
+-- Smyth §16
+data PartOfMouthClass : Set where
+  labial dental palatal : PartOfMouthClass
+
+data Labial : ∀ {ℓ} → ConsonantSound ℓ → Set where
+  π : Labial π
+  β : Labial β
+  φ : Labial φ
+
+data Dental : ∀ {ℓ} → ConsonantSound ℓ → Set where
+  τ : Dental τ
+  δ : Dental δ
+  θ : Dental θ
+
+data Palatal : ∀ {ℓ} → ConsonantSound ℓ → Set where
+  κ : Palatal κ
+  γ : Palatal γ
+  χ : Palatal χ
+
+data SmoothStop : ∀ {ℓ} → ConsonantSound ℓ → Set where
+  π : SmoothStop π
+  τ : SmoothStop τ
+  κ : SmoothStop κ
+
+data MiddleStop : ∀ {ℓ} → ConsonantSound ℓ → Set where
+  β : MiddleStop β
+  δ : MiddleStop δ
+  γ : MiddleStop γ
+
+data RoughStop : ∀ {ℓ} → ConsonantSound ℓ → Set where
+  φ : RoughStop φ
+  θ : RoughStop θ
+  χ : RoughStop χ
+
+-- Smyth §17
+data Spirant : ∀ {ℓ} → ConsonantSound ℓ → Set where
+  σ : Spirant σ
+
+-- Smyth §18
+data Liquid : ∀ {ℓ} → ConsonantSound ℓ → Set where
+  λ′ : Liquid λ′
+  ρ : Liquid ρ
+
+-- Smyth §19
+data Nasal : ∀ {ℓ} → ConsonantSound ℓ → Set where
+  μ : Nasal μ
+  ν : Nasal ν
+  γ-nasal : Nasal γ-nasal
+
+-- Smyth §20
+data Semivowel : ∀ {ℓ} → Vowel ℓ → Set where
+  ι̯ : Semivowel ι
+  υ̯ : Semivowel υ
+
+-- Smyth §20 b
+data Sonant : ∀ {ℓ} → ConsonantSound ℓ → Set where
+  λ̥ : Sonant λ′
+  μ̥ : Sonant μ
+  ν̥ : Sonant γ
+  ρ̥ : Sonant ρ
+  σ̥ : Sonant σ
+
+-- Smyth §21
+data DoubleConsonant : ∀ {ℓ} → ConsonantSound ℓ → Set where
+  ζ : DoubleConsonant ζ
+  ξ : DoubleConsonant ξ
+  ψ : DoubleConsonant ψ
+
+data _+_⇒DoubleConsonant_ : ∀ {ℓ₁ ℓ₂ ℓ₃} → ConsonantSound ℓ₁ → ConsonantSound ℓ₂ → ConsonantSound ℓ₃ → Set where
+  σ+δ⇒DoubleConsonantζ : σ + δ ⇒DoubleConsonant ζ -- Smyth §26 D. Aeolic has σδ for ζ
+  δ+σ⇒DoubleConsonantζ : δ + σ ⇒DoubleConsonant ζ
+  
+  κ+σ⇒DoubleConsonantξ : κ + σ ⇒DoubleConsonant ξ
+  γ+σ⇒DoubleConsonantξ : γ + σ ⇒DoubleConsonant ξ
+  χ+σ⇒DoubleConsonantξ : χ + σ ⇒DoubleConsonant ξ
+
+  π+σ⇒DoubleConsonantψ : π + σ ⇒DoubleConsonant ψ
+  β+σ⇒DoubleConsonantψ : β + σ ⇒DoubleConsonant ψ
+  φ+σ⇒DoubleConsonantψ : φ + σ ⇒DoubleConsonant ψ
 
 
 -- TODO (needs a unified model)
 
 -- Accent
--- Smyth §4 All vowels with the circumflex (149) are long.
+-- Smyth §4. All vowels with the circumflex (149) are long.
 
 -- Diaeresis
--- Smyth §8 Diaeresis.—A double dot, the mark of diaeresis, may be written over ι or υ when these do not form a diphthong with the preceding vowel
+-- Smyth §8. Diaeresis.—A double dot, the mark of diaeresis, may be written over ι or υ when these do not form a diphthong with the preceding vowel
 
 -- Breathing
 -- Smyth §9. Every initial vowel or diphthong has either the rough (῾) or the smooth (᾿) breathing.
@@ -291,4 +370,9 @@ data Voiceless : ∀ {ℓ} → ConsonantSound ℓ → Set where
 
 -- Consonants
 -- Smyth §15 c. ι̯ υ̯
-
+-- Smyth §19 a. Gamma before κ, γ, χ, ξ is called γ-nasal
+-- Smyth §20 a. When ι and υ correspond to y and w (cp. minion, persuade) they are said to be unsyllabic; and, with a following vowel, make one syllable out of two.
+-- Smyth §20 a. Initial ι̯ passed into ̔ (h), as in ἧπαρ liver, Lat. jecur; and into ζ in ζυγόν yoke
+-- Smyth §20 a. Initial υ̯ was written ϝ
+-- Smyth §20 a. Medial ι̯, υ̯ before vowels were often lost, as in τῑμά-(ι̯)ω I honour, βο (υ̯)-ός, gen. of βοῦ-ς ox, cow
+-- Smyth §26. σ was usually like our sharp s; but before voiced consonants (15 a) it probably was soft, like z; thus we find both κόζμος and κόσμος on inscriptions.
