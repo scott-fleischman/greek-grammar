@@ -128,12 +128,12 @@ data TonguePosition : Set where
 
 tongue-position-vowel : ∀ {ℓ} → Vowel ℓ → TonguePosition
 tongue-position-vowel α = open′
-tongue-position-vowel ε = closed-medium
-tongue-position-vowel η = open-medium
-tongue-position-vowel ι = closed
-tongue-position-vowel ο = closed-medium
-tongue-position-vowel υ = closed
 tongue-position-vowel ω = open-medium
+tongue-position-vowel η = open-medium
+tongue-position-vowel ε = closed-medium
+tongue-position-vowel ο = closed-medium
+tongue-position-vowel ι = closed
+tongue-position-vowel υ = closed
 
 tongue-position-diphthong : ∀ {ℓ₁ ℓ₂} → Diphthong ℓ₁ ℓ₂ → TonguePosition
 tongue-position-diphthong d = closing
@@ -208,32 +208,11 @@ Letter-to-LetterCategory ω = vowel ω
 LetterCategory-to-Letter : ∀ {ℓ} → LetterCategory ℓ → Letter
 LetterCategory-to-Letter {ℓ} _ = ℓ
 
-data ConsonantSound : Letter → Set where
-  β : ConsonantSound β
-  γ : ConsonantSound γ
-  δ : ConsonantSound δ
-  ζ : ConsonantSound ζ
-  θ : ConsonantSound θ
-  κ : ConsonantSound κ
-  λ′ : ConsonantSound λ′
-  μ : ConsonantSound μ
-  ν : ConsonantSound ν
-  ξ : ConsonantSound ξ
-  π : ConsonantSound π
-  ρ : ConsonantSound ρ
-  σ : ConsonantSound σ
-  τ : ConsonantSound τ
-  φ : ConsonantSound φ
-  χ : ConsonantSound χ
-  ψ : ConsonantSound ψ
-  γ-nasal : ConsonantSound γ
-  ῥ : ConsonantSound ρ
-
 data VocalChords : Set where
   voiced voiceless : VocalChords
 
 -- Smyth §15 a
-data Voiced : ∀ {ℓ} → ConsonantSound ℓ → Set where
+data Voiced : ∀ {ℓ} → Consonant ℓ → Set where
   β : Voiced β
   δ : Voiced δ
   γ : Voiced γ
@@ -241,12 +220,11 @@ data Voiced : ∀ {ℓ} → ConsonantSound ℓ → Set where
   ρ : Voiced ρ
   μ : Voiced μ
   ν : Voiced ν
-  γ-nasal : Voiced γ-nasal
   ζ : Voiced ζ
+-- γ-nasal : Voiced
 
--- Smyth §15 a, b
-data Voiceless : ∀ {ℓ} → ConsonantSound ℓ → Set where
-  ῥ : Voiceless ῥ
+-- Smyth §15 b
+data Voiceless : ∀ {ℓ} → Consonant ℓ → Set where
   π : Voiceless π
   τ : Voiceless τ
   κ : Voiceless κ
@@ -256,55 +234,63 @@ data Voiceless : ∀ {ℓ} → ConsonantSound ℓ → Set where
   σ : Voiceless σ
   ψ : Voiceless ψ
   ξ : Voiceless ξ
+--  Smyth §15 a. ρ with the rough breathing is voiceless
 
 -- Smyth §16
 data PartOfMouthClass : Set where
   labial dental palatal : PartOfMouthClass
 
-data Labial : ∀ {ℓ} → ConsonantSound ℓ → Set where
+data Labial : ∀ {ℓ} → Consonant ℓ → Set where
   π : Labial π
   β : Labial β
   φ : Labial φ
 
-data Dental : ∀ {ℓ} → ConsonantSound ℓ → Set where
+data Dental : ∀ {ℓ} → Consonant ℓ → Set where
   τ : Dental τ
   δ : Dental δ
   θ : Dental θ
 
-data Palatal : ∀ {ℓ} → ConsonantSound ℓ → Set where
+data Palatal : ∀ {ℓ} → Consonant ℓ → Set where
   κ : Palatal κ
   γ : Palatal γ
   χ : Palatal χ
 
-data SmoothStop : ∀ {ℓ} → ConsonantSound ℓ → Set where
+data SmoothStop : ∀ {ℓ} → Consonant ℓ → Set where
   π : SmoothStop π
   τ : SmoothStop τ
   κ : SmoothStop κ
 
-data MiddleStop : ∀ {ℓ} → ConsonantSound ℓ → Set where
+data MiddleStop : ∀ {ℓ} → Consonant ℓ → Set where
   β : MiddleStop β
   δ : MiddleStop δ
   γ : MiddleStop γ
 
-data RoughStop : ∀ {ℓ} → ConsonantSound ℓ → Set where
+data RoughStop : ∀ {ℓ} → Consonant ℓ → Set where
   φ : RoughStop φ
   θ : RoughStop θ
   χ : RoughStop χ
 
 -- Smyth §17
-data Spirant : ∀ {ℓ} → ConsonantSound ℓ → Set where
+data Spirant : ∀ {ℓ} → Consonant ℓ → Set where
   σ : Spirant σ
 
 -- Smyth §18
-data Liquid : ∀ {ℓ} → ConsonantSound ℓ → Set where
+data Liquid : ∀ {ℓ} → Consonant ℓ → Set where
   λ′ : Liquid λ′
   ρ : Liquid ρ
 
 -- Smyth §19
-data Nasal : ∀ {ℓ} → ConsonantSound ℓ → Set where
+data Nasal : ∀ {ℓ} → Consonant ℓ → Set where
   μ : Nasal μ
   ν : Nasal ν
-  γ-nasal : Nasal γ-nasal
+--  γ-nasal : Nasal
+
+-- Smyth §19 a
+data GammaNasalCombo : ∀ {ℓ₁ ℓ₂} → Consonant ℓ₁ → Consonant ℓ₂ → Set where
+  γκ : GammaNasalCombo γ κ
+  γγ : GammaNasalCombo γ γ
+  γχ : GammaNasalCombo γ χ
+  γξ : GammaNasalCombo γ ξ
 
 -- Smyth §20
 data Semivowel : ∀ {ℓ} → Vowel ℓ → Set where
@@ -312,7 +298,7 @@ data Semivowel : ∀ {ℓ} → Vowel ℓ → Set where
   υ̯ : Semivowel υ
 
 -- Smyth §20 b
-data Sonant : ∀ {ℓ} → ConsonantSound ℓ → Set where
+data Sonant : ∀ {ℓ} → Consonant ℓ → Set where
   λ̥ : Sonant λ′
   μ̥ : Sonant μ
   ν̥ : Sonant γ
@@ -320,15 +306,15 @@ data Sonant : ∀ {ℓ} → ConsonantSound ℓ → Set where
   σ̥ : Sonant σ
 
 -- Smyth §21
-data DoubleConsonant : ∀ {ℓ} → ConsonantSound ℓ → Set where
+data DoubleConsonant : ∀ {ℓ} → Consonant ℓ → Set where
   ζ : DoubleConsonant ζ
   ξ : DoubleConsonant ξ
   ψ : DoubleConsonant ψ
 
-data _+_⇒DoubleConsonant_ : ∀ {ℓ₁ ℓ₂ ℓ₃} → ConsonantSound ℓ₁ → ConsonantSound ℓ₂ → ConsonantSound ℓ₃ → Set where
+data _+_⇒DoubleConsonant_ : ∀ {ℓ₁ ℓ₂ ℓ₃} → Consonant ℓ₁ → Consonant ℓ₂ → Consonant ℓ₃ → Set where
   σ+δ⇒DoubleConsonantζ : σ + δ ⇒DoubleConsonant ζ -- Smyth §26 D. Aeolic has σδ for ζ
   δ+σ⇒DoubleConsonantζ : δ + σ ⇒DoubleConsonant ζ
-  
+
   κ+σ⇒DoubleConsonantξ : κ + σ ⇒DoubleConsonant ξ
   γ+σ⇒DoubleConsonantξ : γ + σ ⇒DoubleConsonant ξ
   χ+σ⇒DoubleConsonantξ : χ + σ ⇒DoubleConsonant ξ
@@ -360,7 +346,6 @@ data _+_⇒DoubleConsonant_ : ∀ {ℓ₁ ℓ₂ ℓ₃} → ConsonantSound ℓ�
 
 -- Consonants
 -- Smyth §15 c. ι̯ υ̯
--- Smyth §19 a. Gamma before κ, γ, χ, ξ is called γ-nasal
 -- Smyth §20 a. When ι and υ correspond to y and w (cp. minion, persuade) they are said to be unsyllabic; and, with a following vowel, make one syllable out of two.
 -- Smyth §20 a. Initial ι̯ passed into ̔ (h), as in ἧπαρ liver, Lat. jecur; and into ζ in ζυγόν yoke
 -- Smyth §20 a. Initial υ̯ was written ϝ
