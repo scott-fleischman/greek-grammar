@@ -90,50 +90,37 @@ data Vowel : Letter → Set where
   υ : Vowel υ
   ω : Vowel ω
 
-data AlwaysShort : Letter → Set where
-  ε : AlwaysShort ε
-  ο : AlwaysShort ο
-
-data AlwaysLong : Letter → Set where
-  η : AlwaysLong η
-  ω : AlwaysLong ω
-
 data VowelLength : Set where
   short long : VowelLength
 
 data VowelWithLength : ∀ {v} → Vowel v → VowelLength → Set where
-  always-short : ∀ {ℓ} → (v : Vowel ℓ) → AlwaysShort ℓ → VowelWithLength v short
-  always-long : ∀ {ℓ} → (v : Vowel ℓ) → AlwaysLong ℓ → VowelWithLength v long
-  α-with-length : (vl : VowelLength) → VowelWithLength α vl
-  ι-with-length : (vl : VowelLength) → VowelWithLength ι vl
-  υ-with-length : (vl : VowelLength) → VowelWithLength υ vl
+  ᾰ : VowelWithLength α short
+  ᾱ : VowelWithLength α long
+  ε : VowelWithLength ε short
+  η : VowelWithLength η long
+  ῐ : VowelWithLength ι short
+  ῑ : VowelWithLength ι long
+  ο : VowelWithLength ο short
+  ῠ : VowelWithLength υ short
+  ῡ : VowelWithLength υ long
+  ω : VowelWithLength ω long
 
-alwaysShort-Vowel : ∀ {ℓ} → AlwaysShort ℓ → Vowel ℓ
-alwaysShort-Vowel ε = ε
-alwaysShort-Vowel ο = ο
-
-alwaysLong-Vowel : ∀ {ℓ} → AlwaysLong ℓ → Vowel ℓ
-alwaysLong-Vowel η = η
-alwaysLong-Vowel ω = ω
-
--- Smyth §5
+-- Smyth §5,6
 data Diphthong : Letter → Letter → Set where
   αι : Diphthong α ι
-  ει : Diphthong ε ι
+  ει-gen : Diphthong ε ι
+  ει-sp : Diphthong ε ι
   οι : Diphthong ο ι
   ᾱͅ : Diphthong α ι
   ῃ : Diphthong η ι
   ῳ : Diphthong ω ι
   αυ : Diphthong α υ
   ευ : Diphthong ε υ
-  ου : Diphthong ο υ
+  ου-gen : Diphthong ο υ
+  ου-sp : Diphthong ο υ
   ηυ : Diphthong η υ
   υι : Diphthong υ ι
-
--- Smyth §6
-data SpuriousDiphthong : ∀ {v₁ v₂} → Diphthong v₁ v₂ → Set where
-  ει-sp : SpuriousDiphthong ει
-  ου-sp : SpuriousDiphthong ου
+  ωυ : Diphthong ω υ -- Smyth §5 D. New Ionic
 
 -- Smyth §7
 data TonguePosition : Set where
@@ -161,7 +148,7 @@ rounded-lips-vowel ω = rounded-lips
 rounded-lips-vowel _ = not-rounded-lips
 
 rounded-lips-diphthong : ∀ {ℓ₁ ℓ₂} → Diphthong ℓ₁ ℓ₂ → RoundedLips
-rounded-lips-diphthong ου = rounded-lips
+rounded-lips-diphthong ου-gen = rounded-lips
 rounded-lips-diphthong _ = not-rounded-lips
 
 -- Smyth §9
@@ -352,6 +339,9 @@ data _+_⇒DoubleConsonant_ : ∀ {ℓ₁ ℓ₂ ℓ₃} → ConsonantSound ℓ�
 
 
 -- TODO (needs a unified model)
+
+-- Diphthong
+-- Smyth §5 D. Ionic has ηυ for Attic αυ in some words
 
 -- Accent
 -- Smyth §4. All vowels with the circumflex (149) are long.
