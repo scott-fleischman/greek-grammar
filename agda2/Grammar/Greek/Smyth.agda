@@ -1,4 +1,4 @@
-module Text.Greek.Smyth where
+module Grammar.Greek.Smyth where
 
 open import Data.Char
 open import Data.Maybe
