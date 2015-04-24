@@ -35,7 +35,7 @@ mounceEuphony =
   , mounce § "2.13a" $
     Euphony "Single vowel + diphthong (beginning with the same vowel as the single vowel)" [rules|
       α + αι } αι
-      α + α } ᾳ
+      α + ᾳ } ᾳ
     |]
 
   , mounce § "14.1" $
