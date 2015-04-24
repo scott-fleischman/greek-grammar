@@ -12,7 +12,7 @@ cabal-version:       >=1.10
 
 library
   build-depends:
-    base >=4.7,
+    base >=4.8,
     text >=1.2,
     mtl >=2.1,
     text-format >=0.3,
@@ -22,7 +22,8 @@ library
     data-default >=0.5,
     xml-conduit >=1.2,
     lens >=4.7,
-    xml-lens >=0.1
+    xml-lens >=0.1,
+    template-haskell >=2.10
   exposed-modules:
     Data.Text.Format.Strict
     Text.Greek.Conversions
@@ -33,6 +34,8 @@ library
     Text.Greek.Lexicon.Lemmas
     Text.Greek.Morphology.Noun
     Text.Greek.Morphology.PartOfSpeech
+    Text.Greek.Mounce.Phonology
+    Text.Greek.Mounce.Quote
     Text.Greek.NewTestament.SBL
     Text.Greek.Paths
     Text.Greek.Phonology.Consonants
