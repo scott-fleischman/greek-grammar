@@ -4,15 +4,11 @@
 module Text.Greek.Mounce.Phonology where
 
 import Text.Greek.Grammar
+import Text.Greek.Mounce.Euphony
 import Text.Greek.Mounce.Quote
 
-data Euphony = Euphony
-  { euphonyName :: String
-  , euphonyRules :: String
-  }
-
-euphony :: [Cited Euphony]
-euphony =
+mounceEuphony :: [Cited Euphony]
+mounceEuphony =
   [ mounce § "2.3" $
     Euphony "Two like vowels form their common long" [rules|
       α + α } α

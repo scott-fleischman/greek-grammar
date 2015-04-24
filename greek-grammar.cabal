@@ -23,7 +23,8 @@ library
     xml-conduit >=1.2,
     lens >=4.7,
     xml-lens >=0.1,
-    template-haskell >=2.10
+    template-haskell >=2.10,
+    parsec >=3.1
   exposed-modules:
     Data.Text.Format.Strict
     Text.Greek.Conversions
@@ -34,6 +35,8 @@ library
     Text.Greek.Lexicon.Lemmas
     Text.Greek.Morphology.Noun
     Text.Greek.Morphology.PartOfSpeech
+    Text.Greek.Mounce.Euphony
+    Text.Greek.Mounce.Parse
     Text.Greek.Mounce.Phonology
     Text.Greek.Mounce.Quote
     Text.Greek.NewTestament.SBL
