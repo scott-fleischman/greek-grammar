@@ -26,4 +26,9 @@ mounceEuphony =
       ε + ε } ει
       ο + ο } ου
     |]
+  , mounce § "2.5" $
+    Euphony "ο or ω overcome α, ε, or ὴ regardless of the order, and form ω" [rules|
+      α + ο } ω
+      ο + η } ω
+    |]
   ]
