@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 
-module Text.Greek.Mounce.Noun where
+module Text.Greek.Mounce.NounFirstDeclension where
 
 import Text.Greek.Grammar
 import Text.Greek.Mounce.Morphology
 import Text.Greek.Mounce.Quote
 
-nouns :: [Cited Noun]
-nouns = 
+firstDeclensionNouns :: [Cited Noun]
+firstDeclensionNouns = 
   [ mounce § "n-1a" $
     Noun "Feminine nouns with stems ending in εα, ια, or ρα and a genitive in ας"
       [nounCaseEndings|
@@ -17,6 +17,7 @@ nouns =
         ι ις
         ν νς
       |]
+      [greekWords| Ἅννα Εὕα Ἱεροσόλυμα Ἰωάνα Ἰωάννα Μάρθα Νύμφα Ῥεβέκκα στοά |]
       [greekWords|
         ἀγαθοποιΐα ἀγγελία ἄγκυρα ἁγνεία ἄγνοια
         ἀγνωσία ἀγορά ἄγρα ἀγρυπνία ἀγωνία
@@ -101,5 +102,4 @@ nouns =
         χήρα χρεία χρηστολογία χώρα ψευδομαρτυρία
         ὥρα ὠφέλεια
       |]
-      [greekWords| Ἅννα Εὕα Ἱεροσόλυμα Ἰωάνα Ἰωάννα Μάρθα Νύμφα Ῥεβέκκα στοά |]
   ]
