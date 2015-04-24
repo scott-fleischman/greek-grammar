@@ -16,6 +16,7 @@ firstDeclensionNouns =
         ς ων
         ι ις
         ν νς
+        - ι   
       |]
       [greekWords| Ἅννα Εὕα Ἱεροσόλυμα Ἰωάνα Ἰωάννα Μάρθα Νύμφα Ῥεβέκκα στοά |]
       [greekWords|

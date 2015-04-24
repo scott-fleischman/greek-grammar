@@ -13,6 +13,8 @@ data NounCaseEndings = NounCaseEndings
   , datPl :: String
   , accSg :: String
   , accPl :: String
+  , vocSg :: String
+  , vocPl :: String
   }
   deriving (Data, Typeable, Show, Eq)
 

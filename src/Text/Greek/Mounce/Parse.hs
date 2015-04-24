@@ -24,14 +24,14 @@ greekWordsParser = many1 (greekWord <* spaces)
 caseEnding :: CharParser () String
 caseEnding = string "-" <|> greekWord
 
-caseEndings8 :: CharParser () [String]
-caseEndings8 = spaces *> (count 8 (caseEnding <* spaces)) <* eof
+nounCaseEndingsList :: CharParser () [String]
+nounCaseEndingsList = spaces *> (count 10 (caseEnding <* spaces)) <* eof
 
 wordsToEndings :: [String] -> NounCaseEndings
-wordsToEndings ws = NounCaseEndings (ws !! 0) (ws !! 1) (ws !! 2) (ws !! 3) (ws !! 4) (ws !! 5) (ws !! 6) (ws !! 7)
+wordsToEndings ws = NounCaseEndings (ws !! 0) (ws !! 1) (ws !! 2) (ws !! 3) (ws !! 4) (ws !! 5) (ws !! 6) (ws !! 7) (ws !! 8) (ws !! 9)
 
 nounCaseEndingsParser :: CharParser () NounCaseEndings
-nounCaseEndingsParser = wordsToEndings <$> caseEndings8
+nounCaseEndingsParser = wordsToEndings <$> nounCaseEndingsList
 
 topLevel :: CharParser () a -> CharParser () a
 topLevel x = spaces *> x <* eof
