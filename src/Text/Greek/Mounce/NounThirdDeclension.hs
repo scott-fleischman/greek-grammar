@@ -71,4 +71,17 @@ thirdDeclensionNouns =
 
         ὄρνις
       |]
+  , mounce §§ ["n-3c(1)", "n-3c(2)", "n-3c(3)"] $
+    Noun "Stems ending in τ, δ, θ with accusative, singular ν"
+      [nounCaseEndings|
+        ς ες
+        ος ων
+        ι σι
+        ν ας
+        ς ες
+      |]
+      []
+      [greekWords|
+        χάρις
+      |]
   ]
