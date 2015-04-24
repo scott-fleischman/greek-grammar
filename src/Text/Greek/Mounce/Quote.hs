@@ -1,6 +1,7 @@
 module Text.Greek.Mounce.Quote where
 
 import Control.Exception (throwIO)
+import Data.Data
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
 import Text.Parsec.Pos (newPos)
@@ -19,15 +20,31 @@ parseIO p str =
     Left err -> throwIO (userError (show err))
     Right a  -> return a
 
-parseRules :: String -> Q Exp
-parseRules str = do
+parseTopLevel :: Data a => CharParser () a -> String -> Q Exp
+parseTopLevel p str = do
   l <- location'
-  c <- runIO $ parseIO (setPosition l *> euphonyRules) str
+  c <- runIO $ parseIO (setPosition l *> (topLevel p)) str
   dataToExpQ (const Nothing) c
 
 rules :: QuasiQuoter
 rules = QuasiQuoter
-  { quoteExp = parseRules
+  { quoteExp = parseTopLevel euphonyRules
+  , quotePat = undefined
+  , quoteType = undefined
+  , quoteDec = undefined
+  }
+
+words :: QuasiQuoter
+words = QuasiQuoter
+  { quoteExp = parseTopLevel greekWords
+  , quotePat = undefined
+  , quoteType = undefined
+  , quoteDec = undefined
+  }
+
+nounCaseEndings :: QuasiQuoter
+nounCaseEndings = QuasiQuoter
+  { quoteExp = parseTopLevel nounCaseEndingsParser
   , quotePat = undefined
   , quoteType = undefined
   , quoteDec = undefined

@@ -36,6 +36,8 @@ library
     Text.Greek.Morphology.Noun
     Text.Greek.Morphology.PartOfSpeech
     Text.Greek.Mounce.Euphony
+    Text.Greek.Mounce.Morphology
+    Text.Greek.Mounce.Noun
     Text.Greek.Mounce.Parse
     Text.Greek.Mounce.Phonology
     Text.Greek.Mounce.Quote
