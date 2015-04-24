@@ -16,6 +16,12 @@ import Text.Greek.Phonology.Vowels
 γ :: Phoneme
 γ = MkConsonant Gamma
 
+γγ :: Phoneme 
+γγ = MkConsonant GammaNasal
+
+ϝ :: Phoneme
+ϝ = MkConsonant Digamma
+
 δ :: Phoneme
 δ = MkConsonant Delta
 
@@ -118,7 +124,7 @@ import Text.Greek.Phonology.Vowels
 ᾳ = MkVowel improperAlpha
 
 ῃ :: Phoneme
-ῃ = MkVowel improperEta
+ῃ = MkVowel improperAlpha
 
 ῳ :: Phoneme
 ῳ = MkVowel improperOmega
