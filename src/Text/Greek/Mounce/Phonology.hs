@@ -37,4 +37,11 @@ mounceEuphony =
       α + αι } αι
       α + α  } ᾳ
     |]
+
+  , mounce § "14.1" $
+    Euphony "Aspiration" [rules|
+      π + ῾ } φ῾
+      κ + ῾ } χ῾
+      τ + ῾ } θ῾
+    |]
   ]

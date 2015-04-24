@@ -5,7 +5,8 @@ import Text.Greek.Mounce.Euphony
 import Text.Greek.Script.UnicodeTokenPairs
 
 greekCharacter :: CharParser () Char
-greekCharacter = oneOf $ map fst unicodeTokenPairs
+greekCharacter = oneOf $ greekDasia : map fst unicodeTokenPairs
+  where greekDasia = '\x1FFE'
 
 greekWord :: CharParser () String
 greekWord = many greekCharacter
