@@ -17,8 +17,7 @@ data NounCaseEndings = NounCaseEndings
   deriving (Data, Typeable, Show, Eq)
 
 data Noun = Noun
-  { nounCategory :: String
-  , nounDefinition :: String
-  , nounCaseEndings :: NounCaseEndings
+  { nounDefinition :: String
+  , nounNounCaseEndings :: NounCaseEndings
   }
   deriving (Show, Eq)
