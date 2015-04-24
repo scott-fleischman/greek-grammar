@@ -34,9 +34,9 @@ rules = QuasiQuoter
   , quoteDec = undefined
   }
 
-words :: QuasiQuoter
-words = QuasiQuoter
-  { quoteExp = parseTopLevel greekWords
+greekWords :: QuasiQuoter
+greekWords = QuasiQuoter
+  { quoteExp = parseTopLevel greekWordsParser
   , quotePat = undefined
   , quoteType = undefined
   , quoteDec = undefined

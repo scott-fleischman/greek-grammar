@@ -10,16 +10,16 @@ greekCharacter = oneOf $ greekDasia : map fst unicodeTokenPairs
   where greekDasia = '\x1FFE'
 
 greekWord :: CharParser () String
-greekWord = many greekCharacter
+greekWord = many1 greekCharacter
 
 euphonyRule :: CharParser () EuphonyRule
 euphonyRule = (EuphonyRule <$> (greekWord <* spaces <* char '+' <* spaces) <*> (greekWord <* spaces <* char '}' <* spaces) <*> (greekWord <* spaces)) <* spaces
 
 euphonyRules :: CharParser () [EuphonyRule]
-euphonyRules = spaces *> (many1 euphonyRule) <* eof
+euphonyRules = many1 euphonyRule
 
-greekWords :: CharParser () [String]
-greekWords = spaces *> (many1 greekWord) <* eof
+greekWordsParser :: CharParser () [String]
+greekWordsParser = many1 (greekWord <* spaces)
 
 caseEnding :: CharParser () String
 caseEnding = string "-" <|> greekWord

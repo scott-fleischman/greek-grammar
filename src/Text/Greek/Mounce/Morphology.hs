@@ -19,5 +19,7 @@ data NounCaseEndings = NounCaseEndings
 data Noun = Noun
   { nounDefinition :: String
   , nounNounCaseEndings :: NounCaseEndings
+  , nounWords :: [String]
+  , nounWordsException :: [String]
   }
   deriving (Show, Eq)
