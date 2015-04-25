@@ -18,7 +18,6 @@ thirdDeclensionNouns =
         α ας
         ς ες
       |]
-      []
       [greekWords|
         Αἰθίοψ κώνωψ λαῖλαψ μώλωψ σκόλοψ
 
@@ -43,7 +42,6 @@ thirdDeclensionNouns =
         α ας
         ς ες
       |]
-      []
       [greekWords|
         ἁγιότης ἁγνότης ἀδελφότης ἀδηλότης ἁδρότης
         αἰσχρότης ἀκαθάρτης ἁπλότης ἀφελότης βραδύτης
@@ -80,7 +78,6 @@ thirdDeclensionNouns =
         ν ας
         ς ες
       |]
-      []
       [greekWords|
         χάρις
       |]
