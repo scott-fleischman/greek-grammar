@@ -73,14 +73,14 @@ thirdDeclensionNouns =
       [greekWords|
         θρίξ σαρδόνυξ ψίξ
       |]
-  , mounce §§ ["n-3c(1)", "n-3c(2)", "n-3c(3)"] $
-    Noun "Stems ending in τ, δ, θ"
+  , mounce §§ ["n-3c(1)"] $
+    Noun "Stems ending in τ"
       [nounCaseEndings|
-        ς  ες
-        ος ων
-        ι  σι
-        α  ας
-        ς  ες
+        ς   τες
+        τος των
+        τι  σι
+        τα  τας
+        -   τες
       |]
       [greekWords|
         ἁγιότης ἁγνότης ἀδελφότης ἀδηλότης ἁδρότης
@@ -93,7 +93,29 @@ thirdDeclensionNouns =
         πένης πιότης πλάνης πραότης πραΰτης
         σεμνότης σής σκληρότης τελειότης χάρις
         χρηστότης χρώς
-
+      |]
+  , mounce §§ ["n-3c(1)"] $
+    Noun "Stems ending in τ with accusative, singular ν"
+      [nounCaseEndings|
+        ς   τες
+        τος των
+        τι  σι
+        ν   τας
+        -   τες
+      |]
+      [greekWords|
+        χάρις
+      |]
+  , mounce §§ ["n-3c(2)"] $
+    Noun "Stems ending in δ"
+      [nounCaseEndings|
+        ς   δες
+        δος δων
+        δι  σι
+        δα  δας
+        -   δες
+      |]
+      [greekWords|
         ἀκρίς Ἀντιπατρίς Ἄρτεμις ἀσπίς ἀτμίς
         βολίς Δάμαρις δισμυριάς Δορκάς Ἑβραΐς
         Ἑλλάς ἐλπίς ἔρις Ἡρῳδιάς θυρίς
@@ -106,20 +128,18 @@ thirdDeclensionNouns =
         σπιλάς σπυρίς στιβάς στοιβάς συγγενίς
         σφραγίς τετράπουν Τιβεριάς Τραχωνῖτις Τρῳάς
         ὑπολαμπάς χιλιάς χλαμύς
-
-        ὄρνις
       |]
-  , mounce §§ ["n-3c(1)", "n-3c(2)", "n-3c(3)"] $
-    Noun "Stems ending in τ, δ, θ with accusative, singular ν"
+  , mounce §§ ["n-3c(3)"] $
+    Noun "Stems ending in θ"
       [nounCaseEndings|
-        ς  ες
-        ος ων
-        ι  σι
-        ν  ας
-        ς  ες
+        ς   θες
+        θος θων
+        θι  σι
+        θα  θας
+        -   θες
       |]
       [greekWords|
-        χάρις
+        ὄρνις
       |]
   , mounce §§ ["n-3c(4)"] $
     Noun "Stems ending in ματ"
