@@ -9,28 +9,68 @@ import Text.Greek.Mounce.Quote
 
 thirdDeclensionNouns :: [Cited Noun]
 thirdDeclensionNouns = 
-  [ mounce §§ ["n-3a", "n-3b"] $
-    Noun "Stems ending in a labial (π β φ) or a velar (κ γ χ)"
+  [ mounce §§ ["n-3a(1)"] $
+    Noun "Stems ending in π"
       [nounCaseEndings|
-        ς  ες
-        ος ων
-        ι  σι
-        α  ας
-        ς  ες
+        ψ   πες
+        πος πων
+        πι  ψι
+        πα  πας
+        ψ   πες
       |]
       [greekWords|
         Αἰθίοψ κώνωψ λαῖλαψ μώλωψ σκόλοψ
-
+      |]
+  , mounce §§ ["n-3a(2)"] $
+    Noun "Stems ending in β"
+      [nounCaseEndings|
+        ψ   βες
+        βος βων
+        βι  ψι
+        βα  βας
+        ψ   βες
+      |]
+      [greekWords|
         Ἄραψ λίψ
-
+      |]
+  , mounce §§ ["n-3b(1)"] $
+    Noun "Stems ending in κ"
+      [nounCaseEndings|
+        ξ   κες
+        κος κων
+        κι  ξι
+        κα  κας
+        ξ   κες
+      |]
+      [greekWords|
         ἀλώπηξ ἄνθραξ γυνή δεσμοφύλαξ θώραξ
         κῆρυξ κίλιξ κόραξ ὄρνιξ πίναξ
         πλάξ σάρξ σκώληξ Φῆλιξ Φοῖνιξ
         φοῖνιξ φύλαξ χάραξ χοῖνιξ
-
+      |]
+  , mounce §§ ["n-3b(2)"] $
+    Noun "Stems ending in γ"
+      [nounCaseEndings|
+        ξ   γες
+        γος γων
+        γι  ξι
+        γα  γας
+        ξ   γες
+      |]
+      [greekWords|
         αἴξ ἅρπαξ λάρυγξ μάστιξ πτέρυξ
         σάλπιγξ φάραγξ φλόξ
-
+      |]
+  , mounce §§ ["n-3b(3)"] $
+    Noun "Stems ending in χ"
+      [nounCaseEndings|
+        ξ   χες
+        χος χων
+        χι  ξι
+        χα  χας
+        ξ   χες
+      |]
+      [greekWords|
         θρίξ σαρδόνυξ ψίξ
       |]
   , mounce §§ ["n-3c(1)", "n-3c(2)", "n-3c(3)"] $
