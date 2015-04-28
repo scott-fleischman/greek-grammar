@@ -27,10 +27,10 @@ caseEnding = string "-" <|> greekWord
 nounCaseEndingsList :: CharParser () [String]
 nounCaseEndingsList = spaces *> (count 10 (caseEnding <* spaces)) <* eof
 
-wordsToEndings :: [String] -> NounCaseEndings
-wordsToEndings ws = NounCaseEndings (ws !! 0) (ws !! 1) (ws !! 2) (ws !! 3) (ws !! 4) (ws !! 5) (ws !! 6) (ws !! 7) (ws !! 8) (ws !! 9)
+wordsToEndings :: [String] -> NounForms String
+wordsToEndings ws = NounForms (ws !! 0) (ws !! 1) (ws !! 2) (ws !! 3) (ws !! 4) (ws !! 5) (ws !! 6) (ws !! 7) (ws !! 8) (ws !! 9)
 
-nounCaseEndingsParser :: CharParser () NounCaseEndings
+nounCaseEndingsParser :: CharParser () (NounForms String)
 nounCaseEndingsParser = wordsToEndings <$> nounCaseEndingsList
 
 topLevel :: CharParser () a -> CharParser () a

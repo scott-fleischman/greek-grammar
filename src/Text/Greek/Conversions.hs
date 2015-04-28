@@ -1,6 +1,7 @@
 module Text.Greek.Conversions where
 
 import Prelude hiding (lookup)
+import Control.Lens ((.~), (&))
 import Data.Maybe (maybeToList)
 import Data.Text (Text, unpack)
 import Data.Map.Strict (lookup, fromList)
@@ -24,3 +25,6 @@ textToTokens t = concatMap (maybeToList . lookupChar) . unpack $ t
 
 getBookTokens :: Book -> [TokenContext Character]
 getBookTokens = snd . charactersToTokenContexts . wordsToCharacters . segmentsToWords . segments
+
+stripAccents :: [Token] -> [Token]
+stripAccents = fmap (& accent .~ Nothing)

@@ -12,11 +12,11 @@ firstDeclensionNouns =
   [ mounce § "n-1a" $
     Noun "Feminine nouns with stems ending in εα, ια, or ρα and a genitive in ας"
       [nounCaseEndings|
-        - ι
-        ς ων
-        ι ις
-        ν νς
-        - ι
+        α  αι
+        ας ων
+        ᾳ  αις
+        αν ας
+        α  αι
       |]
       [greekWords|
         Ἅννα Εὕα Ἱεροσόλυμα Ἰωάνα Ἰωάννα Μάρθα Νύμφα Ῥεβέκκα στοά
