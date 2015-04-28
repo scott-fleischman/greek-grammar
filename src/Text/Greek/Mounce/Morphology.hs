@@ -5,10 +5,6 @@ module Text.Greek.Mounce.Morphology where
 
 import Data.Data
 import Data.List
-import Data.Text (Text)
-import qualified Data.Text as T
-import Text.Greek.Conversions
-import Text.Greek.Script.Token
 
 data NounForms a = NounForms
   { nomSg :: a, nomPl :: a
