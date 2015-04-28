@@ -107,11 +107,11 @@ firstDeclensionNouns =
   , mounce § "n-1b" $
     Noun "Feminine nouns with stems ending in η and a genitive in ης"
       [nounCaseEndings|
-        - ι
-        ς ων
-        ι ις
-        ν νς
-        - ι
+        η  αι
+        ης ων
+        ῃ  αις
+        ην ας
+        η  αι
       |]
       [greekWords| 
         Ἀβιληνή ἀγαθωσύνη ἀγάπη ἀγέλη ἁγιωσύνη
