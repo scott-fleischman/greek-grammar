@@ -172,17 +172,17 @@ firstDeclensionNouns =
         ῃ  αις
         αν ας
         α  αι
-     |]
-     [greekWords|
-       Ἀθῆναι ἄκανθα βασίλισσα γάγγραινα Γάζα
-       γάζα γέεννα γλῶσσα δόξα Δρούσιλλα 
-       ἐπιοῦσα ἔχιδνα θάλασσα Θέκλα θέρμα
-       θύελλα μάχαιρα μεμβράνα μέριμνα πλήμμυρα
-       Πρίσκα Πρίσκιλλα πρύμνα πρῷρα πτέρνα
-       ῥίζα Σάπφιρα Σμύρνα σμύρνα Σουσάννα
-       σπεῖρα Συράκουσαι Συροφοινίκισσα τράπεζα Τρύφαινα
-       Τρυφῶσα Φοινίκισσα χάλαζα
-     |]
+      |]
+      [greekWords|
+        Ἀθῆναι ἄκανθα βασίλισσα γάγγραινα Γάζα
+        γάζα γέεννα γλῶσσα δόξα Δρούσιλλα 
+        ἐπιοῦσα ἔχιδνα θάλασσα Θέκλα θέρμα
+        θύελλα μάχαιρα μεμβράνα μέριμνα πλήμμυρα
+        Πρίσκα Πρίσκιλλα πρύμνα πρῷρα πτέρνα
+        ῥίζα Σάπφιρα Σμύρνα σμύρνα Σουσάννα
+        σπεῖρα Συράκουσαι Συροφοινίκισσα τράπεζα Τρύφαινα
+        Τρυφῶσα Φοινίκισσα χάλαζα
+      |]
  , mounce § "n-1d" $
    Noun "Masculine nouns with stems ending in α(ς) and a genitive in ου."
      [nounCaseEndings|
@@ -220,13 +220,13 @@ firstDeclensionNouns =
      |]
  , mounce § "n-1f" $
    Noun "Masculine nouns with stems ending in η(ς) and a genitive in ου."
-    [nounCaseEndings|
-      ης αι
-      ου ων
-      ῃ  αις
-      ην ας
-      α  αι
-    |]
+     [nounCaseEndings|
+       ης αι
+       ου ων
+       ῃ  αις
+       ην ας
+       α  αι
+     |]
     [greekWords|
       ᾅδης ἀδικοκρίτης ἀκροατής ἀνδραποδιστής ἀποστάτης
       Ἀρεοπαγίτης ἀρσενοκοίτης ἀρχιλῃστής ἀρχιτελώνης Ἀσιάρχης
@@ -259,7 +259,7 @@ firstDeclensionNouns =
     |]
  , mounce § "n-1g" $
    Noun "Masculine nouns with stems ending in η(ς) and a genitive in η."
-    [nounCaseEndings|
+     [nounCaseEndings|
       ης -
       η  -
       ῃ  -
@@ -268,7 +268,43 @@ firstDeclensionNouns =
     |]
     [greekWords|
       Μανασσῆς Ἰωσῆς
-    |]     
+    |]   
+ , mounce § "n-1h(a)" $
+   Noun "First declension contract nouns."
+    [nounCaseEndings|  
+      α  αι
+      ας ων
+      ᾳ  αις
+      αν ας
+      α  αι
+    |]
+    [greekWords|
+      μνᾶ
+    |]
+ , mounce § "n-1h(b)" $
+   Noun "First declension contract nouns."
+    [nounCaseEndings|
+      η  αι
+      ης ων
+      ῃ  αις
+      ην ας
+      η  αι
+    |]
+    [greekWords|
+      συκῆ γῆ γῆς 
+    |]
+ , mounce § "n-1h(c)" $
+   Noun "First declension contract nouns."
+    [nounCaseEndings|
+      ης αι
+      ου ων
+      ῃ  αις
+      ην ας
+      η  αι
+    |]
+    [greekWords|
+      Απελλῆς βορρᾶς Ἑρμῆς
+    |] 
  ]
        
           
