@@ -144,11 +144,11 @@ thirdDeclensionNouns =
   , mounce §§ ["n-3c(4)"] $
     Noun "Stems ending in ματ"
       [nounCaseEndings|
-        -  α
-        ος ων
-        ι  σι
-        -  α
-        ς  α
+        -   τα
+        τος των
+        τι  σι
+        -   τα
+        -   τα
       |]
       [greekWords|
         ἀγνόημα ἀδίκημα αἷμα αἴνιγμα αἴτημα
@@ -184,29 +184,57 @@ thirdDeclensionNouns =
         χάραγμα χάρισμα χάσμα χόρτασμα χρῆμα
         χρῖσμα ψεῦσμα
     |]
-  , mounce §§ ["n-3c(5)"] $
-    Noun "Stems ending in ντ (using ς in the nom. sing.)"
+  , mounce §§ ["n-3c(5a1)"] $
+    Noun "Stems ending in ντ (with σ in the nominative singular, ο vowel)"
       [nounCaseEndings|
-        ς  ες
-        ος ων
-        ι  σι
-        ς  α
-        ς  ας
+        ους   οντες
+        οντος οντων
+        οντι  ουσι
+        οντα  οντας
+        ους   οντες
       |]
       [greekWords|
-        ἱμάντος
-        Κλήμεντος
-        Κρήσκεντος
-        ὀδόντος
-        Πούδεντος
+        ὀδούς
       |]
-      {-
-        ἱμάς, άντος
-        Κλήμης, μεντος
-        Κρήσκης, κεντος
-        ὀδούς, όντος
-        Πούδης, δεντος
-      -}
+  , mounce §§ ["n-3c(5a2)"] $
+    Noun "Stems ending in ντ (with σ in the nominative singular, α vowel)"
+      [nounCaseEndings|
+        ας    αντες
+        αντος αντων
+        αντι  ασι
+        αντα  αντας
+        ας    αντες
+      |]
+      [greekWords|
+        ἱμάς
+      |]
+  , mounce §§ ["n-3c(5a3)"] $
+    Noun "Stems ending in ντ (with σ in the nominative singular, ε vowel)"
+      [nounCaseEndings|
+        ης    εντες
+        εντος εντων
+        εντι  ησι
+        εντα  εντας
+        ης    εντες
+      |]
+      [greekWords|
+        Κρήσκης
+        Πούδης
+        Κλήμης
+      |]
+  , mounce §§ ["n-3c(5b)"] $
+    Noun "Stems ending in ντ (with no ending in the nominative singular)"
+      [nounCaseEndings|
+        ων    οντες
+        οντος οντων
+        οντι  ουσι
+        οντα  οντας
+        ων    οντες
+      |]
+      [greekWords|
+        ἄρχων γέρων δράκων θεράπων λέων
+        Σαλωμών Σολομών Φλέγων
+      |]
   , mounce §§ ["n-3c(6)"] $
     Noun "Stems ending in ντ (with no ending in the nom. sg.)"
       [nounCaseEndings|
