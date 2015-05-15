@@ -184,7 +184,7 @@ thirdDeclensionNouns =
         χάραγμα χάρισμα χάσμα χόρτασμα χρῆμα
         χρῖσμα ψεῦσμα
     |]
-  , mounce §§ ["n-3c(5a1)"] $
+  , mounce §§ ["n-3c(5a)"] $
     Noun "Stems ending in ντ (with σ in the nominative singular, ο vowel)"
       [nounCaseEndings|
         ους   οντες
@@ -196,7 +196,7 @@ thirdDeclensionNouns =
       [greekWords|
         ὀδούς
       |]
-  , mounce §§ ["n-3c(5a2)"] $
+  , mounce §§ ["n-3c(5a)"] $
     Noun "Stems ending in ντ (with σ in the nominative singular, α vowel)"
       [nounCaseEndings|
         ας    αντες
@@ -208,7 +208,7 @@ thirdDeclensionNouns =
       [greekWords|
         ἱμάς
       |]
-  , mounce §§ ["n-3c(5a3)"] $
+  , mounce §§ ["n-3c(5a)"] $
     Noun "Stems ending in ντ (with σ in the nominative singular, ε vowel)"
       [nounCaseEndings|
         ης    εντες
@@ -235,17 +235,64 @@ thirdDeclensionNouns =
         ἄρχων γέρων δράκων θεράπων λέων
         Σαλωμών Σολομών Φλέγων
       |]
-  , mounce §§ ["n-3c(6)"] $
-    Noun "Stems ending in ντ (with no ending in the nom. sg.)"
+  , mounce §§ ["n-3c(6a)"] $
+    Noun "Nouns ending ας"
       [nounCaseEndings|
-        -  ες
-        ος ων
-        ι  σι
-        -  α
-        ς  ας
+        ας   ατα
+        ατος ατων
+        ατι  ασι
+        ας   ατα
+        ας   ατα
       |]
       [greekWords|
-        ἄρχων γέρων δράκων θεράπων λέων
-        Σαλωμών Σολομών Φλέγων
+        ἅλας κέρας πέρας τέρας
+      |]
+  , mounce §§ ["n-3c(6b)"] $
+    Noun "Nouns ending in ρ, ω vowel"
+      [nounCaseEndings|
+        ωρ   ατα
+        ατος ατων
+        ατι  ασι
+        ωρ   ατα
+        ωρ   ατα
+      |]
+      [greekWords|
+        ὕδωρ
+      |]
+  , mounce §§ ["n-3c(6b)"] $
+    Noun "Nouns ending in ρ, α vowel"
+      [nounCaseEndings|
+        αρ   ατα
+        ατος ατων
+        ατι  ασι
+        αρ   ατα
+        αρ   ατα
+      |]
+      [greekWords|
+        ὄναρ φρέαρ
+      |]
+  , mounce §§ ["n-3c(6c)"] $
+    Noun "Nouns ending in ς (ως)"
+      [nounCaseEndings|
+        ως   ωτα
+        ωτος ωτων
+        ωτι  ωσι
+        ως   ωτα
+        ως   ωτα
+      |]
+      [greekWords|
+        φῶς
+      |]
+  , mounce §§ ["n-3c(6c)"] $
+    Noun "Nouns ending in ς (ους)"
+      [nounCaseEndings|
+        ους   ωτα
+        ωτος  ωτων
+        ωτι   ωσι
+        ους   ωτα
+        ους   ωτα
+      |]
+      [greekWords|
+        οὖς
       |]
   ]
