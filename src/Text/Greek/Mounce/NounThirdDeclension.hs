@@ -295,4 +295,52 @@ thirdDeclensionNouns =
       [greekWords|
         οὖς
       |]
+  , mounce §§ ["n-3c(6d)"] $
+    Noun "Irregular stems - γάλα"
+      [nounCaseEndings|
+        α     -
+        ακτος -
+        ακτι  -
+        αλα   -
+        αλα   -
+      |]
+      [greekWords|
+        γάλα
+      |]
+  , mounce §§ ["n-3c(6d)"] $
+    Noun "Irregular stems - γόνυ"
+      [nounCaseEndings|
+        υ    ατα
+        ατος -
+        -    ασι
+        υ    ατα
+        υ    ατα
+      |]
+      [greekWords|
+        γόνυ
+      |]
+  , mounce §§ ["n-3c(6d)"] $
+    Noun "Irregular stems - μέλι"
+      [nounCaseEndings|
+        ι    -
+        ιτος -
+        -    -
+        -    -
+        ι    -
+      |]
+      [greekWords|
+        μέλι
+      |]
+  , mounce §§ ["n-3c(6d)"] $
+    Noun "Irregular stems - κρέας"
+      [nounCaseEndings|
+        ας α
+        ως -
+        -  -
+        ας α
+        ας α
+      |]
+      [greekWords|
+        κρέας
+      |]
   ]
