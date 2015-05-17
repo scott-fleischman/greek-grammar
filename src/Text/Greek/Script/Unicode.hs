@@ -2,8 +2,6 @@ module Text.Greek.Script.Unicode where
 
 import Data.Char
 import Data.List (foldl')
-import Text.Greek.Script.Token
-import Text.Greek.Script.UnicodeTokenPairs
 
 data LetterMarkGroup = LetterMarkGroup
   { unicodeLetter :: Char
