@@ -3,7 +3,7 @@
 
 module Text.Greek.Paths where
 
-import Filesystem.Path.CurrentOS (FilePath, (</>), (<.>))
+import System.FilePath
 
 sblgntOsisPath :: FilePath
 sblgntOsisPath = "data" </> "sblgnt-osis" </> "SBLGNT" <.> "osis" <.> "xml"

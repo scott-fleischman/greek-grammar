@@ -14,7 +14,7 @@ import Data.Text (Text, replace, unpack)
 import Data.Text.Format (Only(..))
 import Data.Text.Format.Strict (format')
 import Data.Text.IO (putStrLn, writeFile)
-import Filesystem.Path.CurrentOS ((</>), (<.>), encodeString, fromText)
+import System.FilePath
 import System.IO (IO)
 import Text.XML (readFile)
 import Text.Greek.Corpus.Bible
@@ -56,7 +56,7 @@ writeSblgntAgda = do
   case bibleResult of
     Left _ -> putStrLn "Error"
     Right bible -> do
-      writeFile (encodeString $ agdaSblgntPath <.> "agda") (indexAgda bible)
+      writeFile (agdaSblgntPath <.> "agda") (indexAgda bible)
       mapM_ writeBookAgda (bibleBooks bible)
 
 indexAgda :: Bible -> Text
@@ -76,7 +76,7 @@ indexAgda bible = format' "module Text.Greek.SBLGNT where\n\
   books = bibleBooks bible
 
 writeBookAgda :: Book -> IO ()
-writeBookAgda book = writeFile (encodeString $ agdaSblgntPath </> fromText (bookId book) <.> "agda") (bookToAgda book)
+writeBookAgda book = writeFile (agdaSblgntPath </> unpack (bookId book) <.> "agda") (bookToAgda book)
 
 bookToAgda :: Book -> Text
 bookToAgda (Book i t ss) = format' "module Text.Greek.SBLGNT.{} where\n\
