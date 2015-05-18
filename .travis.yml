@@ -21,3 +21,7 @@ install:
 script:
  - cabal build
  - cabal test --show-details=always
+
+notifications:
+  flowdock:
+    secure: "Q5YiZr4X5fV5HWRMvNrhZRHG2KyIs8M1VA+WgeRkh5qEaAgXii2Hr0ncWwIrLiLWU6657rzbigjrTU7QwtMse2cjRTcylV1ZJDhu8Jca401VyfIBNP3suiOlPZrKNFXBdGQQyOVm93Y/gdeJwgcO1BkuUSzBAos4s9LFXZLI8Fo="
