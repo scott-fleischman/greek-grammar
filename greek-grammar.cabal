@@ -21,7 +21,7 @@ library
     vector >=0.10,
     data-default >=0.5,
     xml-conduit >=1.3,
-    lens >=4.9 && <4.10,
+    lens >=4.11,
     xml-lens >=0.1,
     template-haskell >=2.10,
     parsec >=3.1
