@@ -24,4 +24,4 @@ script:
 
 notifications:
   flowdock:
-    secure: "Q5YiZr4X5fV5HWRMvNrhZRHG2KyIs8M1VA+WgeRkh5qEaAgXii2Hr0ncWwIrLiLWU6657rzbigjrTU7QwtMse2cjRTcylV1ZJDhu8Jca401VyfIBNP3suiOlPZrKNFXBdGQQyOVm93Y/gdeJwgcO1BkuUSzBAos4s9LFXZLI8Fo="
+    secure: "X64/fWAoHxhaakQWvzu7F59id01OFU/ejvzR58au7NnVmou+IvaUWPsUajA0AXyvfRIGXMc+Sq+1rpQ8LWY8O6BEn5PGP1y4fdiJx3n5Kr7bcGDyXL30BDQDIlMOQtewTDu9Podv9bJBlz7yXnblVzNphekV3OA5ow5i+oXYl5k="
