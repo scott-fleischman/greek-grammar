@@ -531,7 +531,97 @@ thirdDeclensionNouns =
       [greekWords|
         πειθώ ἠχώ
       |]
+   , mounce §§ ["n-3f(1a)"] $
+   Noun "Stems ending in ν - no ablaut"
+      [nounCaseEndings|
+        ν   νες
+        νος νων
+        νι  σι
+        να  νας
+        ν   νες
+      |]
+      [greekWords|
+        ἀγών αἰών ἅλων ἀμπελών ἀρραβών
+        ἀρτέμων Ἀσσάρων ἀφεδρών Βαβυλών Γαλλίων
+        δεῖνα ἐλαιών Ἕλλην εὐρακύλων εὐροκλύδων
+        ζήνων Ἡρῳδίων καύσων κεντυρίων κλύδων
+        κοιτών λεγιών μεγιστάν μέλαν μήν
+        Μνάσων μυλών Νέρων νυμφών πύθων
+        πυλών Σαλαμίς Σαρών Σιδών Σίμων
+        Σολομών Τίμων χειμών χιτών ὠδίν
+      |]
+   , mounce §§ ["n-3f(1b)"] $
+   Noun "Stems ending in ν - showing strong and weak ablaut"
+      [nounCaseEndings|
+        ων   ονες
+        ονος ονων
+        ονι  οσι
+        ονα  ονας
+        ων   ονες
+      |]
+      [greekWords|
+        ἀλαζών Ἀπολλύων ἀρχιποίμην ἀρχιτέκτων βραχίων
+        γείτων δαίμων εἰκών ἡγεμών Ἰάσων
+        κανών λιμήν Μακεδών ποιμήν σιαγών
+        σινδών τέκτων τρυγών Φιλήμων φρήν
+        χαλκηδών χιών
+      |]
+   , mounce §§ ["n-3f(1c)"] $
+   Noun "Stems ending in ν - showing strong and zero ablaut"
+      [nounCaseEndings|
+        ων  νες
+        νος νων
+        νι  σι
+        να  νας
+        ων  νες
+      |]
+      [greekWords|
+        ἀρήν ἀρνός κύων κυνός
+      |]
+   , mounce §§ ["n-3f(2a)"] $
+   Noun "Stems ending in a λ or ρ with no ablaut"
+      [nounCaseEndings|
+        ρ   ρες
+        ρος ρων
+        ρι  ρσι
+        ρα  ρας
+        ρ   ρες
+      |]
+      [greekWords|
+        ἅλς αὐτόχειρ Καῖσαρ μάρτυς νιπτήρ
+        ποδινιπτήρ πρωτόμαρτυς πῦρ στατήρ σωτήρ
+        φωστήρ χαρακτήρ χείρ ψευδόμαρτυς
+      |]
+   , mounce §§ ["n-3f(2b)"] $
+   Noun "Stems ending in a λ or ρ showing strong and weak ablaut"
+      [nounCaseEndings|
+        ρ   ρες
+        ρος ρων
+        ρι  ρσι
+        ρα  ρας
+        ρ   ρες
+      |]
+      [greekWords|
+        ἀήρ ἀλέκτωρ ἀστήρ δειπνοκλήτωρ κατήγωρ
+        κοσμοκράτωρ κτήτωρ Νικάνωρ παντοκράτωρ πράκτωρ
+        προπάτωρ ῥήτωρ σπεκουλάτωρ
+      |]
+   , mounce §§ ["n-3f(2c)"] $
+   Noun "Stems ending in a λ or ρ showing strong, weak and zero ablaut"
+      [nounCaseEndings|
+        ρ   ρες
+        ρος ρων
+        ρι  ρσι
+        ρα  ρας
+        ρ   ρες
+      |]
+      [greekWords|
+        ἀνήρ γαστήρ θυγάτηρ μήτηρ πατήρ
+      |]
+
    ]
+
+
 
 
 
