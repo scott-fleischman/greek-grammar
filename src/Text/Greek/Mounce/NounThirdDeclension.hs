@@ -448,11 +448,11 @@ thirdDeclensionNouns =
   , mounce §§ ["n-3e(4)"] $
     Noun "Stems ending in οϝ"
       [nounCaseEndings|
-        ους  υες
-        υος υων
-        υι  υσι
-        υν  υας
-        υ   ες
+        ους οες
+        οος οων
+        οι  ουσι
+        ουν οας
+        ου  οες
       |]
       [greekWords|
        βοῦς νοῦς πλοῦς χοῦς
@@ -618,7 +618,6 @@ thirdDeclensionNouns =
       [greekWords|
         ἀνήρ γαστήρ θυγάτηρ μήτηρ πατήρ
       |]
-
    ]
 
 
