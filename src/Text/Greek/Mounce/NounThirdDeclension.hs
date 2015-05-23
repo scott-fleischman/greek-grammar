@@ -420,7 +420,7 @@ thirdDeclensionNouns =
   , mounce §§ ["n-3e(2)"] $
     Noun "Stems ending in αϝ"
       [nounCaseEndings|
-        υς ες
+        αυς ες
         ως ων
         ι  υσι
         υν υς
@@ -448,7 +448,7 @@ thirdDeclensionNouns =
   , mounce §§ ["n-3e(4)"] $
     Noun "Stems ending in οϝ"
       [nounCaseEndings|
-        υς  υες
+        ους  υες
         υος υων
         υι  υσι
         υν  υας
