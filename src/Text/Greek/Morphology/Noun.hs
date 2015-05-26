@@ -23,13 +23,13 @@ data Number = Singular | Plural -- | Dual
 allNumbers :: [Number]
 allNumbers = [Singular, Plural] -- Dual
 
-data NounInflection = NounInflection
+data NounMorph = NounMorph
   { _gender :: Gender
   , _number :: Number
   , _nounCase :: Case
   }
   deriving (Eq, Show)
-makeLenses ''NounInflection
+makeLenses ''NounMorph
 
-allNounInflections :: [NounInflection]
-allNounInflections = [NounInflection g n c | g <- allGenders, n <- allNumbers, c <- allCases]
+allNounMorphs :: [NounMorph]
+allNounMorphs = [NounMorph g n c | g <- allGenders, n <- allNumbers, c <- allCases]
