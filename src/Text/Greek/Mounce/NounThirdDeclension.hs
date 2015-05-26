@@ -450,7 +450,7 @@ thirdDeclensionNouns =
       [nounCaseEndings|
         ους οες
         οος οων
-        οι  ουσι
+        οϊ  ουσι
         ουν οας
         ου  οες
       |]
