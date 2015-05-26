@@ -32,9 +32,7 @@ library
     Text.Greek.Corpus.Bible.Stats
     Text.Greek.Grammar
     Text.Greek.IO
-    Text.Greek.Lexicon.Lemmas
     Text.Greek.Morphology.Noun
-    Text.Greek.Morphology.PartOfSpeech
     Text.Greek.Mounce.Euphony
     Text.Greek.Mounce.Morphology
     Text.Greek.Mounce.NounFirstDeclension
