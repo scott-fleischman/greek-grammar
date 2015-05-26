@@ -7,10 +7,10 @@ import Text.Greek.Grammar
 import Text.Greek.Mounce.Morphology
 import Text.Greek.Mounce.Quote
 
-thirdDeclensionNouns :: [Cited Noun]
+thirdDeclensionNouns :: [Cited NounCategory]
 thirdDeclensionNouns = 
   [ mounce §§ ["n-3a(1)"] $
-    Noun "Stems ending in π"
+    NounCategory "Stems ending in π"
       [nounCaseEndings|
         ψ   πες
         πος πων
@@ -22,7 +22,7 @@ thirdDeclensionNouns =
         Αἰθίοψ κώνωψ λαῖλαψ μώλωψ σκόλοψ
       |]
   , mounce §§ ["n-3a(2)"] $
-    Noun "Stems ending in β"
+    NounCategory "Stems ending in β"
       [nounCaseEndings|
         ψ   βες
         βος βων
@@ -34,7 +34,7 @@ thirdDeclensionNouns =
         Ἄραψ λίψ
       |]
   , mounce §§ ["n-3b(1)"] $
-    Noun "Stems ending in κ"
+    NounCategory "Stems ending in κ"
       [nounCaseEndings|
         ξ   κες
         κος κων
@@ -49,7 +49,7 @@ thirdDeclensionNouns =
         φοῖνιξ φύλαξ χάραξ χοῖνιξ
       |]
   , mounce §§ ["n-3b(2)"] $
-    Noun "Stems ending in γ"
+    NounCategory "Stems ending in γ"
       [nounCaseEndings|
         ξ   γες
         γος γων
@@ -62,7 +62,7 @@ thirdDeclensionNouns =
         σάλπιγξ φάραγξ φλόξ
       |]
   , mounce §§ ["n-3b(3)"] $
-    Noun "Stems ending in χ"
+    NounCategory "Stems ending in χ"
       [nounCaseEndings|
         ξ   χες
         χος χων
@@ -74,7 +74,7 @@ thirdDeclensionNouns =
         θρίξ σαρδόνυξ ψίξ
       |]
   , mounce §§ ["n-3c(1)"] $
-    Noun "Stems ending in τ"
+    NounCategory "Stems ending in τ"
       [nounCaseEndings|
         ς   τες
         τος των
@@ -95,7 +95,7 @@ thirdDeclensionNouns =
         χρηστότης χρώς
       |]
   , mounce §§ ["n-3c(1)"] $
-    Noun "Stems ending in τ with accusative, singular ν"
+    NounCategory "Stems ending in τ with accusative, singular ν"
       [nounCaseEndings|
         ς   τες
         τος των
@@ -107,7 +107,7 @@ thirdDeclensionNouns =
         χάρις
       |]
   , mounce §§ ["n-3c(2)"] $
-    Noun "Stems ending in δ"
+    NounCategory "Stems ending in δ"
       [nounCaseEndings|
         ς   δες
         δος δων
@@ -130,7 +130,7 @@ thirdDeclensionNouns =
         ὑπολαμπάς χιλιάς χλαμύς
       |]
   , mounce §§ ["n-3c(3)"] $
-    Noun "Stems ending in θ"
+    NounCategory "Stems ending in θ"
       [nounCaseEndings|
         ς   θες
         θος θων
@@ -142,7 +142,7 @@ thirdDeclensionNouns =
         ὄρνις
       |]
   , mounce §§ ["n-3c(4)"] $
-    Noun "Stems ending in ματ"
+    NounCategory "Stems ending in ματ"
       [nounCaseEndings|
         -   τα
         τος των
@@ -185,7 +185,7 @@ thirdDeclensionNouns =
         χρῖσμα ψεῦσμα
     |]
   , mounce §§ ["n-3c(5a)"] $
-    Noun "Stems ending in ντ (with σ in the nominative singular, ο vowel)"
+    NounCategory "Stems ending in ντ (with σ in the nominative singular, ο vowel)"
       [nounCaseEndings|
         ους   οντες
         οντος οντων
@@ -197,7 +197,7 @@ thirdDeclensionNouns =
         ὀδούς
       |]
   , mounce §§ ["n-3c(5a)"] $
-    Noun "Stems ending in ντ (with σ in the nominative singular, α vowel)"
+    NounCategory "Stems ending in ντ (with σ in the nominative singular, α vowel)"
       [nounCaseEndings|
         ας    αντες
         αντος αντων
@@ -209,7 +209,7 @@ thirdDeclensionNouns =
         ἱμάς
       |]
   , mounce §§ ["n-3c(5a)"] $
-    Noun "Stems ending in ντ (with σ in the nominative singular, ε vowel)"
+    NounCategory "Stems ending in ντ (with σ in the nominative singular, ε vowel)"
       [nounCaseEndings|
         ης    εντες
         εντος εντων
@@ -223,7 +223,7 @@ thirdDeclensionNouns =
         Κλήμης
       |]
   , mounce §§ ["n-3c(5b)"] $
-    Noun "Stems ending in ντ (with no ending in the nominative singular)"
+    NounCategory "Stems ending in ντ (with no ending in the nominative singular)"
       [nounCaseEndings|
         ων    οντες
         οντος οντων
@@ -236,7 +236,7 @@ thirdDeclensionNouns =
         Σαλωμών Σολομών Φλέγων
       |]
   , mounce §§ ["n-3c(6a)"] $
-    Noun "Nouns ending ας"
+    NounCategory "Nouns ending ας"
       [nounCaseEndings|
         ας   ατα
         ατος ατων
@@ -248,7 +248,7 @@ thirdDeclensionNouns =
         ἅλας κέρας πέρας τέρας
       |]
   , mounce §§ ["n-3c(6b)"] $
-    Noun "Nouns ending in ρ, ω vowel"
+    NounCategory "Nouns ending in ρ, ω vowel"
       [nounCaseEndings|
         ωρ   ατα
         ατος ατων
@@ -260,7 +260,7 @@ thirdDeclensionNouns =
         ὕδωρ
       |]
   , mounce §§ ["n-3c(6b)"] $
-    Noun "Nouns ending in ρ, α vowel"
+    NounCategory "Nouns ending in ρ, α vowel"
       [nounCaseEndings|
         αρ   ατα
         ατος ατων
@@ -272,7 +272,7 @@ thirdDeclensionNouns =
         ὄναρ φρέαρ
       |]
   , mounce §§ ["n-3c(6c)"] $
-    Noun "Nouns ending in ς (ως)"
+    NounCategory "Nouns ending in ς (ως)"
       [nounCaseEndings|
         ως   ωτα
         ωτος ωτων
@@ -284,7 +284,7 @@ thirdDeclensionNouns =
         φῶς
       |]
   , mounce §§ ["n-3c(6c)"] $
-    Noun "Nouns ending in ς (ους)"
+    NounCategory "Nouns ending in ς (ους)"
       [nounCaseEndings|
         ους   ωτα
         ωτος  ωτων
@@ -296,7 +296,7 @@ thirdDeclensionNouns =
         οὖς
       |]
   , mounce §§ ["n-3c(6d)"] $
-    Noun "Irregular stems - γάλα"
+    NounCategory "Irregular stems - γάλα"
       [nounCaseEndings|
         α     -
         ακτος -
@@ -308,7 +308,7 @@ thirdDeclensionNouns =
         γάλα
       |]
   , mounce §§ ["n-3c(6d)"] $
-    Noun "Irregular stems - γόνυ"
+    NounCategory "Irregular stems - γόνυ"
       [nounCaseEndings|
         υ    ατα
         ατος -
@@ -320,7 +320,7 @@ thirdDeclensionNouns =
         γόνυ
       |]
   , mounce §§ ["n-3c(6d)"] $
-    Noun "Irregular stems - μέλι"
+    NounCategory "Irregular stems - μέλι"
       [nounCaseEndings|
         ι    -
         ιτος -
@@ -332,7 +332,7 @@ thirdDeclensionNouns =
         μέλι
       |]
   , mounce §§ ["n-3c(6d)"] $
-    Noun "Irregular stems - κρέας"
+    NounCategory "Irregular stems - κρέας"
       [nounCaseEndings|
         ας α
         ως -
@@ -344,7 +344,7 @@ thirdDeclensionNouns =
         κρέας
       |]
   , mounce §§ ["n-3d(1)"] $
-    Noun "Stems ending in ας"
+    NounCategory "Stems ending in ας"
       [nounCaseEndings|
         ας   -
         ους  -
@@ -356,7 +356,7 @@ thirdDeclensionNouns =
         γῆρας
       |]
   , mounce §§ ["n-3d(2)"] $
-    Noun "Stems ending in ες"
+    NounCategory "Stems ending in ες"
       [nounCaseEndings|
         ος  η
         ους ων
@@ -380,7 +380,7 @@ thirdDeclensionNouns =
          ψῦχος
         |]
   , mounce §§ ["n-3d(2)"] $
-    Noun "Stems ending in ες"
+    NounCategory "Stems ending in ες"
       [nounCaseEndings|
         ης  -
         ους -
@@ -392,7 +392,7 @@ thirdDeclensionNouns =
         Διοτρέφης Ἑρμογένης Σωσθένης
       |]
    , mounce §§ ["n-3d(3)"] $
-     Noun "Stems ending in ος"
+     NounCategory "Stems ending in ος"
       [nounCaseEndings|
         ως  -
         ους -
@@ -404,7 +404,7 @@ thirdDeclensionNouns =
         αἰδώς
       |]
   , mounce §§ ["n-3e(1)"] $
-    Noun "Stems ending in ϝ"
+    NounCategory "Stems ending in ϝ"
       [nounCaseEndings|
         υς  υες
         υος υων
@@ -418,7 +418,7 @@ thirdDeclensionNouns =
         ὗς
       |]
   , mounce §§ ["n-3e(2)"] $
-    Noun "Stems ending in αϝ"
+    NounCategory "Stems ending in αϝ"
       [nounCaseEndings|
         αυς ες
         ως ων
@@ -430,7 +430,7 @@ thirdDeclensionNouns =
         ναῦς
       |]
   , mounce §§ ["n-3e(3)"] $
-    Noun "Stems ending in εϝ"
+    NounCategory "Stems ending in εϝ"
       [nounCaseEndings|
         ευς εις
         εως εων
@@ -446,7 +446,7 @@ thirdDeclensionNouns =
         Ταρσεύς φαρμακεύς φονεύς χαλκεύς
       |]
   , mounce §§ ["n-3e(4)"] $
-    Noun "Stems ending in οϝ"
+    NounCategory "Stems ending in οϝ"
       [nounCaseEndings|
         ους οες
         οος οων
@@ -458,7 +458,7 @@ thirdDeclensionNouns =
        βοῦς νοῦς πλοῦς χοῦς
       |]
   , mounce §§ ["n-3e(5a)"] $
-    Noun "Stems ending in ι - no ablaut"
+    NounCategory "Stems ending in ι - no ablaut"
       [nounCaseEndings|
         ις -
         -  -
@@ -470,7 +470,7 @@ thirdDeclensionNouns =
         νῆστις
       |]
    , mounce §§ ["n-3e(5b)"] $
-   Noun "Stems ending in ι - with ablaut"
+   NounCategory "Stems ending in ι - with ablaut"
       [nounCaseEndings|
         ις  εις
         εως εων
@@ -520,7 +520,7 @@ thirdDeclensionNouns =
         χρῆσις
       |]
    , mounce §§ ["n-3e(6)"] $
-   Noun "Stems ending in οι"
+   NounCategory "Stems ending in οι"
       [nounCaseEndings|
         ω   -
         ους -
@@ -532,7 +532,7 @@ thirdDeclensionNouns =
         πειθώ ἠχώ
       |]
    , mounce §§ ["n-3f(1a)"] $
-   Noun "Stems ending in ν - no ablaut"
+   NounCategory "Stems ending in ν - no ablaut"
       [nounCaseEndings|
         ν   νες
         νος νων
@@ -551,7 +551,7 @@ thirdDeclensionNouns =
         Σολομών Τίμων χειμών χιτών ὠδίν
       |]
    , mounce §§ ["n-3f(1b)"] $
-   Noun "Stems ending in ν - showing strong and weak ablaut"
+   NounCategory "Stems ending in ν - showing strong and weak ablaut"
       [nounCaseEndings|
         ων   ονες
         ονος ονων
@@ -567,7 +567,7 @@ thirdDeclensionNouns =
         χαλκηδών χιών
       |]
    , mounce §§ ["n-3f(1c)"] $
-   Noun "Stems ending in ν - showing strong and zero ablaut"
+   NounCategory "Stems ending in ν - showing strong and zero ablaut"
       [nounCaseEndings|
         ων  νες
         νος νων
@@ -579,7 +579,7 @@ thirdDeclensionNouns =
         ἀρήν ἀρνός κύων κυνός
       |]
    , mounce §§ ["n-3f(2a)"] $
-   Noun "Stems ending in a λ or ρ with no ablaut"
+   NounCategory "Stems ending in a λ or ρ with no ablaut"
       [nounCaseEndings|
         ρ   ρες
         ρος ρων
@@ -593,7 +593,7 @@ thirdDeclensionNouns =
         φωστήρ χαρακτήρ χείρ ψευδόμαρτυς
       |]
    , mounce §§ ["n-3f(2b)"] $
-   Noun "Stems ending in a λ or ρ showing strong and weak ablaut"
+   NounCategory "Stems ending in a λ or ρ showing strong and weak ablaut"
       [nounCaseEndings|
         ρ   ρες
         ρος ρων
@@ -607,7 +607,7 @@ thirdDeclensionNouns =
         προπάτωρ ῥήτωρ σπεκουλάτωρ
       |]
    , mounce §§ ["n-3f(2c)"] $
-   Noun "Stems ending in a λ or ρ showing strong, weak and zero ablaut"
+   NounCategory "Stems ending in a λ or ρ showing strong, weak and zero ablaut"
       [nounCaseEndings|
         ρ   ρες
         ρος ρων
@@ -619,8 +619,3 @@ thirdDeclensionNouns =
         ἀνήρ γαστήρ θυγάτηρ μήτηρ πατήρ
       |]
    ]
-
-
-
-
-

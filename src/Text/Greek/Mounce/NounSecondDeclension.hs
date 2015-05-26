@@ -7,10 +7,10 @@ import Text.Greek.Grammar
 import Text.Greek.Mounce.Morphology
 import Text.Greek.Mounce.Quote
 
-secondDeclensionNouns :: [Cited Noun]
+secondDeclensionNouns :: [Cited NounCategory]
 secondDeclensionNouns = 
   [ mounce § "n-2a" $
-    Noun "Masculine nouns with stems ending in ο(ς)"
+    NounCategory "Masculine nouns with stems ending in ο(ς)"
       [nounCaseEndings|
         ος οι
         ου ων
@@ -115,7 +115,7 @@ secondDeclensionNouns =
         ψευδαπόστολος ψευδοδιδάσκαλος ψευδόχριστος ψιθυρισμός ὦμος
     |]
   , mounce § "n-2b" $
-    Noun "Femine nouns with stems ending in ο(ς)"
+    NounCategory "Femine nouns with stems ending in ο(ς)"
       [nounCaseEndings|
         ος οι
         ου ων
@@ -130,7 +130,7 @@ secondDeclensionNouns =
         σάπφιρος σορός σποδός στάμνος συκάμινος Ταρσός τρίβος τροφός Τύρος ὕαλος ὕσσωπος χίος ψῆφος 
     |]
   , mounce § "n-2c" $
-    Noun "Neuter nouns with stems ending in ο(ν)"
+    NounCategory "Neuter nouns with stems ending in ο(ν)"
       [nounCaseEndings|
         ον α
         ου ων

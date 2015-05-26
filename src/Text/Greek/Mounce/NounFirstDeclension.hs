@@ -7,10 +7,10 @@ import Text.Greek.Grammar
 import Text.Greek.Mounce.Morphology
 import Text.Greek.Mounce.Quote
 
-firstDeclensionNouns :: [Cited Noun]
+firstDeclensionNouns :: [Cited NounCategory]
 firstDeclensionNouns = 
   [ mounce § "n-1a" $
-    Noun "Feminine nouns with stems ending in εα, ια, or ρα and a genitive in ας"
+    NounCategory "Feminine nouns with stems ending in εα, ια, or ρα and a genitive in ας"
       [nounCaseEndings|
         α  αι
         ας ων
@@ -104,7 +104,7 @@ firstDeclensionNouns =
         ὥρα ὠφέλεια
       |]
   , mounce § "n-1b" $
-    Noun "Feminine nouns with stems ending in η and a genitive in ης"
+    NounCategory "Feminine nouns with stems ending in η and a genitive in ης"
       [nounCaseEndings|
         η  αι
         ης ων
@@ -165,7 +165,7 @@ firstDeclensionNouns =
         χολή ψυχή ᾠδή
       |]
   , mounce § "n-1c" $
-    Noun "Feminine nouns with stems ending in α (where the preceding letter is not ε, ι, or ρ) and a genitive in ης."
+    NounCategory "Feminine nouns with stems ending in α (where the preceding letter is not ε, ι, or ρ) and a genitive in ης."
       [nounCaseEndings|
         α  αι
         ης ων
@@ -184,7 +184,7 @@ firstDeclensionNouns =
         Τρυφῶσα Φοινίκισσα χάλαζα
       |]
  , mounce § "n-1d" $
-   Noun "Masculine nouns with stems ending in α(ς) and a genitive in ου."
+   NounCategory "Masculine nouns with stems ending in α(ς) and a genitive in ου."
      [nounCaseEndings|
        ας αι
        ου ων
@@ -201,7 +201,7 @@ firstDeclensionNouns =
        πατραλῴας πατρολῴας Σιμαίας
      |]
  , mounce § "n-1e" $
-   Noun "Masculine nouns with stems ending in α(ς) and a genitive in α."
+   NounCategory "Masculine nouns with stems ending in α(ς) and a genitive in α."
      [nounCaseEndings|
        ας -
        α  -
@@ -219,7 +219,7 @@ firstDeclensionNouns =
        Σατανᾶς Σίλας Σκευᾶς Στεφανᾶς χουζᾶς   
      |]
  , mounce § "n-1f" $
-   Noun "Masculine nouns with stems ending in η(ς) and a genitive in ου."
+   NounCategory "Masculine nouns with stems ending in η(ς) and a genitive in ου."
      [nounCaseEndings|
        ης αι
        ου ων
@@ -258,7 +258,7 @@ firstDeclensionNouns =
       χρεωφειλέτης ψευδοπροφήτης ψεύστης ψιθυριστής
     |]
  , mounce § "n-1g" $
-   Noun "Masculine nouns with stems ending in η(ς) and a genitive in η."
+   NounCategory "Masculine nouns with stems ending in η(ς) and a genitive in η."
      [nounCaseEndings|
       ης -
       η  -
@@ -270,7 +270,7 @@ firstDeclensionNouns =
       Μανασσῆς Ἰωσῆς
     |]   
  , mounce § "n-1h(a)" $
-   Noun "First declension contract nouns."
+   NounCategory "First declension contract nouns."
     [nounCaseEndings|  
       α  αι
       ας ων
@@ -282,7 +282,7 @@ firstDeclensionNouns =
       μνᾶ
     |]
  , mounce § "n-1h(b)" $
-   Noun "First declension contract nouns."
+   NounCategory "First declension contract nouns."
     [nounCaseEndings|
       η  αι
       ης ων
@@ -294,7 +294,7 @@ firstDeclensionNouns =
       συκῆ γῆ γῆς 
     |]
  , mounce § "n-1h(c)" $
-   Noun "First declension contract nouns."
+   NounCategory "First declension contract nouns."
     [nounCaseEndings|
       ης αι
       ου ων
