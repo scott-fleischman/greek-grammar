@@ -1,6 +1,6 @@
 module Text.Greek.Mounce.Parse where
 
-import Data.Text (pack)
+import Data.Text (Text, pack)
 import Text.ParserCombinators.Parsec
 import Text.Greek.Mounce.Morphology
 import Text.Greek.Mounce.Phonology
@@ -10,19 +10,19 @@ greekCharacter :: CharParser () Char
 greekCharacter = oneOf $ greekDasia : map fst unicodeTokenPairs
   where greekDasia = '\x1FFE'
 
-greekWord :: CharParser () String
-greekWord = many1 greekCharacter
+greekWord :: CharParser () Text
+greekWord = pack <$> many1 greekCharacter
 
 euphonyRule :: CharParser () EuphonyRule
 euphonyRule = EuphonyRule
-  <$> (pack <$> greekWord <* spaces <* char '+' <* spaces)
-  <*> (pack <$> greekWord <* spaces <* char '}' <* spaces)
-  <*> (pack <$> greekWord <* spaces)
+  <$> (greekWord <* spaces <* char '+' <* spaces)
+  <*> (greekWord <* spaces <* char '}' <* spaces)
+  <*> (greekWord <* spaces)
 
 euphonyRules :: CharParser () [EuphonyRule]
 euphonyRules = sepBy1 euphonyRule spaces
 
-greekWordsParser :: CharParser () [String]
+greekWordsParser :: CharParser () [Text]
 greekWordsParser = endBy1 greekWord spaces
 
 caseEnding :: CharParser () Affix

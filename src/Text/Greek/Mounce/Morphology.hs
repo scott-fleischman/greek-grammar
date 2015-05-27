@@ -3,6 +3,7 @@
 
 module Text.Greek.Mounce.Morphology where
 
+import Data.Text (Text)
 import Data.Data
 import Data.List
 import Data.Monoid ((<>))
@@ -28,13 +29,13 @@ instance Foldable NounForms where
 data Affix
   = EmptyAffix
   | UnattestedAffix
-  | AttestedAffix String
+  | AttestedAffix Text
   deriving (Data, Typeable, Show, Eq)
 
 data NounCategory = NounCategory
-  { nounDefinition :: String
+  { nounDefinition :: Text
   , nounActualCaseEndings :: NounForms Affix
-  , nounWords :: [String]
+  , nounWords :: [Text]
   }
   deriving (Show, Eq)
 
