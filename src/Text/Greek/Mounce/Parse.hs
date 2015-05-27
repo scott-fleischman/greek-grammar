@@ -23,6 +23,7 @@ greekWordsParser = endBy1 greekWord spaces
 
 caseEnding :: CharParser () Affix
 caseEnding = pure EmptyAffix <* string "-"
+  <|> pure UnattestedAffix <* string "*"
   <|> AttestedAffix <$> greekWord
 
 nounCaseEndingsParser :: CharParser () (NounForms Affix)

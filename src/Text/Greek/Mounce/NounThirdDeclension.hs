@@ -276,7 +276,7 @@ thirdDeclensionNouns =
       [nounCaseEndings|
         ως   ωτα
         ωτος ωτων
-        ωτι  ωσι
+        ωτι  *
         ως   ωτα
         ως   ωτα
       |]
@@ -298,11 +298,11 @@ thirdDeclensionNouns =
   , mounce §§ ["n-3c(6d)"] $
     NounCategory "Irregular stems - γάλα"
       [nounCaseEndings|
-        α     -
-        ακτος -
-        ακτι  -
-        αλα   -
-        αλα   -
+        αλα   *
+        ακτος *
+        *     *
+        αλα   *
+        αλα   *
       |]
       [greekWords|
         γάλα
@@ -311,8 +311,8 @@ thirdDeclensionNouns =
     NounCategory "Irregular stems - γόνυ"
       [nounCaseEndings|
         υ    ατα
-        ατος -
-        -    ασι
+        ατος *
+        *    ασι
         υ    ατα
         υ    ατα
       |]
@@ -322,11 +322,11 @@ thirdDeclensionNouns =
   , mounce §§ ["n-3c(6d)"] $
     NounCategory "Irregular stems - μέλι"
       [nounCaseEndings|
-        ι    -
-        ιτος -
-        -    -
-        ι    -
-        ι    -
+        ι    *
+        ιτος *
+        *    *
+        ι    *
+        ι    *
       |]
       [greekWords|
         μέλι
@@ -335,8 +335,8 @@ thirdDeclensionNouns =
     NounCategory "Irregular stems - κρέας"
       [nounCaseEndings|
         ας α
-        ως -
-        -  -
+        ως *
+        *  *
         ας α
         ας α
       |]
@@ -346,11 +346,11 @@ thirdDeclensionNouns =
   , mounce §§ ["n-3d(1)"] $
     NounCategory "Stems ending in ας"
       [nounCaseEndings|
-        ας   -
-        ους  -
-        ει   -
-        ας   -
-        ας   -
+        ας   *
+        ους  *
+        ει   *
+        ας   *
+        ας   *
       |]
       [greekWords|
         γῆρας
@@ -382,11 +382,11 @@ thirdDeclensionNouns =
   , mounce §§ ["n-3d(2)"] $
     NounCategory "Stems ending in ες"
       [nounCaseEndings|
-        ης  -
-        ους -
-        ει  -
-        ην  -
-        ης  -
+        ης  *
+        ους *
+        ει  *
+        ην  *
+        ης  *
       |]
       [greekWords|
         Διοτρέφης Ἑρμογένης Σωσθένης
@@ -394,11 +394,11 @@ thirdDeclensionNouns =
    , mounce §§ ["n-3d(3)"] $
      NounCategory "Stems ending in ος"
       [nounCaseEndings|
-        ως  -
-        ους -
-        οι  -
-        ω   -
-        ως  -
+        ως  *
+        ους *
+        οι  *
+        ω   *
+        ως  *
       |]
       [greekWords|
         αἰδώς
@@ -460,11 +460,11 @@ thirdDeclensionNouns =
   , mounce §§ ["n-3e(5a)"] $
     NounCategory "Stems ending in ι - no ablaut"
       [nounCaseEndings|
-        ις -
-        -  -
-        -  -
-        -  εις
-        ις - 
+        ις *
+        *  *
+        *  *
+        *  εις
+        ις * 
       |]
       [greekWords|
         νῆστις
@@ -522,11 +522,11 @@ thirdDeclensionNouns =
    , mounce §§ ["n-3e(6)"] $
    NounCategory "Stems ending in οι"
       [nounCaseEndings|
-        ω   -
-        ους -
-        οι  -
-        ω   -
-        οι  -
+        ω   *
+        ους *
+        οι  *
+        ω   *
+        οι  *
       |]
       [greekWords|
         πειθώ ἠχώ

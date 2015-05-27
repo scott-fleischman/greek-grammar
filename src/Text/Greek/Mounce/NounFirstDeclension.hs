@@ -203,11 +203,11 @@ firstDeclensionNouns =
  , mounce § "n-1e" $
    NounCategory "Masculine nouns with stems ending in α(ς) and a genitive in α."
      [nounCaseEndings|
-       ας -
-       α  -
-       ᾳ  -
-       αν -
-       α  -
+       ας *
+       α  *
+       ᾳ  *
+       αν *
+       α  *
      |]
      [greekWords|
        Ἀγρίππας Ἅννας Ἀντιπᾶς Ἁρέτας Ἀρτεμᾶς
@@ -260,11 +260,11 @@ firstDeclensionNouns =
  , mounce § "n-1g" $
    NounCategory "Masculine nouns with stems ending in η(ς) and a genitive in η."
      [nounCaseEndings|
-      ης -
-      η  -
-      ῃ  -
-      η  -
-      η  -
+      ης *
+      η  *
+      ῃ  *
+      η  *
+      η  *
     |]
     [greekWords|
       Μανασσῆς Ἰωσῆς
@@ -306,9 +306,3 @@ firstDeclensionNouns =
       Απελλῆς βορρᾶς Ἑρμῆς
     |] 
  ]
-       
-          
-       
-        
-         
-         
