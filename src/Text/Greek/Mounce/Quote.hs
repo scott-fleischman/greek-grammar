@@ -14,17 +14,12 @@ location' = aux <$> location
     aux :: Loc -> SourcePos
     aux loc = uncurry (newPos (loc_filename loc)) (loc_start loc)
 
-parseIO :: Parser a -> String -> IO a
-parseIO p str =
-  case parse p "" str of
-    Left err -> throwIO (userError (show err))
-    Right a  -> return a
-
 parseTopLevel :: Data a => CharParser () a -> String -> Q Exp
 parseTopLevel p str = do
   l <- location'
-  c <- runIO $ parseIO (setPosition l *> (topLevel p)) str
-  dataToExpQ (const Nothing) c
+  case parse (setPosition l *> (topLevel p)) "" str of
+    Right x -> dataToExpQ (const Nothing) x
+    Left err -> fail (show err)
 
 rules :: QuasiQuoter
 rules = QuasiQuoter
