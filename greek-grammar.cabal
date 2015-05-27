@@ -24,7 +24,8 @@ library
     lens >=4.11,
     xml-lens >=0.1,
     template-haskell >=2.10,
-    parsec >=3.1
+    parsec >=3.1,
+    syb >= 0.4.4
   exposed-modules:
     Data.Text.Format.Strict
     Text.Greek.Conversions

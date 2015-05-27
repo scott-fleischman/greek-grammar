@@ -3,17 +3,18 @@
 module Text.Greek.Mounce.Phonology where
 
 import Data.Data
+import Data.Text (Text)
 
 data Euphony = Euphony
-  { euphonyName :: String
+  { euphonyName :: Text
   , euphonyRules :: [EuphonyRule]
   }
   deriving (Show, Eq)
 
 data EuphonyRule = EuphonyRule
-  { euphonyRuleFirst :: String
-  , euphonyRuleSecond :: String
-  , euphonyRuleResult :: String
+  { euphonyRuleFirst :: Text
+  , euphonyRuleSecond :: Text
+  , euphonyRuleResult :: Text
   }
   deriving (Data, Typeable, Show, Eq)
 

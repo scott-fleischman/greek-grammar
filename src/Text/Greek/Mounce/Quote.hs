@@ -1,6 +1,10 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Text.Greek.Mounce.Quote where
 
 import Data.Data
+import Data.Generics (extQ)
+import qualified Data.Text as T
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
 import Text.Parsec.Pos (newPos)
@@ -13,11 +17,14 @@ location' = aux <$> location
     aux :: Loc -> SourcePos
     aux loc = uncurry (newPos (loc_filename loc)) (loc_start loc)
 
+handleText :: T.Text -> Maybe ExpQ
+handleText x = Just $ appE (varE 'T.pack) $ litE $ StringL $ T.unpack x
+
 parseTopLevel :: Data a => CharParser () a -> String -> Q Exp
 parseTopLevel p str = do
   l <- location'
   case parse (setPosition l *> (topLevel p)) "" str of
-    Right x -> dataToExpQ (const Nothing) x
+    Right x -> dataToExpQ (const Nothing `extQ` handleText) x
     Left err -> fail (show err)
 
 rules :: QuasiQuoter
