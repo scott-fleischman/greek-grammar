@@ -21,21 +21,13 @@ euphonyRules = sepBy1 euphonyRule spaces
 greekWordsParser :: CharParser () [String]
 greekWordsParser = endBy1 greekWord spaces
 
-caseEnding :: CharParser () String
-caseEnding = string "-" <|> greekWord
+caseEnding :: CharParser () Affix
+caseEnding = pure EmptyAffix <* string "-"
+  <|> AttestedAffix <$> greekWord
 
-nounCaseEndingsParser :: CharParser () (NounForms String)
-nounCaseEndingsParser = NounForms
-    <$> (caseEnding <* spaces)
-    <*> (caseEnding <* spaces)
-    <*> (caseEnding <* spaces)
-    <*> (caseEnding <* spaces)
-    <*> (caseEnding <* spaces)
-    <*> (caseEnding <* spaces)
-    <*> (caseEnding <* spaces)
-    <*> (caseEnding <* spaces)
-    <*> (caseEnding <* spaces)
-    <*> (caseEnding <* spaces)
+nounCaseEndingsParser :: CharParser () (NounForms Affix)
+nounCaseEndingsParser = NounForms <$> e <*> e <*> e <*> e <*> e <*> e <*> e <*> e <*> e <*> e
+  where e = caseEnding <* spaces
 
 topLevel :: CharParser () a -> CharParser () a
 topLevel x = spaces *> x <* eof
