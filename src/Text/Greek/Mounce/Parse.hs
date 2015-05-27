@@ -13,13 +13,13 @@ greekWord :: CharParser () String
 greekWord = many1 greekCharacter
 
 euphonyRule :: CharParser () EuphonyRule
-euphonyRule = (EuphonyRule <$> (greekWord <* spaces <* char '+' <* spaces) <*> (greekWord <* spaces <* char '}' <* spaces) <*> (greekWord <* spaces)) <* spaces
+euphonyRule = EuphonyRule <$> (greekWord <* spaces <* char '+' <* spaces) <*> (greekWord <* spaces <* char '}' <* spaces) <*> (greekWord <* spaces)
 
 euphonyRules :: CharParser () [EuphonyRule]
-euphonyRules = many1 euphonyRule
+euphonyRules = sepBy1 euphonyRule spaces
 
 greekWordsParser :: CharParser () [String]
-greekWordsParser = many1 (greekWord <* spaces)
+greekWordsParser = endBy1 greekWord spaces
 
 caseEnding :: CharParser () String
 caseEnding = string "-" <|> greekWord
