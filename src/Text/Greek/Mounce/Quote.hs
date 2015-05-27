@@ -1,6 +1,5 @@
 module Text.Greek.Mounce.Quote where
 
-import Control.Exception (throwIO)
 import Data.Data
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
