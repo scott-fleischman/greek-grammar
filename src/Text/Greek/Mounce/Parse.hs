@@ -2,6 +2,7 @@ module Text.Greek.Mounce.Parse where
 
 import Data.Text (Text, pack)
 import Text.ParserCombinators.Parsec
+import Text.Greek.Conversions
 import Text.Greek.Mounce.Morphology
 import Text.Greek.Mounce.Phonology
 import Text.Greek.Script.UnicodeTokenPairs
