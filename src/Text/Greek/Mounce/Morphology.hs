@@ -7,6 +7,7 @@ import Data.Text (Text)
 import Data.Data
 import Data.List
 import Data.Monoid ((<>))
+import Text.Greek.Morphology.Noun
 
 data NounForms a = NounForms
   { nomSg :: a, nomPl :: a
@@ -38,6 +39,20 @@ data NounCategory = NounCategory
   , nounWords :: [Text]
   }
   deriving (Show, Eq)
+
+nounFormsToCaseNumber :: NounForms a -> [(a, Case, Number)]
+nounFormsToCaseNumber x =
+  [ (nomSg x, Nominative, Singular)
+  , (genSg x, Genitive, Singular)
+  , (datSg x, Dative, Singular)
+  , (accSg x, Accusative, Singular)
+  , (vocSg x, Vocative, Singular)
+  , (nomPl x, Nominative, Plural)
+  , (genPl x, Genitive, Plural)
+  , (datPl x, Dative, Plural)
+  , (accPl x, Accusative, Plural)
+  , (vocPl x, Vocative, Plural)
+  ]
 
 getStem :: NounForms String -> String -> Maybe String
 getStem e w
