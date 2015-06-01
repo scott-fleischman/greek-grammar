@@ -9,7 +9,7 @@ import Text.Greek.Mounce.Quote
 
 secondDeclensionNouns :: [Cited NounCategory]
 secondDeclensionNouns = 
-  [ mounce § "n-2a" $
+  [ mounce §§ ["n-2a"] $
     NounCategory "Masculine nouns with stems ending in ο(ς)"
       [nounCaseEndings|
         ος οι
@@ -114,7 +114,7 @@ secondDeclensionNouns =
         χρυσός χωρισμός χῶρος ψαλμός ψευδάδελφος
         ψευδαπόστολος ψευδοδιδάσκαλος ψευδόχριστος ψιθυρισμός ὦμος
     |]
-  , mounce § "n-2b" $
+  , mounce §§ ["n-2b"] $
     NounCategory "Femine nouns with stems ending in ο(ς)"
       [nounCaseEndings|
         ος οι
@@ -129,7 +129,7 @@ secondDeclensionNouns =
         κιβωτός Κνίδος κοινωνός κόπρος Κόρινθος Κύπρος ληνός λιμός Μίλητος νάρδος νῆσος νόσος ὁδός ὄνος παρθένος Πάφος Πέργαμος ῥάβδος Ῥόδος Σάμος 
         σάπφιρος σορός σποδός στάμνος συκάμινος Ταρσός τρίβος τροφός Τύρος ὕαλος ὕσσωπος χίος ψῆφος 
     |]
-  , mounce § "n-2c" $
+  , mounce §§ ["n-2c"] $
     NounCategory "Neuter nouns with stems ending in ο(ν)"
       [nounCaseEndings|
         ον α
@@ -154,5 +154,41 @@ secondDeclensionNouns =
          ταμεῖον ταμιεῖον τεκμήριον τεκνίον τέκνον τελωνεῖον τελώνιον τετάδιον τόξον τοπάζιον τρίστεγον τρύβλιον Τρωγύλλιον ὑπερῷον ὑποζύγιον ὑπολήνιον
          ὑποπόδιον φάρμακον φόβητρον φόρον φορτίον φραγέλλιον φρύγανον φυλακτήριον φύλλον χαλκίον χαλκολίβανον χειρόγραφον χρυσίον χωρίον ψιχίον ψωμίον
          ᾠόν ὠτάριον ὠτίον
-     |]
+    |]
+  , mounce §§ ["n-2d"] $
+    NounCategory "Second declension contract nouns with stems ending in εο"
+      [nounCaseEndings|
+        ουν  α
+        ου   ων
+        ῳ    οις
+        ουν  α
+        ουν   α
+      |]
+      [greekWords|
+        ὀστοῦν
+      |]
+  , mounce §§ ["n-2d"] $
+    NounCategory "Second declension contract nouns with stems ending in οο"
+      [nounCaseEndings|
+        ους οι
+        ου  ων
+        ῳ   οις
+        ουν ους
+        ους   οι
+      |]
+      [greekWords|
+        χειμάρρους
+    |]
+  , mounce §§ ["n-2ε"] $
+    NounCategory "Nouns with stems ending in εω(ς) (“Attic” declension)"
+      [nounCaseEndings|
+        ως *
+        ω  *
+        ῳ  *
+        ω  *
+        ως *
+      |]
+      [greekWords|
+        Ἀπολλῶς Κῶς
+      |]
   ]
