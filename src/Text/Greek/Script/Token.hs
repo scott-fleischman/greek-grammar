@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -6,6 +7,7 @@ module Text.Greek.Script.Token where
 
 import Prelude (Bool(..), Eq(..), Show(..), Ord, not, ($), (.), (||), (&&), fmap, snd)
 import Control.Lens (makeLenses, (^.))
+import Data.Data (Data, Typeable)
 import Data.Foldable (concatMap)
 import Data.List (elem, nub)
 import Data.Maybe (Maybe(..), maybeToList)
@@ -14,16 +16,16 @@ import Text.Greek.Grammar
 data Letter =
     Alpha | Beta | Gamma | Delta | Epsilon | Digamma | Zeta | Eta | Theta | Iota | Kappa | Lambda
   | Mu | Nu | Xi | Omicron | Pi | Rho | Sigma | Tau | Upsilon | Phi | Chi | Psi | Omega
-  deriving (Eq, Show, Ord)
-data LetterCase = Lowercase | Uppercase deriving (Eq, Show, Ord)
-data Accent = Acute | Grave | Circumflex deriving (Eq, Show, Ord)
-data Breathing = Smooth | Rough deriving (Eq, Show, Ord)
-data LengthMark = Breve | Macron deriving (Eq, Show, Ord)
-data IotaSubscript = IotaSubscript deriving (Eq, Show, Ord)
-data Diaeresis = Diaeresis deriving (Eq, Show, Ord)
-data FinalForm = FinalForm deriving (Eq, Show, Ord)
-data SemivowelMark = SemivowelMark deriving (Eq, Show, Ord) -- Smyth 20 U+032F ι̯
-data SonantMark = SonantMark deriving (Eq, Show, Ord) -- Smyth 20 U+0325 λ̥
+  deriving (Eq, Show, Ord, Data, Typeable)
+data LetterCase = Lowercase | Uppercase deriving (Eq, Show, Ord, Data, Typeable)
+data Accent = Acute | Grave | Circumflex deriving (Eq, Show, Ord, Data, Typeable)
+data Breathing = Smooth | Rough deriving (Eq, Show, Ord, Data, Typeable)
+data LengthMark = Breve | Macron deriving (Eq, Show, Ord, Data, Typeable)
+data IotaSubscript = IotaSubscript deriving (Eq, Show, Ord, Data, Typeable)
+data Diaeresis = Diaeresis deriving (Eq, Show, Ord, Data, Typeable)
+data FinalForm = FinalForm deriving (Eq, Show, Ord, Data, Typeable)
+data SemivowelMark = SemivowelMark deriving (Eq, Show, Ord, Data, Typeable) -- Smyth 20 U+032F ι̯
+data SonantMark = SonantMark deriving (Eq, Show, Ord, Data, Typeable) -- Smyth 20 U+0325 λ̥
 
 data Token = Token
   { _letter :: Letter
@@ -37,17 +39,15 @@ data Token = Token
   , _semivowelMark :: Maybe SemivowelMark
   , _sonantMark :: Maybe SonantMark
   }
-  deriving (Show)
+  deriving (Eq, Show, Data, Typeable)
 makeLenses ''Token
 
 data TokenContext a = TokenContext
   { _token :: Token
   , _context :: a
   }
+  deriving (Eq, Show, Data, Typeable)
 makeLenses ''TokenContext
-
-instance Show (TokenContext a) where
-  show t = show (t ^. token)
 
 unmarkedLetter :: Letter -> LetterCase -> Token
 unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing

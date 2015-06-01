@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -5,24 +6,25 @@
 module Text.Greek.Script.Sound where
 
 import Control.Lens
+import Data.Data
 import Data.Set
 import Text.Greek.Script.Token
 
 data Sound a =
     ConsonantSound (Consonant a)
   | VowelSound (Vowel a)
-  deriving (Show)
+  deriving (Eq, Show, Data, Typeable)
 
 data Consonant a =
     Consonant (TokenContext a)
   | RoughBreathing (Sound a)
-  deriving (Show)
+  deriving (Eq, Show, Data, Typeable)
 
 data Vowel a =
     Vowel (TokenContext a)
   | Diphthong (TokenContext a) (TokenContext a)
   | ImproperDiphthong (TokenContext a)
-  deriving (Show)
+  deriving (Eq, Show, Data, Typeable)
 
 tokensToSounds :: [TokenContext a] -> [Sound a]
 tokensToSounds [] = []

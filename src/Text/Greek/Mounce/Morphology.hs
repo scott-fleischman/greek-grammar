@@ -8,6 +8,7 @@ import Data.Data
 import Data.List
 import Data.Monoid ((<>))
 import Text.Greek.Morphology.Noun
+import Text.Greek.Script.Sound
 
 data NounForms a = NounForms
   { nomSg :: a, nomPl :: a
@@ -30,7 +31,7 @@ instance Foldable NounForms where
 data Affix
   = EmptyAffix
   | UnattestedAffix
-  | AttestedAffix Text
+  | AttestedAffix [Sound ()]
   deriving (Data, Typeable, Show, Eq)
 
 data NounCategory = NounCategory
