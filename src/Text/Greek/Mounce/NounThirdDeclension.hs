@@ -22,67 +22,67 @@ thirdDeclensionNouns =
         Αἰθίοψ κώνωψ λαῖλαψ μώλωψ σκόλοψ
     |]
   , mounce §§ ["n-3a(2)"] $
-    NounCategory "Stems ending in β"
-      [nounCaseEndings|
-        ψ   βες
-        βος βων
-        βι  ψι
-        βα  βας
-        ψ   βες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in β
+           sg: pl:
+      nom: ψ   βες
+      gen: βος βων
+      dat: βι  ψι
+      acc: βα  βας
+      voc: ψ   βες
+      lemmas:
         Ἄραψ λίψ
-      |]
+    |]
   , mounce §§ ["n-3b(1)"] $
-    NounCategory "Stems ending in κ"
-      [nounCaseEndings|
-        ξ   κες
-        κος κων
-        κι  ξι
-        κα  κας
-        ξ   κες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in κ
+           sg: pl:
+      nom: ξ   κες
+      gen: κος κων
+      dat: κι  ξι
+      acc: κα  κας
+      voc: ξ   κες
+      lemmas:
         ἀλώπηξ ἄνθραξ γυνή δεσμοφύλαξ θώραξ
         κῆρυξ κίλιξ κόραξ ὄρνιξ πίναξ
         πλάξ σάρξ σκώληξ Φῆλιξ Φοῖνιξ
         φοῖνιξ φύλαξ χάραξ χοῖνιξ
-      |]
+    |]
   , mounce §§ ["n-3b(2)"] $
-    NounCategory "Stems ending in γ"
-      [nounCaseEndings|
-        ξ   γες
-        γος γων
-        γι  ξι
-        γα  γας
-        ξ   γες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in γ
+           sg: pl:
+      nom: ξ   γες
+      gen: γος γων
+      dat: γι  ξι
+      acc: γα  γας
+      voc: ξ   γες
+      lemmas: 
         αἴξ ἅρπαξ λάρυγξ μάστιξ πτέρυξ
         σάλπιγξ φάραγξ φλόξ
-      |]
+    |]
   , mounce §§ ["n-3b(3)"] $
-    NounCategory "Stems ending in χ"
-      [nounCaseEndings|
-        ξ   χες
-        χος χων
-        χι  ξι
-        χα  χας
-        ξ   χες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in χ
+           sg: pl:
+      nom: ξ   χες
+      gen: χος χων
+      dat: χι  ξι
+      acc: χα  χας
+      voc: ξ   χες
+      lemmas:
         θρίξ σαρδόνυξ ψίξ
-      |]
+    |]
   , mounce §§ ["n-3c(1)"] $
-    NounCategory "Stems ending in τ"
-      [nounCaseEndings|
-        ς   τες
-        τος των
-        τι  σι
-        τα  τας
-        -   τες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in τ
+           sg: pl:
+      nom: ς   τες
+      gen: τος των
+      dat: τι  σι
+      acc: τα  τας
+      voc: -   τες
+      lemmas: 
         ἁγιότης ἁγνότης ἀδελφότης ἀδηλότης ἁδρότης
         αἰσχρότης ἀκαθάρτης ἁπλότης ἀφελότης βραδύτης
         γέλως γόης γυμνότης ἑνότης ἐσθής
@@ -93,29 +93,29 @@ thirdDeclensionNouns =
         πένης πιότης πλάνης πραότης πραΰτης
         σεμνότης σής σκληρότης τελειότης χάρις
         χρηστότης χρώς
-      |]
+    |]
   , mounce §§ ["n-3c(1)"] $
-    NounCategory "Stems ending in τ with accusative, singular ν"
-      [nounCaseEndings|
-        ς   τες
-        τος των
-        τι  σι
-        ν   τας
-        -   τες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in τ with accusative, singular ν
+           sg: pl:
+      nom: ς   τες
+      gen: τος των
+      dat: τι  σι
+      acc: ν   τας
+      voc: -   τες
+      lemmas:
         χάρις
-      |]
+    |]
   , mounce §§ ["n-3c(2)"] $
-    NounCategory "Stems ending in δ"
-      [nounCaseEndings|
-        ς   δες
-        δος δων
-        δι  σι
-        δα  δας
-        -   δες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in δ
+           sg: pl:
+      nom: ς   δες
+      gen: δος δων
+      dat: δι  σι
+      acc: δα  δας
+      voc: -   δες
+      lemmas:
         ἀκρίς Ἀντιπατρίς Ἄρτεμις ἀσπίς ἀτμίς
         βολίς Δάμαρις δισμυριάς Δορκάς Ἑβραΐς
         Ἑλλάς ἐλπίς ἔρις Ἡρῳδιάς θυρίς
@@ -128,29 +128,29 @@ thirdDeclensionNouns =
         σπιλάς σπυρίς στιβάς στοιβάς συγγενίς
         σφραγίς τετράπουν Τιβεριάς Τραχωνῖτις Τρῳάς
         ὑπολαμπάς χιλιάς χλαμύς
-      |]
+    |]
   , mounce §§ ["n-3c(3)"] $
-    NounCategory "Stems ending in θ"
-      [nounCaseEndings|
-        ς   θες
-        θος θων
-        θι  σι
-        θα  θας
-        -   θες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in θ
+           sg: pl:
+      nom: ς   θες
+      gen: θος θων
+      dat: θι  σι
+      acc: θα  θας
+      voc: -   θες
+      lemmas: 
         ὄρνις
-      |]
+    |]
   , mounce §§ ["n-3c(4)"] $
-    NounCategory "Stems ending in ματ"
-      [nounCaseEndings|
-        -   τα
-        τος των
-        τι  σι
-        -   τα
-        -   τα
-      |]
-      [greekWords|
+    [nounCategory|
+      Stems ending in ματ
+           sg: pl:
+      nom: -   τα
+      gen: τος των
+      dat: τι  σι
+      acc: -   τα
+      voc: -   τα
+      lemmas:
         ἀγνόημα ἀδίκημα αἷμα αἴνιγμα αἴτημα
         αἰτίαμα αἰτίωμα ἀλίσγημα ἁμάρτημα ἀνάθεμα
         ἀνάθημα ἀντάλλαγμα ἀνταπόδομα ἄντλημα ἀπαύγασμα
@@ -185,594 +185,594 @@ thirdDeclensionNouns =
         χρῖσμα ψεῦσμα
     |]
   , mounce §§ ["n-3c(5a)"] $
-    NounCategory "Stems ending in ντ (with σ in the nominative singular, ο vowel)"
-      [nounCaseEndings|
-        ους   οντες
-        οντος οντων
-        οντι  ουσι
-        οντα  οντας
-        ους   οντες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in ντ (with σ in the nominative singular, ο vowel)
+           sg:   pl:
+      nom: ους   οντες
+      gen: οντος οντων
+      dat: οντι  ουσι
+      acc: οντα  οντας
+      voc: ους   οντες
+      lemmas:
         ὀδούς
-      |]
+    |]
   , mounce §§ ["n-3c(5a)"] $
-    NounCategory "Stems ending in ντ (with σ in the nominative singular, α vowel)"
-      [nounCaseEndings|
-        ας    αντες
-        αντος αντων
-        αντι  ασι
-        αντα  αντας
-        ας    αντες
-      |]
-      [greekWords|
+    [nounCategory|
+      Stems ending in ντ (with σ in the nominative singular, α vowel)
+           sg:   pl:
+      nom: ας    αντες
+      gen: αντος αντων
+      dat: αντι  ασι
+      acc: αντα  αντας
+      voc: ας    αντες
+      lemmas: 
         ἱμάς
-      |]
+    |]
   , mounce §§ ["n-3c(5a)"] $
-    NounCategory "Stems ending in ντ (with σ in the nominative singular, ε vowel)"
-      [nounCaseEndings|
-        ης    εντες
-        εντος εντων
-        εντι  ησι
-        εντα  εντας
-        ης    εντες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in ντ (with σ in the nominative singular, ε vowel)
+           sg:   pl:
+      nom: ης    εντες
+      gen: εντος εντων
+      dat: εντι  ησι
+      acc: εντα  εντας
+      voc: ης    εντες
+      lemmas:
         Κρήσκης
         Πούδης
         Κλήμης
-      |]
+    |]
   , mounce §§ ["n-3c(5b)"] $
-    NounCategory "Stems ending in ντ (with no ending in the nominative singular)"
-      [nounCaseEndings|
-        ων    οντες
-        οντος οντων
-        οντι  ουσι
-        οντα  οντας
-        ων    οντες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in ντ (with no ending in the nominative singular)
+           sg:   pl:
+      nom: ων    οντες
+      gen: οντος οντων
+      dat: οντι  ουσι
+      acc: οντα  οντας
+      voc: ων    οντες
+      lemmas: 
         ἄρχων γέρων δράκων θεράπων λέων
         Σαλωμών Σολομών Φλέγων
-      |]
+    |]
   , mounce §§ ["n-3c(6a)"] $
-    NounCategory "Nouns ending ας"
-      [nounCaseEndings|
-        ας   ατα
-        ατος ατων
-        ατι  ασι
-        ας   ατα
-        ας   ατα
-      |]
-      [greekWords|
+    [nounCategory|
+      Nouns ending ας
+           sg:  pl:
+      nom: ας   ατα
+      gen: ατος ατων
+      dat: ατι  ασι
+      acc: ας   ατα
+      voc: ας   ατα
+      lemmas: 
         ἅλας κέρας πέρας τέρας
-      |]
+    |]
   , mounce §§ ["n-3c(6b)"] $
-    NounCategory "Nouns ending in ρ, ω vowel"
-      [nounCaseEndings|
-        ωρ   ατα
-        ατος ατων
-        ατι  ασι
-        ωρ   ατα
-        ωρ   ατα
-      |]
-      [greekWords|
+    [nounCategory| 
+      Nouns ending in ρ, ω vowel
+           sg:  pl:
+      nom: ωρ   ατα
+      gen: ατος ατων
+      dat: ατι  ασι
+      acc: ωρ   ατα
+      voc: ωρ   ατα
+      lemmas:
         ὕδωρ
-      |]
+    |]
   , mounce §§ ["n-3c(6b)"] $
-    NounCategory "Nouns ending in ρ, α vowel"
-      [nounCaseEndings|
-        αρ   ατα
-        ατος ατων
-        ατι  ασι
-        αρ   ατα
-        αρ   ατα
-      |]
-      [greekWords|
+    [nounCategory| 
+      Nouns ending in ρ, α vowel
+           sg:  pl:
+      nom: αρ   ατα
+      gen: ατος ατων
+      dat: ατι  ασι
+      acc: αρ   ατα
+      voc: αρ   ατα
+      lemmas: 
         ὄναρ φρέαρ
-      |]
+    |]
   , mounce §§ ["n-3c(6c)"] $
-    NounCategory "Nouns ending in ς (ως)"
-      [nounCaseEndings|
-        ως   ωτα
-        ωτος ωτων
-        ωτι  *
-        ως   ωτα
-        ως   ωτα
-      |]
-      [greekWords|
+    [nounCategory|
+      Nouns ending in ς (ως)
+           sg:  pl:
+      nom: ως   ωτα
+      gen: ωτος ωτων
+      dat: ωτι  *
+      acc: ως   ωτα
+      voc: ως   ωτα
+      lemmas:
         φῶς
-      |]
+    |]
   , mounce §§ ["n-3c(6c)"] $
-    NounCategory "Nouns ending in ς (ους)"
-      [nounCaseEndings|
-        ους   ωτα
-        ωτος  ωτων
-        ωτι   ωσι
-        ους   ωτα
-        ους   ωτα
-      |]
-      [greekWords|
+    [nounCategory| 
+      Nouns ending in ς (ους)
+           sg:   pl:
+      nom: ους   ωτα
+      gen: ωτος  ωτων
+      dat: ωτι   ωσι
+      acc: ους   ωτα
+      voc: ους   ωτα
+      lemmas: 
         οὖς
-      |]
+    |]
   , mounce §§ ["n-3c(6d)"] $
-    NounCategory "Irregular stems - γάλα"
-      [nounCaseEndings|
-        αλα   *
-        ακτος *
-        *     *
-        αλα   *
-        αλα   *
-      |]
-      [greekWords|
+    [nounCategory|
+      Irregular stems - γάλα
+           sg:   pl: 
+      nom: αλα   *
+      gen: ακτος *
+      dat: *     *
+      acc: αλα   *
+      voc: αλα   *
+      lemmas: 
         γάλα
-      |]
+    |]
   , mounce §§ ["n-3c(6d)"] $
-    NounCategory "Irregular stems - γόνυ"
-      [nounCaseEndings|
-        υ    ατα
-        ατος *
-        *    ασι
-        υ    ατα
-        υ    ατα
-      |]
-      [greekWords|
+    [nounCategory| 
+      Irregular stems - γόνυ
+           sg:  pl:
+      nom: υ    ατα
+      gen: ατος *
+      dat: *    ασι
+      acc: υ    ατα
+      voc: υ    ατα
+      lemmas:
         γόνυ
-      |]
+    |]
   , mounce §§ ["n-3c(6d)"] $
-    NounCategory "Irregular stems - μέλι"
-      [nounCaseEndings|
-        ι    *
-        ιτος *
-        *    *
-        ι    *
-        ι    *
-      |]
-      [greekWords|
+    [nounCategory| 
+      Irregular stems - μέλι
+           sg:  pl:
+      nom: ι    *
+      gen: ιτος *
+      dat: *    *
+      acc: ι    *
+      voc: ι    *
+      lemmas:
         μέλι
-      |]
+    |]
   , mounce §§ ["n-3c(6d)"] $
-    NounCategory "Irregular stems - κρέας"
-      [nounCaseEndings|
-        ας α
-        ως *
-        *  *
-        ας α
-        ας α
-      |]
-      [greekWords|
+    [nounCategory| 
+      Irregular stems - κρέας
+           sg: pl: 
+      nom: ας  α
+      gen: ως  *
+      dat: *   *
+      acc: ας  α
+      voc: ας  α
+      lemmas: 
         κρέας
-      |]
+    |]
   , mounce §§ ["n-3d(1)"] $
-    NounCategory "Stems ending in ας"
-      [nounCaseEndings|
-        ας   *
-        ους  *
-        ει   *
-        ας   *
-        ας   *
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in ας
+           sg: pl:
+      nom: ας  *
+      gen: ους *
+      dat: ει  *
+      acc: ας  *
+      voc: ας  *
+      lemmas: 
         γῆρας
-      |]
+    |]
   , mounce §§ ["n-3d(2)"] $
-    NounCategory "Stems ending in ες"
-      [nounCaseEndings|
-        ος  η
-        ους ων
-        ει  εσι
-        ος  η
-        ος  η
-       |]
-       [greekWords|
-         ἄγγος ἄνθος βάρος βέλος βρέφος
-         γένος γλεῦκος δέος δίψος ἔδαφος 
-         ἔθνος ἔθος εἶδος ἔλεος ἕλκος
-         ἔπος ἔτος ζεῦγος ζῆλος ἦθος
-         ἦχος θάμβος θάρσος θέρος ἴχνος
-         κάρφος κέρδος κῆτος κλέος κράτος
-         κτῆνος μέγεθος μέλος μέρος μῆκος 
-         νέφος νῖκος ὄνειδος ὄξος ὄρος 
-         ὄφελος πάθος πέλαγος πένθος πλάτος
-         πλῆθος ῥάκος σκέλος σκεῦος σκῆνος
-         σκότος στῆθος στρῆνος τάχος τεῖχος 
-         τέλος ὕψος φέγγος χεῖλος ψεῦδος
-         ψῦχος
-        |]
+    [nounCategory| 
+      Stems ending in ες
+           sg: pl:
+      nom: ος  η
+      gen: ους ων
+      dat: ει  εσι
+      acc: ος  η
+      voc: ος  η
+      lemmas:
+        ἄγγος ἄνθος βάρος βέλος βρέφος
+        γένος γλεῦκος δέος δίψος ἔδαφος 
+        ἔθνος ἔθος εἶδος ἔλεος ἕλκος
+        ἔπος ἔτος ζεῦγος ζῆλος ἦθος
+        ἦχος θάμβος θάρσος θέρος ἴχνος
+        κάρφος κέρδος κῆτος κλέος κράτος
+        κτῆνος μέγεθος μέλος μέρος μῆκος 
+        νέφος νῖκος ὄνειδος ὄξος ὄρος 
+        ὄφελος πάθος πέλαγος πένθος πλάτος
+        πλῆθος ῥάκος σκέλος σκεῦος σκῆνος
+        σκότος στῆθος στρῆνος τάχος τεῖχος 
+        τέλος ὕψος φέγγος χεῖλος ψεῦδος
+        ψῦχος
+    |]
   , mounce §§ ["n-3d(2)"] $
-    NounCategory "Stems ending in ες"
-      [nounCaseEndings|
-        ης  *
-        ους *
-        ει  *
-        ην  *
-        ης  *
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in ες
+           sg: pl:
+      nom: ης  *
+      gen: ους *
+      dat: ει  *
+      acc: ην  *
+      voc: ης  *
+      lemmas:
         Διοτρέφης Ἑρμογένης Σωσθένης
-      |]
+     |]
    , mounce §§ ["n-3d(3)"] $
-     NounCategory "Stems ending in ος"
-      [nounCaseEndings|
-        ως  *
-        ους *
-        οι  *
-        ω   *
-        ως  *
-      |]
-      [greekWords|
-        αἰδώς
-      |]
+     [nounCategory| 
+       Stems ending in ος
+            sg: pl:
+       nom: ως  *
+       gen: ους *
+       dat: οι  *
+       acc: ω   *
+       voc: ως  *
+       lemmas:
+         αἰδώς
+    |]
   , mounce §§ ["n-3e(1)"] $
-    NounCategory "Stems ending in ϝ"
-      [nounCaseEndings|
-        υς  υες
-        υος υων
-        υι  υσι
-        υν  υας
-        υ   υες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in ϝ
+           sg: pl:
+      nom: υς  υες
+      gen: υος υων
+      dat: υι  υσι
+      acc: υν  υας
+      voc: υ   υες
+      lemmas:
         ἀχλύς βότρυς δάκρυ ἰσχύς ἰχθύς
         ὀσφῦς ὀφρῦς πῆχυς Στάχυς στάχυς
         ὗς
-      |]
+    |]
   , mounce §§ ["n-3e(2)"] $
-    NounCategory "Stems ending in αϝ"
-      [nounCaseEndings|
-        αυς ες
-        ως ων
-        ι  υσι
-        υν υς
-        υ  ες
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in αϝ
+           sg: pl:
+      nom: αυς ες
+      gen: ως  ων
+      dat: ι   υσι
+      acc: υν  υς
+      voc: υ   ες
+      lemmas:
         ναῦς
-      |]
+    |]
   , mounce §§ ["n-3e(3)"] $
-    NounCategory "Stems ending in εϝ"
-      [nounCaseEndings|
-        ευς εις
-        εως εων
-        ει  ευσι
-        εα  εις
-        ευ  εις
-      |]
-      [greekWords|      
+    [nounCategory| 
+      Stems ending in εϝ
+           sg: pl:
+      nom: ευς εις
+      gen: εως εων
+      dat: ει  ευσι
+      acc: εα  εις
+      voc: ευ  εις
+      lemmas:      
         Ἀλεξανδρεύς ἁλιεύς Ἀντιοχεύς ἀρχιερεύς βηρεύς
         βασιλεύς βυρσεύς γναφεύς γραμματεύς γονεύς
         Θεσσαλονικεύς ἱερεύς ἱππεύς καταγγελεύς κεραμεύς
         Κολασσαεύς Κολοσσαεύς Λαοδικεύς Νηρεύς πανδοχεύς
         Ταρσεύς φαρμακεύς φονεύς χαλκεύς
-      |]
+    |]
   , mounce §§ ["n-3e(4)"] $
-    NounCategory "Stems ending in οϝ"
-      [nounCaseEndings|
-        ους οες
-        οος οων
-        οϊ  ουσι
-        ουν οας
-        ου  οες
-      |]
-      [greekWords|
-       βοῦς νοῦς πλοῦς χοῦς
-      |]
+    [nounCategory| 
+      Stems ending in οϝ
+           sg: pl:
+      nom: ους οες
+      gen: οος οων
+      dat: οϊ  ουσι
+      acc: ουν οας
+      voc: ου  οες
+      lemmas:
+        βοῦς νοῦς πλοῦς χοῦς
+    |]
   , mounce §§ ["n-3e(5a)"] $
-    NounCategory "Stems ending in ι - no ablaut"
-      [nounCaseEndings|
-        ις *
-        *  *
-        *  *
-        *  εις
-        ις * 
-      |]
-      [greekWords|
+    [nounCategory| 
+      Stems ending in ι - no ablaut
+           sg: pl:
+      nom: ις  *
+      gen: *   *
+      dat: *   *
+      acc: *   εις
+      voc: ις  * 
+      lemmas:
         νῆστις
-      |]
+     |]
    , mounce §§ ["n-3e(5b)"] $
-   NounCategory "Stems ending in ι - with ablaut"
-      [nounCaseEndings|
-        ις  εις
-        εως εων
-        ει  εσι
-        ιν  εις
-        ι   εις
-      |]
-      [greekWords|
-        ἀγαλλίασις ἀγανάκτησις ἀθέτησις ἄθλησις αἴνεσις
-        αἵρεσις αἴσθησις ἅλυσις ἅλωσις Ἀμφίπολις
-        ἀνάβλεψις ἀνάγνωσις ἀνάδειξις ἀναίρεσις ἀνακαίνωσις
-        ἀνάκρισις ἀνάλημψις ἀνάλυσις ἀνάμνησις ἀνάπαυσις
-        ἀνάστασις ἀνάχυσις ἀνάψυξις ἄνεσις ἄνοιξις
-        ἀνταπόδοσις ἀντίθεσις ἀντίλημψις ἀπάντησις ἀπέκδυσις
-        ἀπόδειξις ἀπόθεσις ἀποκάλυψις ἀποκατάστασις ἀπόκρισις
-        ἀπόλαυσις ἀπολύτρωσις ἀπόχρησις αὔξησις ἄφεσις
-        ἄφιξις βάσις βεβαίωσις βίωσις βρῶσις
-        γένεσις γέννησις γνῶσις δάμαλις δέησις
-        Δεκάπολις δέρρις διάγνωσις διαίρεσις διάκρισις
-        διήγησις δικαίωσις διόρθωσις δόσις δύναμις
-        δύσις ἔγερσις ἔκβασις ἐκδίκησις ἐκζήτησις
-        ἐκπλήρωσις ἔκστασις ἔλεγξις ἔλευσις ἔνδειξις
-        ἔνδυσις ἐνδόμησις ἐνδώμησις ἐνθύμησις ἔντευξις
-        ἐξανάστασις ἕξις ἐπανόρθωσις ἔπαυλις ἐπίγνωσις
-        ἐπίθεσις ἐπίλυσις ἐπιπόθησις ἐπίστασις ἐπισύστασις
-        ἐπιχείρησις ἐρήμωσις ζήτησις θέλησις θλῖψις
-        ἴασις Ἱεράπολις καθαίρεσις κάκωσις κατάβασις
-        κατάκρισις κατάνυξις κατάπαυσις κατάρτισις κατασκήνωσις
-        κατάσχεσις κατοίκησις καῦσις καύχησις κίνησις
-        κλάσις κλῆσις κοίμησις κόλασις κρίσις
-        κτίσις κυβέρνησις κωμόπολις λῆμψις λῆψις
-        λύσις λύτρωσις μέμψις μετάθεσις μετάλημψις
-        μητρόπολις μόρφωσις Νεάπολις νέκρωσις Νικόπολις
-        ὁμοίωσις ὅρασις ὄρεξις ὄσφρησις ὄφις 
-        ὄψις πανήγυρις παράβασις παράδοσις παράκλησις
-        παρατήρησις πάρδαλις πάρεσις πεποίθησις περίθεσις
-        περιποίησις πήρωσις πίστις ποίησις πόλις
-        πόσις πρᾶξις πρόγνωσις πρόθεσις προσκαρτέρησις
-        πρόσκλησις πρόσκλισις πρόσλημψις πρόσληψις πρόσχυσις
-        πρόφασις πτόησις πτῶσις πύρωσις πώρωσις        
-        ῥύσις Σάρδεις σεμίδαλις σίναπι στάσις
-        συγκατάθεσις σύγχυσις συζήτησις συμφώνησις συνάντησις
-        συνείδησις σύνεσις Σύρτις τάξις απείνωσις
-        τελείωσις τήρησις ὕβρις ὑπάντησις ὕπαρξις       
-        ὑπόκρισις ὑπόμνησις ὑπόστασις ὑποτύπωσις ὑστέρησις
-        φανέρωσις φάσις φρόνησις φύσις φυσίωσις
-        χρῆσις
-      |]
+     [nounCategory| 
+       Stems ending in ι - with ablaut
+            sg: pl:
+       nom: ις  εις
+       gen: εως εων
+       dat: ει  εσι
+       acc: ιν  εις
+       voc: ι   εις
+       lemmas: 
+         ἀγαλλίασις ἀγανάκτησις ἀθέτησις ἄθλησις αἴνεσις
+         αἵρεσις αἴσθησις ἅλυσις ἅλωσις Ἀμφίπολις
+         ἀνάβλεψις ἀνάγνωσις ἀνάδειξις ἀναίρεσις ἀνακαίνωσις
+         ἀνάκρισις ἀνάλημψις ἀνάλυσις ἀνάμνησις ἀνάπαυσις
+         ἀνάστασις ἀνάχυσις ἀνάψυξις ἄνεσις ἄνοιξις
+         ἀνταπόδοσις ἀντίθεσις ἀντίλημψις ἀπάντησις ἀπέκδυσις
+         ἀπόδειξις ἀπόθεσις ἀποκάλυψις ἀποκατάστασις ἀπόκρισις
+         ἀπόλαυσις ἀπολύτρωσις ἀπόχρησις αὔξησις ἄφεσις
+         ἄφιξις βάσις βεβαίωσις βίωσις βρῶσις
+         γένεσις γέννησις γνῶσις δάμαλις δέησις
+         Δεκάπολις δέρρις διάγνωσις διαίρεσις διάκρισις
+         διήγησις δικαίωσις διόρθωσις δόσις δύναμις
+         δύσις ἔγερσις ἔκβασις ἐκδίκησις ἐκζήτησις
+         ἐκπλήρωσις ἔκστασις ἔλεγξις ἔλευσις ἔνδειξις
+         ἔνδυσις ἐνδόμησις ἐνδώμησις ἐνθύμησις ἔντευξις
+         ἐξανάστασις ἕξις ἐπανόρθωσις ἔπαυλις ἐπίγνωσις
+         ἐπίθεσις ἐπίλυσις ἐπιπόθησις ἐπίστασις ἐπισύστασις
+         ἐπιχείρησις ἐρήμωσις ζήτησις θέλησις θλῖψις
+         ἴασις Ἱεράπολις καθαίρεσις κάκωσις κατάβασις
+         κατάκρισις κατάνυξις κατάπαυσις κατάρτισις κατασκήνωσις
+         κατάσχεσις κατοίκησις καῦσις καύχησις κίνησις
+         κλάσις κλῆσις κοίμησις κόλασις κρίσις
+         κτίσις κυβέρνησις κωμόπολις λῆμψις λῆψις
+         λύσις λύτρωσις μέμψις μετάθεσις μετάλημψις
+         μητρόπολις μόρφωσις Νεάπολις νέκρωσις Νικόπολις
+         ὁμοίωσις ὅρασις ὄρεξις ὄσφρησις ὄφις 
+         ὄψις πανήγυρις παράβασις παράδοσις παράκλησις
+         παρατήρησις πάρδαλις πάρεσις πεποίθησις περίθεσις
+         περιποίησις πήρωσις πίστις ποίησις πόλις
+         πόσις πρᾶξις πρόγνωσις πρόθεσις προσκαρτέρησις
+         πρόσκλησις πρόσκλισις πρόσλημψις πρόσληψις πρόσχυσις
+         πρόφασις πτόησις πτῶσις πύρωσις πώρωσις        
+         ῥύσις Σάρδεις σεμίδαλις σίναπι στάσις
+         συγκατάθεσις σύγχυσις συζήτησις συμφώνησις συνάντησις
+         συνείδησις σύνεσις Σύρτις τάξις απείνωσις
+         τελείωσις τήρησις ὕβρις ὑπάντησις ὕπαρξις       
+         ὑπόκρισις ὑπόμνησις ὑπόστασις ὑποτύπωσις ὑστέρησις
+         φανέρωσις φάσις φρόνησις φύσις φυσίωσις
+         χρῆσις
+     |]
    , mounce §§ ["n-3e(6)"] $
-   NounCategory "Stems ending in οι"
-      [nounCaseEndings|
-        ω   *
-        ους *
-        οι  *
-        ω   *
-        οι  *
-      |]
-      [greekWords|
+     [nounCategory| 
+       Stems ending in οι
+            sg: pl:
+       nom: ω   *
+       gen: ους *
+       dat: οι  *
+       acc: ω   *
+       voc: οι  *
+       lemmas: 
         πειθώ ἠχώ
-      |]
+     |]
    , mounce §§ ["n-3f(1a)"] $
-   NounCategory "Stems ending in ν - no ablaut"
-      [nounCaseEndings|
-        ν   νες
-        νος νων
-        νι  σι
-        να  νας
-        ν   νες
-      |]
-      [greekWords|
-        ἀγών αἰών ἅλων ἀμπελών ἀρραβών
-        ἀρτέμων Ἀσσάρων ἀφεδρών Βαβυλών Γαλλίων
-        δεῖνα ἐλαιών Ἕλλην εὐρακύλων εὐροκλύδων
-        ζήνων Ἡρῳδίων καύσων κεντυρίων κλύδων
-        κοιτών λεγιών μεγιστάν μέλαν μήν
-        Μνάσων μυλών Νέρων νυμφών πύθων
-        πυλών Σαλαμίς Σαρών Σιδών Σίμων
-        Σολομών Τίμων χειμών χιτών ὠδίν
-      |]
+     [nounCategory| 
+       Stems ending in ν - no ablaut
+            sg: pl:
+       nom: ν   νες
+       gen: νος νων
+       dat: νι  σι
+       acc: να  νας
+       voc: ν   νες
+       lemmas:
+         ἀγών αἰών ἅλων ἀμπελών ἀρραβών
+         ἀρτέμων Ἀσσάρων ἀφεδρών Βαβυλών Γαλλίων
+         δεῖνα ἐλαιών Ἕλλην εὐρακύλων εὐροκλύδων
+         ζήνων Ἡρῳδίων καύσων κεντυρίων κλύδων
+         κοιτών λεγιών μεγιστάν μέλαν μήν
+         Μνάσων μυλών Νέρων νυμφών πύθων
+         πυλών Σαλαμίς Σαρών Σιδών Σίμων
+         Σολομών Τίμων χειμών χιτών ὠδίν
+     |]
    , mounce §§ ["n-3f(1b)"] $
-   NounCategory "Stems ending in ν - showing strong and weak ablaut"
-      [nounCaseEndings|
-        ων   ονες
-        ονος ονων
-        ονι  οσι
-        ονα  ονας
-        ων   ονες
-      |]
-      [greekWords|
-        ἀλαζών Ἀπολλύων ἀρχιποίμην ἀρχιτέκτων βραχίων
-        γείτων δαίμων εἰκών ἡγεμών Ἰάσων
-        κανών λιμήν Μακεδών ποιμήν σιαγών
-        σινδών τέκτων τρυγών Φιλήμων φρήν
-        χαλκηδών χιών
-      |]
+     [nounCategory| 
+       Stems ending in ν - showing strong and weak ablaut
+            sg:  pl:
+       nom: ων   ονες
+       gen: ονος ονων
+       dat: ονι  οσι
+       acc: ονα  ονας
+       voc: ων   ονες
+       lemmas:
+         ἀλαζών Ἀπολλύων ἀρχιποίμην ἀρχιτέκτων βραχίων
+         γείτων δαίμων εἰκών ἡγεμών Ἰάσων
+         κανών λιμήν Μακεδών ποιμήν σιαγών
+         σινδών τέκτων τρυγών Φιλήμων φρήν
+         χαλκηδών χιών
+     |]
    , mounce §§ ["n-3f(1c)"] $
-   NounCategory "Stems ending in ν - showing strong and zero ablaut"
-      [nounCaseEndings|
-        ων  νες
-        νος νων
-        νι  σι
-        να  νας
-        ων  νες
-      |]
-      [greekWords|
-        ἀρήν ἀρνός κύων κυνός
-      |]
+     [nounCategory| 
+       Stems ending in ν - showing strong and zero ablaut
+            sg: pl:
+       nom: ων  νες
+       gen: νος νων
+       dat: νι  σι
+       acc: να  νας
+       voc: ων  νες
+       lemmas:
+         ἀρήν ἀρνός κύων κυνός
+     |]
    , mounce §§ ["n-3f(2a)"] $
-   NounCategory "Stems ending in a λ or ρ with no ablaut"
-      [nounCaseEndings|
-        ρ   ρες
-        ρος ρων
-        ρι  ρσι
-        ρα  ρας
-        ρ   ρες
-      |]
-      [greekWords|
-        ἅλς αὐτόχειρ Καῖσαρ μάρτυς νιπτήρ
-        ποδινιπτήρ πρωτόμαρτυς πῦρ στατήρ σωτήρ
-        φωστήρ χαρακτήρ χείρ ψευδόμαρτυς
-      |]
+     [nounCategory| 
+       Stems ending in a λ or ρ with no ablaut
+            sg: pl:
+       nom: ρ   ρες
+       gen: ρος ρων
+       dat: ρι  ρσι
+       acc: ρα  ρας
+       voc: ρ   ρες
+       lemmas:
+         ἅλς αὐτόχειρ Καῖσαρ μάρτυς νιπτήρ
+         ποδινιπτήρ πρωτόμαρτυς πῦρ στατήρ σωτήρ
+         φωστήρ χαρακτήρ χείρ ψευδόμαρτυς
+     |]
    , mounce §§ ["n-3f(2b)"] $
-   NounCategory "Stems ending in a λ or ρ showing strong and weak ablaut"
-      [nounCaseEndings|
-        ρ   ρες
-        ρος ρων
-        ρι  ρσι
-        ρα  ρας
-        ρ   ρες
-      |]
-      [greekWords|
-        ἀήρ ἀλέκτωρ ἀστήρ δειπνοκλήτωρ κατήγωρ
-        κοσμοκράτωρ κτήτωρ Νικάνωρ παντοκράτωρ πράκτωρ
-        προπάτωρ ῥήτωρ σπεκουλάτωρ
-      |]
+     [nounCategory| 
+       Stems ending in a λ or ρ showing strong and weak ablaut
+            sg: pl:
+       nom: ρ   ρες
+       gen: ρος ρων
+       dat: ρι  ρσι
+       acc: ρα  ρας
+       voc: ρ   ρες
+       lemmas:
+         ἀήρ ἀλέκτωρ ἀστήρ δειπνοκλήτωρ κατήγωρ
+         κοσμοκράτωρ κτήτωρ Νικάνωρ παντοκράτωρ πράκτωρ
+         προπάτωρ ῥήτωρ σπεκουλάτωρ
+     |]
    , mounce §§ ["n-3f(2c)"] $
-   NounCategory "Stems ending in a λ or ρ showing strong, weak and zero ablaut"
-      [nounCaseEndings|
-        ρ   ρες
-        ρος ρων
-        ρι  ρσι
-        ρα  ρας
-        ρ   ρες
-      |]
-      [greekWords|
-        ἀνήρ γαστήρ θυγάτηρ μήτηρ πατήρ
-      |]
+     [nounCategory| 
+       Stems ending in a λ or ρ showing strong, weak and zero ablaut
+            sg: pl:
+       nom: ρ   ρες
+       gen: ρος ρων
+       dat: ρι  ρσι
+       acc: ρα  ρας
+       voc: ρ   ρες
+       lemmas:
+         ἀνήρ γαστήρ θυγάτηρ μήτηρ πατήρ
+    |]
   , mounce §§ ["n-3g(1)"] $
-  NounCategory "Irregularly and partially declined stems - Ζηνᾶς"
-      [nounCaseEndings|
-        ας *
-        ας *
-        ας *
-        αν *
-        *  *
-      |]
-      [greekWords|
+    [nounCategory|
+      Irregularly and partially declined stems - Ζηνᾶς
+           sg: pl:
+      nom: ας  *
+      gen: ας  *
+      dat: ας  *
+      acc: αν  *
+      voc: ας  *
+      lemmas:
         Ἀκύλας Ζηνᾶς
-      |]
+    |] 
   , mounce §§ ["n-3g(1)"] $
-  NounCategory "Irregularly and partially declined stems - Ἰησοῦς"
-      [nounCaseEndings|
-        ους *
-        ου  *
-        ου  *
-        ουν *
-        ου  *
-      |]
-      [greekWords|
+    [nounCategory| 
+      Irregularly and partially declined stems - Ἰησοῦς
+           sg: pl:
+      nom: ους *
+      gen: ου  *
+      dat: ου  *
+      acc: ουν *
+      voc: ου  *
+      lemmas:
         Ἰησοῦς
-      |]
+    |]
   , mounce §§ ["n-3g(1)"] $
-  NounCategory "Irregularly and partially declined stems - Μωϋσῆς"
-      [nounCaseEndings|
-        ης  *
-        εως *
-        ει  *
-        ην  *
-        *   *
-      |]
-      [greekWords|
+    [nounCategory|
+      Irregularly and partially declined stems - Μωϋσῆς
+           sg: pl:
+      nom: ης  *
+      gen: εως *
+      dat: ει  *
+      acc: ην  *
+      voc: *   *
+      lemmas:
         Μωϋσῆς Μωσῆς
-      |]
+    |]
   , mounce §§ ["n-3g(1)"] $
-  NounCategory "Irregularly and partially declined stems - Θυάτειρα"
-      [nounCaseEndings|
-        α   *
-        ων  *
-        οις *
-        α   *
-        α   *
-      |]
-      [greekWords| 
+    [nounCategory| 
+      Irregularly and partially declined stems - Θυάτειρα
+           sg: pl:
+      nom: α   *
+      gen: ων  *
+      dat: οις *
+      acc: α   *
+      voc: α   *
+      lemmas:
         Θυάτιρα Θυάτειρα
-      |]
+    |]
   , mounce §§ ["n-3g(1)"] $
-  NounCategory "Irregularly and partially declined stems - Λύδδα"
-      [nounCaseEndings|
-        -  *
-        ς  *
-        *  *
-        -  *
-        -  *
-      |]
-      [greekWords| 
+    [nounCategory| 
+      Irregularly and partially declined stems - Λύδδα"
+           sg: pl: 
+      nom: -   *
+      gen: ς   *
+      dat: *   *
+      acc: -   *
+      voc: -   *
+      lemmas:
         Λύδδα
-      |]
+   |]
  , mounce §§ ["n-3g(1)"] $
- NounCategory "Irregularly and partially declined stems - Λυστρά"
-      [nounCaseEndings|
-        - *
-        * *
-        * *
-        ν *
-        - *
-      |]
-      [greekWords| 
-        Λυστρά Γολγοθᾶ
-      |]
+   [nounCategory| 
+     Irregularly and partially declined stems - Λυστρά
+          sg: pl:
+     nom: -   *
+     gen: *   *
+     dat: *   *
+     acc: ν   *
+     voc: -   *
+     lemmas:  
+       Λυστρά Γολγοθᾶ
+   |]
  , mounce §§ ["n-3g(1)"] $
- NounCategory "Irregularly and partially declined stems - Λευίς"
-      [nounCaseEndings|
-        ς *
-        - *
-        - *
-        ν *
-        * *
-      |]
-      [greekWords|
-        Λευίς
-      |]
+   [nounCategory| 
+     Irregularly and partially declined stems - Λευίς
+          sg: pl: 
+     nom: ς   *
+     gen: -   *
+     dat: -   *
+     acc: ν   *
+     voc: *   *
+     lemmas: 
+       Λευίς
+    |]
   , mounce §§ ["n-3g(1)"] $
-  NounCategory "Irregularly and partially declined stems - Ζεύς"
-      [nounCaseEndings|
-        ζευς  *
-        διος  *
-        διι   *
-        δια   *
-        ζευ   *
-      |]
-      [greekWords|
+    [nounCategory| 
+      Irregularly and partially declined stems - Ζεύς
+           sg:   pl:
+      nom: ζευς  *
+      gen: διος  *
+      dat: διι   *
+      acc: δια   *
+      voc: ζευ   *
+      lemmas:
         Ζεύς 
-      |]
+   |]
  , mounce §§ ["n-3g(2)"] $
- NounCategory "Indeclinable stems"
-      [nounCaseEndings|
-        - -
-        - -
-        - -
-        - -
-        - -
-      |]
-      [greekWords|
-        Ἀαρών Ἀβαδδών ἀββά Ἅβελ Ἀβιά 
-        Ἀβιαθάρ Ἀβιούδ Ἀβραάμ Ἁγάρ Ἀδάμ
-        Ἀδδί Ἀδμίν Ἀζώρ Αἰνών Ἀκελδαμάχ
-        ἁλληλουϊά ἄλφα Ἀμιναδάβ Ἀμών Ἀμώς
-        Ἀράμ Ἁρμαγεδών Ἀρνί Ἀρφαξάδ Ἀσά
-        Ἀσάφ Ἀσήρ Ἀχάζ Ἀχάς Ἀχίμ 
-        Βάαλ Βαλαάμ Βαλάκ βάρ Βαράκ 
-        Βαριωνᾶ Βεεζεβούλ Βελιάρ Βενιαμίν Βεώρ
-        Βηθεσδά Βηθζαθά Βηθλέεμ Βηθσαϊδά Βηθσαϊδάν Βηθφαγή
-        Βοανηργές Βόες Βόοζ Βόος Βοσόρ
-        Γαββαθᾶ Γαβριήλ Γάδ Γαμαλιήλ Γεδεών
-        Γεθσημανί Γεννησαρέτ Γώγ Δαβίδ Δαλμανουθά
-        Δάν Δανιήλ Δαυίδ Ἔβερ Ἐλεάζαρ
-        Ἐλιακίμ Ἐλιέζερ Ἐλιούδ Ἐλισάβετ Ἐλμαδάμ
-        Ἐλμωδάμ ἐλωι Ἐμμανουήλ Ἑμμώρ Ἐνώς
-        Ἑνώχ Ἑσλί Ἑσρώμ Ἐφραίμ ἐφφαθά
-        Ζαβουλών Ζάρα ζαφθάνι Ζοροβαβέλ ηλι
-        Ἠλί Ἤρ Ἠσαῦ θάβιτα Θαμάρ
-        Θάρα Ἰακώβ Ἰανναί Ἰάρετ Ἰαχίν
-        Ἰεζάβελ Ἰεριχώ Ἰερουσαλήμ Ἰεσσαί Ἰεφθάε 
-        Ἰσαάκ Ἰσαχάρ Ἰσκαριώθ Ἰσραήλ Ἰσσαχάρ
-        Ἰωαθάμ Ἰωανάν Ἰωᾶς Ἰώβ Ἰωβήδ
-        Ἰωδά Ἰωήλ Ἰωνμ Ἰωράμ Ἰωρίμ
-        Ἰωσαφάτ Ἰωσήφ Ἰωσήχ ἰῶτα Κάϊν
-        Καϊνάμ Καϊνάν Κανά Καπερναούμ Καφαρναούμ
-        Καῦδα Κεδρών Κίς Κλαῦδα κορβᾶν
-        Κόρε κοῦμ κοῦμι Κωσάμ λαμα
-        Λάμεχ λεμά Λευί Λώτ Μάαθ 
-        Μαγδαλά Μαγαδάν Μαγεδών Μαγώγ Μαδιάμ
-        Μαθθάτ Μαθουσάλα Μαϊνάν Μαλελεήλ Μαναήν
-        μάννα μαρὰν ἀθᾶ μαράνα θᾶ Μαριάμ Ματθάν
-        Ματθάτ Ματταθά Μελεά Μελχί Μελχισέδεκ
-        Μεννά Μιχαήλ Μολόχ Ναασσών Ναγγαί
-        Ναζαρά Ναζαρέθ Ναζαρέτ Ναθάμ Ναθάν
-        Ναθαναήλ Ναιμάν Ναΐν Ναούμ Ναχώρ
-        Νεεμάν Νευης Νεφθαλίμ Νηρί Νίγερ
-        Νινευή Νινευΐ Νῶε πάσχα Ῥαάβ
-        ῥαββί ῥαββονί ῥαββουνί ῥαβιθά Ῥαγαύ
-        Ῥαιφάν ῥακά Ῥαμά ῥαχά Ῥαχάβ
-        Ῥαχήλ Ῥεμφάν Ῥεφάν Ῥησά Ῥοβοάμ
-        Ῥομφά Ῥουβήν Ῥούθ σαβαχθάνι Σαβαώθ
-        Σαδώκ Σαλά Σαλαθιήλ Σαλήμ Σαλίμ
-        Σαλμών Σαμουήλ Σαμφουρειν Σαμψών
-        Σαούλ Σαρούχ Σατάν Σεμεΐν Σερούχ
-        Σήθ Σήμ σίκερα Σιλωάμ Σινά Σιχάρ      
-        Σιχέμ Σιών Σκαριώθ Σκαριώτης Συμεών
-        Συχάρ Συχέμ Ταβιθά ταλιθά Φάλεκ
-        Φανουήλ Φαραώ Φαρές Χανάαν χαρράν
-        Χοραζίν Χωραζίν Χερουβιν Ὠβήδ ὡσαννά
-        Ὡσηέ
+   [nounCategory| 
+     Indeclinable stems
+           sg: pl:
+     nom: -   -
+     gen: -   -
+     dat: -   -
+     acc: -   -
+     voc: -   -
+     lemmas:
+       Ἀαρών Ἀβαδδών ἀββά Ἅβελ Ἀβιά 
+       Ἀβιαθάρ Ἀβιούδ Ἀβραάμ Ἁγάρ Ἀδάμ
+       Ἀδδί Ἀδμίν Ἀζώρ Αἰνών Ἀκελδαμάχ
+       ἁλληλουϊά ἄλφα Ἀμιναδάβ Ἀμών Ἀμώς
+       Ἀράμ Ἁρμαγεδών Ἀρνί Ἀρφαξάδ Ἀσά
+       Ἀσάφ Ἀσήρ Ἀχάζ Ἀχάς Ἀχίμ 
+       Βάαλ Βαλαάμ Βαλάκ βάρ Βαράκ 
+       Βαριωνᾶ Βεεζεβούλ Βελιάρ Βενιαμίν Βεώρ
+       Βηθεσδά Βηθζαθά Βηθλέεμ Βηθσαϊδά Βηθσαϊδάν Βηθφαγή
+       Βοανηργές Βόες Βόοζ Βόος Βοσόρ
+       Γαββαθᾶ Γαβριήλ Γάδ Γαμαλιήλ Γεδεών
+       Γεθσημανί Γεννησαρέτ Γώγ Δαβίδ Δαλμανουθά
+       Δάν Δανιήλ Δαυίδ Ἔβερ Ἐλεάζαρ
+       Ἐλιακίμ Ἐλιέζερ Ἐλιούδ Ἐλισάβετ Ἐλμαδάμ
+       Ἐλμωδάμ ἐλωι Ἐμμανουήλ Ἑμμώρ Ἐνώς
+       Ἑνώχ Ἑσλί Ἑσρώμ Ἐφραίμ ἐφφαθά
+       Ζαβουλών Ζάρα ζαφθάνι Ζοροβαβέλ ηλι
+       Ἠλί Ἤρ Ἠσαῦ θάβιτα Θαμάρ
+       Θάρα Ἰακώβ Ἰανναί Ἰάρετ Ἰαχίν
+       Ἰεζάβελ Ἰεριχώ Ἰερουσαλήμ Ἰεσσαί Ἰεφθάε 
+       Ἰσαάκ Ἰσαχάρ Ἰσκαριώθ Ἰσραήλ Ἰσσαχάρ
+       Ἰωαθάμ Ἰωανάν Ἰωᾶς Ἰώβ Ἰωβήδ
+       Ἰωδά Ἰωήλ Ἰωνμ Ἰωράμ Ἰωρίμ
+       Ἰωσαφάτ Ἰωσήφ Ἰωσήχ ἰῶτα Κάϊν
+       Καϊνάμ Καϊνάν Κανά Καπερναούμ Καφαρναούμ
+       Καῦδα Κεδρών Κίς Κλαῦδα κορβᾶν
+       Κόρε κοῦμ κοῦμι Κωσάμ λαμα
+       Λάμεχ λεμά Λευί Λώτ Μάαθ 
+       Μαγδαλά Μαγαδάν Μαγεδών Μαγώγ Μαδιάμ
+       Μαθθάτ Μαθουσάλα Μαϊνάν Μαλελεήλ Μαναήν
+       μάννα μαρὰν ἀθᾶ μαράνα θᾶ Μαριάμ Ματθάν
+       Ματθάτ Ματταθά Μελεά Μελχί Μελχισέδεκ
+       Μεννά Μιχαήλ Μολόχ Ναασσών Ναγγαί
+       Ναζαρά Ναζαρέθ Ναζαρέτ Ναθάμ Ναθάν
+       Ναθαναήλ Ναιμάν Ναΐν Ναούμ Ναχώρ
+       Νεεμάν Νευης Νεφθαλίμ Νηρί Νίγερ
+       Νινευή Νινευΐ Νῶε πάσχα Ῥαάβ
+       ῥαββί ῥαββονί ῥαββουνί ῥαβιθά Ῥαγαύ
+       Ῥαιφάν ῥακά Ῥαμά ῥαχά Ῥαχάβ
+       Ῥαχήλ Ῥεμφάν Ῥεφάν Ῥησά Ῥοβοάμ
+       Ῥομφά Ῥουβήν Ῥούθ σαβαχθάνι Σαβαώθ
+       Σαδώκ Σαλά Σαλαθιήλ Σαλήμ Σαλίμ
+       Σαλμών Σαμουήλ Σαμφουρειν Σαμψών
+       Σαούλ Σαρούχ Σατάν Σεμεΐν Σερούχ
+       Σήθ Σήμ σίκερα Σιλωάμ Σινά Σιχάρ      
+       Σιχέμ Σιών Σκαριώθ Σκαριώτης Συμεών
+       Συχάρ Συχέμ Ταβιθά ταλιθά Φάλεκ
+       Φανουήλ Φαραώ Φαρές Χανάαν χαρράν
+       Χοραζίν Χωραζίν Χερουβιν Ὠβήδ ὡσαννά
+       Ὡσηέ
       |]
     ]   
