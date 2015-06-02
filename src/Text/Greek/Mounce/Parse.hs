@@ -43,5 +43,24 @@ nounCaseEndingsParser :: CharParser () (NounForms Affix)
 nounCaseEndingsParser = NounForms <$> e <*> e <*> e <*> e <*> e <*> e <*> e <*> e <*> e <*> e
   where e = caseEnding <* spaces
 
+nounCategoryParser :: CharParser () NounCategory
+nounCategoryParser = NounCategory
+  <$> (spaces *> (pack <$> (many1 (noneOf "\n\r") <* spaces)))
+  <*> (spaces *> labeledNounCaseEndingsParser <* spaces)
+  <*> (spaces *> string "lemmas:" *> spaces *> greekWordsParser)
+
+labeledNounCaseEndingsParser :: CharParser () (NounForms Affix)
+labeledNounCaseEndingsParser =
+  string "sg:" *> spaces *> string "pl:" *> spaces *>
+  (NounForms
+    <$> le "nom:" <*> e
+    <*> le "gen:" <*> e
+    <*> le "dat:" <*> e
+    <*> le "acc:" <*> e
+    <*> le "voc:" <*> e)
+      where
+        le x = string x *> spaces *> caseEnding <* spaces
+        e = caseEnding <* spaces
+
 topLevel :: CharParser () a -> CharParser () a
 topLevel x = spaces *> x <* eof

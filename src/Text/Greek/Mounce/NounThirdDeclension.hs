@@ -10,17 +10,17 @@ import Text.Greek.Mounce.Quote
 thirdDeclensionNouns :: [Cited NounCategory]
 thirdDeclensionNouns = 
   [ mounce §§ ["n-3a(1)"] $
-    NounCategory "Stems ending in π"
-      [nounCaseEndings|
-        ψ   πες
-        πος πων
-        πι  ψι
-        πα  πας
-        ψ   πες
-      |]
-      [greekWords|
+    [nounCategory|
+      Stems ending in π
+           sg: pl:
+      nom: ψ   πες
+      gen: πος πων
+      dat: πι  ψι
+      acc: πα  πας
+      voc: ψ   πες
+      lemmas:
         Αἰθίοψ κώνωψ λαῖλαψ μώλωψ σκόλοψ
-      |]
+    |]
   , mounce §§ ["n-3a(2)"] $
     NounCategory "Stems ending in β"
       [nounCaseEndings|

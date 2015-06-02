@@ -39,7 +39,7 @@ data NounCategory = NounCategory
   , nounActualCaseEndings :: NounForms Affix
   , nounWords :: [Text]
   }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Data, Typeable)
 
 nounFormsToCaseNumber :: NounForms a -> [(a, Case, Number)]
 nounFormsToCaseNumber x =

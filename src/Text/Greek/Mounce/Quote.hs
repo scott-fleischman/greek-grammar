@@ -50,3 +50,11 @@ nounCaseEndings = QuasiQuoter
   , quoteType = undefined
   , quoteDec = undefined
   }
+
+nounCategory :: QuasiQuoter
+nounCategory = QuasiQuoter
+  { quoteExp = parseTopLevel nounCategoryParser
+  , quotePat = undefined
+  , quoteType = undefined
+  , quoteDec = undefined
+  }
