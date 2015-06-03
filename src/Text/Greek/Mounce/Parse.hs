@@ -27,7 +27,7 @@ euphonyRules = sepBy1 euphonyRule spaces
 greekWordsParser :: CharParser () [Text]
 greekWordsParser = endBy1 greekWord spaces
 
-greekWordSounds :: CharParser () [Sound ()]
+greekWordSounds :: CharParser () [Sound]
 greekWordSounds = do
   w <- greekWord
   case textToSounds w of

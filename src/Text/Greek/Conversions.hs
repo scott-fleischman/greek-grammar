@@ -1,7 +1,7 @@
 module Text.Greek.Conversions where
 
 import Prelude hiding (lookup)
-import Control.Lens ((.~), (&))
+import Control.Lens ((.~), (&), (^.))
 import Data.Text (Text, unpack)
 import Data.Map.Strict (lookup, fromList)
 import Text.Greek.Corpus.Bible
@@ -11,8 +11,8 @@ import Text.Greek.Script.UnicodeTokenPairs
 
 data TokenError = InvalidChar Char
 
-textToSounds :: Text -> Either TokenError [Sound ()]
-textToSounds t = tokensToSounds <$> textToTokenContexts t
+textToSounds :: Text -> Either TokenError [Sound]
+textToSounds t = fmap (fmap (^. sound) . tokensToSounds) $ textToTokenContexts t
 
 textToTokenContexts :: Text -> Either TokenError [TokenContext ()]
 textToTokenContexts t = fmap emptyTokenContext <$> textToTokens t

@@ -31,7 +31,7 @@ instance Foldable NounForms where
 data Affix
   = EmptyAffix
   | UnattestedAffix
-  | AttestedAffix [Sound ()]
+  | AttestedAffix [Sound]
   deriving (Data, Typeable, Show, Eq)
 
 data NounCategory = NounCategory
