@@ -26,18 +26,27 @@ data SoundContext a = SoundContext
   deriving (Eq, Show, Data, Typeable)
 makeLenses ''SoundContext
 
+makeSound :: (Token -> Sound) -> TokenContext a -> SoundContext a
+makeSound s t = SoundContext (s (t ^. token)) t Nothing
+
+makeDiphthongSound :: TokenContext a -> TokenContext a -> SoundContext a
+makeDiphthongSound t1 t2 = SoundContext (DiphthongSound (t1 ^. token) (t2 ^. token)) t1 (Just t2)
+
+makeRoughBreathingSound :: SoundContext a -> SoundContext a
+makeRoughBreathingSound s = SoundContext (RoughBreathingSound (s ^. sound)) (s ^. context1) (s ^. context2)
+
 tokensToSounds :: [TokenContext a] -> [SoundContext a]
 tokensToSounds [] = []
 tokensToSounds (t1 : t2 : ts)
   | True <- isDiphthong
   , (Just Rough) <- t2 ^. token . breathing
-  = (SoundContext (RoughBreathingSound (diphthongSound ^. sound)) (diphthongSound ^. context1) (diphthongSound ^. context2)) : diphthongSound : (tokensToSounds ts)
+  = (makeRoughBreathingSound diphthongSound) : diphthongSound : (tokensToSounds ts)
 
   | True <- isDiphthong
   = diphthongSound : (tokensToSounds ts)
 
   where
-    diphthongSound = SoundContext (DiphthongSound (t1 ^. token) (t2 ^. token)) t1 (Just t2)
+    diphthongSound = makeDiphthongSound t1 t2
     isDiphthong = lacksDiaeresis && isDiphthongPair
     lacksDiaeresis = case t2 ^. token . diaeresis of { Nothing -> True ; _ -> False }
     isDiphthongPair = (t1 ^. token . letter, t2 ^. token . letter) `member` diphthongSet
@@ -48,12 +57,12 @@ tokensToSounds (t1 : t2 : ts)
 tokensToSounds (t : ts)
   | True <- isVowel
   , (Just Rough) <- t ^. token . breathing
-  = (SoundContext (RoughBreathingSound (singleVowel ^. sound)) (singleVowel ^. context1) Nothing) : singleVowel : (tokensToSounds ts)
+  = (makeRoughBreathingSound singleVowel) : singleVowel : (tokensToSounds ts)
 
   | True <- isVowel
   = singleVowel : (tokensToSounds ts)
 
-  | True = (SoundContext (ConsonantSound (t ^. token)) t Nothing) : (tokensToSounds ts)
+  | True = (makeSound ConsonantSound t) : (tokensToSounds ts)
 
   where
     isVowel = (t ^. token . letter) `elem` vowels
@@ -62,7 +71,7 @@ tokensToSounds (t : ts)
 singleVowelToSound :: TokenContext a -> SoundContext a
 singleVowelToSound t
   | (Just IotaSubscript) <- t ^. token . iotaSubscript
-  = SoundContext (IotaSubscriptVowelSound (t ^. token)) t Nothing
+  = makeSound IotaSubscriptVowelSound t
 
   | True
-  = SoundContext (SingleVowelSound (t ^. token)) t Nothing
+  = makeSound SingleVowelSound t
