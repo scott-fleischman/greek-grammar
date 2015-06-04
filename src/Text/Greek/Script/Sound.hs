@@ -12,7 +12,7 @@ import Text.Greek.Script.Token
 
 data SoundP a =
     ConsonantSound a
-  | RoughBreathingSound (SoundP a)
+  | RoughBreathingSound
   | SingleVowelSound a
   | IotaSubscriptVowelSound a
   | DiphthongSound a a
@@ -20,36 +20,47 @@ data SoundP a =
 
 instance Functor SoundP where
   fmap f (ConsonantSound x) = ConsonantSound (f x)
-  fmap f (RoughBreathingSound x) = RoughBreathingSound (fmap f x)
+  fmap _ RoughBreathingSound = RoughBreathingSound
   fmap f (SingleVowelSound x) = SingleVowelSound (f x)
   fmap f (IotaSubscriptVowelSound x) = IotaSubscriptVowelSound (f x)
   fmap f (DiphthongSound x1 x2) = DiphthongSound (f x1) (f x2)
 
 type Sound = SoundP Token
 
+data SoundOrigin a =
+    SingleTokenOrigin (TokenContext a)
+  | DoubleTokenOrigin (TokenContext a) (TokenContext a)
+  | SoundOrigin (SoundContext a)
+  deriving (Eq, Show, Data, Typeable)
+
 data SoundContext a = SoundContext
   { _sound :: Sound
-  , _context1 :: TokenContext a
-  , _context2 :: Maybe (TokenContext a)
+  , _origin :: SoundOrigin a
   }
   deriving (Eq, Show, Data, Typeable)
 makeLenses ''SoundContext
 
 makeSound :: (Token -> Sound) -> TokenContext a -> SoundContext a
-makeSound s t = SoundContext (s (t ^. token)) t Nothing
+makeSound s t = SoundContext (s (t ^. token)) (SingleTokenOrigin t)
 
 makeDiphthongSound :: TokenContext a -> TokenContext a -> SoundContext a
-makeDiphthongSound t1 t2 = SoundContext (DiphthongSound (t1 ^. token) (t2 ^. token)) t1 (Just t2)
+makeDiphthongSound t1 t2 = SoundContext (DiphthongSound (t1 ^. token) (t2 ^. token)) (DoubleTokenOrigin t1 t2)
 
 makeRoughBreathingSound :: SoundContext a -> SoundContext a
-makeRoughBreathingSound s = SoundContext (RoughBreathingSound (s ^. sound)) (s ^. context1) (s ^. context2)
+makeRoughBreathingSound s = SoundContext RoughBreathingSound (SoundOrigin s)
+
+stripAccent :: Sound -> Sound
+stripAccent = fmap (& accent .~ Nothing)
+
+stripBreathing :: Sound -> Sound
+stripBreathing = fmap (& breathing .~ Nothing)
 
 tokensToSounds :: [TokenContext a] -> [SoundContext a]
 tokensToSounds [] = []
 tokensToSounds (t1 : t2 : ts)
   | True <- isDiphthong
   , (Just Rough) <- t2 ^. token . breathing
-  = (makeRoughBreathingSound diphthongSound) : diphthongSound : (tokensToSounds ts)
+  = makeRoughBreathingSound diphthongSound : (sound %~ stripBreathing $ diphthongSound) : (tokensToSounds ts)
 
   | True <- isDiphthong
   = diphthongSound : (tokensToSounds ts)
@@ -66,7 +77,7 @@ tokensToSounds (t1 : t2 : ts)
 tokensToSounds (t : ts)
   | True <- isVowel
   , (Just Rough) <- t ^. token . breathing
-  = (makeRoughBreathingSound singleVowel) : singleVowel : (tokensToSounds ts)
+  = makeRoughBreathingSound singleVowel : (sound %~ stripBreathing $ singleVowel) : (tokensToSounds ts)
 
   | True <- isVowel
   = singleVowel : (tokensToSounds ts)

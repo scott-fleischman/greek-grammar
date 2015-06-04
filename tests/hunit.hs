@@ -38,9 +38,9 @@ case_sound_b_consonant = True @=? case textToSounds "β" of { Right (ConsonantSo
 case_sound_ai_diphthong = True @=? case textToSounds "αι" of { Right (DiphthongSound _ _ : []) -> True ; _ -> False }
 case_sound_ai_diaeresis = True @=? case textToSounds "αϊ" of { Right (SingleVowelSound _ : SingleVowelSound _ : []) -> True ; _ -> False }
 case_sound_ai_iotaSubscript = True @=? case textToSounds "ᾳ" of { Right (IotaSubscriptVowelSound _ : []) -> True ; _ -> False }
-case_sound_a_rough = True @=? case textToSounds "ἁ" of { Right (RoughBreathingSound _ : SingleVowelSound _ : []) -> True ; _ -> False }
-case_sound_ai_iotaSubscript_rough = True @=? case textToSounds "ᾁ" of { Right (RoughBreathingSound _ : IotaSubscriptVowelSound _ : []) -> True ; _ -> False }
-case_sound_ai_diphthong_rough = True @=? case textToSounds "αἱ" of { Right (RoughBreathingSound _ : DiphthongSound _ _ : []) -> True ; _ -> False }
+case_sound_a_rough = True @=? case textToSounds "ἁ" of { Right (RoughBreathingSound : SingleVowelSound _ : []) -> True ; _ -> False }
+case_sound_ai_iotaSubscript_rough = True @=? case textToSounds "ᾁ" of { Right (RoughBreathingSound : IotaSubscriptVowelSound _ : []) -> True ; _ -> False }
+case_sound_ai_diphthong_rough = True @=? case textToSounds "αἱ" of { Right (RoughBreathingSound : DiphthongSound _ _ : []) -> True ; _ -> False }
 case_sound_invalid = True @=? case textToSounds "x" of { Left (InvalidChar 'x') -> True ; _ -> False }
 
 case_forward_contractions = mapM_ (\t@(v1, v2, vs) -> assertEqual (show t) (sort $ getContractions v1 v2) (sort vs)) forwardContractionTests

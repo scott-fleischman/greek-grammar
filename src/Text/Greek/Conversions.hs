@@ -1,7 +1,7 @@
 module Text.Greek.Conversions where
 
 import Prelude hiding (lookup)
-import Control.Lens ((.~), (&), (^.))
+import Control.Lens ((^.))
 import Data.Text (Text, unpack)
 import Data.Map.Strict (lookup, fromList)
 import Text.Greek.Corpus.Bible
@@ -34,9 +34,3 @@ textToTokens t = traverse charToEither (unpack t)
 
 getBookTokens :: Book -> [TokenContext Character]
 getBookTokens = snd . charactersToTokenContexts . wordsToCharacters . segmentsToWords . segments
-
-stripAccent :: Token -> Token
-stripAccent = (& accent .~ Nothing)
-
-stripSoundAccent :: Sound -> Sound
-stripSoundAccent = fmap stripAccent
