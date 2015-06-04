@@ -199,7 +199,8 @@ firstDeclensionNouns =
        Λυσίας Μαθθίας Ματθίας Ματταθίας Μεσσίας
        μητραλῴας νεανίας Ὀζίας Οὐρίας Οχοζίας
        πατραλῴας πατρολῴας Σιμαίας
-     |]
+       βορρᾶς
+     |] -- added βορρᾶς following the footnote on n-1h
  , mounce §§ ["n-1e"] $
    [nounCategory| 
      Masculine nouns with stems ending in α(ς) and a genitive in α
@@ -291,7 +292,7 @@ firstDeclensionNouns =
      acc: ην  ας
      voc: η   αι
      lemmas:
-       συκῆ γῆ γῆς 
+       συκῆ γῆ
     |]
  , mounce §§ ["n-1h(c)"] $
    [nounCategory| 
@@ -303,6 +304,6 @@ firstDeclensionNouns =
      acc: ην  ας
      voc: η   αι
      lemmas:
-       Απελλῆς βορρᾶς Ἑρμῆς
-    |] 
+       Απελλῆς Ἑρμῆς
+    |] -- removed βορρᾶς from here and put in n-1d according to his footnote
  ]
