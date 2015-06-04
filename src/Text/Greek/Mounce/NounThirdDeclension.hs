@@ -688,7 +688,7 @@ thirdDeclensionNouns =
      |]
    , mounce §§ ["n-3f(2a)"] $
      [nounCategory| 
-       Stems ending in a λ or ρ with no ablaut
+       Stems ending in a ρ with no ablaut
             sg: pl:
        nom: ρ   ρες
        gen: ρος ρων
@@ -696,9 +696,45 @@ thirdDeclensionNouns =
        acc: ρα  ρας
        voc: ρ   ρες
        lemmas:
-         ἅλς αὐτόχειρ Καῖσαρ μάρτυς νιπτήρ
-         ποδινιπτήρ πρωτόμαρτυς πῦρ στατήρ σωτήρ
-         φωστήρ χαρακτήρ χείρ ψευδόμαρτυς
+         αὐτόχειρ Καῖσαρ νιπτήρ
+         ποδινιπτήρ πῦρ στατήρ σωτήρ
+         φωστήρ χαρακτήρ χείρ
+     |]
+   , mounce §§ ["n-3f(2a)"] $
+     [nounCategory| 
+       Stems ending in a ρ with no ablaut - χείρ dative χερσί
+            sg: pl:
+       nom: ειρ   ειρες
+       gen: ειρος ειρων
+       dat: ειρι  ερσι
+       acc: ειρα  ειρας
+       voc: ειρ   ειρες
+       lemmas:
+         χείρ
+     |]
+   , mounce §§ ["n-3f(2a)"] $
+     [nounCategory| 
+       Stems ending in a λ with no ablaut
+            sg: pl:
+       nom: λς  λες
+       gen: λος λων
+       dat: λι  λσι
+       acc: λα  λας
+       voc: λς  λες
+       lemmas:
+         ἅλς
+     |]
+   , mounce §§ ["n-3f(2a)"] $
+     [nounCategory| 
+       Stems ending in a ρ with no ablaut - μάρτυς
+            sg: pl:
+       nom: ς   ρες
+       gen: ρος ρων
+       dat: ρι  ρσι
+       acc: ρα  ρας
+       voc: ς   ρες
+       lemmas:
+         μάρτυς πρωτόμαρτυς ψευδόμαρτυς
      |]
    , mounce §§ ["n-3f(2b)"] $
      [nounCategory| 
@@ -814,11 +850,11 @@ thirdDeclensionNouns =
     [nounCategory| 
       Irregularly and partially declined stems - Ζεύς
            sg:   pl:
-      nom: ζευς  *
-      gen: διος  *
-      dat: διι   *
-      acc: δια   *
-      voc: ζευ   *
+      nom: Ζευς  *
+      gen: Διος  *
+      dat: Διι   *
+      acc: Δια   *
+      voc: Ζευ   *
       lemmas:
         Ζεύς 
    |]
