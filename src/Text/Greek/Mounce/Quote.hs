@@ -37,7 +37,7 @@ rules = QuasiQuoter
 
 nounCategory :: QuasiQuoter
 nounCategory = QuasiQuoter
-  { quoteExp = parseTopLevel nounCategoryParser
+  { quoteExp = parseTopLevel validNounCategoryParser
   , quotePat = undefined
   , quoteType = undefined
   , quoteDec = undefined

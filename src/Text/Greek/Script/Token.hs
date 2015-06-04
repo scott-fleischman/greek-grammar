@@ -39,7 +39,7 @@ data Token = Token
   , _semivowelMark :: Maybe SemivowelMark
   , _sonantMark :: Maybe SonantMark
   }
-  deriving (Eq, Show, Data, Typeable)
+  deriving (Eq, Show, Ord, Data, Typeable)
 makeLenses ''Token
 
 data TokenContext a = TokenContext
@@ -133,3 +133,7 @@ validateToken (Token el c a b lm is d f sv sn) = concatMap maybeToList $
   , validateItem (isValidSemivowelMark el) sv SemivowelMarkError
   , validateItem (isValidSonantMark el) sn SonantMarkError
   ]
+
+removeSmoothBreathing :: Maybe Breathing -> Maybe Breathing
+removeSmoothBreathing (Just Smooth) = Nothing
+removeSmoothBreathing x = x

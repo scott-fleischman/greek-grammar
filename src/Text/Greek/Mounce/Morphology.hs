@@ -9,6 +9,7 @@ import Data.List
 import Data.Monoid ((<>))
 import Text.Greek.Morphology.Noun
 import Text.Greek.Script.Sound
+import Text.Greek.Conversions
 
 data NounForms a = NounForms
   { nomSg :: a, nomPl :: a
@@ -36,7 +37,7 @@ data Affix
 
 data NounCategory = NounCategory
   { nounDefinition :: Text
-  , nounActualCaseEndings :: NounForms Affix
+  , nounCaseEndings :: NounForms Affix
   , nounWords :: [[Sound]]
   }
   deriving (Show, Eq, Data, Typeable)
@@ -55,6 +56,17 @@ nounFormsToCaseNumber x =
   , (vocPl x, Vocative, Plural)
   ]
 
+getMismatches :: NounCategory -> [[Sound]]
+getMismatches nc = filter (\w -> not . or . fmap ($ w) . fmap isValid $ validSuffixes) (nounWords nc)
+  where
+    isValid :: Affix -> [Sound] -> Bool
+    isValid (AttestedAffix ss) = isSuffixOf (strip <$> ss) . fmap strip
+    isValid EmptyAffix = const True
+    isValid UnattestedAffix = const False
+
+    validSuffixes = fmap (\e -> e . nounCaseEndings $ nc) [nomSg, nomPl]
+    strip = stripAccent . stripSmoothBreathing
+
 getStem :: NounForms String -> String -> Maybe String
 getStem e w
   | isSuffixOf nomSgEnding w = Just $ take (length w - length nomSgEnding) w
@@ -63,3 +75,8 @@ getStem e w
 
 stemToAllNounForms :: NounForms String -> String -> NounForms String
 stemToAllNounForms e s = fmap (s ++) e
+
+affixToString :: Affix -> String
+affixToString EmptyAffix = "-"
+affixToString UnattestedAffix = "*"
+affixToString (AttestedAffix ss) = soundsToString ss

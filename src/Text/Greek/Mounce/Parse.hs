@@ -1,6 +1,7 @@
 module Text.Greek.Mounce.Parse where
 
-import Data.Text (Text, pack)
+import Data.List (intersperse)
+import Data.Text (Text, pack, unpack)
 import Text.ParserCombinators.Parsec
 import Text.Greek.Conversions
 import Text.Greek.Mounce.Morphology
@@ -34,12 +35,6 @@ greekWordParser = do
 greekWordsParser :: CharParser () [[Sound]]
 greekWordsParser = endBy1 greekWordParser spaces
 
-nounCategoryParser :: CharParser () NounCategory
-nounCategoryParser = NounCategory
-  <$> (spaces *> (pack <$> (many1 (noneOf "\n\r") <* spaces)))
-  <*> (spaces *> nounFormsParser <* spaces)
-  <*> (spaces *> string "lemmas:" *> spaces *> greekWordsParser)
-
 caseEndingParser :: CharParser () Affix
 caseEndingParser = pure EmptyAffix <* string "-"
   <|> pure UnattestedAffix <* string "*"
@@ -57,6 +52,23 @@ nounFormsParser =
       where
         le x = string x *> spaces *> caseEndingParser <* spaces
         e = caseEndingParser <* spaces
+
+nounCategoryParser :: CharParser () NounCategory
+nounCategoryParser = NounCategory
+  <$> (spaces *> (pack <$> (many1 (noneOf "\n\r") <* spaces)))
+  <*> (spaces *> nounFormsParser <* spaces)
+  <*> (spaces *> string "lemmas:" *> spaces *> greekWordsParser)
+
+validNounCategoryParser :: CharParser () NounCategory
+validNounCategoryParser = do
+  nc <- nounCategoryParser
+  let ms = getMismatches nc
+  case ms of
+    [] -> return nc
+    (_ : _) -> fail $ "Lemmas do not match nom sg case ending "
+      ++ (affixToString . nomSg . nounCaseEndings $ nc)
+      ++ " for " ++ (unpack . nounDefinition $ nc) ++ ":\n"
+      ++ (concat . intersperse "\n" . fmap soundsToString $ ms)
 
 topLevel :: CharParser () a -> CharParser () a
 topLevel x = spaces *> x <* eof

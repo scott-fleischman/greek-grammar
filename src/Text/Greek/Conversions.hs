@@ -3,6 +3,7 @@ module Text.Greek.Conversions where
 import Prelude hiding (lookup)
 import Control.Lens ((^.))
 import Data.Text (Text, unpack)
+import Data.Tuple (swap)
 import Data.Map.Strict (lookup, fromList)
 import Text.Greek.Corpus.Bible
 import Text.Greek.Script.Sound
@@ -34,3 +35,16 @@ textToTokens t = traverse charToEither (unpack t)
 
 getBookTokens :: Book -> [TokenContext Character]
 getBookTokens = snd . charactersToTokenContexts . wordsToCharacters . segmentsToWords . segments
+
+tokensToString :: [Token] -> String
+tokensToString = fmap tokenToChar
+  where
+    tokenToChar t = case tokenToMaybeChar t of
+      Just x -> x
+      Nothing -> case tokenToMaybeChar (Token (t ^. letter) (t ^. letterCase) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing) of
+        Just x -> x
+        Nothing -> '_'
+    tokenToMaybeChar = flip lookup (fromList . fmap swap $ unicodeTokenPairs)
+
+soundsToString :: [Sound] -> String
+soundsToString ss = tokensToString . concat . fmap soundToTokens $ ss

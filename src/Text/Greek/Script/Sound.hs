@@ -55,6 +55,9 @@ stripAccent = fmap (& accent .~ Nothing)
 stripBreathing :: Sound -> Sound
 stripBreathing = fmap (& breathing .~ Nothing)
 
+stripSmoothBreathing :: Sound -> Sound
+stripSmoothBreathing = fmap (& breathing %~ removeSmoothBreathing)
+
 tokensToSounds :: [TokenContext a] -> [SoundContext a]
 tokensToSounds [] = []
 tokensToSounds (t1 : t2 : ts)
@@ -95,3 +98,10 @@ singleVowelToSound t
 
   | True
   = makeSound SingleVowelSound t
+
+soundToTokens :: Sound -> [Token]
+soundToTokens (ConsonantSound x) = [x]
+soundToTokens (RoughBreathingSound) = []
+soundToTokens (SingleVowelSound x) = [x]
+soundToTokens (IotaSubscriptVowelSound x) = [x]
+soundToTokens (DiphthongSound x1 x2) = [x1, x2]
