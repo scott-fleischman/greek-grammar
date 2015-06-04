@@ -35,22 +35,6 @@ rules = QuasiQuoter
   , quoteDec = undefined
   }
 
-greekWords :: QuasiQuoter
-greekWords = QuasiQuoter
-  { quoteExp = parseTopLevel greekWordsParser
-  , quotePat = undefined
-  , quoteType = undefined
-  , quoteDec = undefined
-  }
-
-nounCaseEndings :: QuasiQuoter
-nounCaseEndings = QuasiQuoter
-  { quoteExp = parseTopLevel nounCaseEndingsParser
-  , quotePat = undefined
-  , quoteType = undefined
-  , quoteDec = undefined
-  }
-
 nounCategory :: QuasiQuoter
 nounCategory = QuasiQuoter
   { quoteExp = parseTopLevel nounCategoryParser

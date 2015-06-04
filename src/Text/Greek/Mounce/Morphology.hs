@@ -37,7 +37,7 @@ data Affix
 data NounCategory = NounCategory
   { nounDefinition :: Text
   , nounActualCaseEndings :: NounForms Affix
-  , nounWords :: [Text]
+  , nounWords :: [[Sound]]
   }
   deriving (Show, Eq, Data, Typeable)
 

@@ -37,3 +37,6 @@ getBookTokens = snd . charactersToTokenContexts . wordsToCharacters . segmentsTo
 
 stripAccent :: Token -> Token
 stripAccent = (& accent .~ Nothing)
+
+stripSoundAccent :: Sound -> Sound
+stripSoundAccent = fmap stripAccent

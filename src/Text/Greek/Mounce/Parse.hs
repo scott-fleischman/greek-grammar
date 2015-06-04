@@ -24,33 +24,29 @@ euphonyRule = EuphonyRule
 euphonyRules :: CharParser () [EuphonyRule]
 euphonyRules = sepBy1 euphonyRule spaces
 
-greekWordsParser :: CharParser () [Text]
-greekWordsParser = endBy1 greekWord spaces
-
-greekWordSounds :: CharParser () [Sound]
-greekWordSounds = do
+greekWordParser :: CharParser () [Sound]
+greekWordParser = do
   w <- greekWord
   case textToSounds w of
     Left (InvalidChar c) -> fail ("InvalidChar " ++ c : [])
     Right x -> return x
 
-caseEnding :: CharParser () Affix
-caseEnding = pure EmptyAffix <* string "-"
-  <|> pure UnattestedAffix <* string "*"
-  <|> AttestedAffix <$> greekWordSounds
-
-nounCaseEndingsParser :: CharParser () (NounForms Affix)
-nounCaseEndingsParser = NounForms <$> e <*> e <*> e <*> e <*> e <*> e <*> e <*> e <*> e <*> e
-  where e = caseEnding <* spaces
+greekWordsParser :: CharParser () [[Sound]]
+greekWordsParser = endBy1 greekWordParser spaces
 
 nounCategoryParser :: CharParser () NounCategory
 nounCategoryParser = NounCategory
   <$> (spaces *> (pack <$> (many1 (noneOf "\n\r") <* spaces)))
-  <*> (spaces *> labeledNounCaseEndingsParser <* spaces)
+  <*> (spaces *> nounFormsParser <* spaces)
   <*> (spaces *> string "lemmas:" *> spaces *> greekWordsParser)
 
-labeledNounCaseEndingsParser :: CharParser () (NounForms Affix)
-labeledNounCaseEndingsParser =
+caseEndingParser :: CharParser () Affix
+caseEndingParser = pure EmptyAffix <* string "-"
+  <|> pure UnattestedAffix <* string "*"
+  <|> AttestedAffix <$> greekWordParser
+
+nounFormsParser :: CharParser () (NounForms Affix)
+nounFormsParser =
   string "sg:" *> spaces *> string "pl:" *> spaces *>
   (NounForms
     <$> le "nom:" <*> e
@@ -59,8 +55,8 @@ labeledNounCaseEndingsParser =
     <*> le "acc:" <*> e
     <*> le "voc:" <*> e)
       where
-        le x = string x *> spaces *> caseEnding <* spaces
-        e = caseEnding <* spaces
+        le x = string x *> spaces *> caseEndingParser <* spaces
+        e = caseEndingParser <* spaces
 
 topLevel :: CharParser () a -> CharParser () a
 topLevel x = spaces *> x <* eof
