@@ -10,6 +10,7 @@ import Text.Greek.Script.Token
 import Text.Greek.Script.UnicodeTokenPairs
 
 data TokenError = InvalidChar Char
+  deriving (Show)
 
 textToSounds :: Text -> Either TokenError [Sound]
 textToSounds t = fmap (fmap (^. sound) . tokensToSounds) $ textToTokenContexts t
@@ -34,5 +35,5 @@ textToTokens t = traverse charToEither (unpack t)
 getBookTokens :: Book -> [TokenContext Character]
 getBookTokens = snd . charactersToTokenContexts . wordsToCharacters . segmentsToWords . segments
 
-stripAccents :: [Token] -> [Token]
-stripAccents = fmap (& accent .~ Nothing)
+stripAccent :: Token -> Token
+stripAccent = (& accent .~ Nothing)

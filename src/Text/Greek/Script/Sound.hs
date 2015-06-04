@@ -10,13 +10,22 @@ import Data.Data
 import Data.Set
 import Text.Greek.Script.Token
 
-data Sound =
-    ConsonantSound Token
-  | RoughBreathingSound Sound
-  | SingleVowelSound Token
-  | IotaSubscriptVowelSound Token
-  | DiphthongSound Token Token
+data SoundP a =
+    ConsonantSound a
+  | RoughBreathingSound (SoundP a)
+  | SingleVowelSound a
+  | IotaSubscriptVowelSound a
+  | DiphthongSound a a
   deriving (Eq, Show, Data, Typeable)
+
+instance Functor SoundP where
+  fmap f (ConsonantSound x) = ConsonantSound (f x)
+  fmap f (RoughBreathingSound x) = RoughBreathingSound (fmap f x)
+  fmap f (SingleVowelSound x) = SingleVowelSound (f x)
+  fmap f (IotaSubscriptVowelSound x) = IotaSubscriptVowelSound (f x)
+  fmap f (DiphthongSound x1 x2) = DiphthongSound (f x1) (f x2)
+
+type Sound = SoundP Token
 
 data SoundContext a = SoundContext
   { _sound :: Sound
