@@ -429,7 +429,6 @@ thirdDeclensionNouns =
         ὗς δάκρ-
       exceptions:
         δάκρ- nom sg δάκρυ
-        δάκρ- nom sg δάκρυ
     |]
   , mounce §§ ["n-3e(2)"] $
     [nounCategory| 
