@@ -1,5 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Text.Greek.Mounce.Morphology where
 
@@ -43,6 +45,24 @@ data NounCategory = NounCategory
   }
   deriving (Show, Eq, Data, Typeable)
 
+data NounForm = NounForm
+  { _nounFormSounds :: [Sound]
+  , _noumFormCase :: Case
+  , _nounFromNumber :: Number
+  }
+  deriving (Show, Eq)
+makeLenses ''NounForm
+
+affixToString :: Affix -> String
+affixToString EmptyAffix = "-"
+affixToString UnattestedAffix = "*"
+affixToString (AttestedAffix ss) = soundsToString ss
+
+affixToMaybeSounds :: Affix -> Maybe [Sound]
+affixToMaybeSounds EmptyAffix = Just []
+affixToMaybeSounds UnattestedAffix = Nothing
+affixToMaybeSounds (AttestedAffix ss) = Just ss
+
 nounFormsToCaseNumber :: NounForms a -> [(a, Case, Number)]
 nounFormsToCaseNumber x =
   [ (nomSg x, Nominative, Singular)
@@ -56,11 +76,6 @@ nounFormsToCaseNumber x =
   , (accPl x, Accusative, Plural)
   , (vocPl x, Vocative, Plural)
   ]
-
-affixToMaybeSounds :: Affix -> Maybe [Sound]
-affixToMaybeSounds EmptyAffix = Just []
-affixToMaybeSounds UnattestedAffix = Nothing
-affixToMaybeSounds (AttestedAffix ss) = Just ss
 
 getMismatches :: NounCategory -> [[Sound]]
 getMismatches nc = filter (\w -> not . or . fmap ($ w) . fmap isValid $ validSuffixes) (nounWords nc)
@@ -88,19 +103,21 @@ getStem e w
     nomSgEnding = affixToMaybeSounds . nomSg $ e
     nomPlEnding = affixToMaybeSounds . nomPl $ e
 
-stemToAllNounForms :: NounForms Affix -> [Sound] -> [([Sound], Case, Number)]
-stemToAllNounForms nfs s = fmap (& _1 %~ (s ++)) allSuffixes
+stemToAllAttestedForms :: NounForms Affix -> [Sound] -> [NounForm]
+stemToAllAttestedForms nfs s = fmap (& nounFormSounds %~ (s ++)) allSuffixes
   where
-    allSuffixes = concat $ genForm <$> formsCaseNumber
+    allSuffixes = concat $ makeSuffix <$> formsCaseNumber
 
-    genForm :: (Affix, Case, Number) -> [([Sound], Case, Number)]
-    genForm = \x -> case affixToMaybeSounds (x ^. _1) of
-      Just ss -> [x & _1 .~ ss]
+    makeSuffix :: (Affix, Case, Number) -> [NounForm]
+    makeSuffix = \x -> case affixToMaybeSounds (x ^. _1) of
+      Just ss -> [NounForm ss (x ^. _2) (x ^. _3)]
       Nothing -> []
 
     formsCaseNumber = nounFormsToCaseNumber nfs
 
-affixToString :: Affix -> String
-affixToString EmptyAffix = "-"
-affixToString UnattestedAffix = "*"
-affixToString (AttestedAffix ss) = soundsToString ss
+nounCategoryToAllForms :: NounCategory -> [NounForm]
+nounCategoryToAllForms nc = concat . fmap applyAllEndings $ allStems
+  where
+    allStems = nounWords nc
+    applyAllEndings  = stemToAllAttestedForms caseEndings
+    caseEndings = nounCaseEndings nc
