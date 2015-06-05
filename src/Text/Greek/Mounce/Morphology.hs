@@ -3,6 +3,7 @@
 
 module Text.Greek.Mounce.Morphology where
 
+import Control.Lens
 import Data.Text (Text)
 import Data.Data
 import Data.List
@@ -56,6 +57,11 @@ nounFormsToCaseNumber x =
   , (vocPl x, Vocative, Plural)
   ]
 
+affixToMaybeSounds :: Affix -> Maybe [Sound]
+affixToMaybeSounds EmptyAffix = Just []
+affixToMaybeSounds UnattestedAffix = Nothing
+affixToMaybeSounds (AttestedAffix ss) = Just ss
+
 getMismatches :: NounCategory -> [[Sound]]
 getMismatches nc = filter (\w -> not . or . fmap ($ w) . fmap isValid $ validSuffixes) (nounWords nc)
   where
@@ -67,14 +73,32 @@ getMismatches nc = filter (\w -> not . or . fmap ($ w) . fmap isValid $ validSuf
     validSuffixes = fmap (\e -> e . nounCaseEndings $ nc) [nomSg, nomPl]
     strip = stripAccent . stripSmoothBreathing
 
-getStem :: NounForms String -> String -> Maybe String
+getStem :: NounForms Affix -> [Sound] -> Maybe [Sound]
 getStem e w
-  | isSuffixOf nomSgEnding w = Just $ take (length w - length nomSgEnding) w
-  | True = Nothing
-  where nomSgEnding = nomSg e
+  | Just nse <- nomSgEnding
+  , isSuffixOf nse w
+  = Just $ take (length w - length nomSgEnding) w
 
-stemToAllNounForms :: NounForms String -> String -> NounForms String
-stemToAllNounForms e s = fmap (s ++) e
+  | Just npe <- nomPlEnding
+  , isSuffixOf npe w
+  = Just $ take (length w - length nomPlEnding) w
+
+  | True = Nothing
+  where
+    nomSgEnding = affixToMaybeSounds . nomSg $ e
+    nomPlEnding = affixToMaybeSounds . nomPl $ e
+
+stemToAllNounForms :: NounForms Affix -> [Sound] -> [([Sound], Case, Number)]
+stemToAllNounForms nfs s = fmap (& _1 %~ (s ++)) allSuffixes
+  where
+    allSuffixes = concat $ genForm <$> formsCaseNumber
+
+    genForm :: (Affix, Case, Number) -> [([Sound], Case, Number)]
+    genForm = \x -> case affixToMaybeSounds (x ^. _1) of
+      Just ss -> [x & _1 .~ ss]
+      Nothing -> []
+
+    formsCaseNumber = nounFormsToCaseNumber nfs
 
 affixToString :: Affix -> String
 affixToString EmptyAffix = "-"
