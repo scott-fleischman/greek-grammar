@@ -136,7 +136,9 @@ thirdDeclensionNouns =
         ὑπολαμπάς χιλιάς χλαμύς πο- τετράπο-
       exceptions:
         πο- nom sg πούς
+        πο- voc sg πούς
         τετραπο- nom sg τετράπους
+        τετραπο- voc sg τετράπους
     |]
   , mounce §§ ["n-3c(3)"] $
     [nounCategory| 
@@ -427,6 +429,7 @@ thirdDeclensionNouns =
         ὗς δάκρ-
       exceptions:
         δάκρ- nom sg δάκρυ
+        δάκρ- nom sg δάκρυ
     |]
   , mounce §§ ["n-3e(2)"] $
     [nounCategory| 
@@ -531,6 +534,7 @@ thirdDeclensionNouns =
          χρῆσις σίναπ-
        exceptions: 
          σίναπ- nom sg σίναπι
+         σίναπ- voc sg σίναπι
      |]
    , mounce §§ ["n-3e(6)"] $
      [nounCategory| 
@@ -566,7 +570,7 @@ thirdDeclensionNouns =
        exceptions:
          δεῖν- nom sg δεῖνα
          Σαλαμί- nom sg Σαλαμίς
-         Σαλαμί- voc sg Σαλαμίνσ
+         Σαλαμί- voc sg Σαλαμίν
      |]
    , mounce §§ ["n-3f(1b)"] $
      [nounCategory| 
