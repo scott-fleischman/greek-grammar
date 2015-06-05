@@ -2,11 +2,9 @@
 
 module Text.Greek.Corpus.Bible.Stats where
 
+import Prelude hiding (words)
 import Control.Lens ((^.))
 import Control.Lens.Tuple (_1, _2, _3, _4, _5)
-import Data.Either (Either(..))
-import Data.Functor (fmap)
-import Data.List (filter, (++), maximum, nub)
 import Data.Text (Text, pack)
 import Data.Text.Format (Only(..), Shown(..), right, left)
 import Data.Text.Format.Strict (format')
@@ -30,8 +28,8 @@ showErrorContinue _ (Left e) = [format' "Error: {}" (Only $ Shown e)]
 showErrorContinue f (Right b) = f b
 
 showResults :: Bible -> [Text]
-showResults (Bible id title books) =
-  [ id
+showResults (Bible i title books) =
+  [ i
   , title
   , (format' "Books: {}") (Only . L.length $ books)
   ]
@@ -44,6 +42,7 @@ showResults (Bible id title books) =
     leftPad g s = left (max g) ' ' (s ^. g)
 
 matchNouns :: Bible -> [Text]
-matchNouns b = pure . pack . show . length $ wordText <$> words
+matchNouns b = pure . pack . show . length . filter (\x -> case x of { Left _ -> True ; _ -> False }) $ sounds
   where
+    sounds = textToSounds . wordText <$> words
     words = segmentsToWords . concat . fmap segments . bibleBooks $ b
