@@ -46,19 +46,11 @@ thirdDeclensionNouns =
         ἀλώπηξ ἄνθραξ δεσμοφύλαξ θώραξ
         κῆρυξ κίλιξ κόραξ ὄρνιξ πίναξ
         πλάξ σάρξ σκώληξ Φῆλιξ Φοῖνιξ
-        φοῖνιξ φύλαξ χάραξ χοῖνιξ
-    |]
-  , mounce §§ ["n-3b(1)"] $
-    [nounCategory| 
-      Stems ending in κ - γυνή
-           sg:   pl:
-      nom: η     αικες
-      gen: αικος αικων
-      dat: αικι  αιξι
-      acc: αικα  αικας
-      voc: αι    αικες
-      lemmas:
-        γυνή
+        φοῖνιξ φύλαξ χάραξ χοῖνιξ 
+        γυναι -
+      exceptions:
+        γυναι- nom sg γυνή
+        γυναι- voc sg γυνή
     |]
   , mounce §§ ["n-3b(2)"] $
     [nounCategory| 
@@ -104,19 +96,9 @@ thirdDeclensionNouns =
         νεότης ὁμοιότης ὁσιότης παλαιότης
         πένης πιότης πλάνης πραότης πραΰτης
         σεμνότης σής σκληρότης τελειότης χάρις
-        χρηστότης χρώς
-    |]
-  , mounce §§ ["n-3c(1)"] $
-    [nounCategory| 
-      Stems ending in τ, νύξ
-           sg: pl:
-      nom: ξ    κτες
-      gen: κτος κτων
-      dat: κτι  ξι
-      acc: κτα  κτας
-      voc: ξ    κτες
-      lemmas: 
-        νύξ
+        χρηστότης χρώς νυκ- 
+      exceptions: 
+        νυκ- nom sg νύξ
     |]
   , mounce §§ ["n-3c(1)"] $
     [nounCategory| 
@@ -151,19 +133,10 @@ thirdDeclensionNouns =
         Πτολεμαΐς ῥαφίς ῥυτίς Σαμαρῖτις σανίς
         σπιλάς σπυρίς στιβάς στοιβάς συγγενίς
         σφραγίς Τιβεριάς Τραχωνῖτις Τρῳάς
-        ὑπολαμπάς χιλιάς χλαμύς
-    |]
-  , mounce §§ ["n-3c(2)"] $
-    [nounCategory| 
-      Stems ending in δ, πούς
-           sg: pl:
-      nom: ους  οδες
-      gen: οδος οδων
-      dat: οδι  οσι
-      acc: οδα  οδας
-      voc: ου   οδες
-      lemmas:
-        πούς τετράπους
+        ὑπολαμπάς χιλιάς χλαμύς πο- τετράπο-
+      exceptions:
+        πο- nom sg πούς
+        τετραπο- nom sg τετράπους
     |]
   , mounce §§ ["n-3c(3)"] $
     [nounCategory| 
@@ -451,19 +424,9 @@ thirdDeclensionNouns =
       lemmas:
         ἀχλύς βότρυς ἰσχύς ἰχθύς
         ὀσφῦς ὀφρῦς πῆχυς Στάχυς στάχυς
-        ὗς
-    |]
-  , mounce §§ ["n-3e(1)"] $
-    [nounCategory| 
-      Stems ending in ϝ - δάκρυ
-           sg: pl:
-      nom: υ   υες
-      gen: υος υων
-      dat: υι  υσι
-      acc: υν  υας
-      voc: υ   υες
-      lemmas:
-        δάκρυ
+        ὗς δάκρ-
+      exceptions:
+        δάκρ- nom sg δάκρυ
     |]
   , mounce §§ ["n-3e(2)"] $
     [nounCategory| 
@@ -565,19 +528,9 @@ thirdDeclensionNouns =
          τελείωσις τήρησις ὕβρις ὑπάντησις ὕπαρξις       
          ὑπόκρισις ὑπόμνησις ὑπόστασις ὑποτύπωσις ὑστέρησις
          φανέρωσις φάσις φρόνησις φύσις φυσίωσις
-         χρῆσις
-     |]
-   , mounce §§ ["n-3e(5b)"] $
-     [nounCategory| 
-       Stems ending in ι - with ablaut - σίναπι
-            sg: pl:
-       nom: ι   εις
-       gen: εως εων
-       dat: ει  εσι
-       acc: ιν  εις
-       voc: ι   εις
-       lemmas: 
-         σίναπι
+         χρῆσις σίναπ-
+       exceptions: 
+         σίναπ- nom sg σίναπι
      |]
    , mounce §§ ["n-3e(6)"] $
      [nounCategory| 
@@ -607,32 +560,13 @@ thirdDeclensionNouns =
          ζήνων Ἡρῳδίων καύσων κεντυρίων κλύδων
          κοιτών λεγιών μεγιστάν μέλαν μήν
          Μνάσων μυλών Νέρων νυμφών πύθων
-         πυλών Σαρών Σιδών Σίμων
-         Σολομών Τίμων χειμών χιτών ὠδίν
-     |]
-   , mounce §§ ["n-3f(1a)"] $
-     [nounCategory| 
-       Stems ending in ν - no ablaut - δεῖνα
-            sg: pl:
-       nom: α   *
-       gen: νος *
-       dat: νι  *
-       acc: να  *
-       voc: *   *
-       lemmas:
-         δεῖνα
-     |]
-   , mounce §§ ["n-3f(1a)"] $
-     [nounCategory| 
-       Stems ending in ν - no ablaut - Σαλαμίς
-            sg: pl:
-       nom: ς   *
-       gen: νος *
-       dat: νι  *
-       acc: να  *
-       voc: ν   *
-       lemmas:
-         Σαλαμίς
+         πυλών Σαρών Σιδών Σίμων Σολομών
+         Τίμων χειμών χιτών ὠδίν
+         δεῖν-
+       exceptions:
+         δεῖν- nom sg δεῖνα
+         Σαλαμί- nom sg Σαλαμίς
+         Σαλαμί- voc sg Σαλαμίνσ
      |]
    , mounce §§ ["n-3f(1b)"] $
      [nounCategory| 
