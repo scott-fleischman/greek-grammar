@@ -37,9 +37,9 @@ showResults (Bible i title books) =
   (fmap (\s -> format' "{} {} \x00B6s, {} chs, {} vss, {} words" (t s, leftPad _2 s, leftPad _3 s, leftPad _4 s, leftPad _5 s)) stats)
   where
     stats = getBookStats <$> books
-    max g = maximum $ (\s -> T.length $ s ^. g) <$> stats
+    maxPad g = maximum $ (\s -> T.length $ s ^. g) <$> stats
     t s = right (maximum $ (\s' -> T.length $ s' ^. _1) <$> stats) ' ' (s ^. _1)
-    leftPad g s = left (max g) ' ' (s ^. g)
+    leftPad g s = left (maxPad g) ' ' (s ^. g)
 
 matchNouns :: Bible -> [Text]
 matchNouns b = pure . pack . show . length . filter (\x -> case x of { Left _ -> True ; _ -> False }) $ sounds
