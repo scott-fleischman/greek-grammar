@@ -2,7 +2,7 @@
 
 module Main where
 
-import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int)
+import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=))
 import qualified Prelude as Unsafe ((!!))
 import Control.Applicative (pure)
 import Control.Monad (mapM_, Monad(..))
@@ -28,13 +28,17 @@ load = do
   doc <- readFile def sblgntOsisPath
   return $ loadOsis doc
 
+report :: (Bible -> [Text]) -> IO ()
+report f = load >>= mapM_ putStrLn . showErrorContinue f
+
 main :: IO ()
-main = dumpBible
+main = matchNounsIO
+
+matchNounsIO :: IO ()
+matchNounsIO = report matchNouns
 
 dumpBible :: IO ()
-dumpBible = do
- bibleResult <- load
- mapM_ putStrLn $ showResults bibleResult
+dumpBible = report showResults
 
 -- for working in GHCi
 getBook :: Int -> IO (Book)
