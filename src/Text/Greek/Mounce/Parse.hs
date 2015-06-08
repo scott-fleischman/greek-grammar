@@ -66,8 +66,8 @@ validNounCategoryParser = do
   case ms of
     [] -> return nc
     (_ : _) -> fail $ "Lemmas do not match nom sg case ending "
-      ++ (affixToString . nomSg . nounCaseEndings $ nc)
-      ++ " for " ++ (unpack . nounDefinition $ nc) ++ ":\n"
+      ++ (affixToString . nomSg . _nounCategoryEndings $ nc)
+      ++ " for " ++ (unpack . _nounCategoryName $ nc) ++ ":\n"
       ++ (concat . intersperse "\n" . fmap soundsToString $ ms)
 
 topLevel :: CharParser () a -> CharParser () a

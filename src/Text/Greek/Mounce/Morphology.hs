@@ -39,16 +39,18 @@ data Affix
   deriving (Data, Typeable, Show, Eq)
 
 data NounCategory = NounCategory
-  { nounDefinition :: Text
-  , nounCaseEndings :: NounForms Affix
-  , nounWords :: [[Sound]]
+  { _nounCategoryName :: Text
+  , _nounCategoryEndings :: NounForms Affix
+  , _nounCategoryWords :: [[Sound]]
   }
   deriving (Show, Eq, Data, Typeable)
+makeLenses ''NounCategory
 
 data NounForm = NounForm
   { _nounFormSounds :: [Sound]
   , _noumFormCase :: Case
   , _nounFromNumber :: Number
+  , _nounFormCategoryName :: Text
   }
   deriving (Show, Eq)
 makeLenses ''NounForm
@@ -78,14 +80,14 @@ nounFormsToCaseNumber x =
   ]
 
 getMismatches :: NounCategory -> [[Sound]]
-getMismatches nc = filter (\w -> not . or . fmap ($ w) . fmap isValid $ validSuffixes) (nounWords nc)
+getMismatches nc = filter (\w -> not . or . fmap ($ w) . fmap isValid $ validSuffixes) (nc ^. nounCategoryWords)
   where
     isValid :: Affix -> [Sound] -> Bool
     isValid (AttestedAffix ss) = isSuffixOf (strip <$> ss) . fmap strip
     isValid EmptyAffix = const True
     isValid UnattestedAffix = const False
 
-    validSuffixes = fmap (\e -> e . nounCaseEndings $ nc) [nomSg, nomPl]
+    validSuffixes = fmap ($ (nc ^. nounCategoryEndings)) [nomSg, nomPl]
     strip = stripAccent . stripSmoothBreathing
 
 getStem :: NounForms Affix -> [Sound] -> Maybe [Sound]
@@ -103,21 +105,19 @@ getStem e w
     nomSgEnding = affixToMaybeSounds . nomSg $ e
     nomPlEnding = affixToMaybeSounds . nomPl $ e
 
-stemToAllAttestedForms :: NounForms Affix -> [Sound] -> [NounForm]
-stemToAllAttestedForms nfs s = fmap (& nounFormSounds %~ (s ++)) allSuffixes
+stemToAllAttestedForms :: Text -> NounForms Affix -> [Sound] -> [NounForm]
+stemToAllAttestedForms d nfs s = fmap (& nounFormSounds %~ (s ++)) allSuffixes
   where
     allSuffixes = concat $ makeSuffix <$> formsCaseNumber
 
     makeSuffix :: (Affix, Case, Number) -> [NounForm]
     makeSuffix = \x -> case affixToMaybeSounds (x ^. _1) of
-      Just ss -> [NounForm ss (x ^. _2) (x ^. _3)]
+      Just ss -> [NounForm ss (x ^. _2) (x ^. _3) d]
       Nothing -> []
 
     formsCaseNumber = nounFormsToCaseNumber nfs
 
 nounCategoryToAllForms :: NounCategory -> [NounForm]
-nounCategoryToAllForms nc = concat . fmap applyAllEndings $ allStems
+nounCategoryToAllForms nc = concat . fmap applyAllEndings $ (nc ^. nounCategoryWords)
   where
-    allStems = nounWords nc
-    applyAllEndings  = stemToAllAttestedForms caseEndings
-    caseEndings = nounCaseEndings nc
+    applyAllEndings  = stemToAllAttestedForms (nc ^. nounCategoryName) (nc ^. nounCategoryEndings)

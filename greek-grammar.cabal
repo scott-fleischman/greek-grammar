@@ -36,6 +36,7 @@ library
     Text.Greek.Morphology.Noun
     Text.Greek.Mounce.Euphony
     Text.Greek.Mounce.Morphology
+    Text.Greek.Mounce.Noun
     Text.Greek.Mounce.NounFirstDeclension
     Text.Greek.Mounce.NounSecondDeclension
     Text.Greek.Mounce.NounThirdDeclension
