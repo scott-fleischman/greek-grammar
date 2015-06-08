@@ -12,6 +12,8 @@
 [Commit] (https://github.com/scott-fleischman/greek-grammar/commit/670b580ef1e37feacf8b20c7056f61d928a6ce82)
 * Orgonized first declension noun patterns from Mounce
 [Commit] (https://github.com/scott-fleischman/greek-grammar/commit/f3fcbd4958225dacc301325d8b3ba64d34b8f6d8)
+* Added forward and backwards test data for contractions 
+[Commit] (https://github.com/scott-fleischman/greek-grammar/commit/d70d644ba541f986215e1c53d69e3046fc26c1fe)
 
 ####Added Consonant phonology rules from Smyth
 [Commit] (https://github.com/scott-fleischman/greek-grammar/commit/f8d14fdfb0d4327730676be963ed0f01111a6d72)
