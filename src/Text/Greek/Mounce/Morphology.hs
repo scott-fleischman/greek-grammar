@@ -48,8 +48,8 @@ makeLenses ''NounCategory
 
 data NounForm = NounForm
   { _nounFormSounds :: [Sound]
-  , _noumFormCase :: Case
-  , _nounFromNumber :: Number
+  , _nounFormCase :: Case
+  , _nounFormNumber :: Number
   , _nounFormCategoryName :: Text
   }
   deriving (Show, Eq)

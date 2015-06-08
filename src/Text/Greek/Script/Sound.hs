@@ -16,7 +16,7 @@ data SoundP a =
   | SingleVowelSound a
   | IotaSubscriptVowelSound a
   | DiphthongSound a a
-  deriving (Eq, Show, Data, Typeable)
+  deriving (Eq, Show, Data, Typeable, Ord)
 
 instance Functor SoundP where
   fmap f (ConsonantSound x) = ConsonantSound (f x)
@@ -57,6 +57,9 @@ stripBreathing = fmap (& breathing .~ Nothing)
 
 stripSmoothBreathing :: Sound -> Sound
 stripSmoothBreathing = fmap (& breathing %~ removeSmoothBreathing)
+
+toLowerCase :: Sound -> Sound
+toLowerCase = fmap (& letterCase .~ Lowercase)
 
 tokensToSounds :: [TokenContext a] -> [SoundContext a]
 tokensToSounds [] = []

@@ -10,9 +10,10 @@ import Data.Text.Format (Only(..), Shown(..), right, left)
 import Data.Text.Format.Strict (format')
 import Text.Greek.Corpus.Bible
 import Text.Greek.Conversions
-import Text.Greek.Morphology.Noun
 import Text.Greek.Script.Sound
 import Text.Greek.Mounce.Morphology
+import Text.Greek.Mounce.Noun
+import qualified Data.Map as M
 import qualified Data.Text as T
 
 getBookStats :: Book -> (Text, Text, Text, Text, Text)
@@ -47,12 +48,12 @@ matchNouns b = (showPair . toSoundVersePair) <$> words
   where
     showPair (Verse v, t, ss) = format' "{} {} {}" (v, t, T.intercalate "; " (showErrorContinue getNounMatchesText ss))
     toSoundVersePair w = (wordVerse w, wordText w, getWordSounds w)
-    getWordSounds = textToSounds . T.filter nonPunctuation . wordText
+    getWordSounds = (fmap . fmap) (toLowerCase . stripAccent) . textToSounds . T.filter nonPunctuation . wordText
     nonPunctuation c = c /= '\x2019' && c /= '\x1FBD'
     words = segmentsToWords . concat . fmap segments . bibleBooks $ b
 
 getNounMatchesText :: [Sound] -> [Text]
-getNounMatchesText _ = ["matches"]
-
-getNounMatches :: [Sound] -> [NounForm]
-getNounMatches _ = [NounForm [] Nominative Singular "Sample nouns"]
+getNounMatchesText ss = case M.lookup ss allNounFormsMap of
+  Nothing -> ["-"]
+  Just nfs -> fmap formatNounForm nfs
+    where formatNounForm nf = format' "{} {} \"{}\"" (Shown $ nf ^. nounFormCase, Shown $ nf ^. nounFormNumber, nf ^. nounFormCategoryName)
