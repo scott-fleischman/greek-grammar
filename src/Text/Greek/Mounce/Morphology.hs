@@ -91,16 +91,19 @@ getStem :: NounForms Affix -> [Sound] -> Maybe [Sound]
 getStem e w
   | Just nse <- nomSgEnding
   , isSuffixOf nse w
-  = Just $ take (length w - length nomSgEnding) w
+  = Just $ removeSuffix nse w
 
   | Just npe <- nomPlEnding
   , isSuffixOf npe w
-  = Just $ take (length w - length nomPlEnding) w
+  = Just $ removeSuffix npe w
 
   | True = Nothing
   where
     nomSgEnding = affixToMaybeSounds . nomSg $ e
     nomPlEnding = affixToMaybeSounds . nomPl $ e
+
+removeSuffix :: [a] -> [a] -> [a]
+removeSuffix ss xs = take (length xs - length ss) xs
 
 stemToAllAttestedForms :: Text -> NounForms Affix -> [Sound] -> [NounForm]
 stemToAllAttestedForms d nfs s = fmap (& nounFormSounds %~ (s ++)) allSuffixes

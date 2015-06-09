@@ -19,6 +19,7 @@ import Test.Framework.TH
 import Test.HUnit
 import Text.Greek.Conversions
 import Text.Greek.Corpus.Bible
+import Text.Greek.Mounce.Morphology (removeSuffix)
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
 import Text.Greek.Phonology.Contractions
@@ -54,6 +55,10 @@ case_groupMarks_alpha = groupMarks [alpha] @?= GroupMarksResult [] [LetterMarkGr
 case_groupMarks_alphaAcute_polytonic = groupMarks [alphaAcute] @?= GroupMarksResult [] [LetterMarkGroup alphaAcute []]
 case_groupMarks_alpha_acuteMark = groupMarks [alpha, acute] @?= GroupMarksResult [] [LetterMarkGroup alpha [acute]]
 case_groupMarks_alpha_smoothMark_acuteMark = groupMarks [alpha, smooth, acute] @?= GroupMarksResult [] [LetterMarkGroup alpha [acute, smooth]]
+
+case_removeSuffix_empty = [1,2,3] @=? removeSuffix [] [1,2,3]
+case_removeSuffix_single = [1,2] @=? removeSuffix [3] [1,2,3]
+case_removeSuffix_all = [] @=? removeSuffix [1,2,3] [1,2,3]
 
 main :: IO ()
 main = $(defaultMainGenerator)
