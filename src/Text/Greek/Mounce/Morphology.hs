@@ -8,6 +8,7 @@ module Text.Greek.Mounce.Morphology where
 import Control.Lens
 import Data.Text (Text)
 import Data.Data
+import Data.Maybe (catMaybes)
 import Data.List
 import Data.Monoid ((<>))
 import Text.Greek.Morphology.Noun
@@ -118,6 +119,7 @@ stemToAllAttestedForms d nfs s = fmap (& nounFormSounds %~ (s ++)) allSuffixes
     formsCaseNumber = nounFormsToCaseNumber nfs
 
 nounCategoryToAllForms :: NounCategory -> [NounForm]
-nounCategoryToAllForms nc = concat . fmap applyAllEndings $ (nc ^. nounCategoryWords)
+nounCategoryToAllForms nc = concat . fmap applyAllEndings $ allStems
   where
     applyAllEndings  = stemToAllAttestedForms (nc ^. nounCategoryName) (nc ^. nounCategoryEndings)
+    allStems = catMaybes $ getStem (nc ^. nounCategoryEndings) <$> nc ^. nounCategoryWords
