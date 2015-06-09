@@ -33,8 +33,7 @@ instance Foldable NounForms where
   foldMap f (NounForms f0 f1 f2 f3 f4 f5 f6 f7 f8 f9) = f f0 <> f f1 <> f f2 <> f f3 <> f f4 <> f f5 <> f f6 <> f f7 <> f f8 <> f f9
 
 data Affix
-  = EmptyAffix
-  | UnattestedAffix
+  = UnattestedAffix
   | AttestedAffix [Sound]
   deriving (Data, Typeable, Show, Eq)
 
@@ -56,12 +55,11 @@ data NounForm = NounForm
 makeLenses ''NounForm
 
 affixToString :: Affix -> String
-affixToString EmptyAffix = "-"
 affixToString UnattestedAffix = "*"
-affixToString (AttestedAffix ss) = soundsToString ss
+affixToString (AttestedAffix []) = "-"
+affixToString (AttestedAffix ss@(_:_)) = soundsToString ss
 
 affixToMaybeSounds :: Affix -> Maybe [Sound]
-affixToMaybeSounds EmptyAffix = Just []
 affixToMaybeSounds UnattestedAffix = Nothing
 affixToMaybeSounds (AttestedAffix ss) = Just ss
 
@@ -84,7 +82,6 @@ getMismatches nc = filter (\w -> not . or . fmap ($ w) . fmap isValid $ validSuf
   where
     isValid :: Affix -> [Sound] -> Bool
     isValid (AttestedAffix ss) = isSuffixOf (strip <$> ss) . fmap strip
-    isValid EmptyAffix = const True
     isValid UnattestedAffix = const False
 
     validSuffixes = fmap ($ (nc ^. nounCategoryEndings)) [nomSg, nomPl]

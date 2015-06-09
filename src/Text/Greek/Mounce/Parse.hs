@@ -36,7 +36,7 @@ greekWordsParser :: CharParser () [[Sound]]
 greekWordsParser = endBy1 greekWordParser spaces
 
 caseEndingParser :: CharParser () Affix
-caseEndingParser = pure EmptyAffix <* string "-"
+caseEndingParser = pure (AttestedAffix []) <* string "-"
   <|> pure UnattestedAffix <* string "*"
   <|> AttestedAffix <$> greekWordParser
 
