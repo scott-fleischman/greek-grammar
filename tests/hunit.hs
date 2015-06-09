@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Main where
 
@@ -15,11 +15,11 @@ import Data.Tuple
 import Numeric
 import Test.Framework
 import Test.Framework.Providers.HUnit
-import Test.Framework.TH
 import Test.HUnit
 import Text.Greek.Conversions
 import Text.Greek.Corpus.Bible
 import Text.Greek.Mounce.Morphology (removeSuffix)
+import Text.Greek.Mounce.Quote
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
 import Text.Greek.Phonology.Contractions
@@ -28,37 +28,56 @@ import Text.Greek.Script.Sound
 import Text.Greek.Script.Unicode
 import Text.XML (readFile)
 
-case_valid_tokens = mapM_ (\p -> assertEqual (showString "'\\x" . showHex (ord . fst $ p) $ "'") [] (validateToken . snd $ p)) unicodeTokenPairs
-
-case_load_sblgnt = do
+loadSblgnt = do
   sblgnt <- readFile def sblgntOsisPath
   isRight (loadOsis sblgnt) @?= True
-
-case_sound_a_vowel = True @=? case textToSounds "α" of { Right (SingleVowelSound _ : []) -> True ; _ -> False }
-case_sound_b_consonant = True @=? case textToSounds "β" of { Right (ConsonantSound _ : []) -> True ; _ -> False }
-case_sound_ai_diphthong = True @=? case textToSounds "αι" of { Right (DiphthongSound _ _ : []) -> True ; _ -> False }
-case_sound_ai_diaeresis = True @=? case textToSounds "αϊ" of { Right (SingleVowelSound _ : SingleVowelSound _ : []) -> True ; _ -> False }
-case_sound_ai_iotaSubscript = True @=? case textToSounds "ᾳ" of { Right (IotaSubscriptVowelSound _ : []) -> True ; _ -> False }
-case_sound_a_rough = True @=? case textToSounds "ἁ" of { Right (RoughBreathingSound : SingleVowelSound _ : []) -> True ; _ -> False }
-case_sound_ai_iotaSubscript_rough = True @=? case textToSounds "ᾁ" of { Right (RoughBreathingSound : IotaSubscriptVowelSound _ : []) -> True ; _ -> False }
-case_sound_ai_diphthong_rough = True @=? case textToSounds "αἱ" of { Right (RoughBreathingSound : DiphthongSound _ _ : []) -> True ; _ -> False }
-case_sound_invalid = True @=? case textToSounds "x" of { Left (InvalidChar 'x') -> True ; _ -> False }
-
-case_forward_contractions = mapM_ (\t@(v1, v2, vs) -> assertEqual (show t) (sort $ getContractions v1 v2) (sort vs)) forwardContractionTests
 
 alpha = '\x0391'
 alphaAcute = '\x0386'
 acute = '\x0301'
 smooth = '\x0313'
 
-case_groupMarks_alpha = groupMarks [alpha] @?= GroupMarksResult [] [LetterMarkGroup alpha []]
-case_groupMarks_alphaAcute_polytonic = groupMarks [alphaAcute] @?= GroupMarksResult [] [LetterMarkGroup alphaAcute []]
-case_groupMarks_alpha_acuteMark = groupMarks [alpha, acute] @?= GroupMarksResult [] [LetterMarkGroup alpha [acute]]
-case_groupMarks_alpha_smoothMark_acuteMark = groupMarks [alpha, smooth, acute] @?= GroupMarksResult [] [LetterMarkGroup alpha [acute, smooth]]
+sampleNounCategory =
+  [nounCategory|
+    Masculine nouns with stems ending in ο(ς)
+         sg: pl:
+    nom: ος  οι
+    gen: ου  ων
+    dat: ῳ   οις
+    acc: ον  ους
+    voc: ε   οι
+    lemmas:
+      Ἅγαβος ἄγαμος ἄγγελος ἁγιασμός ἁγνισμός
+      τύπος Τύραννος τύραννος Τύριος Τυχικός
+      ὑάκινθος ὑετός υἱός ψευδόχριστος ψιθυρισμός ὦμος
+  |]
 
-case_removeSuffix_empty = [1,2,3] @=? removeSuffix [] [1,2,3]
-case_removeSuffix_single = [1,2] @=? removeSuffix [3] [1,2,3]
-case_removeSuffix_all = [] @=? removeSuffix [1,2,3] [1,2,3]
-
-main :: IO ()
-main = $(defaultMainGenerator)
+main = defaultMain
+  [ testGroup "UnicodeTokenPairs" . pure . testCase "All valid tokens" $
+      mapM_ (\p -> assertEqual (showString "'\\x" . showHex (ord . fst $ p) $ "'") [] (validateToken . snd $ p)) unicodeTokenPairs
+  , testGroup "SBLGNT" [ testCase "Successful load" loadSblgnt ]
+  , testGroup "textToSounds"
+    [ testCase "α" $ True @=? case textToSounds "α" of { Right (SingleVowelSound _ : []) -> True ; _ -> False }
+    , testCase "β" $ True @=? case textToSounds "β" of { Right (ConsonantSound _ : []) -> True ; _ -> False }
+    , testCase "αι" $ True @=? case textToSounds "αι" of { Right (DiphthongSound _ _ : []) -> True ; _ -> False }
+    , testCase "αϊ" $ True @=? case textToSounds "αϊ" of { Right (SingleVowelSound _ : SingleVowelSound _ : []) -> True ; _ -> False }
+    , testCase "ᾳ" $ True @=? case textToSounds "ᾳ" of { Right (IotaSubscriptVowelSound _ : []) -> True ; _ -> False }
+    , testCase "ἁ" $ True @=? case textToSounds "ἁ" of { Right (RoughBreathingSound : SingleVowelSound _ : []) -> True ; _ -> False }
+    , testCase "ᾁ" $ True @=? case textToSounds "ᾁ" of { Right (RoughBreathingSound : IotaSubscriptVowelSound _ : []) -> True ; _ -> False }
+    , testCase "αἱ" $ True @=? case textToSounds "αἱ" of { Right (RoughBreathingSound : DiphthongSound _ _ : []) -> True ; _ -> False }
+    , testCase "invalid" $ True @=? case textToSounds "x" of { Left (InvalidChar 'x') -> True ; _ -> False }
+    ]
+  , testGroup "Contractions" . pure . testCase "Forward" $
+      mapM_ (\t@(v1, v2, vs) -> assertEqual (show t) (sort $ getContractions v1 v2) (sort vs)) forwardContractionTests
+  , testGroup "groupMarks"
+    [ testCase "alpha" $ groupMarks [alpha] @?= GroupMarksResult [] [LetterMarkGroup alpha []]
+    , testCase "alphaAcute_polytonic" $ groupMarks [alphaAcute] @?= GroupMarksResult [] [LetterMarkGroup alphaAcute []]
+    , testCase "alpha_acuteMark" $ groupMarks [alpha, acute] @?= GroupMarksResult [] [LetterMarkGroup alpha [acute]]
+    , testCase "alpha_smoothMark_acuteMark" $ groupMarks [alpha, smooth, acute] @?= GroupMarksResult [] [LetterMarkGroup alpha [acute, smooth]]
+    ]
+  , testGroup "removeSuffix"
+    [ testCase "empty" $ [1,2,3] @=? removeSuffix [] [1,2,3]
+    , testCase "single" $ [1,2] @=? removeSuffix [3] [1,2,3]
+    , testCase "all" $ [] @=? removeSuffix [1,2,3] [1,2,3]
+    ]
+  ]

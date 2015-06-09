@@ -102,7 +102,6 @@ test-suite hunit
     containers,
     test-framework,
     test-framework-hunit,
-    test-framework-th,
     HUnit,
     data-default,
     xml-conduit,
