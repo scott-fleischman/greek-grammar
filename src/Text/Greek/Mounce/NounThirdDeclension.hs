@@ -752,15 +752,27 @@ thirdDeclensionNouns =
      |]
    , mounce §§ ["n-3f(2c)"] $
      [nounCategory| 
-       Stems ending in a λ or ρ showing strong, weak and zero ablaut
+       Stems ending in a λ or ρ showing strong, weak and zero ablaut - ἀνήρ
             sg: pl:
-       nom: ρ   ρες
-       gen: ρος ρων
-       dat: ρι  ρσι
-       acc: ρα  ρας
-       voc: ρ   ρες
+       nom: ηρ   δρες
+       gen: δρος δρων
+       dat: δρι  δρασι
+       acc: δρα  δρας
+       voc: ερ   δρες
        lemmas:
-         ἀνήρ γαστήρ θυγάτηρ μήτηρ πατήρ
+         ἀνήρ
+    |]
+   , mounce §§ ["n-3f(2c)"] $
+     [nounCategory| 
+       Stems ending in a λ or ρ showing strong, weak and zero ablaut, like θυγάτηρ
+            sg: pl:
+       nom: ηρ  ερες
+       gen: ρος ερων
+       dat: ρι  ρασι
+       acc: ερα ερας
+       voc: ερ  ερες
+       lemmas:
+         γαστήρ θυγάτηρ μήτηρ πατήρ
     |]
   , mounce §§ ["n-3g(1)"] $
     [nounCategory|
