@@ -20,7 +20,7 @@ allNounFormsMap = M.fromListWith (++) formPairs
     formPairs = makeFormPair <$> allNounFormsList
 
     makeFormPair :: NounForm -> ([Sound], [NounForm])
-    makeFormPair nf = (fmap (toLowerCase . stripAccent) $ nf ^. nounFormSounds, pure nf)
+    makeFormPair nf = (fmap stripEnding $ nf ^. nounFormSounds, pure nf)
 
 allNounFormsList :: [NounForm]
 allNounFormsList =

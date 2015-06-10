@@ -105,4 +105,5 @@ test-suite hunit
     HUnit,
     data-default,
     xml-conduit,
+    lens,
     greek-grammar

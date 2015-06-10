@@ -78,28 +78,31 @@ nounFormsToCaseNumber x =
   , (vocPl x, Vocative, Plural)
   ]
 
+stripEnding :: Sound -> Sound
+stripEnding = toLowerCase . stripAccent . stripSmoothBreathing
+
 getMismatches :: NounCategory -> [[Sound]]
 getMismatches nc = filter (\w -> not . or . fmap ($ w) . fmap isValid $ validSuffixes) (nc ^. nounCategoryWords)
   where
     isValid :: Affix -> [Sound] -> Bool
-    isValid (AttestedAffix ss) = isSuffixOf (strip <$> ss) . fmap strip
+    isValid (AttestedAffix ss) = isSuffixOf (stripEnding <$> ss) . fmap stripEnding
     isValid UnattestedAffix = const False
 
     validSuffixes = fmap ($ (nc ^. nounCategoryEndings)) [nomSg, nomPl]
-    strip = stripAccent . stripSmoothBreathing
 
 getStem :: NounForms Affix -> [Sound] -> Maybe [Sound]
 getStem e w
   | Just nse <- nomSgEnding
-  , isSuffixOf nse w
-  = Just $ removeSuffix nse w
+  , isSuffixOf nse strippedWord
+  = Just $ removeSuffix nse strippedWord
 
   | Just npe <- nomPlEnding
-  , isSuffixOf npe w
-  = Just $ removeSuffix npe w
+  , isSuffixOf npe strippedWord
+  = Just $ removeSuffix npe strippedWord
 
   | True = Nothing
   where
+    strippedWord = stripEnding <$> w
     nomSgEnding = affixToMaybeSounds . nomSg $ e
     nomPlEnding = affixToMaybeSounds . nomPl $ e
 

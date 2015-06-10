@@ -4,6 +4,7 @@
 module Main where
 
 import Prelude hiding (readFile)
+import Control.Lens
 import Data.Char
 import Data.Default (def)
 import Data.Either
@@ -18,7 +19,7 @@ import Test.Framework.Providers.HUnit
 import Test.HUnit
 import Text.Greek.Conversions
 import Text.Greek.Corpus.Bible
-import Text.Greek.Mounce.Morphology (removeSuffix)
+import Text.Greek.Mounce.Morphology
 import Text.Greek.Mounce.Quote
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
@@ -47,10 +48,14 @@ sampleNounCategory =
     acc: ον  ους
     voc: ε   οι
     lemmas:
-      Ἅγαβος ἄγαμος ἄγγελος ἁγιασμός ἁγνισμός
-      τύπος Τύραννος τύραννος Τύριος Τυχικός
-      ὑάκινθος ὑετός υἱός ψευδόχριστος ψιθυρισμός ὦμος
+      Ἅγαβος ἄγαμος ἁγιασμός
+      τύπος Τύραννος Τυχικός
+      ὑάκινθος ὑετός υἱός
+      ψευδόχριστος ψιθυρισμός ὦμος
   |]
+
+-- getSampleStem :: Int -> Maybe [Sound]
+-- getSampleStem i = listToMaybe . catMaybes . fmap (getStem (sampleNounCategory ^. nounCategoryEndings)) . take 1 . drop i . _nounCategoryWords $ sampleNounCategory
 
 main = defaultMain
   [ testGroup "UnicodeTokenPairs" . pure . testCase "All valid tokens" $
@@ -79,5 +84,10 @@ main = defaultMain
     [ testCase "empty" $ [1,2,3] @=? removeSuffix [] [1,2,3]
     , testCase "single" $ [1,2] @=? removeSuffix [3] [1,2,3]
     , testCase "all" $ [] @=? removeSuffix [1,2,3] [1,2,3]
+    ]
+  , testGroup "nounCategory"
+    [ testCase "length nounCategoryWords" $ 12 @=? (length $ sampleNounCategory ^. nounCategoryWords)
+    , testCase "length nounCategoryToAllForms" $ 120 @=? (length . nounCategoryToAllForms $ sampleNounCategory)
+    , testCase "getStem" $ 12 @=? (length . catMaybes . fmap (getStem (sampleNounCategory ^. nounCategoryEndings)) . _nounCategoryWords $ sampleNounCategory)
     ]
   ]

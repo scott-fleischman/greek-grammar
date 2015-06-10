@@ -48,7 +48,7 @@ matchNouns b = (showPair . toSoundVersePair) <$> words
   where
     showPair (Verse v, t, ss) = format' "{} {} {}" (v, t, T.intercalate "; " (showErrorContinue getNounMatchesText ss))
     toSoundVersePair w = (wordVerse w, wordText w, getWordSounds w)
-    getWordSounds = (fmap . fmap) (toLowerCase . stripAccent) . textToSounds . T.filter nonPunctuation . wordText
+    getWordSounds = (fmap . fmap) stripEnding . textToSounds . T.filter nonPunctuation . wordText
     nonPunctuation c = c /= '\x2019' && c /= '\x1FBD'
     words = segmentsToWords . concat . fmap segments . bibleBooks $ b
 
