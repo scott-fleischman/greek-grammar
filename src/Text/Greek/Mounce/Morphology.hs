@@ -22,16 +22,27 @@ data NounForms a = NounForms
   , accSg :: a, accPl :: a
   , vocSg :: a, vocPl :: a
   }
-  deriving (Data, Typeable)
-
-deriving instance (Eq a) => Eq (NounForms a)
-deriving instance (Show a) => Show (NounForms a)
+  deriving (Data, Typeable, Eq, Show)
 
 instance Functor NounForms where
   fmap f (NounForms f0 f1 f2 f3 f4 f5 f6 f7 f8 f9) = NounForms (f f0) (f f1) (f f2) (f f3) (f f4) (f f5) (f f6) (f f7) (f f8) (f f9)
 
 instance Foldable NounForms where
   foldMap f (NounForms f0 f1 f2 f3 f4 f5 f6 f7 f8 f9) = f f0 <> f f1 <> f f2 <> f f3 <> f f4 <> f f5 <> f f6 <> f f7 <> f f8 <> f f9
+
+data Adjective3Forms a = Adjective3Forms
+  { nomSgMasc :: a, nomSgFem :: a, nomSgNeut :: a
+  , genSgMasc :: a, genSgFem :: a, genSgNeut :: a
+  , datSgMasc :: a, datSgFem :: a, datSgNeut :: a
+  , accSgMasc :: a, accSgFem :: a, accSgNeut :: a
+  , vocSgMasc :: a, vocSgFem :: a, vocSgNeut :: a
+  , nomPlMasc :: a, nomPlFem :: a, nomPlNeut :: a
+  , genPlMasc :: a, genPlFem :: a, genPlNeut :: a
+  , datPlMasc :: a, datPlFem :: a, datPlNeut :: a
+  , accPlMasc :: a, accPlFem :: a, accPlNeut :: a
+  , vocPlMasc :: a, vocPlFem :: a, vocPlNeut :: a
+  }
+  deriving (Data, Typeable, Eq, Show)
 
 data Affix
   = UnattestedAffix
@@ -53,6 +64,14 @@ data NounCategory = NounCategory
   deriving (Show, Eq, Data, Typeable)
 makeLenses ''NounCategory
 
+data AdjectiveCategory = AdjectiveCategory
+  { _adjectiveCategoryName :: Text
+  , _adjectiveCategoryEndings :: Adjective3Forms Affix
+  , _adjectiveCategoryLemmas :: [NounLemma]
+  }
+  deriving (Show, Eq, Data, Typeable)
+makeLenses ''AdjectiveCategory
+
 data NounForm = NounForm
   { _nounFormSounds :: [Sound]
   , _nounFormCase :: Case
@@ -61,6 +80,16 @@ data NounForm = NounForm
   }
   deriving (Show, Eq)
 makeLenses ''NounForm
+
+data AdjectiveForm = AdjectiveForm
+  { _adjectiveFormSounds :: [Sound]
+  , _adjectiveFormCase :: Case
+  , _adjectiveFormNumber :: Number
+  , _adjectiveFormGender :: Gender
+  , _adjectiveFormCategoryName :: Text
+  }
+  deriving (Show, Eq)
+makeLenses ''AdjectiveForm
 
 affixToString :: Affix -> String
 affixToString UnattestedAffix = "*"

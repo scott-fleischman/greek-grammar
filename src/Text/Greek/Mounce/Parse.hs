@@ -62,6 +62,24 @@ nounCategoryParser = NounCategory
   <*> (spaces *> nounFormsParser <* spaces)
   <*> (spaces *> string "lemmas:" *> spaces *> nounLemmasParser)
 
+adjective3FormsParser :: CharParser () (Adjective3Forms Affix)
+adjective3FormsParser =
+  string "m:" *> spaces *> string "f:" *> spaces *> string "n:" *> spaces *>
+  (Adjective3Forms
+    <$> le "nom sg:" <*> e <*> e
+    <*> le "gen sg:" <*> e <*> e
+    <*> le "dat sg:" <*> e <*> e
+    <*> le "acc sg:" <*> e <*> e
+    <*> le "voc sg:" <*> e <*> e
+    <*> le "nom pl:" <*> e <*> e
+    <*> le "gen pl:" <*> e <*> e
+    <*> le "dat pl:" <*> e <*> e
+    <*> le "acc pl:" <*> e <*> e
+    <*> le "voc pl:" <*> e <*> e)
+      where
+        le x = string x *> spaces *> caseEndingParser <* spaces
+        e = caseEndingParser <* spaces
+
 validNounCategoryParser :: CharParser () NounCategory
 validNounCategoryParser = do
   nc <- nounCategoryParser
