@@ -38,10 +38,17 @@ data Affix
   | AttestedAffix [Sound]
   deriving (Data, Typeable, Show, Eq)
 
+data NounLemma = NounLemma
+  { _nounLemmaText :: Text
+  , _nounLemmaSounds :: [Sound]
+  }
+  deriving (Show, Eq, Data, Typeable)
+makeLenses ''NounLemma
+
 data NounCategory = NounCategory
   { _nounCategoryName :: Text
   , _nounCategoryEndings :: NounForms Affix
-  , _nounCategoryWords :: [[Sound]]
+  , _nounCategoryLemmas :: [NounLemma]
   }
   deriving (Show, Eq, Data, Typeable)
 makeLenses ''NounCategory
@@ -81,14 +88,29 @@ nounFormsToCaseNumber x =
 stripEnding :: Sound -> Sound
 stripEnding = toLowerCase . stripAccent . stripSmoothBreathing
 
-getMismatches :: NounCategory -> [[Sound]]
-getMismatches nc = filter (\w -> not . or . fmap ($ w) . fmap isValid $ validSuffixes) (nc ^. nounCategoryWords)
+getMismatches :: NounCategory -> [NounLemma]
+getMismatches nc = filter (not . or . hasValidSuffixes) lemmas
   where
+    hasValidSuffixes :: NounLemma -> [Bool]
+    hasValidSuffixes lemma = fmap ($ sounds) isValidSuffixes
+      where
+        sounds = lemma ^. nounLemmaSounds
+
+    isValidSuffixes :: [[Sound] -> Bool]
+    isValidSuffixes = isValid <$> validSuffixes
+
     isValid :: Affix -> [Sound] -> Bool
     isValid (AttestedAffix ss) = isSuffixOf (stripEnding <$> ss) . fmap stripEnding
     isValid UnattestedAffix = const False
 
-    validSuffixes = fmap ($ (nc ^. nounCategoryEndings)) [nomSg, nomPl]
+    validSuffixes :: [Affix]
+    validSuffixes = fmap ($ endings) [nomSg, nomPl]
+
+    endings :: NounForms Affix
+    endings = nc ^. nounCategoryEndings
+
+    lemmas :: [NounLemma]
+    lemmas = nc ^. nounCategoryLemmas
 
 getStem :: NounForms Affix -> [Sound] -> Maybe [Sound]
 getStem e w
@@ -125,4 +147,6 @@ nounCategoryToAllForms :: NounCategory -> [NounForm]
 nounCategoryToAllForms nc = concat . fmap applyAllEndings $ allStems
   where
     applyAllEndings  = stemToAllAttestedForms (nc ^. nounCategoryName) (nc ^. nounCategoryEndings)
-    allStems = catMaybes $ getStem (nc ^. nounCategoryEndings) <$> nc ^. nounCategoryWords
+    allStems = catMaybes allMaybeStems
+    allMaybeStems = getStem (nc ^. nounCategoryEndings) <$> lemmaSounds
+    lemmaSounds = _nounLemmaSounds <$> nc ^. nounCategoryLemmas

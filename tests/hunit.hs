@@ -54,9 +54,6 @@ sampleNounCategory =
       ψευδόχριστος ψιθυρισμός ὦμος
   |]
 
--- getSampleStem :: Int -> Maybe [Sound]
--- getSampleStem i = listToMaybe . catMaybes . fmap (getStem (sampleNounCategory ^. nounCategoryEndings)) . take 1 . drop i . _nounCategoryWords $ sampleNounCategory
-
 main = defaultMain
   [ testGroup "UnicodeTokenPairs" . pure . testCase "All valid tokens" $
       mapM_ (\p -> assertEqual (showString "'\\x" . showHex (ord . fst $ p) $ "'") [] (validateToken . snd $ p)) unicodeTokenPairs
@@ -86,8 +83,8 @@ main = defaultMain
     , testCase "all" $ [] @=? removeSuffix [1,2,3] [1,2,3]
     ]
   , testGroup "nounCategory"
-    [ testCase "length nounCategoryWords" $ 12 @=? (length $ sampleNounCategory ^. nounCategoryWords)
+    [ testCase "length nounCategoryWords" $ 12 @=? (length $ sampleNounCategory ^. nounCategoryLemmas)
     , testCase "length nounCategoryToAllForms" $ 120 @=? (length . nounCategoryToAllForms $ sampleNounCategory)
-    , testCase "getStem" $ 12 @=? (length . catMaybes . fmap (getStem (sampleNounCategory ^. nounCategoryEndings)) . _nounCategoryWords $ sampleNounCategory)
+    , testCase "getStem" $ 12 @=? (length . catMaybes . fmap (getStem (sampleNounCategory ^. nounCategoryEndings)) . fmap _nounLemmaSounds . _nounCategoryLemmas $ sampleNounCategory)
     ]
   ]

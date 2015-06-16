@@ -25,15 +25,18 @@ euphonyRule = EuphonyRule
 euphonyRules :: CharParser () [EuphonyRule]
 euphonyRules = sepBy1 euphonyRule spaces
 
-greekWordParser :: CharParser () [Sound]
-greekWordParser = do
+nounLemmaParser :: CharParser () NounLemma
+nounLemmaParser = do
   w <- greekWord
   case textToSounds w of
     Left (InvalidChar c) -> fail ("InvalidChar " ++ c : [])
-    Right x -> return x
+    Right x -> return $ NounLemma w x
 
-greekWordsParser :: CharParser () [[Sound]]
-greekWordsParser = endBy1 greekWordParser spaces
+greekWordParser :: CharParser () [Sound]
+greekWordParser = _nounLemmaSounds <$> nounLemmaParser
+
+nounLemmasParser :: CharParser () [NounLemma]
+nounLemmasParser = endBy1 nounLemmaParser spaces
 
 caseEndingParser :: CharParser () Affix
 caseEndingParser = pure (AttestedAffix []) <* string "-"
@@ -57,7 +60,7 @@ nounCategoryParser :: CharParser () NounCategory
 nounCategoryParser = NounCategory
   <$> (spaces *> (pack <$> (many1 (noneOf "\n\r") <* spaces)))
   <*> (spaces *> nounFormsParser <* spaces)
-  <*> (spaces *> string "lemmas:" *> spaces *> greekWordsParser)
+  <*> (spaces *> string "lemmas:" *> spaces *> nounLemmasParser)
 
 validNounCategoryParser :: CharParser () NounCategory
 validNounCategoryParser = do
@@ -68,7 +71,7 @@ validNounCategoryParser = do
     (_ : _) -> fail $ "Lemmas do not match nom sg case ending "
       ++ (affixToString . nomSg . _nounCategoryEndings $ nc)
       ++ " for " ++ (unpack . _nounCategoryName $ nc) ++ ":\n"
-      ++ (concat . intersperse "\n" . fmap soundsToString $ ms)
+      ++ (concat . intersperse "\n" . fmap unpack . fmap _nounLemmaText $ ms)
 
 topLevel :: CharParser () a -> CharParser () a
 topLevel x = spaces *> x <* eof
