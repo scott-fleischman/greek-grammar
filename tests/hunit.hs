@@ -54,6 +54,44 @@ sampleNounCategory =
       ψευδόχριστος ψιθυρισμός ὦμος
   |]
 
+sampleAdjective3FormCategory =
+  [adjectiveCategory|
+    Uncontracted stems using three endings (2-1-2) with the feminine in α
+            m:  f:  n:
+    nom sg: ος  α   ον
+    gen sg: ου  ας  ου
+    dat sg: ῳ   ᾳ   ῳ
+    acc sg: ον  αν  ον
+    voc sg: ε   α   ον
+    nom pl: οι  αι  α
+    gen pl: ων  ων  ων
+    dat pl: οις αις οις
+    acc pl: ους ας  α
+    voc pl: οι  αι  α
+    lemmas:
+      ἅγιος ἄγριος Ἀθηναῖος αἴγειος Αἰγύπτιος
+      αἰσχρός αἴτιος ἀκρογωνιαῖος ἀλλότριος ἀμφότεροι
+  |]
+
+sampleAdjective2FormCategory =
+  [adjectiveCategory|
+    Stems consistently using two endings (2-2)
+            mf: n:
+    nom sg: ος  ον
+    gen sg: ου  ου
+    dat sg: ῳ   ῳ
+    acc sg: ον  ον
+    voc sg: ε   ον
+    nom pl: οι  α
+    gen pl: ων  ων
+    dat pl: οις οις
+    acc pl: ους α
+    voc pl: οι  α
+    lemmas:
+      ἀγαθοεργός ἀγαθοποιός ἀγενεαλόγητος ἄγναφος ἄγνωστος
+      ἀγοραῖος ἀγράμματος ἀδάπανος ἄδηλος ἀδιάκριτος
+  |]
+
 main = defaultMain
   [ testGroup "UnicodeTokenPairs" . pure . testCase "All valid tokens" $
       mapM_ (\p -> assertEqual (showString "'\\x" . showHex (ord . fst $ p) $ "'") [] (validateToken . snd $ p)) unicodeTokenPairs
@@ -83,8 +121,12 @@ main = defaultMain
     , testCase "all" $ [] @=? removeSuffix [1,2,3] [1,2,3]
     ]
   , testGroup "nounCategory"
-    [ testCase "length nounCategoryWords" $ 12 @=? (length $ sampleNounCategory ^. nounCategoryLemmas)
+    [ testCase "length nounCategoryLemmas" $ 12 @=? (length $ sampleNounCategory ^. nounCategoryLemmas)
     , testCase "length nounCategoryToAllForms" $ 120 @=? (length . nounCategoryToAllForms $ sampleNounCategory)
     , testCase "getStem" $ 12 @=? (length . catMaybes . fmap (getStem (sampleNounCategory ^. nounCategoryEndings)) . fmap _nounLemmaSounds . _nounCategoryLemmas $ sampleNounCategory)
+    ]
+  , testGroup "adjectiveCategory"
+    [ testCase "length lemmas 3-form" $ 10 @=? (length $ sampleAdjective3FormCategory ^. adjectiveCategoryLemmas)
+    , testCase "length lemmas 2-form" $ 10 @=? (length $ sampleAdjective2FormCategory ^. adjectiveCategoryLemmas)
     ]
   ]
