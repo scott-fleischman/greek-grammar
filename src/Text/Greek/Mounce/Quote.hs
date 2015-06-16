@@ -42,3 +42,11 @@ nounCategory = QuasiQuoter
   , quoteType = undefined
   , quoteDec = undefined
   }
+
+adjectiveCategory :: QuasiQuoter
+adjectiveCategory = QuasiQuoter
+  { quoteExp = parseTopLevel adjectiveCategoryParser
+  , quotePat = undefined
+  , quoteType = undefined
+  , quoteDec = undefined
+  }

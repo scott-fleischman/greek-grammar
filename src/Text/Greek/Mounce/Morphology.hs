@@ -30,7 +30,7 @@ instance Functor NounForms where
 instance Foldable NounForms where
   foldMap f (NounForms f0 f1 f2 f3 f4 f5 f6 f7 f8 f9) = f f0 <> f f1 <> f f2 <> f f3 <> f f4 <> f f5 <> f f6 <> f f7 <> f f8 <> f f9
 
-data Adjective3Forms a = Adjective3Forms
+data AdjectiveForms a = AdjectiveForms
   { nomSgMasc :: a, nomSgFem :: a, nomSgNeut :: a
   , genSgMasc :: a, genSgFem :: a, genSgNeut :: a
   , datSgMasc :: a, datSgFem :: a, datSgNeut :: a
@@ -66,7 +66,7 @@ makeLenses ''NounCategory
 
 data AdjectiveCategory = AdjectiveCategory
   { _adjectiveCategoryName :: Text
-  , _adjectiveCategoryEndings :: Adjective3Forms Affix
+  , _adjectiveCategoryEndings :: AdjectiveForms Affix
   , _adjectiveCategoryLemmas :: [NounLemma]
   }
   deriving (Show, Eq, Data, Typeable)

@@ -62,10 +62,21 @@ nounCategoryParser = NounCategory
   <*> (spaces *> nounFormsParser <* spaces)
   <*> (spaces *> string "lemmas:" *> spaces *> nounLemmasParser)
 
-adjective3FormsParser :: CharParser () (Adjective3Forms Affix)
-adjective3FormsParser =
+validNounCategoryParser :: CharParser () NounCategory
+validNounCategoryParser = do
+  nc <- nounCategoryParser
+  let ms = getMismatches nc
+  case ms of
+    [] -> return nc
+    (_ : _) -> fail $ "Lemmas do not match nom sg case ending "
+      ++ (affixToString . nomSg . _nounCategoryEndings $ nc)
+      ++ " for " ++ (unpack . _nounCategoryName $ nc) ++ ":\n"
+      ++ (concat . intersperse "\n" . fmap unpack . fmap _nounLemmaText $ ms)
+
+adjectiveFormsParser :: CharParser () (AdjectiveForms Affix)
+adjectiveFormsParser =
   string "m:" *> spaces *> string "f:" *> spaces *> string "n:" *> spaces *>
-  (Adjective3Forms
+  (AdjectiveForms
     <$> le "nom sg:" <*> e <*> e
     <*> le "gen sg:" <*> e <*> e
     <*> le "dat sg:" <*> e <*> e
@@ -80,16 +91,11 @@ adjective3FormsParser =
         le x = string x *> spaces *> caseEndingParser <* spaces
         e = caseEndingParser <* spaces
 
-validNounCategoryParser :: CharParser () NounCategory
-validNounCategoryParser = do
-  nc <- nounCategoryParser
-  let ms = getMismatches nc
-  case ms of
-    [] -> return nc
-    (_ : _) -> fail $ "Lemmas do not match nom sg case ending "
-      ++ (affixToString . nomSg . _nounCategoryEndings $ nc)
-      ++ " for " ++ (unpack . _nounCategoryName $ nc) ++ ":\n"
-      ++ (concat . intersperse "\n" . fmap unpack . fmap _nounLemmaText $ ms)
+adjectiveCategoryParser :: CharParser () AdjectiveCategory
+adjectiveCategoryParser = AdjectiveCategory
+  <$> (spaces *> (pack <$> (many1 (noneOf "\n\r") <* spaces)))
+  <*> (spaces *> adjectiveFormsParser <* spaces)
+  <*> (spaces *> string "lemmas:" *> spaces *> nounLemmasParser)
 
 topLevel :: CharParser () a -> CharParser () a
 topLevel x = spaces *> x <* eof
