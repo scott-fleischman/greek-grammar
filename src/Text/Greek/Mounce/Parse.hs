@@ -73,8 +73,8 @@ validNounCategoryParser = do
       ++ " for " ++ (unpack . _nounCategoryName $ nc) ++ ":\n"
       ++ (concat . intersperse "\n" . fmap unpack . fmap _nounLemmaText $ ms)
 
-adjectiveFormsParser :: CharParser () (AdjectiveForms Affix)
-adjectiveFormsParser =
+adjective3FormsParser :: CharParser () (AdjectiveForms Affix)
+adjective3FormsParser =
   string "m:" *> spaces *> string "f:" *> spaces *> string "n:" *> spaces *>
   (AdjectiveForms
     <$> le "nom sg:" <*> e <*> e
@@ -90,6 +90,27 @@ adjectiveFormsParser =
       where
         le x = string x *> spaces *> caseEndingParser <* spaces
         e = caseEndingParser <* spaces
+
+adjective2FormsParser :: CharParser () (AdjectiveForms Affix)
+adjective2FormsParser =
+  string "mf:" *> spaces *> string "n:" *> spaces *>
+  (adjective2Forms
+    <$> le "nom sg:" <*> e
+    <*> le "gen sg:" <*> e
+    <*> le "dat sg:" <*> e
+    <*> le "acc sg:" <*> e
+    <*> le "voc sg:" <*> e
+    <*> le "nom pl:" <*> e
+    <*> le "gen pl:" <*> e
+    <*> le "dat pl:" <*> e
+    <*> le "acc pl:" <*> e
+    <*> le "voc pl:" <*> e)
+      where
+        le x = string x *> spaces *> caseEndingParser <* spaces
+        e = caseEndingParser <* spaces
+
+adjectiveFormsParser :: CharParser () (AdjectiveForms Affix)
+adjectiveFormsParser = try adjective3FormsParser <|> adjective2FormsParser
 
 adjectiveCategoryParser :: CharParser () AdjectiveCategory
 adjectiveCategoryParser = AdjectiveCategory

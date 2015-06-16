@@ -44,6 +44,41 @@ data AdjectiveForms a = AdjectiveForms
   }
   deriving (Data, Typeable, Eq, Show)
 
+adjective2Forms ::
+  a -> a ->
+  a -> a ->
+  a -> a ->
+  a -> a ->
+  a -> a ->
+  a -> a ->
+  a -> a ->
+  a -> a ->
+  a -> a ->
+  a -> a ->
+  AdjectiveForms a
+adjective2Forms
+  nsmf nsn
+  gsmf gsn
+  dsmf dsn
+  asmf asn
+  vsmf vsn
+  npmf npn
+  gpmf gpn
+  dpmf dpn
+  apmf apn
+  vpmf vpn
+  = AdjectiveForms
+    nsmf nsmf nsn
+    gsmf gsmf gsn
+    dsmf dsmf dsn
+    asmf asmf asn
+    vsmf vsmf vsn
+    npmf npmf npn
+    gpmf gpmf gpn
+    dpmf dpmf dpn
+    apmf apmf apn
+    vpmf vpmf vpn
+
 data Affix
   = UnattestedAffix
   | AttestedAffix [Sound]
