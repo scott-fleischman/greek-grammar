@@ -123,7 +123,7 @@ main = defaultMain
   , testGroup "nounCategory"
     [ testCase "length nounCategoryLemmas" $ 12 @=? (length $ sampleNounCategory ^. nounCategoryLemmas)
     , testCase "length nounCategoryToAllForms" $ 120 @=? (length . nounCategoryToAllForms $ sampleNounCategory)
-    , testCase "getStem" $ 12 @=? (length . catMaybes . fmap (getStem (sampleNounCategory ^. nounCategoryEndings)) . fmap _nounLemmaSounds . _nounCategoryLemmas $ sampleNounCategory)
+    , testCase "getStem" $ 12 @=? (length . catMaybes . fmap (getStem (sampleNounCategory ^. nounCategoryEndings)) . fmap _lemmaSounds . _nounCategoryLemmas $ sampleNounCategory)
     ]
   , testGroup "adjectiveCategory"
     [ testCase "length lemmas 3-form" $ 10 @=? (length $ sampleAdjective3FormCategory ^. adjectiveCategoryLemmas)

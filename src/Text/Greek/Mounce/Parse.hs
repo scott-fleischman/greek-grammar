@@ -25,18 +25,18 @@ euphonyRule = EuphonyRule
 euphonyRules :: CharParser () [EuphonyRule]
 euphonyRules = sepBy1 euphonyRule spaces
 
-nounLemmaParser :: CharParser () NounLemma
-nounLemmaParser = do
+lemmaParser :: CharParser () Lemma
+lemmaParser = do
   w <- greekWord
   case textToSounds w of
     Left (InvalidChar c) -> fail ("InvalidChar " ++ c : [])
-    Right x -> return $ NounLemma w x
+    Right x -> return $ Lemma w x
 
 greekWordParser :: CharParser () [Sound]
-greekWordParser = _nounLemmaSounds <$> nounLemmaParser
+greekWordParser = _lemmaSounds <$> lemmaParser
 
-nounLemmasParser :: CharParser () [NounLemma]
-nounLemmasParser = endBy1 nounLemmaParser spaces
+lemmasParser :: CharParser () [Lemma]
+lemmasParser = endBy1 lemmaParser spaces
 
 caseEndingParser :: CharParser () Affix
 caseEndingParser = pure (AttestedAffix []) <* string "-"
@@ -60,7 +60,7 @@ nounCategoryParser :: CharParser () NounCategory
 nounCategoryParser = NounCategory
   <$> (spaces *> (pack <$> (many1 (noneOf "\n\r") <* spaces)))
   <*> (spaces *> nounFormsParser <* spaces)
-  <*> (spaces *> string "lemmas:" *> spaces *> nounLemmasParser)
+  <*> (spaces *> string "lemmas:" *> spaces *> lemmasParser)
 
 validNounCategoryParser :: CharParser () NounCategory
 validNounCategoryParser = do
@@ -71,7 +71,7 @@ validNounCategoryParser = do
     (_ : _) -> fail $ "Lemmas do not match nom sg case ending "
       ++ (affixToString . nomSg . _nounCategoryEndings $ nc)
       ++ " for " ++ (unpack . _nounCategoryName $ nc) ++ ":\n"
-      ++ (concat . intersperse "\n" . fmap unpack . fmap _nounLemmaText $ ms)
+      ++ (concat . intersperse "\n" . fmap unpack . fmap _lemmaText $ ms)
 
 adjective3FormsParser :: CharParser () (AdjectiveForms Affix)
 adjective3FormsParser =
@@ -116,7 +116,7 @@ adjectiveCategoryParser :: CharParser () AdjectiveCategory
 adjectiveCategoryParser = AdjectiveCategory
   <$> (spaces *> (pack <$> (many1 (noneOf "\n\r") <* spaces)))
   <*> (spaces *> adjectiveFormsParser <* spaces)
-  <*> (spaces *> string "lemmas:" *> spaces *> nounLemmasParser)
+  <*> (spaces *> string "lemmas:" *> spaces *> lemmasParser)
 
 topLevel :: CharParser () a -> CharParser () a
 topLevel x = spaces *> x <* eof
