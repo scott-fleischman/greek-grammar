@@ -862,11 +862,11 @@ thirdDeclensionNouns =
     [nounCategory| 
       Irregularly and partially declined stems - Ζεύς
            sg:   pl:
-      nom: Ζευς  *
-      gen: Διος  *
-      dat: Διι   *
-      acc: Δια   *
-      voc: Ζευ   *
+      nom: ζευς  *
+      gen: διος  *
+      dat: διι   *
+      acc: δια   *
+      voc: ζευ   *
       lemmas:
         Ζεύς 
    |]

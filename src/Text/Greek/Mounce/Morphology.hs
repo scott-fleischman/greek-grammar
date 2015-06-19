@@ -8,7 +8,7 @@ module Text.Greek.Mounce.Morphology where
 import Control.Lens
 import Data.Text (Text)
 import Data.Data
-import Data.Maybe (catMaybes)
+import Data.Maybe (catMaybes, isNothing)
 import Data.List
 import Data.Monoid ((<>))
 import Text.Greek.Morphology.Noun
@@ -152,45 +152,29 @@ nounFormsToCaseNumber x =
 stripEnding :: Sound -> Sound
 stripEnding = toLowerCase . stripAccent . stripSmoothBreathing
 
+nounFormsLemmaSuffixes :: NounForms Affix -> [Affix]
+nounFormsLemmaSuffixes x = fmap ($ x) [nomSg, nomPl]
+
+nounCategoryLemmaSuffixes :: NounCategory -> [Affix]
+nounCategoryLemmaSuffixes (NounCategory _ e _) = nounFormsLemmaSuffixes e
+
 getMismatches :: NounCategory -> [Lemma]
-getMismatches nc = filter (not . or . hasValidSuffixes) lemmas
-  where
-    hasValidSuffixes :: Lemma -> [Bool]
-    hasValidSuffixes lemma = fmap ($ sounds) isValidSuffixes
-      where
-        sounds = lemma ^. lemmaSounds
+getMismatches (NounCategory _ endings lemmas) = filter (isNothing . tryGetStemFromAffixes (nounFormsLemmaSuffixes endings) . _lemmaSounds) lemmas
 
-    isValidSuffixes :: [[Sound] -> Bool]
-    isValidSuffixes = isValid <$> validSuffixes
-
-    isValid :: Affix -> [Sound] -> Bool
-    isValid (AttestedAffix ss) = isSuffixOf (stripEnding <$> ss) . fmap stripEnding
-    isValid UnattestedAffix = const False
-
-    validSuffixes :: [Affix]
-    validSuffixes = fmap ($ endings) [nomSg, nomPl]
-
-    endings :: NounForms Affix
-    endings = nc ^. nounCategoryEndings
-
-    lemmas :: [Lemma]
-    lemmas = nc ^. nounCategoryLemmas
-
-getStem :: NounForms Affix -> [Sound] -> Maybe [Sound]
-getStem e w
-  | Just nse <- nomSgEnding
-  , isSuffixOf nse strippedWord
-  = Just $ removeSuffix nse strippedWord
-
-  | Just npe <- nomPlEnding
-  , isSuffixOf npe strippedWord
-  = Just $ removeSuffix npe strippedWord
+tryRemovePrefix :: [Sound] -> Affix -> Maybe [Sound]
+tryRemovePrefix ss a
+  | Just e <- affixToMaybeSounds a
+  , isSuffixOf e ss
+  = Just $ removeSuffix e (fmap stripEnding ss)
 
   | True = Nothing
+
+tryGetStemFromAffixes :: [Affix] -> [Sound] -> Maybe [Sound]
+tryGetStemFromAffixes as ls = case catMaybes . fmap (tryRemovePrefix strippedLemma) $ as of
+  x : _ -> Just x
+  _ -> Nothing
   where
-    strippedWord = stripEnding <$> w
-    nomSgEnding = affixToMaybeSounds . nomSg $ e
-    nomPlEnding = affixToMaybeSounds . nomPl $ e
+    strippedLemma = stripEnding <$> ls
 
 removeSuffix :: [a] -> [a] -> [a]
 removeSuffix ss xs = take (length xs - length ss) xs
@@ -212,5 +196,5 @@ nounCategoryToAllForms nc = concat . fmap applyAllEndings $ allStems
   where
     applyAllEndings  = stemToAllAttestedForms (nc ^. nounCategoryName) (nc ^. nounCategoryEndings)
     allStems = catMaybes allMaybeStems
-    allMaybeStems = getStem (nc ^. nounCategoryEndings) <$> nounLemmaSounds
+    allMaybeStems = tryGetStemFromAffixes (nounCategoryLemmaSuffixes nc) <$> nounLemmaSounds
     nounLemmaSounds = _lemmaSounds <$> nc ^. nounCategoryLemmas
