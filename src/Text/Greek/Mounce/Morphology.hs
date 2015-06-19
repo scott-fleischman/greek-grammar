@@ -44,6 +44,15 @@ data AdjectiveForms a = AdjectiveForms
   }
   deriving (Data, Typeable, Eq, Show)
 
+instance Foldable AdjectiveForms where
+  foldMap f (AdjectiveForms
+    f0  f1  f2  f3  f4  f5  f6  f7  f8  f9
+    f10 f11 f12 f13 f14 f15 f16 f17 f18 f19
+    f20 f21 f22 f23 f24 f25 f26 f27 f28 f29)
+      =  f f0  <> f f1  <> f f2  <> f f3  <> f f4  <> f f5  <> f f6  <> f f7  <> f f8  <> f f9 
+      <> f f10 <> f f11 <> f f12 <> f f13 <> f f14 <> f f15 <> f f16 <> f f17 <> f f18 <> f f19
+      <> f f20 <> f f21 <> f f22 <> f f23 <> f f24 <> f f25 <> f f26 <> f f27 <> f f28 <> f f29
+
 adjective2Forms ::
   a -> a ->
   a -> a ->
