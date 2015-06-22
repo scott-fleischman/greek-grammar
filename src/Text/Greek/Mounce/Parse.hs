@@ -38,12 +38,12 @@ greekWordParser = _lemmaSounds <$> lemmaParser
 lemmasParser :: CharParser () [Lemma]
 lemmasParser = endBy1 lemmaParser spaces
 
-caseEndingParser :: CharParser () Affix
-caseEndingParser = pure (AttestedAffix []) <* string "-"
-  <|> pure UnattestedAffix <* string "*"
-  <|> AttestedAffix <$> greekWordParser
+caseEndingParser :: CharParser () Suffix
+caseEndingParser = pure (AttestedSuffix []) <* string "-"
+  <|> pure UnattestedSuffix <* string "*"
+  <|> AttestedSuffix <$> greekWordParser
 
-nounFormsParser :: CharParser () (NounForms Affix)
+nounFormsParser :: CharParser () (NounForms Suffix)
 nounFormsParser =
   string "sg:" *> spaces *> string "pl:" *> spaces *>
   (NounForms
@@ -69,11 +69,11 @@ validNounCategoryParser = do
   case ms of
     [] -> return nc
     (_ : _) -> fail $ "Lemmas do not match nom sg case ending "
-      ++ (affixToString . nomSg . _nounCategoryEndings $ nc)
+      ++ (suffixToString . nomSg . _nounCategoryEndings $ nc)
       ++ " for " ++ (unpack . _nounCategoryName $ nc) ++ ":\n"
       ++ (concat . intersperse "\n" . fmap unpack . fmap _lemmaText $ ms)
 
-adjective3FormsParser :: CharParser () (AdjectiveForms Affix)
+adjective3FormsParser :: CharParser () (AdjectiveForms Suffix)
 adjective3FormsParser =
   string "m:" *> spaces *> string "f:" *> spaces *> string "n:" *> spaces *>
   (AdjectiveForms
@@ -91,7 +91,7 @@ adjective3FormsParser =
         le x = string x *> spaces *> caseEndingParser <* spaces
         e = caseEndingParser <* spaces
 
-adjective2FormsParser :: CharParser () (AdjectiveForms Affix)
+adjective2FormsParser :: CharParser () (AdjectiveForms Suffix)
 adjective2FormsParser =
   string "mf:" *> spaces *> string "n:" *> spaces *>
   (adjective2Forms
@@ -109,7 +109,7 @@ adjective2FormsParser =
         le x = string x *> spaces *> caseEndingParser <* spaces
         e = caseEndingParser <* spaces
 
-adjectiveFormsParser :: CharParser () (AdjectiveForms Affix)
+adjectiveFormsParser :: CharParser () (AdjectiveForms Suffix)
 adjectiveFormsParser = try adjective3FormsParser <|> adjective2FormsParser
 
 adjectiveCategoryParser :: CharParser () AdjectiveCategory

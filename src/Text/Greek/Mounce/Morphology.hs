@@ -88,9 +88,9 @@ adjective2Forms
     apmf apmf apn
     vpmf vpmf vpn
 
-data Affix
-  = UnattestedAffix
-  | AttestedAffix [Sound]
+data Suffix
+  = UnattestedSuffix
+  | AttestedSuffix [Sound]
   deriving (Data, Typeable, Show, Eq)
 
 data Lemma = Lemma
@@ -102,7 +102,7 @@ makeLenses ''Lemma
 
 data NounCategory = NounCategory
   { _nounCategoryName :: Text
-  , _nounCategoryEndings :: NounForms Affix
+  , _nounCategoryEndings :: NounForms Suffix
   , _nounCategoryLemmas :: [Lemma]
   }
   deriving (Show, Eq, Data, Typeable)
@@ -110,7 +110,7 @@ makeLenses ''NounCategory
 
 data AdjectiveCategory = AdjectiveCategory
   { _adjectiveCategoryName :: Text
-  , _adjectiveCategoryEndings :: AdjectiveForms Affix
+  , _adjectiveCategoryEndings :: AdjectiveForms Suffix
   , _adjectiveCategoryLemmas :: [Lemma]
   }
   deriving (Show, Eq, Data, Typeable)
@@ -135,14 +135,14 @@ data AdjectiveForm = AdjectiveForm
   deriving (Show, Eq)
 makeLenses ''AdjectiveForm
 
-affixToString :: Affix -> String
-affixToString UnattestedAffix = "*"
-affixToString (AttestedAffix []) = "-"
-affixToString (AttestedAffix ss@(_:_)) = soundsToString ss
+suffixToString :: Suffix -> String
+suffixToString UnattestedSuffix = "*"
+suffixToString (AttestedSuffix []) = "-"
+suffixToString (AttestedSuffix ss@(_:_)) = soundsToString ss
 
-affixToMaybeSounds :: Affix -> Maybe [Sound]
-affixToMaybeSounds UnattestedAffix = Nothing
-affixToMaybeSounds (AttestedAffix ss) = Just ss
+suffixToMaybeSounds :: Suffix -> Maybe [Sound]
+suffixToMaybeSounds UnattestedSuffix = Nothing
+suffixToMaybeSounds (AttestedSuffix ss) = Just ss
 
 nounFormsToCaseNumber :: NounForms a -> [(a, Case, Number)]
 nounFormsToCaseNumber x =
@@ -195,34 +195,34 @@ adjectiveFormsToCaseNumberGender x =
 stripEnding :: Sound -> Sound
 stripEnding = toLowerCase . stripAccent . stripSmoothBreathing
 
-nounFormsLemmaSuffixes :: NounForms Affix -> [Affix]
+nounFormsLemmaSuffixes :: NounForms Suffix -> [Suffix]
 nounFormsLemmaSuffixes x = fmap ($ x) [nomSg, nomPl]
 
-nounCategoryLemmaSuffixes :: NounCategory -> [Affix]
+nounCategoryLemmaSuffixes :: NounCategory -> [Suffix]
 nounCategoryLemmaSuffixes (NounCategory _ e _) = nounFormsLemmaSuffixes e
 
-adjectiveFormsLemmaSuffixes :: AdjectiveForms Affix -> [Affix]
+adjectiveFormsLemmaSuffixes :: AdjectiveForms Suffix -> [Suffix]
 adjectiveFormsLemmaSuffixes x = fmap ($ x) [nomSgMasc, nomPlMasc]
 
-adjectiveCategoryLemmaSuffixes :: AdjectiveCategory -> [Affix]
+adjectiveCategoryLemmaSuffixes :: AdjectiveCategory -> [Suffix]
 adjectiveCategoryLemmaSuffixes (AdjectiveCategory _ e _) = adjectiveFormsLemmaSuffixes e
 
 getNounMismatches :: NounCategory -> [Lemma]
 getNounMismatches (NounCategory _ endings lemmas) = getMismatches (nounFormsLemmaSuffixes endings) lemmas
 
-getMismatches :: [Affix] -> [Lemma] -> [Lemma]
-getMismatches suffixes = filter (isNothing . tryGetStemFromAffixes suffixes . _lemmaSounds)
+getMismatches :: [Suffix] -> [Lemma] -> [Lemma]
+getMismatches suffixes = filter (isNothing . tryGetStemFromSuffixes suffixes . _lemmaSounds)
 
-tryRemovePrefix :: [Sound] -> Affix -> Maybe [Sound]
+tryRemovePrefix :: [Sound] -> Suffix -> Maybe [Sound]
 tryRemovePrefix ss a
-  | Just e <- affixToMaybeSounds a
+  | Just e <- suffixToMaybeSounds a
   , isSuffixOf e ss
   = Just $ removeSuffix e (fmap stripEnding ss)
 
   | True = Nothing
 
-tryGetStemFromAffixes :: [Affix] -> [Sound] -> Maybe [Sound]
-tryGetStemFromAffixes as ls = case catMaybes . fmap (tryRemovePrefix strippedLemma) $ as of
+tryGetStemFromSuffixes :: [Suffix] -> [Sound] -> Maybe [Sound]
+tryGetStemFromSuffixes as ls = case catMaybes . fmap (tryRemovePrefix strippedLemma) $ as of
   x : _ -> Just x
   _ -> Nothing
   where
@@ -231,13 +231,13 @@ tryGetStemFromAffixes as ls = case catMaybes . fmap (tryRemovePrefix strippedLem
 removeSuffix :: [a] -> [a] -> [a]
 removeSuffix ss xs = take (length xs - length ss) xs
 
-stemToAllAttestedForms :: Text -> NounForms Affix -> [Sound] -> [NounForm]
+stemToAllAttestedForms :: Text -> NounForms Suffix -> [Sound] -> [NounForm]
 stemToAllAttestedForms d nfs s = fmap (& nounFormSounds %~ (s ++)) allSuffixes
   where
     allSuffixes = concat $ makeSuffix <$> formsCaseNumber
 
-    makeSuffix :: (Affix, Case, Number) -> [NounForm]
-    makeSuffix = \x -> case affixToMaybeSounds (x ^. _1) of
+    makeSuffix :: (Suffix, Case, Number) -> [NounForm]
+    makeSuffix = \x -> case suffixToMaybeSounds (x ^. _1) of
       Just ss -> [NounForm ss (x ^. _2) (x ^. _3) d]
       Nothing -> []
 
@@ -248,5 +248,5 @@ nounCategoryToAllForms nc = concat . fmap applyAllEndings $ allStems
   where
     applyAllEndings  = stemToAllAttestedForms (nc ^. nounCategoryName) (nc ^. nounCategoryEndings)
     allStems = catMaybes allMaybeStems
-    allMaybeStems = tryGetStemFromAffixes (nounCategoryLemmaSuffixes nc) <$> nounLemmaSounds
+    allMaybeStems = tryGetStemFromSuffixes (nounCategoryLemmaSuffixes nc) <$> nounLemmaSounds
     nounLemmaSounds = _lemmaSounds <$> nc ^. nounCategoryLemmas
