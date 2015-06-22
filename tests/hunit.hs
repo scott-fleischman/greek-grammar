@@ -123,7 +123,7 @@ main = defaultMain
   , testGroup "nounCategory"
     [ testCase "length nounCategoryLemmas" $ 12 @=? (length $ sampleNounCategory ^. nounCategoryLemmas)
     , testCase "length nounCategoryToAllForms" $ 120 @=? (length . nounCategoryToAllForms $ sampleNounCategory)
-    , testCase "getMismatches" $ 0 @=? (length . getMismatches $ sampleNounCategory)
+    , testCase "getMismatches" $ 0 @=? (length . getNounMismatches $ sampleNounCategory)
     ]
   , testGroup "adjectiveCategory"
     [ testCase "length lemmas 3-form" $ 10 @=? (length $ sampleAdjective3FormCategory ^. adjectiveCategoryLemmas)

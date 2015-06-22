@@ -65,7 +65,7 @@ nounCategoryParser = NounCategory
 validNounCategoryParser :: CharParser () NounCategory
 validNounCategoryParser = do
   nc <- nounCategoryParser
-  let ms = getMismatches nc
+  let ms = getNounMismatches nc
   case ms of
     [] -> return nc
     (_ : _) -> fail $ "Lemmas do not match nom sg case ending "
