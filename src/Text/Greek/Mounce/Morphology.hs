@@ -158,6 +158,40 @@ nounFormsToCaseNumber x =
   , (vocPl x, Vocative, Plural)
   ]
 
+adjectiveFormsToCaseNumberGender :: AdjectiveForms a -> [(a, Case, Number, Gender)]
+adjectiveFormsToCaseNumberGender x =
+  [ (nomSgMasc x, Nominative, Singular, Masculine)
+  , (genSgMasc x, Genitive, Singular, Masculine)
+  , (datSgMasc x, Dative, Singular, Masculine)
+  , (accSgMasc x, Accusative, Singular, Masculine)
+  , (vocSgMasc x, Vocative, Singular, Masculine)
+  , (nomPlMasc x, Nominative, Plural, Masculine)
+  , (genPlMasc x, Genitive, Plural, Masculine)
+  , (datPlMasc x, Dative, Plural, Masculine)
+  , (accPlMasc x, Accusative, Plural, Masculine)
+  , (vocPlMasc x, Vocative, Plural, Masculine)
+  , (nomSgFem x, Nominative, Singular, Feminine)
+  , (genSgFem x, Genitive, Singular, Feminine)
+  , (datSgFem x, Dative, Singular, Feminine)
+  , (accSgFem x, Accusative, Singular, Feminine)
+  , (vocSgFem x, Vocative, Singular, Feminine)
+  , (nomPlFem x, Nominative, Plural, Feminine)
+  , (genPlFem x, Genitive, Plural, Feminine)
+  , (datPlFem x, Dative, Plural, Feminine)
+  , (accPlFem x, Accusative, Plural, Feminine)
+  , (vocPlFem x, Vocative, Plural, Feminine)
+  , (nomSgNeut x, Nominative, Singular, Neuter)
+  , (genSgNeut x, Genitive, Singular, Neuter)
+  , (datSgNeut x, Dative, Singular, Neuter)
+  , (accSgNeut x, Accusative, Singular, Neuter)
+  , (vocSgNeut x, Vocative, Singular, Neuter)
+  , (nomPlNeut x, Nominative, Plural, Neuter)
+  , (genPlNeut x, Genitive, Plural, Neuter)
+  , (datPlNeut x, Dative, Plural, Neuter)
+  , (accPlNeut x, Accusative, Plural, Neuter)
+  , (vocPlNeut x, Vocative, Plural, Neuter)
+  ]
+
 stripEnding :: Sound -> Sound
 stripEnding = toLowerCase . stripAccent . stripSmoothBreathing
 
@@ -166,6 +200,12 @@ nounFormsLemmaSuffixes x = fmap ($ x) [nomSg, nomPl]
 
 nounCategoryLemmaSuffixes :: NounCategory -> [Affix]
 nounCategoryLemmaSuffixes (NounCategory _ e _) = nounFormsLemmaSuffixes e
+
+adjectiveFormsLemmaSuffixes :: AdjectiveForms Affix -> [Affix]
+adjectiveFormsLemmaSuffixes x = fmap ($ x) [nomSgMasc, nomPlMasc]
+
+adjectiveCategoryLemmaSuffixes :: AdjectiveCategory -> [Affix]
+adjectiveCategoryLemmaSuffixes (AdjectiveCategory _ e _) = adjectiveFormsLemmaSuffixes e
 
 getMismatches :: NounCategory -> [Lemma]
 getMismatches (NounCategory _ endings lemmas) = filter (isNothing . tryGetStemFromAffixes (nounFormsLemmaSuffixes endings) . _lemmaSounds) lemmas
