@@ -45,7 +45,7 @@ nounCategory = QuasiQuoter
 
 adjectiveCategory :: QuasiQuoter
 adjectiveCategory = QuasiQuoter
-  { quoteExp = parseTopLevel adjectiveCategoryParser
+  { quoteExp = parseTopLevel validAdjectiveCategoryParser
   , quotePat = undefined
   , quoteType = undefined
   , quoteDec = undefined

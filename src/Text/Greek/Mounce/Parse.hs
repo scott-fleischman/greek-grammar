@@ -68,7 +68,7 @@ validNounCategoryParser = do
   let ms = getNounMismatches nc
   case ms of
     [] -> return nc
-    (_ : _) -> fail $ "Lemmas do not match nom sg case ending "
+    (_ : _) -> fail $ "Lemmas do not match nom sg/pl case ending "
       ++ (suffixToString . nomSg . _nounCategoryEndings $ nc)
       ++ " for " ++ (unpack . _nounCategoryName $ nc) ++ ":\n"
       ++ (concat . intersperse "\n" . fmap unpack . fmap _lemmaText $ ms)
@@ -117,6 +117,17 @@ adjectiveCategoryParser = AdjectiveCategory
   <$> (spaces *> (pack <$> (many1 (noneOf "\n\r") <* spaces)))
   <*> (spaces *> adjectiveFormsParser <* spaces)
   <*> (spaces *> string "lemmas:" *> spaces *> lemmasParser)
+
+validAdjectiveCategoryParser :: CharParser () AdjectiveCategory
+validAdjectiveCategoryParser = do
+  ac <- adjectiveCategoryParser
+  let ms = getAdjectiveMismatches ac
+  case ms of
+    [] -> return ac
+    (_ : _) -> fail $ "Lemmas do not match nom sg/pl masc case ending "
+      ++ (suffixToString . nomSgMasc . _adjectiveCategoryEndings $ ac)
+      ++ " for " ++ (unpack . _adjectiveCategoryName $ ac) ++ ":\n"
+      ++ (concat . intersperse "\n" . fmap unpack . fmap _lemmaText $ ms)
 
 topLevel :: CharParser () a -> CharParser () a
 topLevel x = spaces *> x <* eof

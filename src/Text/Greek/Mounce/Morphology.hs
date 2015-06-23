@@ -207,11 +207,14 @@ adjectiveFormsLemmaSuffixes x = fmap ($ x) [nomSgMasc, nomPlMasc]
 adjectiveCategoryLemmaSuffixes :: AdjectiveCategory -> [Suffix]
 adjectiveCategoryLemmaSuffixes (AdjectiveCategory _ e _) = adjectiveFormsLemmaSuffixes e
 
+getMismatches :: [Suffix] -> [Lemma] -> [Lemma]
+getMismatches suffixes = filter (isNothing . tryGetStemFromSuffixes suffixes . _lemmaSounds)
+
 getNounMismatches :: NounCategory -> [Lemma]
 getNounMismatches (NounCategory _ endings lemmas) = getMismatches (nounFormsLemmaSuffixes endings) lemmas
 
-getMismatches :: [Suffix] -> [Lemma] -> [Lemma]
-getMismatches suffixes = filter (isNothing . tryGetStemFromSuffixes suffixes . _lemmaSounds)
+getAdjectiveMismatches :: AdjectiveCategory -> [Lemma]
+getAdjectiveMismatches (AdjectiveCategory _ endings lemmas) = getMismatches (adjectiveFormsLemmaSuffixes endings) lemmas
 
 tryRemovePrefix :: [Sound] -> Suffix -> Maybe [Sound]
 tryRemovePrefix ss a
