@@ -2,12 +2,10 @@ name:                greek-grammar
 version:             0.1.0.0
 synopsis:            Greek grammar analysis tools
 license:             MIT
-license-file:        LICENSE
 author:              Scott Fleischman
 maintainer:          
 category:            Language
 build-type:          Simple
-extra-source-files:  README.md
 cabal-version:       >=1.10
 
 library
