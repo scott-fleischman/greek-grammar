@@ -5,14 +5,17 @@ module Text.Greek.Paths where
 
 import System.FilePath
 
+projectRootPath :: FilePath
+projectRootPath = ".." </> ".."
+
 sblgntOsisPath :: FilePath
-sblgntOsisPath = "data" </> "sblgnt-osis" </> "SBLGNT" <.> "osis" <.> "xml"
+sblgntOsisPath = projectRootPath </> "data" </> "sblgnt-osis" </> "SBLGNT" <.> "osis" <.> "xml"
 
 agdaSblgntPath :: FilePath
-agdaSblgntPath = "agda" </> "Text" </> "Greek" </> "SBLGNT"
+agdaSblgntPath = projectRootPath </> "agda" </> "Text" </> "Greek" </> "SBLGNT"
 
 unicodeDataPath :: FilePath
-unicodeDataPath = "data" </> "ucd" </> "UnicodeData" <.> "txt"
+unicodeDataPath = projectRootPath </> "data" </> "ucd" </> "UnicodeData" <.> "txt"
 
 haskellUnicodeScriptPath :: FilePath
-haskellUnicodeScriptPath = "src" </> "Text" </> "Greek" </> "Script" </> "UnicodeTokenPairs" <.> "hs"
+haskellUnicodeScriptPath = projectRootPath </> "src" </> "Text" </> "Greek" </> "Script" </> "UnicodeTokenPairs" <.> "hs"
