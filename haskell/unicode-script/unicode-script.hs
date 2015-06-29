@@ -133,8 +133,6 @@ data TextToken = TextToken
   , _iotaSubscript :: Maybe Text
   , _diaeresis :: Maybe Text
   , _finalForm :: Maybe Text
-  , _semivowelMark :: Maybe Text
-  , _sonantMark :: Maybe Text
   }
   deriving (Show)
 makeLenses ''TextToken
@@ -144,7 +142,7 @@ maybeToHaskell Nothing = "Nothing"
 maybeToHaskell (Just t) = format "(Just {})" (Only t)
 
 tokenToHaskell :: TextToken -> Text
-tokenToHaskell t = format "Token {} {} {} {} {} {} {} {} {} {}" (t ^. letter, t ^. letterCase, haskellAccent, haskellBreathing, haskellLengthMark, haskellIotaSubscript, haskellDiaeresis, haskellFinalForm, haskellSemivowelMark, haskellSonantMark)
+tokenToHaskell t = format "Token {} {} {} {} {} {} {} {}" (t ^. letter, t ^. letterCase, haskellAccent, haskellBreathing, haskellLengthMark, haskellIotaSubscript, haskellDiaeresis, haskellFinalForm)
   where
     haskellAccent = maybeToHaskell $ t ^. accent
     haskellBreathing = maybeToHaskell $ t ^. breathing
@@ -152,14 +150,12 @@ tokenToHaskell t = format "Token {} {} {} {} {} {} {} {} {} {}" (t ^. letter, t 
     haskellIotaSubscript = maybeToHaskell $ t ^. iotaSubscript
     haskellDiaeresis = maybeToHaskell $ t ^. diaeresis
     haskellFinalForm = maybeToHaskell $ t ^. finalForm
-    haskellSemivowelMark = maybeToHaskell $ t ^. semivowelMark
-    haskellSonantMark = maybeToHaskell $ t ^. sonantMark
 
 makePlainTextToken :: Text -> Text -> TextToken
-makePlainTextToken el c = TextToken el c Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
+makePlainTextToken el c = TextToken el c Nothing Nothing Nothing Nothing Nothing Nothing
 
 makeFinalFormTextToken :: Text -> Text -> Text -> TextToken
-makeFinalFormTextToken el c f = TextToken el c Nothing Nothing Nothing Nothing Nothing (Just f) Nothing Nothing
+makeFinalFormTextToken el c f = TextToken el c Nothing Nothing Nothing Nothing Nothing (Just f)
 
 applyNameToToken :: Text -> TextToken -> TextToken
 applyNameToToken n t

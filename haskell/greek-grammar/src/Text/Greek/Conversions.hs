@@ -41,7 +41,7 @@ tokensToString = fmap tokenToChar
   where
     tokenToChar t = case tokenToMaybeChar t of
       Just x -> x
-      Nothing -> case tokenToMaybeChar (Token (t ^. letter) (t ^. letterCase) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing) of
+      Nothing -> case tokenToMaybeChar (Token (t ^. letter) (t ^. letterCase) Nothing Nothing Nothing Nothing Nothing Nothing) of
         Just x -> x
         Nothing -> '_'
     tokenToMaybeChar = flip lookup (fromList . fmap swap $ unicodeTokenPairs)
