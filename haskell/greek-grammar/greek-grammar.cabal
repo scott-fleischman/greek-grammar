@@ -76,20 +76,6 @@ executable sblgnt
   hs-source-dirs: executables
   default-language: Haskell2010
 
-executable unicode-script
-  build-depends:
-    base,
-    text,
-    filepath,
-    containers,
-    lens,
-    text-format,
-    greek-grammar
-  main-is: unicode-script.hs
-  ghc-options: -Wall -fwarn-tabs -O2
-  hs-source-dirs: executables
-  default-language: Haskell2010
-
 test-suite hunit
   type: exitcode-stdio-1.0
   main-is: hunit.hs

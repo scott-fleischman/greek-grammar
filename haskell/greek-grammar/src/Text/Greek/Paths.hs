@@ -16,6 +16,3 @@ agdaSblgntPath = projectRootPath </> "agda" </> "Text" </> "Greek" </> "SBLGNT"
 
 unicodeDataPath :: FilePath
 unicodeDataPath = projectRootPath </> "data" </> "ucd" </> "UnicodeData" <.> "txt"
-
-haskellUnicodeScriptPath :: FilePath
-haskellUnicodeScriptPath = projectRootPath </> "src" </> "Text" </> "Greek" </> "Script" </> "UnicodeTokenPairs" <.> "hs"

@@ -1,5 +1,6 @@
 flags: {}
 packages:
+- 'haskell/unicode-script'
 - 'haskell/greek-grammar'
 extra-deps:
 resolver: nightly-2015-06-26
