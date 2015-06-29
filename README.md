@@ -4,18 +4,18 @@ A Human-directed Computational Approach
 ### Building
 [![Build Status](https://travis-ci.org/scott-fleischman/greek-grammar.svg?branch=master)](https://travis-ci.org/scott-fleischman/greek-grammar)
 
-- Download [GHC](https://www.haskell.org/ghc/) and [Cabal](https://www.haskell.org/cabal/). For Mac, you can download them both in a single package [here](http://ghcformacosx.github.io/).
+- Download [Stack](https://github.com/commercialhaskell/stack/wiki)
 - Run the following commands in a terminal:
 ```Shell
 git clone git://github.com/scott-fleischman/greek-grammar.git
 cd greek-grammar
-./build.sh
+stack build
 ```
 
 ### Running
 Dump SBLGNT stats:
 ```Shell
-cabal run sblgnt
+stack exec sblgnt
 ```
 
 ### Abstract
