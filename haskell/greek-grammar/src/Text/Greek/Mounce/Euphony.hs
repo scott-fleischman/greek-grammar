@@ -9,7 +9,13 @@ import Text.Greek.Mounce.Quote
 
 mounceEuphony :: [Cited Euphony]
 mounceEuphony =
-  [ mounce § "2.3" $
+  [mounce § "2.2c" $
+    Euphony "ι followed by long α, η, ω subscripts" [rules|
+      αι } ᾳ
+      ηι } ῃ
+      ωι } ῳ
+   |]
+  ,mounce § "2.3" $
     Euphony "Two like vowels form their common long" [rules|
       α + α } α
       ι + ι } ι
@@ -25,6 +31,16 @@ mounceEuphony =
     Euphony "Exceptions to §2.3" [rules|
       ε + ε } ει
       ο + ο } ου
+    |]
+  , mounce § "2.4a" $
+    Euphony "ει is formed by εε" [rules|
+      εε } ει 
+    |]
+  , mounce § "2.4b" $
+    Euphony "ου is formed by εο" [rules|
+      εο } ου
+      οε } ου  
+      οο } ου
     |]
   , mounce § "2.5" $
     Euphony "ο or ω overcome α, ε, or ὴ regardless of the order, and form ω" [rules|
@@ -43,11 +59,14 @@ mounceEuphony =
       ε + α } α
       η + α } α
     |]
-  -- , mounce § "2.8" $
-  --   Euphony "When three vowels come into contact, and if the first two or the last two do not form a diphthong, then the second and third vowels contract first, and the result contracts with the first vowel. In other words, contraction is from the right to the left ('progressive assimilation'; §2.2; Smyth §55). This is especially frequent in contract verbs." [rules|
-  --     αει } αι } ᾳ
-  --     εαι } εᾳ } ῃ
-  --   |]
+  , mounce § "2.7a" $
+    Euphony "α is formed from αε" [rules|
+      αε } α
+    |]
+  , mounce § "2.7b" $
+    Euphony "η is formed from εα" [rules|
+      εα } η
+    |]
   , mounce § "2.13a" $
     Euphony "Single vowel + diphthong (beginning with the same vowel as the single vowel)" [rules|
       α + αι } αι
