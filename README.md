@@ -9,6 +9,7 @@ A Human-directed Computational Approach
 ```Shell
 git clone git://github.com/scott-fleischman/greek-grammar.git
 cd greek-grammar
+git submodule update --init
 stack build
 ```
 
