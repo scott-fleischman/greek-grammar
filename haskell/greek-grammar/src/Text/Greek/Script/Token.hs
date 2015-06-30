@@ -19,7 +19,6 @@ data Letter =
 data LetterCase = Lowercase | Uppercase deriving (Eq, Show, Ord, Data, Typeable)
 data Accent = Acute | Grave | Circumflex deriving (Eq, Show, Ord, Data, Typeable)
 data Breathing = Smooth | Rough deriving (Eq, Show, Ord, Data, Typeable)
-data LengthMark = Breve | Macron deriving (Eq, Show, Ord, Data, Typeable)
 data IotaSubscript = IotaSubscript deriving (Eq, Show, Ord, Data, Typeable)
 data Diaeresis = Diaeresis deriving (Eq, Show, Ord, Data, Typeable)
 data FinalForm = FinalForm deriving (Eq, Show, Ord, Data, Typeable)
@@ -29,7 +28,6 @@ data Token = Token
   , _letterCase :: LetterCase
   , _accent :: Maybe Accent
   , _breathing :: Maybe Breathing
-  , _lengthMark :: Maybe LengthMark
   , _iotaSubscript :: Maybe IotaSubscript
   , _diaeresis :: Maybe Diaeresis
   , _finalForm :: Maybe FinalForm
@@ -45,7 +43,7 @@ data TokenContext a = TokenContext
 makeLenses ''TokenContext
 
 unmarkedLetter :: Letter -> LetterCase -> Token
-unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing Nothing
+unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing
 
 vowels :: [Letter]
 vowels = [Alpha, Epsilon, Eta, Iota, Omicron, Upsilon, Omega]
@@ -84,9 +82,6 @@ isValidBreathing el Lowercase Smooth = el `elem` vowels || el == Rho
 isValidBreathing el Uppercase Smooth = el `elem` vowels && el /= Upsilon
 isValidBreathing el _ Rough = el `elem` vowels || el == Rho
 
-isValidLengthMark :: Letter -> LengthMark -> Bool
-isValidLengthMark el _ = not (el `elem` alwaysShortVowels) && not (el `elem` alwaysLongVowels)
-
 isValidIotaSubscript :: Letter -> IotaSubscript -> Bool
 isValidIotaSubscript el _ = el `elem` iotaSubscriptVowels
 
@@ -98,7 +93,7 @@ isValidFinalForm Sigma Lowercase _ = True
 isValidFinalForm _ _ _ = False
 
 data ValidationError =
-    AccentError | BreathingError | LengthMarkError
+    AccentError | BreathingError
   | IotaSubscriptError | DiaeresisError | FinalFormError
   deriving (Eq, Show)
 
@@ -109,10 +104,9 @@ validateItem isValid (Just v) e = case isValid v of
   False -> Just e
 
 validateToken :: Token -> [ValidationError]
-validateToken (Token el c a b lm is d f) = concatMap maybeToList $
+validateToken (Token el c a b is d f) = concatMap maybeToList $
   [ validateItem (isValidAccent el) a AccentError
   , validateItem (isValidBreathing el c) b BreathingError
-  , validateItem (isValidLengthMark el) lm LengthMarkError
   , validateItem (isValidIotaSubscript el) is IotaSubscriptError
   , validateItem (isValidDiaeresis el) d DiaeresisError
   , validateItem (isValidFinalForm el c) f FinalFormError

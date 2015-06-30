@@ -118,18 +118,11 @@ breathingNames =
   , ("DASIA", "Rough")
   ]
 
-lengthMarkNames :: [(Text, Text)]
-lengthMarkNames =
-  [ ("VRACHY", "Breve")
-  , ("MACRON", "Macron")
-  ]
-
 data TextToken = TextToken
   { _letter :: Text
   , _letterCase :: Text
   , _accent :: Maybe Text
   , _breathing :: Maybe Text
-  , _lengthMark :: Maybe Text
   , _iotaSubscript :: Maybe Text
   , _diaeresis :: Maybe Text
   , _finalForm :: Maybe Text
@@ -142,33 +135,30 @@ maybeToHaskell Nothing = "Nothing"
 maybeToHaskell (Just t) = format "(Just {})" (Only t)
 
 tokenToHaskell :: TextToken -> Text
-tokenToHaskell t = format "Token {} {} {} {} {} {} {} {}" (t ^. letter, t ^. letterCase, haskellAccent, haskellBreathing, haskellLengthMark, haskellIotaSubscript, haskellDiaeresis, haskellFinalForm)
+tokenToHaskell t = format "Token {} {} {} {} {} {} {}" (t ^. letter, t ^. letterCase, haskellAccent, haskellBreathing, haskellIotaSubscript, haskellDiaeresis, haskellFinalForm)
   where
     haskellAccent = maybeToHaskell $ t ^. accent
     haskellBreathing = maybeToHaskell $ t ^. breathing
-    haskellLengthMark = maybeToHaskell $ t ^. lengthMark
     haskellIotaSubscript = maybeToHaskell $ t ^. iotaSubscript
     haskellDiaeresis = maybeToHaskell $ t ^. diaeresis
     haskellFinalForm = maybeToHaskell $ t ^. finalForm
 
 makePlainTextToken :: Text -> Text -> TextToken
-makePlainTextToken el c = TextToken el c Nothing Nothing Nothing Nothing Nothing Nothing
+makePlainTextToken el c = TextToken el c Nothing Nothing Nothing Nothing Nothing
 
 makeFinalFormTextToken :: Text -> Text -> Text -> TextToken
-makeFinalFormTextToken el c f = TextToken el c Nothing Nothing Nothing Nothing Nothing (Just f)
+makeFinalFormTextToken el c f = TextToken el c Nothing Nothing Nothing Nothing (Just f)
 
 applyNameToToken :: Text -> TextToken -> TextToken
 applyNameToToken n t
   | n `member` accentMap = t & accent .~ lookup n accentMap
   | n `member` breathingMap = t & breathing .~ lookup n breathingMap
-  | n `member` lengthMarkMap = t & lengthMark .~ lookup n lengthMarkMap
   | n `member` iotaSubscriptMap = t & iotaSubscript .~ lookup n iotaSubscriptMap
   | n `member` diaeresisMap = t & diaeresis .~ lookup n diaeresisMap
   | True = t
   where
     accentMap = fromList accentNames
     breathingMap = fromList breathingNames
-    lengthMarkMap = fromList lengthMarkNames
     iotaSubscriptMap = fromList iotaSubscriptNames
     diaeresisMap = fromList diaeresisNames
 
