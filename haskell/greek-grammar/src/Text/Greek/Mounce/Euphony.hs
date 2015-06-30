@@ -70,33 +70,35 @@ mounceEuphony =
   , mounce § "2.13a" $
     Euphony "Single vowel + diphthong (beginning with the same vowel as the single vowel)" [rules|
       α + αι } αι
-      α + ᾳ  } ᾳ
+      α + αι } ᾳ
+      ο + ου } ου
     |]
-  -- , mounce § "2.13b" $
-  --   Euphony "Single vowel + diphthong (beginning with a vowel different from the single vowel)." [rules|
-  --     ο + ου } ουυ } ου
-  --     α + αι } αι  } ᾳ
-  --   |]
   , mounce § "2.13b" $
-    Euphony "Single vowel + diphthong (beginning with a vowel different from the single vowel) - Exceptions." [rules|
+    Euphony "Single vowel + diphthong (beginning with a vowel different from the single vowel)" [rules|
       ε + οι } οι
       ο + ει } οι
       ο + ῃ  } οι
     |]
-  -- , mounce § "2.13c" $
-  --   Euphony "When ει or ου are spurious (§2.14), the diphthong is regarded as simple ε or ο (i.e., the final vowel of the diphthong is dropped" [rules|
-  --     α + ει } αι  } α
-  --     ε + ει } ειι } ει
-  --     η + ει } ηι  } η
-  --     ο + ει } ουι } ου
-  --     α + ου } ωυ  } ω
-  --     ε + ου } ουυ } ου 
-  --     ο + ου } ουυ } ου
-  --   |]
   , mounce § "14.1" $
     Euphony "Aspiration" [rules|
       π + ῾ } φ῾
       κ + ῾ } χ῾
       τ + ῾ } θ῾
     |]
+  , mounce § "14.4" $
+    Euphony "labial + θ" [rules|
+      π + θ } φθ
+      β + θ } φθ
+      ψ + θ } φθ
+    |]
+  , mounce § "14.5" $
+    Euphony "velar + θ" [rules|
+      κ + θ } χθ
+      γ + θ } χθ
+      ξ + θ } χθ
+    |]
+  
+  
+
+
   ]
