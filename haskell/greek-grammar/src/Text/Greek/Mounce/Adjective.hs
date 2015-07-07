@@ -53,7 +53,8 @@ adjectives =
         Χαναναῖος χίλιοι χλιαρός χλωρός χρύσεος
         ψυχρός ὡραῖος
     |]
-
+    -- dump in all special paradigms. 
+    -- reproduce paradigms with slight differences.
   , mounce § "a-3a" $
     [adjectiveCategory|
       Stems consistently using two endings (2-2)

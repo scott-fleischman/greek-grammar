@@ -11,9 +11,9 @@ mounceEuphony :: [Cited Euphony]
 mounceEuphony =
   [mounce § "2.2c" $
     Euphony "ι followed by long α, η, ω subscripts" [rules|
-      αι } ᾳ
-      ηι } ῃ
-      ωι } ῳ
+      α + ι } ᾳ
+      η + ι } ῃ
+      ω + ι } ῳ
    |]
   ,mounce § "2.3" $
     Euphony "Two like vowels form their common long" [rules|
@@ -34,13 +34,13 @@ mounceEuphony =
     |]
   , mounce § "2.4a" $
     Euphony "ει is formed by εε" [rules|
-      εε } ει 
+      ε + ε } ει 
     |]
   , mounce § "2.4b" $
     Euphony "ου is formed by εο" [rules|
-      εο } ου
-      οε } ου  
-      οο } ου
+      ε + ο } ου
+      ο + ε } ου  
+      ο + ο } ου
     |]
   , mounce § "2.5" $
     Euphony "ο or ω overcome α, ε, or ὴ regardless of the order, and form ω" [rules|
@@ -61,11 +61,11 @@ mounceEuphony =
     |]
   , mounce § "2.7a" $
     Euphony "α is formed from αε" [rules|
-      αε } α
+      α + ε } α
     |]
   , mounce § "2.7b" $
     Euphony "η is formed from εα" [rules|
-      εα } η
+      ε + α } η
     |]
   , mounce § "2.13a" $
     Euphony "Single vowel + diphthong (beginning with the same vowel as the single vowel)" [rules|
