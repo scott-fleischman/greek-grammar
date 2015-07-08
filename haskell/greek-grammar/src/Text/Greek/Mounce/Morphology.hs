@@ -142,7 +142,7 @@ suffixToString (AttestedSuffix ss@(_:_)) = soundsToString ss
 
 suffixToMaybeSounds :: Suffix -> Maybe [Sound]
 suffixToMaybeSounds UnattestedSuffix = Nothing
-suffixToMaybeSounds (AttestedSuffix ss) = Just ss
+suffixToMaybeSounds (AttestedSuffix ss) = Just . fmap stripEnding $ ss
 
 nounFormsToCaseNumber :: NounForms a -> [(a, Case, Number)]
 nounFormsToCaseNumber x =
