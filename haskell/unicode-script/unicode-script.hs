@@ -7,6 +7,7 @@ module Main where
 import Prelude (($), return, (.), flip, (==), Show(..), not, (&&), Bool(..))
 import Control.Applicative (Applicative(..), (<$>))
 import Control.Lens (makeLenses, (.~), (&), (^.))
+import Control.Monad (join, (>>=))
 import Data.Foldable (concatMap)
 import Data.Functor (fmap)
 import Data.List (filter, elem, intersperse)
@@ -149,22 +150,22 @@ makePlainTextToken el c = TextToken el c Nothing Nothing Nothing Nothing Nothing
 makeFinalFormTextToken :: Text -> Text -> Text -> TextToken
 makeFinalFormTextToken el c f = TextToken el c Nothing Nothing Nothing Nothing (Just f)
 
-applyNameToToken :: Text -> TextToken -> TextToken
+applyNameToToken :: Text -> TextToken -> Maybe TextToken
 applyNameToToken n t
-  | n `member` accentMap = t & accent .~ lookup n accentMap
-  | n `member` breathingMap = t & breathing .~ lookup n breathingMap
-  | n `member` iotaSubscriptMap = t & iotaSubscript .~ lookup n iotaSubscriptMap
-  | n `member` diaeresisMap = t & diaeresis .~ lookup n diaeresisMap
-  | True = t
+  | n `member` accentMap = Just $ t & accent .~ lookup n accentMap
+  | n `member` breathingMap = Just $ t & breathing .~ lookup n breathingMap
+  | n `member` iotaSubscriptMap = Just $ t & iotaSubscript .~ lookup n iotaSubscriptMap
+  | n `member` diaeresisMap = Just $ t & diaeresis .~ lookup n diaeresisMap
+  | True = Nothing
   where
     accentMap = fromList accentNames
     breathingMap = fromList breathingNames
     iotaSubscriptMap = fromList iotaSubscriptNames
     diaeresisMap = fromList diaeresisNames
 
-updateTokenAccents :: [Text] -> TextToken -> TextToken
-updateTokenAccents [] t = t
-updateTokenAccents (n : ns) t = updateTokenAccents ns (applyNameToToken n t)
+updateTokenAccents :: [Text] -> TextToken -> Maybe TextToken
+updateTokenAccents [] t = Just t
+updateTokenAccents (n : ns) t = (applyNameToToken n t) >>= (updateTokenAccents ns)
 
 namesToToken :: [Text] -> Maybe TextToken
 namesToToken ns = case validNameParts ns of
@@ -195,7 +196,7 @@ namesToToken ns = case validNameParts ns of
     makeLookup = flip lookup . fromList
 
     addAccents :: Maybe TextToken -> [Text] -> Maybe TextToken
-    addAccents mt ns'' = (updateTokenAccents ns'') <$> mt
+    addAccents mt ns'' = join ((updateTokenAccents ns'') <$> mt)
 
 toSplitName :: Text -> [Text]
 toSplitName = split (== ' ')
