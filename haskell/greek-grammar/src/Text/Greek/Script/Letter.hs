@@ -100,50 +100,27 @@ toVowelConsonant L_χ = Right C_χ
 toVowelConsonant L_ψ = Right C_ψ
 
 
-data Mark = AcuteMark | GraveMark | CircumflexMark | SmoothMark | RoughMark | IotaSubscriptMark | DiaeresisMark
+data UnicodeMark = AcuteMark | GraveMark | CircumflexMark | SmoothMark | RoughMark | IotaSubscriptMark | DiaeresisMark
 
 data Accent = AcuteAccent | GraveAccent | CircumflexAccent
 data Breathing = SmoothBreathing | RoughBreathing
 data IotaSubscript = IotaSubscript
 data Diaeresis = Diaeresis
 
-data BasicAccent = AcuteBasicAccent | GraveBasicAccent
+data OneOf4 a b c d
+  = OneOf4_0 a
+  | OneOf4_1 b
+  | OneOf4_2 c
+  | OneOf4_3 d
 
-data BasicAccentVowel = BasicAccentVowel Vowel BasicAccent
-
-data LongVowel = LV_α | LV_η | LV_ι | LV_υ | LV_ω
-data CircumflexVowel = CircumflexVowel LongVowel
-
-data AccentVowel
-  = AccentVowelBasic BasicAccentVowel
-  | AccentVowelCircumflex CircumflexVowel
-
-data RoughLetter
-  = RoughLetterVowel Vowel
-  | RoughLetter_ρ
-
-data SmoothLetter
-  = SmoothLetterLV Vowel
-  | SmoothLetterL_ρ
-  | RLUV_α
-  | RLUV_ε
-  | RLUV_η
-  | RLUV_ι
-  | RLUV_ο
-  | RLUV_ω
-
-data BreathingLetter
-  = BreathingLetterRough RoughLetter
-  | BreathingLetterSmooth SmoothLetter
-
-data IotaSubscriptVowel = ISV_ᾳ | ISV_ῃ | ISV_ῳ
-data DiaeresisVowel = DV_ι | DV_υ
-
-data LetterMark
-  = LetterMarkUnmarked Letter LetterCase
-  | LetterMarkAccent AccentVowel
-  | LetterMarkAccentBreathing AccentVowel BreathingLetter
-
+toMark :: UnicodeMark -> OneOf4 Accent Breathing IotaSubscript Diaeresis
+toMark AcuteMark = OneOf4_0 AcuteAccent
+toMark GraveMark = OneOf4_0 GraveAccent
+toMark CircumflexMark = OneOf4_0 CircumflexAccent
+toMark SmoothMark = OneOf4_1 SmoothBreathing
+toMark RoughMark = OneOf4_1 RoughBreathing
+toMark IotaSubscriptMark = OneOf4_2 IotaSubscript
+toMark DiaeresisMark = OneOf4_3 Diaeresis
 
 {-
 
