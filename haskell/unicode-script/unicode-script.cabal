@@ -15,7 +15,8 @@ executable unicode-script
     filepath,
     containers,
     lens,
-    text-format
+    text-format,
+    template-haskell
   main-is: unicode-script.hs
   ghc-options: -Wall -fwarn-tabs -O2
   hs-source-dirs: .
