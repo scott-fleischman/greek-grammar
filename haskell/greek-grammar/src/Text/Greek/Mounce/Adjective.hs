@@ -9,7 +9,7 @@ import Text.Greek.Mounce.Quote
 
 adjectives :: [Cited AdjectiveCategory]
 adjectives = 
-  [Cited ([Citation mounce (Section "a-1a(1)"), Citation mounce (Page 220)]) 
+  [Cited ([Citation mounce (Section "a-1a(1)"), Citation mounce (Section "a-3b(1)"), Citation mounce (Page 220)]) 
     [adjectiveCategory|
       Uncontracted stems using three endings (2-1-2) with the feminine in α | comparative and superlative adjectives
               m:  f:  n:
@@ -53,6 +53,8 @@ adjectives =
         Χαναναῖος χίλιοι χλιαρός χλωρός χρύσεος
         ψυχρός ὡραῖος 
 
+        αἰώνιος ἑδραῖος κόσμιος οἰκεῖος παρόμοιος
+
         ἀλυπότερος ἀναγκαιότερος ἀνεκτότερος ἀνώτερος ἀσθενέστερος
         ἀτιμότερος βαρύτερος βεβαιότερος δεισιδαιμονέστερος διαφορώτερος 
         διπλότερος ἐλαχιστότερος ἐλεεινότερος ἐντιμότερος ἐξώτερος
@@ -64,7 +66,7 @@ adjectives =
         τιμιώτατος
     |]
     -- what should we do with irregularly formed superlatives? Pg. 221
-   , mounce § "a-1a(2a)" $
+   , mounce §§ ["a-1a(2a)", "a-3b(2)"] $
      [adjectiveCategory|
       Uncontracted stems using three endings (2-1-2) with the feminine in η and neuter in ον
               m:  f:  n:
@@ -123,9 +125,11 @@ adjectives =
       	φαῦλος φθαρτός φθινοπωρινός φίλος φυσικός
       	φωτεινός χαλεπός χοϊκός χρήσιμος χρηστός
      	  χωλός ψυχικός 
+
+        ἕτοιμος πτηνός σκυθρωπός
     |]
      -- Mounce includes: καλοι Λιμένες καταμόνας μέγας πάμπολυς πολύς
-   , mounce § "a-1a(2a-special paradigm)" $
+   , Cited ([Citation mounce (Section "a-1a(2b)"), Citation mounce (Page 226)])
      [adjectiveCategory|
       Special Paradigm: μέγας
               m:       f:       n:
@@ -142,7 +146,7 @@ adjectives =
       lemmas:
       	μέγας
 	  |]
-   , mounce § "a-1a(2a-special paradigm)" $
+   , Cited ([Citation mounce (Section "a-1a(2a)"), Citation mounce (Page 224)])
      [adjectiveCategory|
       Special Paradigm: πολύς
               m:       f:       n:
@@ -179,7 +183,7 @@ adjectives =
       	τοσοῦτος
     |]
     -- Mounce has: ὅδε ὅσπερ ὅστις τοιόσδε
-   , mounce § "a-1a(2b-special paradigm)" $
+   , Cited ([Citation mounce (Section "a-1a(2b)"), Citation mounce (Page 225)])
      [adjectiveCategory|
       Special Paradigm: The Article 
               m:   f:   n:
@@ -196,7 +200,7 @@ adjectives =
       lemmas:
       	ὁ 
     |]
-   , mounce § "a-1a(2b-special paradigm)" $
+   , Cited ([Citation mounce (Section "a-1a(2b)"), Citation mounce (Page 226)])
      [adjectiveCategory|
       Special Paradigm: The Relative Pronoun 
               m:   f:   n:
@@ -213,7 +217,7 @@ adjectives =
       lemmas: 
       	ὅς 
     |]
-   , mounce § "a-1a(2b-special paradigm)" $
+   , Cited ([Citation mounce (Section "a-1a(2b)"), Citation mounce (Page 226)])
      [adjectiveCategory|
       Special Paradigm: ὅστις
               m:         f:         n:
@@ -283,7 +287,43 @@ adjectives =
       lemmas:  
         εἷς
     |]
-  , mounce § "a-3a" $
+  , Cited ([Citation mounce (Section "a-2a"), Citation mounce (Page 229)])
+     [adjectiveCategory|
+       Special Paradigm: μελας
+              m:        f:         n:
+      nom sg: μελας     μελαινα    μελαν
+      gen sg: μελανος   μελαινης   μελανος
+      dat sg: μελανι    μελαινῃ    μελανι
+      acc sg: μελανα    μελαιναν   μελαν
+      voc sg: *         *          *
+      nom pl: μελανες   μελαιναι   μελανα
+      gen pl: μελανων   μελαινων   μελανων
+      dat pl: μελασι    μελαιναις  μελασι
+      acc pl: μελανασ   μελαινας   μελανα
+      voc pl: *         *          *
+      lemmas:  
+        μελας
+    |]
+  , mounce § "a-2b" $
+     [adjectiveCategory|
+      Stems ending in digamma using three endings (3-1-3)
+              m:   f:    n:
+      nom sg: υς   εια   -
+      gen sg: εως  ειας  εως
+      dat sg: ει   ειᾳ   ει
+      acc sg: υν   ειαν  -
+      voc sg: *    *     *
+      nom pl: εις  ειαν  εα
+      gen pl: εων  ειων  εων
+      dat pl: εσι  ειαις εσι
+      acc pl: εις  ειας  εα
+      voc pl: *    *     *
+      lemmas:  
+        βαθύς βαρύς βραδύς βραχύς γλυκύς
+        εὐθύς ἥμισυς θῆλυς ὀξύς πλατύς
+        πραΰς ταχύς τραχύς
+    |]
+  , mounce §§ ["a-3a", "a-3b(1)", "a-3b(2)"] $
     [adjectiveCategory|
       Stems consistently using two endings (2-2)
               mf: n:
@@ -364,6 +404,132 @@ adjectives =
         φιλάδελφος φίλανδρος φιλάργυρος φίλαυτος φιλήδονος
         φιλόθεος φιλόνεικος φιλόξενος φιλόστοργος φιλότεκνος
         φλύαρος φρόνιμος φωσφόρος χειροποίητος χρυσοδακτύλιος 
-        ψευδολόγος ψευδώνυμος ὠφέλιμος
+        ψευδολόγος ψευδώνυμος ὠφέλιμος 
+
+        αἰώνιος ἑδραῖος κόσμιος οἰκεῖος παρόμοιος 
+
+        ἕτοιμος πτηνός σκυθρωπός
      |]
+  , mounce § "a-4a" $
+    [adjectiveCategory|
+      Stems ending in ες
+              mf: n:
+      nom sg: ής  ές
+      gen sg: οῦς οῦς
+      dat sg: εῖ  εῖ
+      acc sg: θῆ  ές
+      voc sg: *   *
+      nom pl: εῖς θῆ
+      gen pl: ῶν  ῶν
+      dat pl: έσι έσι
+      acc pl: εῖς θῆ
+      voc pl: *   *
+      lemmas:
+        ἀβαρής ενής αἰσχροκερδής ἀκλινής ἀκρατής
+        ἀκριβής ἀληθής ἀλλογενής ἀλυσιτελής ἀμαθής
+        ἀνωφελής ἀπειθής ἀσεβής ἀσθενής ἀσφαλής
+        αὐθάδης αὐτάρκης ἀφανής ἀψευδής γραώδης
+        δαιμονιώδης διαυγής διαφανής διετής διηνεκής 
+        διοπετής ἐγκρατής εἰλικρινής ἑκατονταετής
+        ἐκτενής ἐμφανής ἐναργής ἐνδεής ἐνεργής
+        ἐπιεικής ἐπισφαλής ἐπιφανής εὐγενής εὐλαβής
+        εὐπειθής εὐσεβής ἡμιθανής θειώδης θεοσεβής
+        θεοστυγής ἱεροπρεπής μεγαλοπρεπής μονογενής ὁλοτελής
+        ὁμοιοπαθής παντελής περικρατής πετρώδης πλήρης
+        ποδήρης πολυτελής πρηνής προπετής προσφιλής 
+        συγγενής συμπαθής τεσσερακονταετής τεσσερακονταετής
+        τρεῖς ὑγιής ψευδής
+      |]
+  , Cited ([Citation mounce (Section "a-4a"), Citation mounce (Page 236)])
+     [adjectiveCategory|
+       Special Paradigm: The stem τρεσ uses ες in both the nominative and accusative masculine/feminine.
+              mf:   n:
+      nom sg: *     *
+      gen sg: *     *    
+      dat sg: *     *     
+      acc sg: *     *     
+      voc sg: *     *
+      nom pl: τρεῖς τρία
+      gen pl: τριῶν τριῶν
+      dat pl: τρισί τρισί
+      acc pl: τρεῖς τρία
+      voc pl: *     *
+      lemmas:  
+        τρεῖς
+    |]
+  , mounce § "a-4b(1)" $
+    [adjectiveCategory|
+      Stems ending in ον
+              mf:  n:
+      nom sg: ων   ον
+      gen sg: ονος ονος
+      dat sg: ονι  ονι
+      acc sg: ονα  ον
+      voc sg: *    *
+      nom pl: ονες ονα
+      gen pl: όνων όνων
+      dat pl: οσι  οσι
+      acc pl: ονας ονα
+      voc pl: *    *
+      lemmas:
+        ἀνελεήμων ἀσχήμων ἄφρων βελτίων* δεισιδαίμων
+        ἑκατον ταπλασίων ἐλάσσων ἐλάττων ἐλεήμων
+        ἐπιστήμων ἑπταπλασίων εὐσχήμων ἥσσων ἥττων
+        κρείσσων κρείττων μείζων οἰκτίρμων ὁμόφρων
+        πλείων πολλαπλασίων σώφρων ταπεινόφρων
+        φιλόφρων χείρων
+      |]
+  , mounce § "a-4b(2)" $
+    [adjectiveCategory|
+      Stems ending in ν
+              mf:  n:
+      nom sg: ς    -
+      gen sg: ος   ος
+      dat sg: ι    ι
+      acc sg: α    -
+      voc sg: *    *
+      nom pl: ες   α
+      gen pl: ων   ων
+      dat pl: σι   σι
+      acc pl: ας   α
+      voc pl: *    *
+      lemmas:
+        τίς
+      |]
+  , mounce § "a-4c" $
+    [adjectiveCategory|
+      Miscellaneous 3-3 stems
+              mf:  n:
+      nom sg: ην   εν
+      gen sg: ενος ενος
+      dat sg: ενι  ενι
+      acc sg: ενα  εν
+      voc sg: *    *
+      nom pl: ες   α
+      gen pl: ων   ων
+      dat pl: σι   σι
+      acc pl: ας   α
+      voc pl: *    *
+      lemmas:
+        ἀμήτωρ ορος ἀπάτωρ ορος ἄρρην 
+        εν ἄρσην 
+      |]
+  , mounce § "a-5" $
+    [adjectiveCategory|
+      Irregular Stems
+              mf:  n:
+      nom sg: δύο  *
+      gen sg: δύο  *
+      dat sg: δυσί *
+      acc sg: δύο  *
+      voc sg: *    *
+      nom pl: *    *
+      gen pl: *    *
+      dat pl: *    *
+      acc pl: *    *
+      voc pl: *    *
+      lemmas:
+        δύο
+      |]
   ]
+
