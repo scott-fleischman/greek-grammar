@@ -202,7 +202,7 @@ nounCategoryLemmaSuffixes :: NounCategory -> [Suffix]
 nounCategoryLemmaSuffixes (NounCategory _ e _) = nounFormsLemmaSuffixes e
 
 adjectiveFormsLemmaSuffixes :: AdjectiveForms Suffix -> [Suffix]
-adjectiveFormsLemmaSuffixes x = fmap ($ x) [nomSgMasc, nomPlMasc]
+adjectiveFormsLemmaSuffixes x = fmap ($ x) [nomSgMasc, nomPlMasc, nomSgNeut, nomPlNeut]
 
 adjectiveCategoryLemmaSuffixes :: AdjectiveCategory -> [Suffix]
 adjectiveCategoryLemmaSuffixes (AdjectiveCategory _ e _) = adjectiveFormsLemmaSuffixes e
