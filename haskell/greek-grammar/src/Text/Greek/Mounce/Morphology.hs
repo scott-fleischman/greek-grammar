@@ -193,7 +193,7 @@ adjectiveFormsToCaseNumberGender x =
   ]
 
 stripEnding :: Sound -> Sound
-stripEnding = toLowerCase . stripAccent . stripSmoothBreathing
+stripEnding = toLowerCase . stripDiaeresis . stripAccent . stripSmoothBreathing
 
 nounFormsLemmaSuffixes :: NounForms Suffix -> [Suffix]
 nounFormsLemmaSuffixes x = fmap ($ x) [nomSg, nomPl]

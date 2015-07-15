@@ -58,6 +58,9 @@ stripBreathing = fmap (& breathing .~ Nothing)
 stripSmoothBreathing :: Sound -> Sound
 stripSmoothBreathing = fmap (& breathing %~ removeSmoothBreathing)
 
+stripDiaeresis :: Sound -> Sound
+stripDiaeresis = fmap (& diaeresis .~ Nothing)
+
 toLowerCase :: Sound -> Sound
 toLowerCase = fmap (& letterCase .~ Lowercase)
 
