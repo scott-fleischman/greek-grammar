@@ -35,13 +35,6 @@ data Token = Token
   deriving (Eq, Show, Ord, Data, Typeable)
 makeLenses ''Token
 
-data TokenContext a = TokenContext
-  { _token :: Token
-  , _context :: a
-  }
-  deriving (Eq, Show, Data, Typeable)
-makeLenses ''TokenContext
-
 unmarkedLetter :: Letter -> LetterCase -> Token
 unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing
 

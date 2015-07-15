@@ -14,13 +14,7 @@ data TokenError = InvalidChar Char
   deriving (Show)
 
 textToSounds :: Text -> Either TokenError [Sound]
-textToSounds t = fmap (fmap (^. sound) . tokensToSounds) $ textToTokenContexts t
-
-textToTokenContexts :: Text -> Either TokenError [TokenContext ()]
-textToTokenContexts t = fmap emptyTokenContext <$> textToTokens t
-
-emptyTokenContext :: Token -> TokenContext ()
-emptyTokenContext t = TokenContext t ()
+textToSounds t = tokensToSounds <$> textToTokens t
 
 textToTokens :: Text -> Either TokenError [Token]
 textToTokens t = traverse charToEither (unpack t)
@@ -33,7 +27,7 @@ textToTokens t = traverse charToEither (unpack t)
     charToTokenPair :: Char -> Maybe Token
     charToTokenPair = flip lookup (fromList unicodeTokenPairs)
 
-getBookTokens :: Book -> [TokenContext Character]
+getBookTokens :: Book -> [Token]
 getBookTokens = snd . charactersToTokenContexts . wordsToCharacters . segmentsToWords . segments
 
 tokensToString :: [Token] -> String

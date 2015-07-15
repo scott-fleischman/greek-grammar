@@ -72,10 +72,10 @@ wordsToCharacters = accumIndex (\i (c, w, iiw) -> Character c w iiw i) . concatM
 
   accumIndex f xs = snd $ mapAccumL (\acc x -> (acc + 1, f acc x)) 0 xs
 
-charactersToTokenContexts :: [Character] -> ([Character], [TokenContext Character])
+charactersToTokenContexts :: [Character] -> ([Character], [Token])
 charactersToTokenContexts = foldr addCharacter ([], [])
   where
     addCharacter c (skipped, ts) = case lookupChar (character c) of
-      Just t -> (skipped, (TokenContext t c) : ts)
+      Just t -> (skipped, t : ts)
       Nothing -> (c : skipped, ts)
     lookupChar = flip lookup (fromList unicodeTokenPairs)
