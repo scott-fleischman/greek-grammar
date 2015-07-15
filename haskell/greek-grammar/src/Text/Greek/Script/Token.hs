@@ -12,9 +12,9 @@ import Data.Foldable (concatMap)
 import Data.List (elem, nub)
 import Data.Maybe (Maybe(..), maybeToList)
 
-data Letter =
-    Alpha | Beta | Gamma | Delta | Epsilon | Digamma | Zeta | Eta | Theta | Iota | Kappa | Lambda
-  | Mu | Nu | Xi | Omicron | Pi | Rho | Sigma | Tau | Upsilon | Phi | Chi | Psi | Omega
+data Letter
+  = L_α | L_β | L_γ | L_δ | L_ε | L_ζ | L_η | L_θ | L_ι | L_κ | L_λ | L_μ
+  | L_ν | L_ξ | L_ο | L_π | L_ρ | L_σ | L_τ | L_υ | L_φ | L_χ | L_ψ | L_ω
   deriving (Eq, Show, Ord, Data, Typeable)
 data LetterCase = Lowercase | Uppercase deriving (Eq, Show, Ord, Data, Typeable)
 data Accent = Acute | Grave | Circumflex deriving (Eq, Show, Ord, Data, Typeable)
@@ -46,27 +46,27 @@ unmarkedLetter :: Letter -> LetterCase -> Token
 unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing
 
 vowels :: [Letter]
-vowels = [Alpha, Epsilon, Eta, Iota, Omicron, Upsilon, Omega]
+vowels = [L_α, L_ε, L_η, L_ι, L_ο, L_υ, L_ω]
 
 iotaSubscriptVowels :: [Letter]
-iotaSubscriptVowels = [Alpha, Eta, Omega]
+iotaSubscriptVowels = [L_α, L_η, L_ω]
 
 alwaysShortVowels :: [Letter]
-alwaysShortVowels = [Epsilon, Omicron]
+alwaysShortVowels = [L_ε, L_ο]
 
 alwaysLongVowels :: [Letter]
-alwaysLongVowels = [Eta, Omega]
+alwaysLongVowels = [L_η, L_ω]
 
 diphthongs :: [(Letter, Letter)]
 diphthongs =
-  [ (Alpha, Iota)
-  , (Epsilon, Iota)
-  , (Omicron, Iota)
-  , (Upsilon, Iota)
-  , (Alpha, Upsilon)
-  , (Epsilon, Upsilon)
-  , (Omicron, Upsilon)
-  , (Eta, Upsilon)
+  [ (L_α, L_ι)
+  , (L_ε, L_ι)
+  , (L_ο, L_ι)
+  , (L_υ, L_ι)
+  , (L_α, L_υ)
+  , (L_ε, L_υ)
+  , (L_ο, L_υ)
+  , (L_η, L_υ)
   ]
 
 diphthongSecondVowels :: [Letter]
@@ -78,9 +78,9 @@ isValidAccent el Grave = el `elem` vowels
 isValidAccent el Circumflex = el `elem` vowels && not (el `elem` alwaysShortVowels)
 
 isValidBreathing :: Letter -> LetterCase -> Breathing -> Bool
-isValidBreathing el Lowercase Smooth = el `elem` vowels || el == Rho
-isValidBreathing el Uppercase Smooth = el `elem` vowels && el /= Upsilon
-isValidBreathing el _ Rough = el `elem` vowels || el == Rho
+isValidBreathing el Lowercase Smooth = el `elem` vowels || el == L_ρ
+isValidBreathing el Uppercase Smooth = el `elem` vowels && el /= L_υ
+isValidBreathing el _ Rough = el `elem` vowels || el == L_ρ
 
 isValidIotaSubscript :: Letter -> IotaSubscript -> Bool
 isValidIotaSubscript el _ = el `elem` iotaSubscriptVowels
@@ -89,7 +89,7 @@ isValidDiaeresis :: Letter -> Diaeresis -> Bool
 isValidDiaeresis el _ = el `elem` diphthongSecondVowels
 
 isValidFinalForm :: Letter -> LetterCase -> FinalForm -> Bool
-isValidFinalForm Sigma Lowercase _ = True
+isValidFinalForm L_σ Lowercase _ = True
 isValidFinalForm _ _ _ = False
 
 data ValidationError =

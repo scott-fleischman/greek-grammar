@@ -49,31 +49,30 @@ data TextRecord = TextRecord
 
 letterNames :: [(Text, Text)]
 letterNames =
-  [ ("ALPHA", "Alpha")
-  , ("BETA", "Beta")
-  , ("GAMMA", "Gamma")
-  , ("DELTA", "Delta")
-  , ("EPSILON", "Epsilon")
-  , ("ZETA", "Zeta")
-  , ("ETA", "Eta")
-  , ("DIGAMMA", "Digamma")
-  , ("THETA", "Theta")
-  , ("IOTA", "Iota")
-  , ("KAPPA", "Kappa")
-  , ("LAMDA", "Lambda")
-  , ("MU", "Mu")
-  , ("NU", "Nu")
-  , ("XI", "Xi")
-  , ("OMICRON", "Omicron")
-  , ("PI", "Pi")
-  , ("RHO", "Rho")
-  , ("SIGMA", "Sigma")
-  , ("TAU", "Tau")
-  , ("UPSILON", "Upsilon")
-  , ("PHI", "Phi")
-  , ("CHI", "Chi")
-  , ("PSI", "Psi")
-  , ("OMEGA", "Omega")
+  [ ("ALPHA", "L_α")
+  , ("BETA", "L_β")
+  , ("GAMMA", "L_γ")
+  , ("DELTA", "L_δ")
+  , ("EPSILON", "L_ε")
+  , ("ZETA", "L_ζ")
+  , ("ETA", "L_η")
+  , ("THETA", "L_θ")
+  , ("IOTA", "L_ι")
+  , ("KAPPA", "L_κ")
+  , ("LAMDA", "L_λ")
+  , ("MU", "L_μ")
+  , ("NU", "L_ν")
+  , ("XI", "L_ξ")
+  , ("OMICRON", "L_ο")
+  , ("PI", "L_π")
+  , ("RHO", "L_ρ")
+  , ("SIGMA", "L_σ")
+  , ("TAU", "L_τ")
+  , ("UPSILON", "L_υ")
+  , ("PHI", "L_φ")
+  , ("CHI", "L_χ")
+  , ("PSI", "L_ψ")
+  , ("OMEGA", "L_ω")
   ]
 
 haskellUppercaseName :: Text
@@ -247,9 +246,12 @@ codePointDec rs = DataD [] (mkName "CodePoint") [] cs []
     mkC n = NormalC (mkN n) []
     mkN t = mkName . unpack . append "U_" $ t
 
-main :: IO ()
-main = do
+showCodePoints :: IO ()
+showCodePoints = do
   content <- readFile unicodeDataPath
   let records = toTextRecords content
   let codePoint = codePointDec records
   putStrLn . pprint $ codePoint
+
+main :: IO ()
+main = outputTokenPairs
