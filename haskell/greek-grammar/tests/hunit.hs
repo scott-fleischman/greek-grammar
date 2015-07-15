@@ -103,6 +103,7 @@ sampleAdjective2FormCategory =
     lemmas:
       ἀγαθοεργός ἀγαθοποιός ἀγενεαλόγητος ἄγναφος ἄγνωστος
       ἀγοραῖος ἀγράμματος ἀδάπανος ἄδηλος ἀδιάκριτος
+      τον
   |]
 
 main = defaultMain
@@ -143,6 +144,6 @@ main = defaultMain
     ]
   , testGroup "adjectiveCategory"
     [ testCase "length lemmas 3-form" $ 10 @=? (length $ sampleAdjective3FormCategory ^. adjectiveCategoryLemmas)
-    , testCase "length lemmas 2-form" $ 10 @=? (length $ sampleAdjective2FormCategory ^. adjectiveCategoryLemmas)
+    , testCase "length lemmas 2-form" $ 11 @=? (length $ sampleAdjective2FormCategory ^. adjectiveCategoryLemmas)
     ]
   ]
