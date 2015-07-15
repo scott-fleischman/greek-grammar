@@ -54,6 +54,19 @@ sampleNounCategory =
       ψευδόχριστος ψιθυρισμός ὦμος
   |]
 
+nounCategoryDiaeresis =
+  [nounCategory|
+    Lemma with diaeresis in ending
+         sg: pl:
+    nom: υς  *
+    gen: *   *
+    dat: *   *
+    acc: *   *
+    voc: *   *
+    lemmas:
+      πραΰς
+  |]
+
 sampleAdjective3FormCategory =
   [adjectiveCategory|
     Uncontracted stems using three endings (2-1-2) with the feminine in α
@@ -124,6 +137,9 @@ main = defaultMain
     [ testCase "length nounCategoryLemmas" $ 12 @=? (length $ sampleNounCategory ^. nounCategoryLemmas)
     , testCase "length nounCategoryToAllForms" $ 120 @=? (length . nounCategoryToAllForms $ sampleNounCategory)
     , testCase "getMismatches" $ 0 @=? (length . getNounMismatches $ sampleNounCategory)
+    ]
+  , testGroup "nounCategoryDiearesis"
+    [ testCase "diaeresis matches ending" $ 1 @=? (length $ nounCategoryDiaeresis ^. nounCategoryLemmas)
     ]
   , testGroup "adjectiveCategory"
     [ testCase "length lemmas 3-form" $ 10 @=? (length $ sampleAdjective3FormCategory ^. adjectiveCategoryLemmas)
