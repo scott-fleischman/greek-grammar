@@ -83,6 +83,14 @@ transform1
   -> (Consonant + Vowel) * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis) * (Maybe FinalForm)
 transform1 (l, r) = (divideLetter l) * r
 
+tryTransform2
+  ::        (Consonant                     + Vowel) * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis) * (Maybe FinalForm)
+  -> Maybe ((Consonant * (Maybe FinalForm) + Vowel) * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis))
+tryTransform2 ((Left  c), (lc, (a, (b, (i, (d, Nothing )))))) = Just $ Left (c * Nothing) * lc * a * b * i * d
+tryTransform2 ((Right v), (lc, (a, (b, (i, (d, Nothing )))))) = Just $ (Right v)          * lc * a * b * i * d
+tryTransform2 ((Left  c), (lc, (a, (b, (i, (d, (Just f))))))) = Just $ Left (c * Just f)  * lc * a * b * i * d
+tryTransform2 ((Right _), (_,  (_, (_, (_, (_, (Just _))))))) = Nothing
+
 
 unmarkedLetter :: Letter -> LetterCase -> Token
 unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing
