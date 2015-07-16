@@ -77,19 +77,26 @@ divideLetter L_ο = Right V_ο
 divideLetter L_υ = Right V_υ
 divideLetter L_ω = Right V_ω
 
-
 transform1
   ::  Letter             * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis) * (Maybe FinalForm)
   -> (Consonant + Vowel) * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis) * (Maybe FinalForm)
 transform1 (l, r) = (divideLetter l) * r
 
+
+tryConsonantFinal
+  ::        (Consonant                     + Vowel) * (Maybe FinalForm)
+  -> Maybe ((Consonant * (Maybe FinalForm) + Vowel))
+tryConsonantFinal ((Left  c), Nothing) = Just $ Left (c * Nothing)
+tryConsonantFinal ((Right v), Nothing) = Just $ (Right v)
+tryConsonantFinal ((Left  c), Just f)  = Just $ Left (c * Just f)
+tryConsonantFinal ((Right _), Just _)  = Nothing
+
 tryTransform2
   ::        (Consonant                     + Vowel) * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis) * (Maybe FinalForm)
   -> Maybe ((Consonant * (Maybe FinalForm) + Vowel) * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis))
-tryTransform2 ((Left  c), (lc, (a, (b, (i, (d, Nothing )))))) = Just $ Left (c * Nothing) * lc * a * b * i * d
-tryTransform2 ((Right v), (lc, (a, (b, (i, (d, Nothing )))))) = Just $ (Right v)          * lc * a * b * i * d
-tryTransform2 ((Left  c), (lc, (a, (b, (i, (d, (Just f))))))) = Just $ Left (c * Just f)  * lc * a * b * i * d
-tryTransform2 ((Right _), (_,  (_, (_, (_, (_, (Just _))))))) = Nothing
+tryTransform2 (l, (lc, (a, (b, (i, (d, f))))))
+  | Just r <- tryConsonantFinal (l * f) = Just $ r * lc * a * b * i * d
+  | otherwise = Nothing
 
 
 unmarkedLetter :: Letter -> LetterCase -> Token
