@@ -6,6 +6,7 @@
 
 module Text.Greek.Script.Token where
 
+import Prelude hiding ((+), (*))
 import Control.Lens
 import Data.Data
 import Data.List
@@ -35,43 +36,53 @@ data Token = Token
 makeLenses ''Token
 
 type a + b = Either a b
+type a * b = (a, b)
+infixr 6 +
+infixr 7 *
+
+(*) :: a -> b -> a * b
+a * b = (a, b)
+
+divideToken :: Token -> Letter * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis) * (Maybe FinalForm)
+divideToken (Token l c a b i d f) = l * c * a * b * i * d * f
 
 data Consonant = C_β | C_γ | C_δ | C_ζ | C_θ | C_κ | C_λ | C_μ | C_ν | C_ξ | C_π | C_ρ | C_σ | C_τ | C_φ | C_χ | C_ψ
   deriving (Eq, Show, Ord, Data, Typeable)
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω
   deriving (Eq, Show, Ord, Data, Typeable)
 
-toConsonantVowel :: Letter -> Consonant + Vowel
-toConsonantVowel L_β = Left C_β
-toConsonantVowel L_γ = Left C_γ
-toConsonantVowel L_δ = Left C_δ
-toConsonantVowel L_ζ = Left C_ζ
-toConsonantVowel L_θ = Left C_θ
-toConsonantVowel L_κ = Left C_κ
-toConsonantVowel L_λ = Left C_λ
-toConsonantVowel L_μ = Left C_μ
-toConsonantVowel L_ν = Left C_ν
-toConsonantVowel L_ξ = Left C_ξ
-toConsonantVowel L_π = Left C_π
-toConsonantVowel L_ρ = Left C_ρ
-toConsonantVowel L_σ = Left C_σ
-toConsonantVowel L_τ = Left C_τ
-toConsonantVowel L_φ = Left C_φ
-toConsonantVowel L_χ = Left C_χ
-toConsonantVowel L_ψ = Left C_ψ
-toConsonantVowel L_α = Right V_α
-toConsonantVowel L_ε = Right V_ε
-toConsonantVowel L_η = Right V_η
-toConsonantVowel L_ι = Right V_ι
-toConsonantVowel L_ο = Right V_ο
-toConsonantVowel L_υ = Right V_υ
-toConsonantVowel L_ω = Right V_ω
+divideLetter :: Letter -> Consonant + Vowel
+divideLetter L_β = Left C_β
+divideLetter L_γ = Left C_γ
+divideLetter L_δ = Left C_δ
+divideLetter L_ζ = Left C_ζ
+divideLetter L_θ = Left C_θ
+divideLetter L_κ = Left C_κ
+divideLetter L_λ = Left C_λ
+divideLetter L_μ = Left C_μ
+divideLetter L_ν = Left C_ν
+divideLetter L_ξ = Left C_ξ
+divideLetter L_π = Left C_π
+divideLetter L_ρ = Left C_ρ
+divideLetter L_σ = Left C_σ
+divideLetter L_τ = Left C_τ
+divideLetter L_φ = Left C_φ
+divideLetter L_χ = Left C_χ
+divideLetter L_ψ = Left C_ψ
+divideLetter L_α = Right V_α
+divideLetter L_ε = Right V_ε
+divideLetter L_η = Right V_η
+divideLetter L_ι = Right V_ι
+divideLetter L_ο = Right V_ο
+divideLetter L_υ = Right V_υ
+divideLetter L_ω = Right V_ω
 
-data Token2 = Token2 (Consonant + Vowel) LetterCase (Maybe Accent) (Maybe Breathing) (Maybe IotaSubscript) (Maybe Diaeresis) (Maybe FinalForm)
-  deriving (Eq, Show, Ord, Data, Typeable)
 
-toToken2 :: Token -> Token2
-toToken2 (Token l c a b i d f) = Token2 (toConsonantVowel l) c a b i d f
+transform1
+  ::  Letter             * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis) * (Maybe FinalForm)
+  -> (Consonant + Vowel) * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis) * (Maybe FinalForm)
+transform1 (l, r) = (divideLetter l) * r
+
 
 unmarkedLetter :: Letter -> LetterCase -> Token
 unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing
