@@ -5,12 +5,10 @@
 
 module Text.Greek.Script.Token where
 
-import Prelude (Bool(..), Eq(..), Show(..), Ord, not, ($), (.), (||), (&&), fmap, snd)
-import Control.Lens (makeLenses)
-import Data.Data (Data, Typeable)
-import Data.Foldable (concatMap)
-import Data.List (elem, nub)
-import Data.Maybe (Maybe(..), maybeToList)
+import Control.Lens
+import Data.Data
+import Data.List
+import Data.Maybe
 
 data Letter
   = L_α | L_β | L_γ | L_δ | L_ε | L_ζ | L_η | L_θ | L_ι | L_κ | L_λ | L_μ
