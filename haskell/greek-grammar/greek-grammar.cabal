@@ -28,7 +28,7 @@ library
     Data.Text.Format.Strict
     Data.Unicode.Decompose
     Data.Unicode.DecomposeChar
-    Data.Unicode.LetterMarkGroup
+    Data.Unicode.MarkedLetter
     Text.Greek.Conversions
     Text.Greek.Corpus.Bible
     Text.Greek.Corpus.Bible.Stats

@@ -13,7 +13,7 @@ import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Tuple
-import Data.Unicode.LetterMarkGroup
+import Data.Unicode.MarkedLetter
 import Numeric
 import Test.Framework
 import Test.Framework.Providers.HUnit
@@ -124,10 +124,10 @@ main = defaultMain
   , testGroup "Contractions" . pure . testCase "Forward" $
       mapM_ (\t@(v1, v2, vs) -> assertEqual (show t) (sort $ getContractions v1 v2) (sort vs)) forwardContractionTests
   , testGroup "groupMarks"
-    [ testCase "alpha" $ groupMarks [alpha] @?= GroupMarksResult [] [LetterMarkGroup alpha []]
-    , testCase "alphaAcute_polytonic" $ groupMarks [alphaAcute] @?= GroupMarksResult [] [LetterMarkGroup alphaAcute []]
-    , testCase "alpha_acuteMark" $ groupMarks [alpha, acute] @?= GroupMarksResult [] [LetterMarkGroup alpha [acute]]
-    , testCase "alpha_smoothMark_acuteMark" $ groupMarks [alpha, smooth, acute] @?= GroupMarksResult [] [LetterMarkGroup alpha [acute, smooth]]
+    [ testCase "alpha" $ groupMarks [alpha] @?= GroupMarksResult [] [MarkedLetter alpha []]
+    , testCase "alphaAcute_polytonic" $ groupMarks [alphaAcute] @?= GroupMarksResult [] [MarkedLetter alphaAcute []]
+    , testCase "alpha_acuteMark" $ groupMarks [alpha, acute] @?= GroupMarksResult [] [MarkedLetter alpha [acute]]
+    , testCase "alpha_smoothMark_acuteMark" $ groupMarks [alpha, smooth, acute] @?= GroupMarksResult [] [MarkedLetter alpha [acute, smooth]]
     ]
   , testGroup "removeSuffix"
     [ testCase "empty" $ [1,2,3] @=? removeSuffix [] [1,2,3]

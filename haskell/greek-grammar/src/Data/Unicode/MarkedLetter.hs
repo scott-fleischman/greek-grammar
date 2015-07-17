@@ -1,17 +1,17 @@
-module Data.Unicode.LetterMarkGroup where
+module Data.Unicode.MarkedLetter where
 
 import Data.Char
 import Data.Foldable (foldl')
 
-data LetterMarkGroup = LetterMarkGroup
-  { unicodeLetter :: Char
-  , unicodeMarks :: [Char]
+data MarkedLetter = MarkedLetter
+  { letter :: Char
+  , marks :: [Char]
   }
   deriving (Eq, Show)
 
 data GroupMarksResult = GroupMarksResult
   { skippedChars :: [Char]
-  , letterMarkGroups :: [LetterMarkGroup]
+  , markedLetters :: [MarkedLetter]
   }
   deriving (Eq, Show)
 
@@ -24,11 +24,11 @@ groupMarks = foldl' addChar emptyResult
 addChar :: GroupMarksResult -> Char -> GroupMarksResult
 addChar (GroupMarksResult ss gs) c
   | True <- isLetter c
-  = GroupMarksResult ss ((LetterMarkGroup c []) : gs)
+  = GroupMarksResult ss ((MarkedLetter c []) : gs)
 
   | True <- isMark c
-  , (LetterMarkGroup el ms) : gs' <- gs
-  = GroupMarksResult ss ((LetterMarkGroup el (c : ms)) : gs')
+  , (MarkedLetter el ms) : gs' <- gs
+  = GroupMarksResult ss ((MarkedLetter el (c : ms)) : gs')
 
   | True
   = GroupMarksResult (c : ss) gs
