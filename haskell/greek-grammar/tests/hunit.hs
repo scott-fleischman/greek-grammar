@@ -13,6 +13,7 @@ import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Tuple
+import Data.Unicode.LetterMarkGroup
 import Numeric
 import Test.Framework
 import Test.Framework.Providers.HUnit
@@ -26,7 +27,6 @@ import Text.Greek.Paths
 import Text.Greek.Phonology.Contractions
 import Text.Greek.Script
 import Text.Greek.Script.Sound
-import Text.Greek.Script.Unicode
 import Text.XML (readFile)
 
 loadSblgnt = do

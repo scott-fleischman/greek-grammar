@@ -28,6 +28,7 @@ library
     Data.Text.Format.Strict
     Data.Unicode.Decompose
     Data.Unicode.DecomposeChar
+    Data.Unicode.LetterMarkGroup
     Text.Greek.Conversions
     Text.Greek.Corpus.Bible
     Text.Greek.Corpus.Bible.Stats
@@ -57,7 +58,6 @@ library
     Text.Greek.Script.Letter
     Text.Greek.Script.Sound
     Text.Greek.Script.Token
-    Text.Greek.Script.Unicode
     Text.Greek.Script.UnicodeTokenPairs
   ghc-options: -Wall -fwarn-tabs -O2
   hs-source-dirs:   src

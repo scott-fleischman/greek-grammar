@@ -1,7 +1,7 @@
-module Text.Greek.Script.Unicode where
+module Data.Unicode.LetterMarkGroup where
 
 import Data.Char
-import Data.List (foldl')
+import Data.Foldable (foldl')
 
 data LetterMarkGroup = LetterMarkGroup
   { unicodeLetter :: Char
