@@ -52,6 +52,7 @@ library
     Text.Greek.Phonology.ShowText
     Text.Greek.Phonology.Vowels
     Text.Greek.Script
+    Text.Greek.Script.DecomposeChar
     Text.Greek.Script.Letter
     Text.Greek.Script.Sound
     Text.Greek.Script.Token
