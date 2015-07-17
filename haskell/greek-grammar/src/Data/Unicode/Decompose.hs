@@ -2,5 +2,5 @@ module Data.Unicode.Decompose where
 
 import Data.Unicode.DecomposeChar
 
-decompose :: String -> String
+decompose :: Foldable t => t Char -> String
 decompose = concatMap decomposeChar
