@@ -26,6 +26,7 @@ library
     syb >= 0.4.4
   exposed-modules:
     Data.Text.Format.Strict
+    Data.Unicode.DecomposeChar
     Text.Greek.Conversions
     Text.Greek.Corpus.Bible
     Text.Greek.Corpus.Bible.Stats
@@ -52,7 +53,6 @@ library
     Text.Greek.Phonology.ShowText
     Text.Greek.Phonology.Vowels
     Text.Greek.Script
-    Text.Greek.Script.DecomposeChar
     Text.Greek.Script.Letter
     Text.Greek.Script.Sound
     Text.Greek.Script.Token
