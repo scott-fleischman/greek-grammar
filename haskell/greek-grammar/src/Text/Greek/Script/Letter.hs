@@ -5,10 +5,8 @@ module Text.Greek.Script.Letter where
 import Data.Data
 
 data UnicodeLetter
-  = U_α | U_β | U_γ | U_δ | U_ε | U_ζ | U_η | U_θ | U_ι | U_κ | U_λ | U_μ
-  | U_ν | U_ξ | U_ο | U_π | U_ρ | U_σ | U_ς | U_τ | U_υ | U_φ | U_χ | U_ψ | U_ω
-  | U_Α | U_Β | U_Γ | U_Δ | U_Ε | U_Ζ | U_Η | U_Θ | U_Ι | U_Κ | U_Λ | U_Μ
-  | U_Ν | U_Ξ | U_Ο | U_Π | U_Ρ | U_Σ | U_Τ | U_Υ | U_Φ | U_Χ | U_Ψ | U_Ω
+  = U_α | U_β | U_γ | U_δ | U_ε | U_ζ | U_η | U_θ | U_ι | U_κ | U_λ | U_μ | U_ν | U_ξ | U_ο | U_π | U_ρ | U_σ | U_ς | U_τ | U_υ | U_φ | U_χ | U_ψ | U_ω
+  | U_Α | U_Β | U_Γ | U_Δ | U_Ε | U_Ζ | U_Η | U_Θ | U_Ι | U_Κ | U_Λ | U_Μ | U_Ν | U_Ξ | U_Ο | U_Π | U_Ρ | U_Σ       | U_Τ | U_Υ | U_Φ | U_Χ | U_Ψ | U_Ω
 
 data FinalForm = FinalForm
 data Letter
