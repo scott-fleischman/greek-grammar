@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Text.Greek.NewTestament.SBLSimple where
+module Text.Greek.Source.Osis where
 
 import Prelude hiding (Word)
 import Data.Text (Text)
