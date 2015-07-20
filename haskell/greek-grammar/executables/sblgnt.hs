@@ -2,7 +2,7 @@
 
 module Main where
 
-import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=))
+import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=), show)
 import qualified Prelude as Unsafe ((!!))
 import Control.Applicative (pure)
 import Control.Monad (mapM_, Monad(..))
@@ -21,7 +21,8 @@ import Text.Greek.Corpus.Bible
 import Text.Greek.Corpus.Bible.Stats
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
-import qualified Data.Text as T (concat)
+import qualified Text.Greek.Source.Osis as Osis
+import qualified Data.Text as T
 
 load :: IO (Either SBLError Bible)
 load = do
@@ -31,8 +32,14 @@ load = do
 report :: (Bible -> [Text]) -> IO ()
 report f = load >>= mapM_ putStrLn . showErrorContinue f
 
+mainDocumentToOsisText :: IO ()
+mainDocumentToOsisText = do
+  doc <- readFile def sblgntOsisPath
+  let osis = Osis.documentToOsisText doc
+  putStrLn . T.pack . show $ osis
+
 main :: IO ()
-main = matchNounsIO
+main = mainDocumentToOsisText
 
 matchNounsIO :: IO ()
 matchNounsIO = report matchNouns

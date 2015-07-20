@@ -6,7 +6,7 @@ module Text.Greek.Paths where
 import System.FilePath
 
 projectRootPath :: FilePath
-projectRootPath = ".." </> ".."
+projectRootPath = "."
 
 sblgntOsisPath :: FilePath
 sblgntOsisPath = projectRootPath </> "data" </> "sblgnt-osis" </> "SBLGNT" <.> "osis" <.> "xml"
