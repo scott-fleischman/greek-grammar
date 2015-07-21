@@ -531,5 +531,114 @@ adjectives =
       lemmas:
         δύο
       |]
+  , mounce § "a-5" $
+    [adjectiveCategory|
+      Irregular Stems
+              mf:  n:
+      nom sg: *    ἵλεως
+      gen sg: *    *
+      dat sg: *    *
+      acc sg: *    *
+      voc sg: *    *
+      nom pl: *    *
+      gen pl: *    *
+      dat pl: *    *
+      acc pl: *    *
+      voc pl: *    *
+      lemmas:
+        ἵλεως
+      |]
+    , mounce § "a-5" $
+    [adjectiveCategory|
+      Irregular Stems
+              mf:    n:
+      nom sg: *      *
+      gen sg: *      *
+      dat sg: *      *
+      acc sg: *      *
+      voc sg: *      *
+      nom pl: ἡμεῖς  *
+      gen pl: ἡμῶν   *
+      dat pl: ἡμῖν   *
+      acc pl: ἡμᾶς   *
+      voc pl: *      *
+      lemmas:
+        ἡμεῖς
+      |]
+    , mounce § "a-5" $
+    [adjectiveCategory|
+      Irregular Stems
+              mf:   n:
+      nom sg: ἐγώ   *
+      gen sg: ἐμοῦ  μου
+      dat sg: ἐμοί  μοι
+      acc sg: ἐμέ   με
+      voc sg: *     *
+      nom pl: *     *
+      gen pl: *     *
+      dat pl: *     *
+      acc pl: *     *
+      voc pl: *     *
+      lemmas:
+        ἐγώ
+      |]
+    , mounce § "a-5" $
+    [adjectiveCategory|
+      Irregular Stems
+              mf:    n:
+      nom sg: *      *
+      gen sg: *      *
+      dat sg: *      *
+      acc sg: *      *
+      voc sg: *      *
+      nom pl: ὑμεῖς  *
+      gen pl: ὑμῶν   *
+      dat pl: ὑμῖν   *
+      acc pl: ὑμᾶς   *
+      voc pl: *      *
+      lemmas:
+        ὑμεῖς
+      |]
+    , mounce § "a-5" $
+    [adjectiveCategory|
+      Irregular Stems
+              mf:  n:
+      nom sg: σύ   *
+      gen sg: σοῦ  σου
+      dat sg: σοί  σοι
+      acc sg: σέ   σε
+      voc sg: *    *
+      nom pl: *    *
+      gen pl: *    *
+      dat pl: *    *
+      acc pl: *    *
+      voc pl: *    *
+      lemmas:
+        σύ
+      |]
+   , mounce §§ ["a-5"] $
+   [adjectiveCategory| 
+     Indeclinable stems
+             mf: n:
+     nom sg: -   -
+     gen sg: -   -
+     dat sg: -   -
+     acc sg: -   -
+     voc sg: -   -
+     nom pl: -   -
+     gen pl: -   -
+     dat pl: -   -
+     acc pl: -   -
+     voc pl: -   -
+     lemmas:
+       α β γ δ δέκα
+       δεκαδύο δεκαοκτώ δεκαπέντε δεκατέσσαρες
+       δώδεκα ε ἑβδομήκοντα ἑβδομηκοντάκις εἴκοσι
+       ἑκατόν ἕνδεκα ἐνενήκοντα ἐννέα ἕξ
+       ἑξήκοντα ἑπτά ζ ιβ ὀγδοήκοντα
+       ὀκτώ πέντε πεντήκοντα τέσσαρες τεσσαράκοντα
+       τέσσαρες τεσσεράκοντα τριάκοντα χξς
+       Ὦ
+      |]
   ]
 
