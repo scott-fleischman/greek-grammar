@@ -4,3 +4,6 @@
 [submodule "data/ucd"]
 	path = data/ucd
 	url = https://github.com/scott-fleischman/ucd.git
+[submodule "data/sblgnt-xml"]
+	path = data/sblgnt-xml
+	url = https://github.com/scott-fleischman/sblgnt-xml.git
