@@ -15,6 +15,7 @@ import qualified Data.Text as T
 import Data.Tuple
 import Data.Unicode.MarkedLetter
 import Numeric
+import System.FilePath
 import Test.Framework
 import Test.Framework.Providers.HUnit
 import Test.HUnit
@@ -29,8 +30,11 @@ import Text.Greek.Script
 import Text.Greek.Script.Sound
 import Text.XML (readFile)
 
+sblgntOsisTestPath :: FilePath
+sblgntOsisTestPath = ".." </> ".." </> sblgntOsisPath
+
 loadSblgnt = do
-  sblgnt <- readFile def sblgntOsisPath
+  sblgnt <- readFile def sblgntOsisTestPath
   isRight (loadOsis sblgnt) @?= True
 
 alpha = '\x0391'
