@@ -9,7 +9,7 @@ import Control.Monad (mapM_, Monad(..))
 import Data.Default (def)
 import Data.Either (Either(..))
 import Data.Functor (fmap)
-import Data.List (filter, intersperse, concat)
+import Data.List (filter, intersperse, concat, length)
 import Data.Text (Text, replace, unpack)
 import Data.Text.Format (Only(..))
 import Data.Text.Format.Strict (format')
@@ -42,7 +42,9 @@ mainDocumentToOsisText = do
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
   es <- readEvents sblgntXmlPath
-  mapM_ (putStrLn . T.pack . show) es
+  let k = uniqueEventKinds es
+  putStrLn . T.pack . show . _bad $ k
+  putStrLn . T.pack . show . fmap (length) . _good $ k
 
 main :: IO ()
 main = mainDocumentToXml
