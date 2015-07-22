@@ -11,6 +11,9 @@ projectRootPath = "."
 sblgntOsisPath :: FilePath
 sblgntOsisPath = projectRootPath </> "data" </> "sblgnt-osis" </> "SBLGNT" <.> "osis" <.> "xml"
 
+sblgntXmlPath :: FilePath
+sblgntXmlPath = projectRootPath </> "data" </> "sblgnt-xml" </> "sblgnt" <.> "xml"
+
 agdaSblgntPath :: FilePath
 agdaSblgntPath = projectRootPath </> "agda" </> "Text" </> "Greek" </> "SBLGNT"
 
