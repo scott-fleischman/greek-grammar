@@ -33,14 +33,16 @@ getEventKind _ = Nothing
 data Result a b = Result { _good :: a, _bad :: b } deriving (Show)
 makeLenses ''Result
 
-uniqueFoldrHelper :: Ord b => (a -> Maybe b) -> a -> Result (Map b [a]) [a] -> Result (Map b [a]) [a]
+type MapResult a b = Result (Map b [a]) [a]
+
+uniqueFoldrHelper :: Ord b => (a -> Maybe b) -> a -> MapResult a b -> MapResult a b
 uniqueFoldrHelper f x =
   case f x of
     Just y  -> good %~ M.insertWith (\_ old -> x : old) y [x]
     Nothing -> bad %~ (x :)
 
-getUniqueResults :: (Foldable m, Ord b) => (a -> Maybe b) -> m a -> Result (Map b [a]) [a]
+getUniqueResults :: (Foldable m, Ord b) => (a -> Maybe b) -> m a -> MapResult a b
 getUniqueResults f = foldr (uniqueFoldrHelper f) (Result M.empty [])
 
-uniqueEventKinds :: [EventPos] -> Result (Map EventKind [EventPos]) [EventPos]
+uniqueEventKinds :: [EventPos] -> MapResult EventPos EventKind
 uniqueEventKinds = getUniqueResults (getEventKind . snd)

@@ -5,6 +5,7 @@ module Main where
 import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=), show)
 import qualified Prelude as Unsafe ((!!))
 import Control.Applicative (pure)
+import Control.Lens ((%~))
 import Control.Monad (mapM_, Monad(..))
 import Data.Default (def)
 import Data.Either (Either(..))
@@ -43,8 +44,7 @@ mainDocumentToXml :: IO ()
 mainDocumentToXml = do
   es <- readEvents sblgntXmlPath
   let k = uniqueEventKinds es
-  putStrLn . T.pack . show . _bad $ k
-  putStrLn . T.pack . show . fmap (length) . _good $ k
+  putStrLn . T.pack . show . (good %~ fmap length) $ k
 
 main :: IO ()
 main = mainDocumentToXml
