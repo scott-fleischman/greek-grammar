@@ -21,7 +21,7 @@ import Text.Greek.Corpus.Bible
 import Text.Greek.Corpus.Bible.Stats
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
-import Text.Greek.Source.SBL
+import Text.Greek.Source.Sblgnt
 import qualified Text.Greek.Source.Osis as Osis
 import qualified Data.Text as T
 
@@ -41,8 +41,8 @@ mainDocumentToOsisText = do
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  doc <- readFile def sblgntXmlPath
-  putStrLn . T.pack . documentToString $ doc
+  es <- readEvents sblgntXmlPath
+  mapM_ (putStrLn . T.pack . show) es
 
 main :: IO ()
 main = mainDocumentToXml
