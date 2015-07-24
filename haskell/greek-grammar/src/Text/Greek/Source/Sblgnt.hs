@@ -1,34 +1,60 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Text.Greek.Source.Sblgnt where
 
+import Prelude hiding ((*), (+))
 import Conduit
 import Control.Lens
 import Data.Map.Lazy (Map)
-import Data.XML.Types
-import Text.XML
-import Text.XML.Stream.Parse
+import Data.Text (Text)
+import qualified Data.Conduit.Attoparsec as P
 import qualified Data.Map.Lazy as M
+import qualified Data.XML.Types as X
+import qualified Text.XML.Stream.Parse as P
 
-readEvents :: FilePath -> IO [EventPos]
-readEvents path = runResourceT $ sourceFile path =$= parseBytesPos def $$ sinkList
+addFilePath :: FilePath -> (a, b) -> (FilePath, a, b)
+addFilePath p (x, y) = (p, x, y)
 
-data EventKind
-  = EventKindBeginDocument
-  | EventKindEndDocument
-  | EventKindBeginElement
-  | EventKindEndElement
-  | EventKindContent
+readEvents :: FilePath -> IO [(FilePath, Maybe P.PositionRange, X.Event)]
+readEvents path = eventList >>= return . fmap (addFilePath path)
+  where eventList = runResourceT $ sourceFile path =$= P.parseBytesPos P.def $$ sinkList
+
+
+data X1_Event
+  = X1_BeginDocument
+  | X1_EndDocument
+  | X1_BeginElement X.Name [(X.Name, [X.Content])]
+  | X1_EndElement X.Name
+  | X1_Content X.Content
   deriving (Show, Eq, Ord)
 
-getEventKind :: Event -> Maybe EventKind
-getEventKind EventBeginDocument = Just EventKindBeginDocument
-getEventKind EventEndDocument = Just EventKindEndDocument
-getEventKind (EventBeginElement _ _) = Just EventKindBeginElement
-getEventKind (EventEndElement _) = Just EventKindEndElement
-getEventKind (EventContent _) = Just EventKindContent
-getEventKind _ = Nothing
+subEvent1 :: X.Event -> Maybe X1_Event
+subEvent1  X.EventBeginDocument      = Just $ X1_BeginDocument
+subEvent1  X.EventEndDocument        = Just $ X1_EndDocument
+subEvent1 (X.EventBeginElement n as) = Just $ X1_BeginElement n as
+subEvent1 (X.EventEndElement n)      = Just $ X1_EndElement n
+subEvent1 (X.EventContent c)         = Just $ X1_Content c
+subEvent1 _                          = Nothing
+
+
+removePrefix :: Eq a => [a] -> [a] -> Maybe [a]
+removePrefix [] ys = Just ys
+removePrefix _  [] = Nothing
+removePrefix (x : xs) (y : ys)
+  | x == y    = removePrefix xs ys
+  | otherwise = Nothing
+
+removeSuffixHelper :: Eq a => a -> (Maybe [a], Maybe [a]) -> (Maybe [a], Maybe [a])
+removeSuffixHelper y (Just [],       Just ys)          = (Just [], Just $ y : ys)
+removeSuffixHelper y (Just (x : xs), Just ys) | x == y = (Just xs, Just $     ys)
+removeSuffixHelper _ _ = (Nothing, Nothing)
+
+removeSuffix :: Eq a => [a] -> [a] -> Maybe [a]
+removeSuffix xs = snd . foldr removeSuffixHelper (Just . reverse $ xs, Just [])
+
+
 
 data Result a b = Result { _good :: a, _bad :: b } deriving (Show)
 makeLenses ''Result
@@ -43,6 +69,3 @@ uniqueFoldrHelper f x =
 
 getUniqueResults :: (Foldable m, Ord b) => (a -> Maybe b) -> m a -> MapResult a b
 getUniqueResults f = foldr (uniqueFoldrHelper f) (Result M.empty [])
-
-uniqueEventKinds :: [EventPos] -> MapResult EventPos EventKind
-uniqueEventKinds = getUniqueResults (getEventKind . snd)
