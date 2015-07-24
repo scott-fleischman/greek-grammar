@@ -43,9 +43,10 @@ mainDocumentToOsisText = do
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
   es <- readEvents sblgntXmlPath
-  -- let k = uniqueEventKinds es
-  -- putStrLn . T.pack . show . (good %~ fmap length) $ k
-  putStrLn . T.pack . show . length $ es
+  let k = getResults transform1 es
+  case k of
+    Left xs -> putStrLn . T.pack . show $ xs
+    Right xs -> putStrLn . T.pack . show . length $ xs
 
 main :: IO ()
 main = mainDocumentToXml
