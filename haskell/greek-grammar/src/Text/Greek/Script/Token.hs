@@ -2,11 +2,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeOperators #-}
 
 module Text.Greek.Script.Token where
 
-import Prelude hiding ((+), (*))
 import Control.Lens
 import Data.Data
 import Data.List
@@ -35,24 +33,12 @@ data Token = Token
   deriving (Eq, Show, Ord, Data, Typeable)
 makeLenses ''Token
 
-type a + b = Either a b
-infixr 6 +
-
-data a * b = a :* b
-infixr 7 *, :*
-
-(*) :: a -> b -> a * b
-a * b = a :* b
-
-divideToken :: Token -> Letter * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis) * (Maybe FinalForm)
-divideToken (Token l c a b i d f) = l * c * a * b * i * d * f
-
 data Consonant = C_β | C_γ | C_δ | C_ζ | C_θ | C_κ | C_λ | C_μ | C_ν | C_ξ | C_π | C_ρ | C_σ | C_τ | C_φ | C_χ | C_ψ
   deriving (Eq, Show, Ord, Data, Typeable)
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω
   deriving (Eq, Show, Ord, Data, Typeable)
 
-divideLetter :: Letter -> Consonant + Vowel
+divideLetter :: Letter -> Either Consonant Vowel
 divideLetter L_β = Left C_β
 divideLetter L_γ = Left C_γ
 divideLetter L_δ = Left C_δ
@@ -77,28 +63,6 @@ divideLetter L_ι = Right V_ι
 divideLetter L_ο = Right V_ο
 divideLetter L_υ = Right V_υ
 divideLetter L_ω = Right V_ω
-
-transform1
-  ::  Letter             * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis) * (Maybe FinalForm)
-  -> (Consonant + Vowel) * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis) * (Maybe FinalForm)
-transform1 (l :* r) = (divideLetter l) * r
-
-
-tryConsonantFinal
-  ::        (Consonant                     + Vowel) * (Maybe FinalForm)
-  -> Maybe ((Consonant * (Maybe FinalForm) + Vowel))
-tryConsonantFinal (Left  c :* Nothing) = Just $ Left (c * Nothing)
-tryConsonantFinal (Right v :* Nothing) = Just $ (Right v)
-tryConsonantFinal (Left  c :* Just f)  = Just $ Left (c * Just f)
-tryConsonantFinal (Right _ :* Just _)  = Nothing
-
-tryTransform2
-  ::        (Consonant                     + Vowel) * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis) * (Maybe FinalForm)
-  -> Maybe ((Consonant * (Maybe FinalForm) + Vowel) * LetterCase * (Maybe Accent) * (Maybe Breathing) * (Maybe IotaSubscript) * (Maybe Diaeresis))
-tryTransform2 (l :* lc :* a :* b :* i :* d :* f)
-  | Just r <- tryConsonantFinal (l * f) = Just $ r * lc * a * b * i * d
-  | otherwise = Nothing
-
 
 unmarkedLetter :: Letter -> LetterCase -> Token
 unmarkedLetter el c = Token el c Nothing Nothing Nothing Nothing Nothing
