@@ -44,20 +44,18 @@ transform1 :: (FilePath, Maybe P.PositionRange, X.Event) -> Maybe (FilePath, May
 transform1 = traverseOf _3 subEvent1
 
 
-removePrefix :: Eq a => [a] -> [a] -> Maybe [a]
-removePrefix [] ys = Just ys
-removePrefix _  [] = Nothing
-removePrefix (x : xs) (y : ys)
-  | x == y    = removePrefix xs ys
-  | otherwise = Nothing
+removePrefixWith :: Eq b => (a -> b) -> [b] -> [a] -> Maybe [a]
+removePrefixWith _ []       ys                  = Just ys
+removePrefixWith f (x : xs) (y : ys) | x == f y = removePrefixWith f xs ys
+removePrefixWith _ _        _                   = Nothing
 
-removeSuffixHelper :: Eq a => a -> (Maybe [a], Maybe [a]) -> (Maybe [a], Maybe [a])
-removeSuffixHelper y (Just [],       Just ys)          = (Just [], Just $ y : ys)
-removeSuffixHelper y (Just (x : xs), Just ys) | x == y = (Just xs, Just $     ys)
-removeSuffixHelper _ _ = (Nothing, Nothing)
+removeSuffixWithHelper :: Eq b => (a -> b) -> a -> Maybe ([b], [a]) -> Maybe ([b], [a])
+removeSuffixWithHelper _ y (Just ([],     ys))            = Just ([], y : ys)
+removeSuffixWithHelper f y (Just (x : xs, ys)) | x == f y = Just (xs,     ys)
+removeSuffixWithHelper _ _ _                              = Nothing
 
-removeSuffix :: Eq a => [a] -> [a] -> Maybe [a]
-removeSuffix xs = snd . foldr removeSuffixHelper (Just . reverse $ xs, Just [])
+removeSuffixWith :: Eq b => (a -> b) -> [b] -> [a] -> Maybe [a]
+removeSuffixWith f xs = fmap snd . foldr (removeSuffixWithHelper f) (Just (reverse $ xs, []))
 
 
 
@@ -90,3 +88,4 @@ getResultHelper f x =
 
 getResults :: (Foldable m) => (a -> Maybe b) -> m a -> Either [a] [b]
 getResults f = resultToEither . foldr (getResultHelper f) (Result [] [])
+
