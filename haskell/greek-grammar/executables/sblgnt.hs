@@ -43,16 +43,18 @@ mainDocumentToOsisText = do
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  es <- readEvents sblgntXmlPath
-  case initialProcessEvents sblgntXmlPath es of
+  events <- readEvents sblgntXmlPath
+  case initialProcessEvents sblgntXmlPath events of
     Left e -> putStrLn . T.pack . errorToString show $ e
     Right xs ->
       case fileReferenceXmlEvents xs of 
         Left es -> mapM_ (putStrLn . T.pack . errorToString fileReferenceToString) es
         Right e -> putStrLn . T.pack . show . length $ xs
 
-fileReferenceXmlEvents :: [(FileReference, X.Event)] -> Either [Error FileReference] [(FileReference, XNEvent)]
-fileReferenceXmlEvents = toXNEventsError
+fileReferenceXmlEvents :: [(FileReference, X.Event)] -> Either [Error FileReference] [(FileReference, XCEvent)]
+fileReferenceXmlEvents xs =
+      toXNCEventsError xs
+  >>= ensureNoNamespacesAll
 
 
 

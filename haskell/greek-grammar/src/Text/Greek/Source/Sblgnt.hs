@@ -87,35 +87,75 @@ withFileReference :: FilePath -> (Maybe P.PositionRange, X.Event) -> Maybe (File
 withFileReference fp = traverseOf _1 (toFileReference fp <$>)
 
 
-data XNEvent
-  = XNBeginElement X.Name [(X.Name, [X.Content])]
-  | XNEndElement X.Name
-  | XNContent X.Content
-  deriving (Show, Eq, Ord)
+data XNCEvent
+  = XNCBeginElement X.Name [(X.Name, [X.Content])]
+  | XNCEndElement X.Name
+  | XNCContent X.Content
+  deriving (Show)
 
-toXNEvent :: X.Event -> Maybe XNEvent
-toXNEvent (X.EventBeginElement n as) = Just $ XNBeginElement n as
-toXNEvent (X.EventEndElement n)      = Just $ XNEndElement n
-toXNEvent (X.EventContent c)         = Just $ XNContent c
-toXNEvent _                          = Nothing
+toXNCEvent :: X.Event -> Maybe XNCEvent
+toXNCEvent (X.EventBeginElement n as) = Just $ XNCBeginElement n as
+toXNCEvent (X.EventEndElement n)      = Just $ XNCEndElement n
+toXNCEvent (X.EventContent c)         = Just $ XNCContent c
+toXNCEvent _                          = Nothing
 
 
-toXNEventContext :: (FileReference, X.Event) -> Maybe (FileReference, XNEvent)
-toXNEventContext = traverseOf _2 toXNEvent
+toXNCEventContext :: (FileReference, X.Event) -> Maybe (FileReference, XNCEvent)
+toXNCEventContext = traverseOf _2 toXNCEvent
 
-tryAdd :: Either [Error c] [b] -> Maybe b -> Error c -> Either [Error c] [b]
-tryAdd (Left  es) Nothing  e = Left  (e : es)
-tryAdd (Left  es) (Just _) _ = Left  es
-tryAdd (Right _ ) Nothing  e = Left  [e]
-tryAdd (Right bs) (Just b) _ = Right (b : bs)
+tryMap :: Either [Error x] a -> Maybe b -> Error x -> (b -> a -> c) -> Either [Error x] c
+tryMap (Left  es) Nothing  e _ = Left  (e : es)
+tryMap (Left  es) (Just _) _ _ = Left  es
+tryMap (Right _ ) Nothing  e _ = Left  [e]
+tryMap (Right a ) (Just b) _ f = Right (f b a)
 
 tryConvertAll :: (a -> Error c) -> (a -> Maybe b) -> [a] -> Either [Error c] [b]
-tryConvertAll e f xs = foldr (\a b -> tryAdd b (f a) (e a)) (Right []) xs
+tryConvertAll e f xs = foldr (\a b -> tryMap b (f a) (e a) (:)) (Right []) xs
 
-toXNEventsError :: [(FileReference, X.Event)] -> Either [Error FileReference] [(FileReference, XNEvent)]
-toXNEventsError = tryConvertAll (\(x, y) -> makeError x ("Unexpected event " ++ show y)) toXNEventContext
+showError :: Show b => String -> (a, b) -> Error a
+showError m (x, y) = Error x (ErrorMessage (m ++ " " ++ show y))
+
+toXNCEventsError :: [(FileReference, X.Event)] -> Either [Error FileReference] [(FileReference, XNCEvent)]
+toXNCEventsError = tryConvertAll (showError "Unexpected event") toXNCEventContext
 
 
+newtype ElementName = ElementName { getElementName :: Text }
+newtype AttributeName = AttributeName { getAttributeName :: Text }
+data XCEvent
+  = XCBeginElement ElementName [(AttributeName, [X.Content])]
+  | XCEndElement ElementName
+  | XCContent X.Content
+
+nameToText :: X.Name -> Maybe Text
+nameToText (X.Name t Nothing Nothing) = Just t
+nameToText _ = Nothing
+
+
+toAttributeName :: (X.Name, a) -> Maybe (AttributeName, a)
+toAttributeName = traverseOf _1 (fmap AttributeName . nameToText)
+
+toAttributeNameError :: [(X.Name, a)] -> Either [Error ()] [(AttributeName, a)]
+toAttributeNameError = tryConvertAll (showError "Unexpected attribute namespace" . ((,) ()) . fst) toAttributeName
+
+toElementName :: X.Name -> Maybe ElementName
+toElementName = fmap ElementName . nameToText
+
+ensureNoNamespaces :: XNCEvent -> Either [Error ()] XCEvent
+ensureNoNamespaces (XNCBeginElement n as) = tryMap (toAttributeNameError as) (ElementName <$> nameToText n) (makeError () ("Unexpected element namespace" ++ show n)) XCBeginElement
+ensureNoNamespaces (XNCEndElement n) = fmap XCEndElement (_Left %~ pure $ (maybeToError () ("Unexpected element namespace " ++ show n) (ElementName <$> nameToText n)))
+ensureNoNamespaces (XNCContent c) = pure (XCContent c)
+
+ensureNoNamespacesContext :: (FileReference, XNCEvent) -> Either [Error FileReference] (FileReference, XCEvent)
+ensureNoNamespacesContext (x, y) = (_Left %~ (fmap (errorContext .~ x))) . (_Right %~ ((,) x)) $ (ensureNoNamespaces y)
+
+combineEitherList :: Either [a] b -> Either [a] [b] -> Either [a] [b]
+combineEitherList (Left as)   (Left  as') = Left (as ++ as')
+combineEitherList (Left as)   (Right _  ) = Left as
+combineEitherList (Right _) e@(Left  _  ) = e
+combineEitherList (Right b)   (Right bs ) = Right (b : bs)
+
+ensureNoNamespacesAll :: [(FileReference, XNCEvent)] -> Either [Error FileReference] [(FileReference, XCEvent)]
+ensureNoNamespacesAll = foldr combineEitherList (Right []) . fmap ensureNoNamespacesContext
 
 
 data Result a b = Result { _bad :: a, _good :: b } deriving (Show)
