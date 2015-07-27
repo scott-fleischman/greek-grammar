@@ -4,7 +4,7 @@
 
 module Text.Greek.Source.Sblgnt where
 
-import Prelude hiding ((*), (+))
+import Prelude hiding ((*), (+), error)
 import Conduit
 import Control.Lens
 import Data.Data
@@ -36,11 +36,27 @@ removeSuffixWith :: Eq b => (a -> b) -> [b] -> [a] -> Maybe [a]
 removeSuffixWith f xs = fmap snd . foldr (removeSuffixWithHelper f) (Just (reverse $ xs, []))
 
 
-initialProcessEvents :: FilePath -> [(Maybe P.PositionRange, X.Event)] -> Maybe [(FileReference, X.Event)]
+newtype ErrorMessage = ErrorMessage { getErrorMessage :: String }
+data Error a = Error
+  { _errorContext :: a
+  , _errorMessage :: ErrorMessage
+  }
+makeLenses ''Error
+
+maybeToError :: c -> String -> Maybe a -> Either (Error c) a
+maybeToError c m x = case x of
+  Just x' -> Right x'
+  Nothing -> Left $ Error c (ErrorMessage m)
+
+errorToString :: (a -> String) -> Error a -> String
+errorToString f (Error c (ErrorMessage m)) = f c ++ " " ++ m
+
+initialProcessEvents :: FilePath -> [(Maybe P.PositionRange, X.Event)] -> Either (Error FilePath) [(FileReference, X.Event)]
 initialProcessEvents fp xs
-    = removePrefixWith snd [X.EventBeginDocument] xs
-  >>= removeSuffixWith snd [X.EventEndDocument]
-  >>= traverse (withFileReference fp)
+    = (error "Missing prefix BeginDocument" . removePrefixWith snd [X.EventBeginDocument] $ xs)
+  >>= (error "Missing suffix EndDocument"   . removeSuffixWith snd [X.EventEndDocument])
+  >>= (error "Missing PositionRange"        . traverse (withFileReference fp))
+  where error = maybeToError fp
 
 
 newtype Line = Line { getLine :: Int } deriving (Show, Eq, Ord)

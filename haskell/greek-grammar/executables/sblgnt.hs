@@ -2,7 +2,7 @@
 
 module Main where
 
-import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=), show, Maybe(..))
+import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=), show)
 import qualified Prelude as Unsafe ((!!))
 import Control.Applicative (pure)
 import Control.Lens ((%~))
@@ -45,8 +45,8 @@ mainDocumentToXml = do
   es <- readEvents sblgntXmlPath
   let k = initialProcessEvents sblgntXmlPath es
   case k of
-    Nothing -> putStrLn "initialProcessEvents failed"
-    Just xs -> putStrLn . T.pack . show . length $ xs
+    Left e -> putStrLn . T.pack . errorToString show $ e
+    Right xs -> putStrLn . T.pack . show . length $ xs
 
 main :: IO ()
 main = mainDocumentToXml
