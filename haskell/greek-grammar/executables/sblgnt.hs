@@ -25,6 +25,7 @@ import Text.Greek.Paths
 import Text.Greek.Source.Sblgnt
 import qualified Text.Greek.Source.Osis as Osis
 import qualified Data.Text as T
+import qualified Data.XML.Types as X
 
 load :: IO (Either SBLError Bible)
 load = do
@@ -43,10 +44,17 @@ mainDocumentToOsisText = do
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
   es <- readEvents sblgntXmlPath
-  let k = initialProcessEvents sblgntXmlPath es
-  case k of
+  case initialProcessEvents sblgntXmlPath es of
     Left e -> putStrLn . T.pack . errorToString show $ e
-    Right xs -> putStrLn . T.pack . show . length $ xs
+    Right xs ->
+      case fileReferenceXmlEvents xs of 
+        Left es -> mapM_ (putStrLn . T.pack . errorToString fileReferenceToString) es
+        Right e -> putStrLn . T.pack . show . length $ xs
+
+fileReferenceXmlEvents :: [(FileReference, X.Event)] -> Either [Error FileReference] [(FileReference, XNEvent)]
+fileReferenceXmlEvents = toXNEventsError
+
+
 
 main :: IO ()
 main = mainDocumentToXml

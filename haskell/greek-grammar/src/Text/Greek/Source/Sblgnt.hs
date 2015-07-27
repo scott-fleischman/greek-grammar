@@ -15,9 +15,6 @@ import qualified Data.Map.Lazy as M
 import qualified Data.XML.Types as X
 import qualified Text.XML.Stream.Parse as P
 
-addFilePath :: FilePath -> (a, b) -> (FilePath, a, b)
-addFilePath p (x, y) = (p, x, y)
-
 readEvents :: FilePath -> IO [(Maybe P.PositionRange, X.Event)]
 readEvents fp = runResourceT $ sourceFile fp =$= P.parseBytesPos P.def $$ sinkList
 
@@ -43,10 +40,13 @@ data Error a = Error
   }
 makeLenses ''Error
 
+makeError :: a -> String -> Error a
+makeError c m = Error c (ErrorMessage m)
+
 maybeToError :: c -> String -> Maybe a -> Either (Error c) a
 maybeToError c m x = case x of
   Just x' -> Right x'
-  Nothing -> Left $ Error c (ErrorMessage m)
+  Nothing -> Left . makeError c $ m
 
 errorToString :: (a -> String) -> Error a -> String
 errorToString f (Error c (ErrorMessage m)) = f c ++ " " ++ m
@@ -66,6 +66,13 @@ data FileReference
   = FileReferencePoint FilePath LineReference
   | FileReferenceRange FilePath LineReference LineReference
   deriving (Show, Eq, Ord)
+
+lineReferenceToString :: LineReference -> String
+lineReferenceToString (LineReference (Line line) (Column column)) = show line ++ ":" ++ show column
+
+fileReferenceToString :: FileReference -> String
+fileReferenceToString (FileReferencePoint p r) = show p ++ ":" ++ lineReferenceToString r
+fileReferenceToString (FileReferenceRange p r1 r2) = show p ++ ":" ++ lineReferenceToString r1 ++ "-" ++ lineReferenceToString r2
 
 toLineReference :: P.Position -> LineReference
 toLineReference (P.Position line column) = LineReference (Line line) (Column column)
@@ -93,10 +100,20 @@ toXNEvent (X.EventContent c)         = Just $ XNContent c
 toXNEvent _                          = Nothing
 
 
--- toXNEvent :: (FilePath, Maybe P.PositionRange, X.Event) -> Maybe (FilePath, Maybe P.PositionRange, X1_Event)
--- toXNEvent = traverseOf _3 subEvent1
+toXNEventContext :: (FileReference, X.Event) -> Maybe (FileReference, XNEvent)
+toXNEventContext = traverseOf _2 toXNEvent
 
+tryAdd :: Either [Error c] [b] -> Maybe b -> Error c -> Either [Error c] [b]
+tryAdd (Left  es) Nothing  e = Left  (e : es)
+tryAdd (Left  es) (Just _) _ = Left  es
+tryAdd (Right _ ) Nothing  e = Left  [e]
+tryAdd (Right bs) (Just b) _ = Right (b : bs)
 
+tryConvertAll :: (a -> Error c) -> (a -> Maybe b) -> [a] -> Either [Error c] [b]
+tryConvertAll e f xs = foldr (\a b -> tryAdd b (f a) (e a)) (Right []) xs
+
+toXNEventsError :: [(FileReference, X.Event)] -> Either [Error FileReference] [(FileReference, XNEvent)]
+toXNEventsError = tryConvertAll (\(x, y) -> makeError x ("Unexpected event " ++ show y)) toXNEventContext
 
 
 
