@@ -2,7 +2,7 @@
 
 module Main where
 
-import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=), show)
+import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=), show, Maybe(..))
 import qualified Prelude as Unsafe ((!!))
 import Control.Applicative (pure)
 import Control.Lens ((%~))
@@ -43,10 +43,10 @@ mainDocumentToOsisText = do
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
   es <- readEvents sblgntXmlPath
-  let k = getResults transform1 es
+  let k = initialProcessEvents sblgntXmlPath es
   case k of
-    Left xs -> putStrLn . T.pack . show $ xs
-    Right xs -> putStrLn . T.pack . show . length $ xs
+    Nothing -> putStrLn "initialProcessEvents failed"
+    Just xs -> putStrLn . T.pack . show . length $ xs
 
 main :: IO ()
 main = mainDocumentToXml
