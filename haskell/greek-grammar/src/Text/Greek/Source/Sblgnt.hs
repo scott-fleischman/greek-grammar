@@ -53,10 +53,10 @@ errorToString f (Error c (ErrorMessage m)) = f c ++ " " ++ m
 
 initialProcessEvents :: FilePath -> [(Maybe P.PositionRange, X.Event)] -> Either (Error FilePath) [(FileReference, X.Event)]
 initialProcessEvents fp xs
-    = (error "Missing prefix BeginDocument" . removePrefixWith snd [X.EventBeginDocument] $ xs)
-  >>= (error "Missing suffix EndDocument"   . removeSuffixWith snd [X.EventEndDocument])
-  >>= (error "Missing PositionRange"        . traverse (withFileReference fp))
-  where error = maybeToError fp
+    = (e "Missing prefix BeginDocument" . removePrefixWith snd [X.EventBeginDocument] $ xs)
+  >>= (e "Missing suffix EndDocument"   . removeSuffixWith snd [X.EventEndDocument])
+  >>= (e "Missing PositionRange"        . traverse (withFileReference fp))
+  where e = maybeToError fp
 
 
 newtype Line = Line { getLine :: Int } deriving (Show, Eq, Ord)
@@ -156,3 +156,22 @@ combineEitherList (Right b)   (Right bs ) = Right (b : bs)
 
 ensureNoNamespacesAll :: [(FileReference, XNCEvent)] -> Either [Error FileReference] [(FileReference, XCEvent)]
 ensureNoNamespacesAll = foldr combineEitherList (Right []) . fmap ensureNoNamespacesContext
+
+
+
+type Item context item = (context, item)
+type MaybeItem error context item = Either (context, error) (context, item)
+type Items context item = [(context, item)]
+type MaybeItems error context item = Either [(context, error)] [(context, item)]
+
+mapItem :: (i -> i') -> Item c i -> Item c i'
+mapItem = fmap
+
+maybeMapItem :: (i -> Either e i') -> Item c i -> MaybeItem e c i'
+maybeMapItem f x@(c, i) = _Left %~ ((,) c) $ traverse f x
+
+mapItems :: (i -> i') -> Items c i -> Items c i'
+mapItems = fmap . mapItem
+
+maybeMapItems :: (i -> Either e i') -> Items c i -> MaybeItems e c i'
+maybeMapItems = _
