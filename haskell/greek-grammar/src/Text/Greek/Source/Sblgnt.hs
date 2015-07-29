@@ -257,16 +257,6 @@ prism3e = _Right . prism2e
 prism4e :: Prism (a1 + a2 + a3 + a4) (a1 + a2 + a3 + a4') a4 a4'
 prism4e = _Right . prism3e
 
-tryDrop1 :: (a1 -> e) -> a1 + a2 -> e + a2
-tryDrop1 = over prism1
-tryDrop2 :: (a2 -> e) -> a1 + a2 + a3 -> e + a1 + a3
-tryDrop2 f = get2 . over prism2 f
-tryDrop3 :: (a3 -> e) -> a1 + a2 + a3 + a4 -> e + a1 + a2 + a4
-tryDrop3 f = get3 . over prism3 f
-
-tryDrop2e :: (b -> e) -> a + b -> e + a
-tryDrop2e f = get2e . over prism2e f
-
 get2e :: a1 + a2 -> a2 + a1
 get2e (Left a1) = Right a1
 get2e (Right a2) = Left a2
@@ -286,6 +276,38 @@ get3 = get2 . over _Right get2
 get4 :: a1 + a2 + a3 + a4 + a5 -> a4 + a1 + a2 + a3 + a5
 get4 = get2 . over _Right get3
 
+
+
+tryDrop1 :: (a1 -> e) -> a1 + a2 -> e + a2
+tryDrop1 = over prism1
+tryDrop2 :: (a2 -> e) -> a1 + a2 + a3 -> e + a1 + a3
+tryDrop2 f = get2 . over prism2 f
+tryDrop3 :: (a3 -> e) -> a1 + a2 + a3 + a4 -> e + a1 + a2 + a4
+tryDrop3 f = get3 . over prism3 f
+tryDrop4 :: (a4 -> e) -> a1 + a2 + a3 + a4 + a5 -> e + a1 + a2 + a3 + a5
+tryDrop4 f = get4 . over prism4 f
+
+tryDrop2e :: (b -> e) -> a + b -> e + a
+tryDrop2e f = get2e . over prism2e f
+
+
+makeErrorMessage :: (Show c, Show a) => c -> String -> a -> ErrorMessage
+makeErrorMessage c s i = ErrorMessage $ show c ++ " " ++ s ++ " " ++ show i
+
+data ShowApp e = ShowApp
+  { appTryDrop1 :: forall a1 a2. Show a1 => a1 + a2 -> e + a2
+  , appTryDrop2 :: forall a1 a2 a3. Show a2 => a1 + a2 + a3 -> e + a1 + a3
+  , appTryDrop3 :: forall a1 a2 a3 a4. Show a3 => a1 + a2 + a3 + a4 -> e + a1 + a2 + a4
+  , appTryDrop4 :: forall a1 a2 a3 a4 a5. Show a4 => a1 + a2 + a3 + a4 + a5 -> e + a1 + a2 + a3 + a5
+  }
+
+simpleShowApp :: (Show c) => c -> ShowApp ErrorMessage
+simpleShowApp c = ShowApp
+  { appTryDrop1 = tryDrop1 (makeErrorMessage c "tryDrop1")
+  , appTryDrop2 = tryDrop2 (makeErrorMessage c "tryDrop2")
+  , appTryDrop3 = tryDrop3 (makeErrorMessage c "tryDrop3")
+  , appTryDrop4 = tryDrop4 (makeErrorMessage c "tryDrop4")
+  }
 
 data XmlBeginDocument = XmlBeginDocument deriving (Eq, Ord, Show)
 data XmlEndDocument = XmlEndDocument deriving (Eq, Ord, Show)
@@ -321,3 +343,11 @@ toXmlEventAll (X.EventEndElement n)     = sum7   (XmlEndElement * n)
 toXmlEventAll (X.EventContent c)        = sum8   (XmlContent * c)
 toXmlEventAll (X.EventComment t)        = sum9   (XmlComment * t)
 toXmlEventAll (X.EventCDATA t)          = sum10e (XmlCDATA * t)
+
+type XmlEvent
+  = XmlBeginElement * X.Name * [(X.Name, [X.Content])]
+  + XmlEndElement * X.Name
+  + XmlContent * X.Content
+
+tf :: ShowApp e -> Items FilePath (Maybe P.PositionRange * X.Event) -> ResultItems e FilePath XmlEvent
+tf a is = _
