@@ -175,11 +175,17 @@ mapItem = fmap
 tryMapItem :: (i -> [e] + i') -> Item c i -> ResultItem e c i'
 tryMapItem f x@(c, _) = _Left %~ fmap ((,) c) $ traverse f x
 
+tryMapItem' :: (i -> e + i') -> Item c i -> ResultItem e c i'
+tryMapItem' f = tryMapItem ((_Left %~ pure) . f)
+
 mapItems :: (i -> i') -> Items c i -> Items c i'
 mapItems = fmap . mapItem
 
 tryMapItems :: (i -> [e] + i') -> Items c i -> ResultItems e c i'
 tryMapItems f = foldr combineEitherList (Right []) . fmap (tryMapItem f)
+
+tryMapItems' :: (i -> e + i') -> Items c i -> ResultItems e c i'
+tryMapItems' f = tryMapItems ((_Left %~ pure) . f)
 
 combineEitherList :: [a] + b -> [a] + [b] -> [a] + [b]
 combineEitherList (Left as)   (Left  as') = Left (as ++ as')
@@ -270,3 +276,17 @@ toXmlEventAll (X.EventEndElement n)     = sum7   (XmlEndElement * n)
 toXmlEventAll (X.EventContent c)        = sum8   (XmlContent * c)
 toXmlEventAll (X.EventComment t)        = sum9   (XmlComment * t)
 toXmlEventAll (X.EventCDATA t)          = sum10e (XmlCDATA * t)
+
+
+tryDropLeft :: (a -> e) -> a + b -> e + b
+tryDropLeft = over _Left
+
+swap2 :: a + b -> b + a
+swap2 (Left a) = Right a
+swap2 (Right b) = Left b
+
+swap :: a + (b + c) -> (a + b) + c
+swap (Left a) = Left . Left $ a
+swap (Right (Left b)) = Left . Right $ b
+swap (Right (Right c)) = Right c
+
