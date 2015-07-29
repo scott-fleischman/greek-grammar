@@ -241,42 +241,6 @@ sum11e :: a11 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11
 sum11e = Right . sum10e
 
 
-
-data XmlBeginDocument = XmlBeginDocument deriving (Eq, Ord, Show)
-data XmlEndDocument = XmlEndDocument deriving (Eq, Ord, Show)
-data XmlBeginDoctype = XmlBeginDoctype deriving (Eq, Ord, Show)
-data XmlEndDoctype = XmlEndDoctype deriving (Eq, Ord, Show)
-data XmlInstruction = XmlInstruction deriving (Eq, Ord, Show)
-data XmlBeginElement = XmlBeginElement deriving (Eq, Ord, Show)
-data XmlEndElement = XmlEndElement deriving (Eq, Ord, Show)
-data XmlContent = XmlContent deriving (Eq, Ord, Show)
-data XmlComment = XmlComment deriving (Eq, Ord, Show)
-data XmlCDATA = XmlCDATA deriving (Eq, Ord, Show)
-
-type XmlEventAll
-  = XmlBeginDocument
-  + XmlEndDocument
-  + XmlBeginDoctype * Text * (Maybe X.ExternalID)
-  + XmlEndDoctype
-  + XmlInstruction * X.Instruction
-  + XmlBeginElement * X.Name * [(X.Name, [X.Content])]
-  + XmlEndElement * X.Name
-  + XmlContent * X.Content
-  + XmlComment * Text
-  + XmlCDATA * Text 
-
-toXmlEventAll :: X.Event -> XmlEventAll
-toXmlEventAll  X.EventBeginDocument     = sum1    XmlBeginDocument
-toXmlEventAll  X.EventEndDocument       = sum2    XmlEndDocument
-toXmlEventAll (X.EventBeginDoctype t e) = sum3   (XmlBeginDoctype * t * e)
-toXmlEventAll  X.EventEndDoctype        = sum4    XmlEndDoctype
-toXmlEventAll (X.EventInstruction i)    = sum5   (XmlInstruction * i)
-toXmlEventAll (X.EventBeginElement n a) = sum6   (XmlBeginElement * n * a)
-toXmlEventAll (X.EventEndElement n)     = sum7   (XmlEndElement * n)
-toXmlEventAll (X.EventContent c)        = sum8   (XmlContent * c)
-toXmlEventAll (X.EventComment t)        = sum9   (XmlComment * t)
-toXmlEventAll (X.EventCDATA t)          = sum10e (XmlCDATA * t)
-
 prism1 :: Prism (a1 + a2) (a1' + a2) a1 a1'
 prism1 = _Left
 prism2 :: Prism (a1 + a2 + a3) (a1 + a2' + a3) a2 a2'
@@ -321,3 +285,39 @@ get3 :: a1 + a2 + a3 + a4 -> a3 + a1 + a2 + a4
 get3 = get2 . over _Right get2
 get4 :: a1 + a2 + a3 + a4 + a5 -> a4 + a1 + a2 + a3 + a5
 get4 = get2 . over _Right get3
+
+
+data XmlBeginDocument = XmlBeginDocument deriving (Eq, Ord, Show)
+data XmlEndDocument = XmlEndDocument deriving (Eq, Ord, Show)
+data XmlBeginDoctype = XmlBeginDoctype deriving (Eq, Ord, Show)
+data XmlEndDoctype = XmlEndDoctype deriving (Eq, Ord, Show)
+data XmlInstruction = XmlInstruction deriving (Eq, Ord, Show)
+data XmlBeginElement = XmlBeginElement deriving (Eq, Ord, Show)
+data XmlEndElement = XmlEndElement deriving (Eq, Ord, Show)
+data XmlContent = XmlContent deriving (Eq, Ord, Show)
+data XmlComment = XmlComment deriving (Eq, Ord, Show)
+data XmlCDATA = XmlCDATA deriving (Eq, Ord, Show)
+
+type XmlEventAll
+  = XmlBeginDocument
+  + XmlEndDocument
+  + XmlBeginDoctype * Text * (Maybe X.ExternalID)
+  + XmlEndDoctype
+  + XmlInstruction * X.Instruction
+  + XmlBeginElement * X.Name * [(X.Name, [X.Content])]
+  + XmlEndElement * X.Name
+  + XmlContent * X.Content
+  + XmlComment * Text
+  + XmlCDATA * Text 
+
+toXmlEventAll :: X.Event -> XmlEventAll
+toXmlEventAll  X.EventBeginDocument     = sum1    XmlBeginDocument
+toXmlEventAll  X.EventEndDocument       = sum2    XmlEndDocument
+toXmlEventAll (X.EventBeginDoctype t e) = sum3   (XmlBeginDoctype * t * e)
+toXmlEventAll  X.EventEndDoctype        = sum4    XmlEndDoctype
+toXmlEventAll (X.EventInstruction i)    = sum5   (XmlInstruction * i)
+toXmlEventAll (X.EventBeginElement n a) = sum6   (XmlBeginElement * n * a)
+toXmlEventAll (X.EventEndElement n)     = sum7   (XmlEndElement * n)
+toXmlEventAll (X.EventContent c)        = sum8   (XmlContent * c)
+toXmlEventAll (X.EventComment t)        = sum9   (XmlComment * t)
+toXmlEventAll (X.EventCDATA t)          = sum10e (XmlCDATA * t)
