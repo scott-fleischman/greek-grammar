@@ -153,30 +153,6 @@ ensureNoNamespacesAll = foldr combineEitherList (Right []) . fmap ensureNoNamesp
 
 
 
-type Item              context item =                            (context, item)
-type ResultItem  error context item = Either [(context, error)]  (context, item)
-type Items             context item =                           [(context, item)]
-type ResultItems error context item = Either [(context, error)] [(context, item)]
-
-mapItem :: (i -> i') -> Item c i -> Item c i'
-mapItem = fmap
-
-tryMapItem :: (i -> Either [e] i') -> Item c i -> ResultItem e c i'
-tryMapItem f x@(c, _) = _Left %~ fmap ((,) c) $ traverse f x
-
-mapItems :: (i -> i') -> Items c i -> Items c i'
-mapItems = fmap . mapItem
-
-tryMapItems :: (i -> Either [e] i') -> Items c i -> ResultItems e c i'
-tryMapItems f = foldr combineEitherList (Right []) . fmap (tryMapItem f)
-
-combineEitherList :: Either [a] b -> Either [a] [b] -> Either [a] [b]
-combineEitherList (Left as)   (Left  as') = Left (as ++ as')
-combineEitherList (Left as)   (Right _  ) = Left as
-combineEitherList (Right _) e@(Left  _  ) = e
-combineEitherList (Right b)   (Right bs ) = Right (b : bs)
-
-
 type a + b = Either a b
 infixr 6 +
 
@@ -185,3 +161,112 @@ infixr 7 *
 
 (*) :: a -> b -> a * b
 (*) = (,)
+
+
+
+type Item              context item =                      context * item
+type ResultItem  error context item = [context * error] +  context * item
+type Items             context item =                     [context * item]
+type ResultItems error context item = [context * error] + [context * item]
+
+mapItem :: (i -> i') -> Item c i -> Item c i'
+mapItem = fmap
+
+tryMapItem :: (i -> [e] + i') -> Item c i -> ResultItem e c i'
+tryMapItem f x@(c, _) = _Left %~ fmap ((,) c) $ traverse f x
+
+mapItems :: (i -> i') -> Items c i -> Items c i'
+mapItems = fmap . mapItem
+
+tryMapItems :: (i -> [e] + i') -> Items c i -> ResultItems e c i'
+tryMapItems f = foldr combineEitherList (Right []) . fmap (tryMapItem f)
+
+combineEitherList :: [a] + b -> [a] + [b] -> [a] + [b]
+combineEitherList (Left as)   (Left  as') = Left (as ++ as')
+combineEitherList (Left as)   (Right _  ) = Left as
+combineEitherList (Right _) e@(Left  _  ) = e
+combineEitherList (Right b)   (Right bs ) = Right (b : bs)
+
+
+
+
+
+
+sum1 :: a1 -> a1 + a2
+sum1 = Left
+sum2 :: a2 -> a1 + a2 + a3
+sum2 = Right . sum1
+sum3 :: a3 -> a1 + a2 + a3 + a4
+sum3 = Right . sum2
+sum4 :: a4 -> a1 + a2 + a3 + a4 + a5
+sum4 = Right . sum3
+sum5 :: a5 -> a1 + a2 + a3 + a4 + a5 + a6
+sum5 = Right . sum4
+sum6 :: a6 -> a1 + a2 + a3 + a4 + a5 + a6 + a7
+sum6 = Right . sum5
+sum7 :: a7 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8
+sum7 = Right . sum6
+sum8 :: a8 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9
+sum8 = Right . sum7
+sum9 :: a9 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
+sum9 = Right . sum8
+sum10 :: a10 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11
+sum10 = Right . sum9
+
+sum2e :: a2 -> a1 + a2
+sum2e = Right
+sum3e :: a3 -> a1 + a2 + a3
+sum3e = Right . sum2e
+sum4e :: a4 -> a1 + a2 + a3 + a4
+sum4e = Right . sum3e
+sum5e :: a5 -> a1 + a2 + a3 + a4 + a5
+sum5e = Right . sum4e
+sum6e :: a6 -> a1 + a2 + a3 + a4 + a5 + a6
+sum6e = Right . sum5e
+sum7e :: a7 -> a1 + a2 + a3 + a4 + a5 + a6 + a7
+sum7e = Right . sum6e
+sum8e :: a8 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8
+sum8e = Right . sum7e
+sum9e :: a9 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9
+sum9e = Right . sum8e
+sum10e :: a10 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
+sum10e = Right . sum9e
+sum11e :: a11 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11
+sum11e = Right . sum10e
+
+
+
+data XmlBeginDocument = XmlBeginDocument deriving (Eq, Ord, Show)
+data XmlEndDocument = XmlEndDocument deriving (Eq, Ord, Show)
+data XmlBeginDoctype = XmlBeginDoctype deriving (Eq, Ord, Show)
+data XmlEndDoctype = XmlEndDoctype deriving (Eq, Ord, Show)
+data XmlInstruction = XmlInstruction deriving (Eq, Ord, Show)
+data XmlBeginElement = XmlBeginElement deriving (Eq, Ord, Show)
+data XmlEndElement = XmlEndElement deriving (Eq, Ord, Show)
+data XmlContent = XmlContent deriving (Eq, Ord, Show)
+data XmlComment = XmlComment deriving (Eq, Ord, Show)
+data XmlCDATA = XmlCDATA deriving (Eq, Ord, Show)
+
+type XmlEventAll
+  = XmlBeginDocument
+  + XmlEndDocument
+  + XmlBeginDoctype * Text * (Maybe X.ExternalID)
+  + XmlEndDoctype
+  + XmlInstruction * X.Instruction
+  + XmlBeginElement * X.Name * [(X.Name, [X.Content])]
+  + XmlEndElement * X.Name
+  + XmlContent * X.Content
+  + XmlComment * Text
+  + XmlCDATA * Text 
+
+toXmlEventAll :: X.Event -> XmlEventAll
+toXmlEventAll  X.EventBeginDocument     = sum1    XmlBeginDocument
+toXmlEventAll  X.EventEndDocument       = sum2    XmlEndDocument
+toXmlEventAll (X.EventBeginDoctype t e) = sum3   (XmlBeginDoctype * t * e)
+toXmlEventAll  X.EventEndDoctype        = sum4    XmlEndDoctype
+toXmlEventAll (X.EventInstruction i)    = sum5   (XmlInstruction * i)
+toXmlEventAll (X.EventBeginElement n a) = sum6   (XmlBeginElement * n * a)
+toXmlEventAll (X.EventEndElement n)     = sum7   (XmlEndElement * n)
+toXmlEventAll (X.EventContent c)        = sum8   (XmlContent * c)
+toXmlEventAll (X.EventComment t)        = sum9   (XmlComment * t)
+toXmlEventAll (X.EventCDATA t)          = sum10e (XmlCDATA * t)
