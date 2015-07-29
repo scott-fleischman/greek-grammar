@@ -148,12 +148,6 @@ ensureNoNamespaces (XNCContent c) = pure (XCContent c)
 ensureNoNamespacesContext :: (FileReference, XNCEvent) -> Either [Error FileReference] (FileReference, XCEvent)
 ensureNoNamespacesContext (x, y) = (_Left %~ (fmap (errorContext .~ x))) . (_Right %~ ((,) x)) $ (ensureNoNamespaces y)
 
-combineEitherList :: Either [a] b -> Either [a] [b] -> Either [a] [b]
-combineEitherList (Left as)   (Left  as') = Left (as ++ as')
-combineEitherList (Left as)   (Right _  ) = Left as
-combineEitherList (Right _) e@(Left  _  ) = e
-combineEitherList (Right b)   (Right bs ) = Right (b : bs)
-
 ensureNoNamespacesAll :: [(FileReference, XNCEvent)] -> Either [Error FileReference] [(FileReference, XCEvent)]
 ensureNoNamespacesAll = foldr combineEitherList (Right []) . fmap ensureNoNamespacesContext
 
@@ -168,16 +162,16 @@ mapItem :: (i -> i') -> Item c i -> Item c i'
 mapItem = fmap
 
 tryMapItem :: (i -> Either [e] i') -> Item c i -> ResultItem e c i'
-tryMapItem f x@(c, i) = _Left %~ fmap ((,) c) $ traverse f x
+tryMapItem f x@(c, _) = _Left %~ fmap ((,) c) $ traverse f x
 
 mapItems :: (i -> i') -> Items c i -> Items c i'
 mapItems = fmap . mapItem
 
 tryMapItems :: (i -> Either [e] i') -> Items c i -> ResultItems e c i'
-tryMapItems f = foldr concatErrors (Right []) . fmap (tryMapItem f)
-  where
-    concatErrors :: ResultItem e c i' -> ResultItems e c i' -> ResultItems e c i'
-    concatErrors (Left  es)   (Left  es') = Left (es ++ es')
-    concatErrors (Left  es)   (Right _  ) = Left es
-    concatErrors (Right _ ) e@(Left  _  ) = e
-    concatErrors (Right i )   (Right is ) = Right (i : is)
+tryMapItems f = foldr combineEitherList (Right []) . fmap (tryMapItem f)
+
+combineEitherList :: Either [a] b -> Either [a] [b] -> Either [a] [b]
+combineEitherList (Left as)   (Left  as') = Left (as ++ as')
+combineEitherList (Left as)   (Right _  ) = Left as
+combineEitherList (Right _) e@(Left  _  ) = e
+combineEitherList (Right b)   (Right bs ) = Right (b : bs)
