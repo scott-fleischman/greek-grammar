@@ -175,3 +175,13 @@ combineEitherList (Left as)   (Left  as') = Left (as ++ as')
 combineEitherList (Left as)   (Right _  ) = Left as
 combineEitherList (Right _) e@(Left  _  ) = e
 combineEitherList (Right b)   (Right bs ) = Right (b : bs)
+
+
+type a + b = Either a b
+infixr 6 +
+
+type a * b = (a, b)
+infixr 7 *
+
+(*) :: a -> b -> a * b
+(*) = (,)
