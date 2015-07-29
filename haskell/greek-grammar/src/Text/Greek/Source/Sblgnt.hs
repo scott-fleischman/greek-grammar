@@ -303,11 +303,12 @@ data ShowApp e = ShowApp
 
 simpleShowApp :: (Show c) => c -> ShowApp ErrorMessage
 simpleShowApp c = ShowApp
-  { appTryDrop1 = tryDrop1 (makeErrorMessage c "tryDrop1")
-  , appTryDrop2 = tryDrop2 (makeErrorMessage c "tryDrop2")
-  , appTryDrop3 = tryDrop3 (makeErrorMessage c "tryDrop3")
-  , appTryDrop4 = tryDrop4 (makeErrorMessage c "tryDrop4")
+  { appTryDrop1 = tryDrop1 (makeErrorMessage c unexpected)
+  , appTryDrop2 = tryDrop2 (makeErrorMessage c unexpected)
+  , appTryDrop3 = tryDrop3 (makeErrorMessage c unexpected)
+  , appTryDrop4 = tryDrop4 (makeErrorMessage c unexpected)
   }
+  where unexpected = "Unexpected"
 
 data XmlBeginDocument = XmlBeginDocument deriving (Eq, Ord, Show)
 data XmlEndDocument = XmlEndDocument deriving (Eq, Ord, Show)
@@ -349,5 +350,5 @@ type XmlEvent
   + XmlEndElement * X.Name
   + XmlContent * X.Content
 
-tf :: ShowApp e -> Items FilePath (Maybe P.PositionRange * X.Event) -> ResultItems e FilePath XmlEvent
-tf a is = _
+tf :: ShowApp e -> Items FilePath (Maybe P.PositionRange * X.Event) -> Items FilePath (Maybe P.PositionRange * XmlEventAll)
+tf a is = mapItems (fmap toXmlEventAll) is
