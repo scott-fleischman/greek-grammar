@@ -159,19 +159,25 @@ ensureNoNamespacesAll = foldr combineEitherList (Right []) . fmap ensureNoNamesp
 
 
 
-type Item context item = (context, item)
-type MaybeItem error context item = Either (context, error) (context, item)
-type Items context item = [(context, item)]
-type MaybeItems error context item = Either [(context, error)] [(context, item)]
+type Item              context item =                            (context, item)
+type ResultItem  error context item = Either [(context, error)]  (context, item)
+type Items             context item =                           [(context, item)]
+type ResultItems error context item = Either [(context, error)] [(context, item)]
 
 mapItem :: (i -> i') -> Item c i -> Item c i'
 mapItem = fmap
 
-maybeMapItem :: (i -> Either e i') -> Item c i -> MaybeItem e c i'
-maybeMapItem f x@(c, i) = _Left %~ ((,) c) $ traverse f x
+tryMapItem :: (i -> Either [e] i') -> Item c i -> ResultItem e c i'
+tryMapItem f x@(c, i) = _Left %~ fmap ((,) c) $ traverse f x
 
 mapItems :: (i -> i') -> Items c i -> Items c i'
 mapItems = fmap . mapItem
 
-maybeMapItems :: (i -> Either e i') -> Items c i -> MaybeItems e c i'
-maybeMapItems = _
+tryMapItems :: (i -> Either [e] i') -> Items c i -> ResultItems e c i'
+tryMapItems f = foldr concatErrors (Right []) . fmap (tryMapItem f)
+  where
+    concatErrors :: ResultItem e c i' -> ResultItems e c i' -> ResultItems e c i'
+    concatErrors (Left  es)   (Left  es') = Left (es ++ es')
+    concatErrors (Left  es)   (Right _  ) = Left es
+    concatErrors (Right _ ) e@(Left  _  ) = e
+    concatErrors (Right i )   (Right is ) = Right (i : is)
