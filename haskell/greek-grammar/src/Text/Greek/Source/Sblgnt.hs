@@ -277,16 +277,47 @@ toXmlEventAll (X.EventContent c)        = sum8   (XmlContent * c)
 toXmlEventAll (X.EventComment t)        = sum9   (XmlComment * t)
 toXmlEventAll (X.EventCDATA t)          = sum10e (XmlCDATA * t)
 
+prism1 :: Prism (a1 + a2) (a1' + a2) a1 a1'
+prism1 = _Left
+prism2 :: Prism (a1 + a2 + a3) (a1 + a2' + a3) a2 a2'
+prism2 = _Right . prism1
+prism3 :: Prism (a1 + a2 + a3 + a4) (a1 + a2 + a3' + a4) a3 a3'
+prism3 = _Right . prism2
+prism4 :: Prism (a1 + a2 + a3 + a4 + a5) (a1 + a2 + a3 + a4' + a5) a4 a4'
+prism4 = _Right . prism3
 
-tryDropLeft :: (a -> e) -> a + b -> e + b
-tryDropLeft = over _Left
+prism2e :: Prism (a1 + a2) (a1 + a2') a2 a2'
+prism2e = _Right
+prism3e :: Prism (a1 + a2 + a3) (a1 + a2 + a3') a3 a3'
+prism3e = _Right . prism2e
+prism4e :: Prism (a1 + a2 + a3 + a4) (a1 + a2 + a3 + a4') a4 a4'
+prism4e = _Right . prism3e
 
-swap2 :: a + b -> b + a
-swap2 (Left a) = Right a
-swap2 (Right b) = Left b
+tryDrop1 :: (a1 -> e) -> a1 + a2 -> e + a2
+tryDrop1 = over prism1
+tryDrop2 :: (a2 -> e) -> a1 + a2 + a3 -> e + a1 + a3
+tryDrop2 f = get2 . over prism2 f
+tryDrop3 :: (a3 -> e) -> a1 + a2 + a3 + a4 -> e + a1 + a2 + a4
+tryDrop3 f = get3 . over prism3 f
 
-swap :: a + (b + c) -> (a + b) + c
-swap (Left a) = Left . Left $ a
-swap (Right (Left b)) = Left . Right $ b
-swap (Right (Right c)) = Right c
+tryDrop2e :: (b -> e) -> a + b -> e + a
+tryDrop2e f = get2e . over prism2e f
 
+get2e :: a1 + a2 -> a2 + a1
+get2e (Left a1) = Right a1
+get2e (Right a2) = Left a2
+
+shiftLeft :: a + (b + c) -> (a + b) + c
+shiftLeft (Left a) = Left . Left $ a
+shiftLeft (Right (Left b)) = Left . Right $ b
+shiftLeft (Right (Right c)) = Right c
+
+get2 :: a1 + a2 + a3 -> a2 + a1 + a3
+get2 (Left a1) = Right . Left $ a1
+get2 (Right (Left a2)) = Left a2
+get2 (Right (Right a3)) = Right . Right $ a3
+
+get3 :: a1 + a2 + a3 + a4 -> a3 + a1 + a2 + a4
+get3 = get2 . over _Right get2
+get4 :: a1 + a2 + a3 + a4 + a5 -> a4 + a1 + a2 + a3 + a5
+get4 = get2 . over _Right get3
