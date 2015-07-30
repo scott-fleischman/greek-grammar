@@ -198,6 +198,14 @@ combineEitherList (Left as)   (Right _  ) = Left as
 combineEitherList (Right _) e@(Left  _  ) = e
 combineEitherList (Right b)   (Right bs ) = Right (b : bs)
 
+combineEitherList' :: a + b -> [a] + [b] -> [a] + [b]
+combineEitherList' (Left  a)   (Left  as') = Left (a : as')
+combineEitherList' (Left  a)   (Right _  ) = Left [a]
+combineEitherList' (Right _) e@(Left  _  ) = e
+combineEitherList' (Right b)   (Right bs ) = Right (b : bs)
+
+combineEithers :: [a + b] -> [a] + [b]
+combineEithers = foldr combineEitherList' (Right [])
 
 
 
@@ -266,6 +274,11 @@ get2e :: a1 + a2 -> a2 + a1
 get2e (Left a1) = Right a1
 get2e (Right a2) = Left a2
 
+get3e :: a1 + a2 + a3 -> a3 + a1 + a2
+get3e = get2 . over _Right get2e
+get4e :: a1 + a2 + a3 + a4 -> a4 + a1 + a2 + a3
+get4e = get2 . over _Right get3e
+
 shiftLeft :: a + (b + c) -> (a + b) + c
 shiftLeft (Left a) = Left . Left $ a
 shiftLeft (Right (Left b)) = Left . Right $ b
@@ -292,8 +305,12 @@ tryDrop3 f = get3 . over prism3 f
 tryDrop4 :: (a4 -> e) -> a1 + a2 + a3 + a4 + a5 -> e + a1 + a2 + a3 + a5
 tryDrop4 f = get4 . over prism4 f
 
-tryDrop2e :: (b -> e) -> a + b -> e + a
+tryDrop2e :: (a2 -> e) -> a1 + a2 -> e + a1
 tryDrop2e f = get2e . over prism2e f
+tryDrop3e :: (a3 -> e) -> a1 + a2 + a3 -> e + a1 + a2
+tryDrop3e f = get3e . over prism3e f
+tryDrop4e :: (a4 -> e) -> a1 + a2 + a3 + a4 -> e + a1 + a2 + a3
+tryDrop4e f = get4e . over prism4e f
 
 
 makeErrorMessage :: (Show c, Show a) => c -> String -> a -> ErrorMessage
@@ -338,7 +355,7 @@ type XmlEventAll
   + XmlEndElement * X.Name
   + XmlContent * X.Content
   + XmlComment * Text
-  + XmlCDATA * Text 
+  + XmlCDATA * Text
 
 toXmlEventAll :: X.Event -> XmlEventAll
 toXmlEventAll  X.EventBeginDocument     = sum1    XmlBeginDocument
@@ -364,17 +381,56 @@ em :: Show a => (a -> ErrorMessage)
 em = ErrorMessage . show
 
 
-tf1 :: FilePath * [Maybe P.PositionRange * X.Event] -> FilePath * [Maybe P.PositionRange * XmlEventAll]
+tf1 :: FilePath * [Maybe P.PositionRange * X.Event]
+    -> FilePath * [Maybe P.PositionRange * XmlEventAll]
 tf1 = _2 %~ fmap (_2 %~ toXmlEventAll)
 
 tf2 ::              ([Maybe P.PositionRange * XmlEventAll] -> e)
   -> FilePath *      [Maybe P.PositionRange * XmlEventAll]
   -> FilePath * (e + [Maybe P.PositionRange * XmlEventAll])
-tf2 e (c, xs) = c * maybeToEither (e . take (length match)) (removePrefixWith (^. _2) match) xs
+tf2 e = _2 %~ maybeToEither (e . take (length match)) (removePrefixWith (^. _2) match)
   where match = [sum1 XmlBeginDocument]
 
 tf3 ::              ([Maybe P.PositionRange * XmlEventAll] -> e)
   -> FilePath *      [Maybe P.PositionRange * XmlEventAll]
   -> FilePath * (e + [Maybe P.PositionRange * XmlEventAll])
-tf3 e (c, xs) = c * maybeToEither (e . take (length match)) (removeSuffixWith (^. _2) match) xs
+tf3 e = _2 %~ maybeToEither (e . take (length match)) (removeSuffixWith (^. _2) match)
   where match = [sum2 XmlEndDocument]
+
+tf4 ::                                       (XmlEventAll -> e)
+  -> FilePath *      [Maybe P.PositionRange * XmlEventAll]
+  -> FilePath * ([e] +     [P.PositionRange * XmlEventAll])
+tf4 e = _2 %~ combineEithers . fmap (maybeToEither (e . snd) (traverseOf _1 id))
+
+tf5 :: FilePath * [P.PositionRange * XmlEventAll]
+    -> [FileReference * XmlEventAll]
+tf5 (c, xs) = fmap (_1 %~ toFileReference c) xs
+
+tf6 :: (XmlBeginDocument -> e) -> XmlBeginDocument + a -> e + a
+tf6 = tryDrop1
+
+tf7 :: (XmlEndDocument -> e) -> XmlEndDocument + a -> e + a
+tf7 = tryDrop1
+
+tf8 :: (XmlBeginDoctype * Text * (Maybe X.ExternalID) -> e)
+    ->  XmlBeginDoctype * Text * (Maybe X.ExternalID) + a
+    ->  e + a
+tf8 = tryDrop1
+
+tf9 :: (XmlEndDoctype -> e) -> XmlEndDoctype + a -> e + a
+tf9 = tryDrop1
+
+tf10 :: (XmlInstruction * X.Instruction -> e)
+     ->  XmlInstruction * X.Instruction + a
+     ->  e + a
+tf10 = tryDrop1
+
+tf11 ::             (XmlComment * Text -> e)
+  ->     a + b + c + XmlComment * Text + d
+  -> e + a + b + c + d
+tf11 = tryDrop4
+
+tf12 ::             (XmlCDATA * Text -> e)
+  ->     a + b + c + XmlCDATA * Text
+  -> e + a + b + c
+tf12 = tryDrop4e
