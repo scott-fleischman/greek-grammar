@@ -7,11 +7,8 @@ module Text.Greek.Source.Sblgnt where
 import Prelude hiding ((*), (+), error)
 import Conduit
 import Control.Lens
-import Data.Data
-import Data.Map.Lazy (Map)
 import Data.Text (Text)
 import qualified Data.Conduit.Attoparsec as P
-import qualified Data.Map.Lazy as M
 import qualified Data.XML.Types as X
 import qualified Text.XML.Stream.Parse as P
 
