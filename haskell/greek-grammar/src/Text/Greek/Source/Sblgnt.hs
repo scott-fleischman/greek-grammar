@@ -360,5 +360,21 @@ type XmlEvent
 mapContext :: (Item c i -> c') -> Items c i -> Items c' i
 mapContext f = fmap (\x@(_, i) -> f x * i)
 
-tf :: Items FilePath (Maybe P.PositionRange * X.Event) -> Items FilePath (Maybe P.PositionRange * XmlEventAll)
-tf is = mapItems (fmap toXmlEventAll) is
+em :: Show a => (a -> ErrorMessage)
+em = ErrorMessage . show
+
+
+tf1 :: FilePath * [Maybe P.PositionRange * X.Event] -> FilePath * [Maybe P.PositionRange * XmlEventAll]
+tf1 = _2 %~ fmap (_2 %~ toXmlEventAll)
+
+tf2 ::              ([Maybe P.PositionRange * XmlEventAll] -> e)
+  -> FilePath *      [Maybe P.PositionRange * XmlEventAll]
+  -> FilePath * (e + [Maybe P.PositionRange * XmlEventAll])
+tf2 e (c, xs) = c * maybeToEither (e . take (length match)) (removePrefixWith (^. _2) match) xs
+  where match = [sum1 XmlBeginDocument]
+
+tf3 ::              ([Maybe P.PositionRange * XmlEventAll] -> e)
+  -> FilePath *      [Maybe P.PositionRange * XmlEventAll]
+  -> FilePath * (e + [Maybe P.PositionRange * XmlEventAll])
+tf3 e (c, xs) = c * maybeToEither (e . take (length match)) (removeSuffixWith (^. _2) match) xs
+  where match = [sum2 XmlEndDocument]
