@@ -29,6 +29,11 @@ removeSuffixWithHelper _ _ _                              = Nothing
 removeSuffixWith :: Eq b => (a -> b) -> [b] -> [a] -> Maybe [a]
 removeSuffixWith f xs = fmap snd . foldr (removeSuffixWithHelper f) (Just (reverse $ xs, []))
 
+maybeToEither :: (x -> a) -> (x -> Maybe b) -> x -> Either a b
+maybeToEither e f x = case f x of
+  Just x' -> Right x'
+  Nothing -> Left (e x)
+
 
 newtype ErrorMessage = ErrorMessage { getErrorMessage :: String }
 data Error a = Error
@@ -172,8 +177,10 @@ mapItem = fmap
 tryMapItem :: (i -> [e] + i') -> Item c i -> ResultItem e c i'
 tryMapItem f x@(c, _) = _Left %~ fmap ((,) c) $ traverse f x
 
-tryMapItem' :: (i -> e + i') -> Item c i -> ResultItem e c i'
-tryMapItem' f = tryMapItem ((_Left %~ pure) . f)
+tryMapItem' :: (i -> e) -> (i -> Maybe i') -> Item c i -> ResultItem e c i'
+tryMapItem' e f (c, i) = case f i of
+  Just i' -> Right (c * i')
+  Nothing -> Left [(c * e i)]
 
 mapItems :: (i -> i') -> Items c i -> Items c i'
 mapItems = fmap . mapItem
@@ -181,8 +188,9 @@ mapItems = fmap . mapItem
 tryMapItems :: (i -> [e] + i') -> Items c i -> ResultItems e c i'
 tryMapItems f = foldr combineEitherList (Right []) . fmap (tryMapItem f)
 
-tryMapItems' :: (i -> e + i') -> Items c i -> ResultItems e c i'
-tryMapItems' f = tryMapItems ((_Left %~ pure) . f)
+tryMapItems' :: (i -> e) -> (i -> Maybe i') -> Items c i -> ResultItems e c i'
+tryMapItems' e f = foldr combineEitherList (Right []) . fmap (tryMapItem' e f)
+
 
 combineEitherList :: [a] + b -> [a] + [b] -> [a] + [b]
 combineEitherList (Left as)   (Left  as') = Left (as ++ as')
@@ -296,6 +304,7 @@ data ShowApp e = ShowApp
   , appTryDrop2 :: forall a1 a2 a3. Show a2 => a1 + a2 + a3 -> e + a1 + a3
   , appTryDrop3 :: forall a1 a2 a3 a4. Show a3 => a1 + a2 + a3 + a4 -> e + a1 + a2 + a4
   , appTryDrop4 :: forall a1 a2 a3 a4 a5. Show a4 => a1 + a2 + a3 + a4 + a5 -> e + a1 + a2 + a3 + a5
+  , toError :: String -> e
   }
 
 simpleShowApp :: (Show c) => c -> ShowApp ErrorMessage
@@ -304,6 +313,7 @@ simpleShowApp c = ShowApp
   , appTryDrop2 = tryDrop2 (makeErrorMessage c unexpected)
   , appTryDrop3 = tryDrop3 (makeErrorMessage c unexpected)
   , appTryDrop4 = tryDrop4 (makeErrorMessage c unexpected)
+  , toError = ErrorMessage
   }
   where unexpected = "Unexpected"
 
@@ -347,5 +357,8 @@ type XmlEvent
   + XmlEndElement * X.Name
   + XmlContent * X.Content
 
-tf :: ShowApp e -> Items FilePath (Maybe P.PositionRange * X.Event) -> Items FilePath (Maybe P.PositionRange * XmlEventAll)
-tf a is = mapItems (fmap toXmlEventAll) is
+mapContext :: (Item c i -> c') -> Items c i -> Items c' i
+mapContext f = fmap (\x@(_, i) -> f x * i)
+
+tf :: Items FilePath (Maybe P.PositionRange * X.Event) -> Items FilePath (Maybe P.PositionRange * XmlEventAll)
+tf is = mapItems (fmap toXmlEventAll) is
