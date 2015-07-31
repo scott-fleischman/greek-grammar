@@ -380,6 +380,10 @@ mapContext f = fmap (\x@(_, i) -> f x * i)
 em :: Show a => (a -> ErrorMessage)
 em = ErrorMessage . show
 
+distributeProduct :: a * (b + c) -> (a * b) + (a * c)
+distributeProduct (a, Left  b) = Left  (a * b)
+distributeProduct (a, Right c) = Right (a * c)
+
 
 tf1 :: FilePath * [Maybe P.PositionRange * X.Event]
     -> FilePath * [Maybe P.PositionRange * XmlEventAll]
@@ -391,11 +395,17 @@ tf2 ::              ([Maybe P.PositionRange * XmlEventAll] -> e)
 tf2 e = _2 %~ maybeToEither (e . take (length match)) (removePrefixWith (^. _2) match)
   where match = [sum1 XmlBeginDocument]
 
+tf2' ::                          ([Maybe P.PositionRange * XmlEventAll] -> e)
+  ->  FilePath *                  [Maybe P.PositionRange * XmlEventAll]
+  -> (FilePath * e) + (FilePath * [Maybe P.PositionRange * XmlEventAll])
+tf2' e f = distributeProduct (tf2 e f)
+
 tf3 ::              ([Maybe P.PositionRange * XmlEventAll] -> e)
   -> FilePath *      [Maybe P.PositionRange * XmlEventAll]
   -> FilePath * (e + [Maybe P.PositionRange * XmlEventAll])
 tf3 e = _2 %~ maybeToEither (e . take (length match)) (removeSuffixWith (^. _2) match)
   where match = [sum2 XmlEndDocument]
+
 
 tf4 ::                                       (XmlEventAll -> e)
   -> FilePath *      [Maybe P.PositionRange * XmlEventAll]
@@ -434,3 +444,7 @@ tf12 ::             (XmlCDATA * Text -> e)
   ->     a + b + c + XmlCDATA * Text
   -> e + a + b + c
 tf12 = tryDrop4e
+
+
+tfShow :: Show x => x -> ErrorMessage
+tfShow = ErrorMessage . show
