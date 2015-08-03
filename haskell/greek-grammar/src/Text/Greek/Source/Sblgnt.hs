@@ -17,9 +17,6 @@ import qualified Text.XML.Stream.Parse as P
 readEvents :: FilePath -> IO [(Maybe P.PositionRange, X.Event)]
 readEvents p = runResourceT $ sourceFile p =$= P.parseBytesPos P.def $$ sinkList
 
-readEvents' :: FilePath -> IO (FilePath * [(Maybe P.PositionRange, X.Event)])
-readEvents' p = readEvents p >>= return . (,) p
-
 
 removePrefixWith :: Eq b => (a -> b) -> [b] -> [a] -> Maybe [a]
 removePrefixWith _ []       ys                  = Just ys
@@ -317,3 +314,6 @@ tf12 = tryDrop4e
 
 tfShow :: Show x => x -> ErrorMessage
 tfShow = ErrorMessage . show
+
+readEvents' :: FilePath -> IO (FilePath * [(Maybe P.PositionRange, XmlEventAll)])
+readEvents' p = readEvents p >>= return . tf1 . (,) p

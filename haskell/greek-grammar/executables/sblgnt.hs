@@ -2,10 +2,10 @@
 
 module Main where
 
-import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=), show, snd)
+import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=), show)
 import qualified Prelude as Unsafe ((!!))
 import Control.Applicative (pure)
-import Control.Lens ((%~))
+import Control.Lens hiding ((<.>))
 import Control.Monad (mapM_, Monad(..))
 import Data.Default (def)
 import Data.Either (Either(..))
@@ -45,8 +45,7 @@ mainDocumentToOsisText = do
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
   events <- readEvents' sblgntXmlPath
-  let events' = tf1 events
-  putStrLn . T.pack . show . length . snd $ events'
+  putStrLn . T.pack . show . (_2 %~ length) $ events
 
 
 
