@@ -318,8 +318,8 @@ tfShow = ErrorMessage . show
 type PartialTransform e c x x' = c * x -> e + (c * x')
 type PartialTransform' e c x = PartialTransform e c x x
 
-showError1 :: String -> [Maybe P.PositionRange * XmlEventAll] -> ErrorMessage
-showError1 m = errorMap (m ++) . tfShow
+showErrorMessage :: Show a => String -> a -> ErrorMessage
+showErrorMessage m = errorMap (m ++) . tfShow
 
 addErrorContext :: Show c => c -> ErrorMessage -> ErrorMessage
 addErrorContext c = errorMap ((++) (show c ++ " "))
@@ -328,10 +328,13 @@ mapErrorContexts :: Show c => (c * [ErrorMessage]) -> [ErrorMessage]
 mapErrorContexts (c, es) = fmap (addErrorContext c) es
 
 tf2p :: PartialTransform' [ErrorMessage] FilePath [Maybe P.PositionRange * XmlEventAll]
-tf2p = (_Left %~ mapErrorContexts) . tf2'' (showError1 "unexpected")
+tf2p = (_Left %~ mapErrorContexts) . tf2'' (showErrorMessage "missing BeginDocument")
 
 tf3p :: PartialTransform' [ErrorMessage] FilePath [Maybe P.PositionRange * XmlEventAll]
-tf3p = (_Left %~ mapErrorContexts) . tf3'' (showError1 "unexpected")
+tf3p = (_Left %~ mapErrorContexts) . tf3'' (showErrorMessage "missing EndDocument")
+
+tf4p :: PartialTransform [ErrorMessage] FilePath [Maybe P.PositionRange * XmlEventAll] [P.PositionRange * XmlEventAll]
+tf4p = (_Left %~ mapErrorContexts) . tf4' (showErrorMessage "Missing PositionRange")
 
 readEvents' :: FilePath -> IO (FilePath * [(Maybe P.PositionRange, XmlEventAll)])
 readEvents' p = readEvents p >>= return . tf1 . (,) p
