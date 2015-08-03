@@ -23,6 +23,7 @@ import Text.Greek.Corpus.Bible.Stats
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
 import Text.Greek.Source.Sblgnt
+import Text.Greek.Utility
 import qualified Text.Greek.Source.Osis as Osis
 import qualified Data.Text as T
 import qualified Data.XML.Types as X
@@ -46,15 +47,7 @@ mainDocumentToXml = do
   events <- readEvents sblgntXmlPath
   case initialProcessEvents sblgntXmlPath events of
     Left e -> putStrLn . T.pack . errorToString show $ e
-    Right xs ->
-      case fileReferenceXmlEvents xs of 
-        Left es -> mapM_ (putStrLn . T.pack . errorToString fileReferenceToString) es
-        Right e -> putStrLn . T.pack . show . length $ xs
-
-fileReferenceXmlEvents :: [(FileReference, X.Event)] -> Either [Error FileReference] [(FileReference, XCEvent)]
-fileReferenceXmlEvents xs =
-      toXNCEventsError xs
-  >>= ensureNoNamespacesAll
+    Right xs -> putStrLn "hi"
 
 
 
