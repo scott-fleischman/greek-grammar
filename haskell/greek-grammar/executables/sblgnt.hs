@@ -2,7 +2,7 @@
 
 module Main where
 
-import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=), show)
+import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=), show, snd)
 import qualified Prelude as Unsafe ((!!))
 import Control.Applicative (pure)
 import Control.Lens ((%~))
@@ -44,10 +44,9 @@ mainDocumentToOsisText = do
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  events <- readEvents sblgntXmlPath
-  case initialProcessEvents sblgntXmlPath events of
-    Left e -> putStrLn . T.pack . errorToString show $ e
-    Right xs -> putStrLn "hi"
+  events <- readEvents' sblgntXmlPath
+  let events' = tf1 events
+  putStrLn . T.pack . show . length . snd $ events'
 
 
 
