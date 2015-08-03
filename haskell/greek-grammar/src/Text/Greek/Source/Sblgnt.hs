@@ -315,5 +315,21 @@ tf12 = tryDrop4e
 tfShow :: Show x => x -> ErrorMessage
 tfShow = ErrorMessage . show
 
+type PartialTransform c x x' = c * x -> [ErrorMessage] + (c * x')
+type PartialTransform' c x = PartialTransform c x x
+
+showError1 :: String -> [Maybe P.PositionRange * XmlEventAll] -> ErrorMessage
+showError1 m = errorMap (m ++) . tfShow
+
+addErrorContext :: Show c => c -> ErrorMessage -> ErrorMessage
+addErrorContext c = errorMap ((++) (show c ++ " "))
+
+mapErrorContexts :: Show c => (c * [ErrorMessage]) -> [ErrorMessage]
+mapErrorContexts (c, es) = fmap (addErrorContext c) es
+
+tf2p :: PartialTransform' FilePath [Maybe P.PositionRange * XmlEventAll]
+tf2p = undefined
+
+
 readEvents' :: FilePath -> IO (FilePath * [(Maybe P.PositionRange, XmlEventAll)])
 readEvents' p = readEvents p >>= return . tf1 . (,) p
