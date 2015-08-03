@@ -52,9 +52,13 @@ mainDocumentToXml = do
   putStrLn . T.pack . show . (_Right . _2 %~ length) $ results
 
 xmlTransform
-  ::                  FilePath * [Maybe P.PositionRange * XmlEventAll]
-  -> [ErrorMessage] + FilePath *       [P.PositionRange * XmlEventAll]
-xmlTransform x = tf2p x >>= tf3p >>= tf4p
+  :: FilePath * [Maybe P.PositionRange * XmlEventAll]
+  -> [ErrorMessage] + [FileReference * XmlEventAll]
+xmlTransform x =
+      tf2p x
+  >>= tf3p
+  >>= tf4p
+  >>. tf5
 
 
 main :: IO ()

@@ -174,3 +174,10 @@ distributeProduct (a, Right c) = Right (a * c)
 
 singleErrorContext :: (a * e) + b -> (a * [e]) + b
 singleErrorContext = _Left %~ (_2 %~ pure)
+
+(>.) :: (a -> b) -> (b -> c) -> (a -> c)
+(>.) = flip (.)
+
+(>>.) :: forall a b m. Monad m => m a -> (a -> b) -> m b
+(>>.) = flip fmap
+infixl 1 >>.
