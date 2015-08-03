@@ -181,3 +181,7 @@ singleErrorContext = _Left %~ (_2 %~ pure)
 (>>.) :: forall a b m. Monad m => m a -> (a -> b) -> m b
 (>>.) = flip fmap
 infixl 1 >>.
+
+
+transformAll :: (a -> e + b) -> [a] -> [e] + [b]
+transformAll f = combineEithers . fmap f

@@ -285,6 +285,24 @@ tf5 (c, xs) = fmap (_1 %~ toFileReference c) xs
 tf6 :: (XmlBeginDocument -> e) -> XmlBeginDocument + a -> e + a
 tf6 = tryDrop1
 
+tf6a
+  :: (XmlBeginDocument -> e)
+  -> c * (XmlBeginDocument + a)
+  -> c * (e + a)
+tf6a e = _2 %~ tf6 e
+
+tf6b
+  :: (XmlBeginDocument -> e)
+  -> c * (XmlBeginDocument + a)
+  -> (c * e) + (c * a)
+tf6b e = distributeProduct . tf6a e
+
+tf6'
+  :: (XmlBeginDocument -> e)
+  -> [c * (XmlBeginDocument + a)]
+  -> [c * e] + [c * a]
+tf6' e = transformAll (tf6b e)
+
 tf7 :: (XmlEndDocument -> e) -> XmlEndDocument + a -> e + a
 tf7 = tryDrop1
 
@@ -328,13 +346,14 @@ mapErrorContexts :: Show c => (c * [ErrorMessage]) -> [ErrorMessage]
 mapErrorContexts (c, es) = fmap (addErrorContext c) es
 
 tf2p :: PartialTransform' [ErrorMessage] FilePath [Maybe P.PositionRange * XmlEventAll]
-tf2p = (_Left %~ mapErrorContexts) . tf2'' (showErrorMessage "missing BeginDocument")
+tf2p = (_Left %~ mapErrorContexts) . tf2'' (showErrorMessage "expected prefix BeginDocument")
 
 tf3p :: PartialTransform' [ErrorMessage] FilePath [Maybe P.PositionRange * XmlEventAll]
-tf3p = (_Left %~ mapErrorContexts) . tf3'' (showErrorMessage "missing EndDocument")
+tf3p = (_Left %~ mapErrorContexts) . tf3'' (showErrorMessage "expected suffix EndDocument")
 
 tf4p :: PartialTransform [ErrorMessage] FilePath [Maybe P.PositionRange * XmlEventAll] [P.PositionRange * XmlEventAll]
-tf4p = (_Left %~ mapErrorContexts) . tf4' (showErrorMessage "Missing PositionRange")
+tf4p = (_Left %~ mapErrorContexts) . tf4' (showErrorMessage "missing PositionRange")
+
 
 readEvents' :: FilePath -> IO (FilePath * [(Maybe P.PositionRange, XmlEventAll)])
 readEvents' p = readEvents p >>= return . tf1 . (,) p
