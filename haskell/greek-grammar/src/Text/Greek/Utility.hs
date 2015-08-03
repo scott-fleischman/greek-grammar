@@ -160,6 +160,7 @@ tryDrop4e f = get4e . over prism4e f
 
 
 newtype ErrorMessage = ErrorMessage { getErrorMessage :: String }
+instance Show ErrorMessage where show = show . getErrorMessage
 
 errorMap :: (String -> String) -> ErrorMessage -> ErrorMessage
 errorMap f m = ErrorMessage (f . getErrorMessage $ m)

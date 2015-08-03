@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Main where
 
@@ -11,6 +12,7 @@ import Data.Default (def)
 import Data.Either (Either(..))
 import Data.Functor (fmap)
 import Data.List (filter, intersperse, concat, length)
+import Data.Maybe
 import Data.Text (Text, replace, unpack)
 import Data.Text.Format (Only(..))
 import Data.Text.Format.Strict (format')
@@ -27,6 +29,7 @@ import Text.Greek.Utility
 import qualified Text.Greek.Source.Osis as Osis
 import qualified Data.Text as T
 import qualified Data.XML.Types as X
+import qualified Text.XML.Stream.Parse as P
 
 load :: IO (Either SBLError Bible)
 load = do
@@ -45,8 +48,13 @@ mainDocumentToOsisText = do
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
   events <- readEvents' sblgntXmlPath
-  putStrLn . T.pack . show . (_2 %~ length) $ events
+  let results = tf2p events
+  putStrLn . T.pack . show . (_Right . _2 %~ length) $ results
 
+xmlTransform
+  :: FilePath * [(Maybe P.PositionRange, XmlEventAll)]
+  -> [ErrorMessage] + FilePath * [(Maybe P.PositionRange, XmlEventAll)]
+xmlTransform x = tf2p x >>= tf3p
 
 
 main :: IO ()
