@@ -384,10 +384,15 @@ distributeProduct :: a * (b + c) -> (a * b) + (a * c)
 distributeProduct (a, Left  b) = Left  (a * b)
 distributeProduct (a, Right c) = Right (a * c)
 
+singleErrorContext :: (a * e) + b -> (a * [e]) + b
+singleErrorContext = _Left %~ (_2 %~ pure)
+
+
 
 tf1 :: FilePath * [Maybe P.PositionRange * X.Event]
     -> FilePath * [Maybe P.PositionRange * XmlEventAll]
 tf1 = _2 %~ fmap (_2 %~ toXmlEventAll)
+
 
 tf2 ::              ([Maybe P.PositionRange * XmlEventAll] -> e)
   -> FilePath *      [Maybe P.PositionRange * XmlEventAll]
@@ -400,17 +405,39 @@ tf2' ::                          ([Maybe P.PositionRange * XmlEventAll] -> e)
   -> (FilePath * e) + (FilePath * [Maybe P.PositionRange * XmlEventAll])
 tf2' e f = distributeProduct (tf2 e f)
 
+tf2'' ::                           ([Maybe P.PositionRange * XmlEventAll] -> e)
+  ->  FilePath *                    [Maybe P.PositionRange * XmlEventAll]
+  -> (FilePath * [e]) + (FilePath * [Maybe P.PositionRange * XmlEventAll])
+tf2'' e = singleErrorContext . tf2' e
+
+
 tf3 ::              ([Maybe P.PositionRange * XmlEventAll] -> e)
   -> FilePath *      [Maybe P.PositionRange * XmlEventAll]
   -> FilePath * (e + [Maybe P.PositionRange * XmlEventAll])
 tf3 e = _2 %~ maybeToEither (e . take (length match)) (removeSuffixWith (^. _2) match)
   where match = [sum2 XmlEndDocument]
 
+tf3' ::                          ([Maybe P.PositionRange * XmlEventAll] -> e)
+  ->  FilePath *                  [Maybe P.PositionRange * XmlEventAll]
+  -> (FilePath * e) + (FilePath * [Maybe P.PositionRange * XmlEventAll])
+tf3' e f = distributeProduct (tf3 e f)
+
+tf3'' ::                           ([Maybe P.PositionRange * XmlEventAll] -> e)
+  ->  FilePath *                    [Maybe P.PositionRange * XmlEventAll]
+  -> (FilePath * [e]) + (FilePath * [Maybe P.PositionRange * XmlEventAll])
+tf3'' e = singleErrorContext . tf3' e
+
 
 tf4 ::                                       (XmlEventAll -> e)
   -> FilePath *      [Maybe P.PositionRange * XmlEventAll]
   -> FilePath * ([e] +     [P.PositionRange * XmlEventAll])
 tf4 e = _2 %~ combineEithers . fmap (maybeToEither (e . snd) (traverseOf _1 id))
+
+tf4' ::                                                     (XmlEventAll -> e)
+  ->  FilePath *                    [Maybe P.PositionRange * XmlEventAll]
+  -> (FilePath * [e]) + (FilePath * [P.PositionRange       * XmlEventAll])
+tf4' e f = distributeProduct (tf4 e f)
+
 
 tf5 :: FilePath * [P.PositionRange * XmlEventAll]
     -> [FileReference * XmlEventAll]
