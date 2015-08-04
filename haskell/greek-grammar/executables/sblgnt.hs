@@ -26,7 +26,6 @@ import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
 import Text.Greek.Source.Sblgnt
 import Text.Greek.Utility
-import qualified Text.Greek.Source.Osis as Osis
 import qualified Data.Text as T
 import qualified Data.XML.Types as X
 import qualified Text.XML.Stream.Parse as P
@@ -38,12 +37,6 @@ load = do
 
 report :: (Bible -> [Text]) -> IO ()
 report f = load >>= mapM_ putStrLn . showErrorContinue f
-
-mainDocumentToOsisText :: IO ()
-mainDocumentToOsisText = do
-  doc <- readFile def sblgntOsisPath
-  let osis = Osis.documentToOsisText doc
-  putStrLn . T.pack . show $ osis
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do

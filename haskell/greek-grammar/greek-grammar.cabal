@@ -62,7 +62,6 @@ library
     Text.Greek.Script.Sound
     Text.Greek.Script.Token
     Text.Greek.Script.UnicodeTokenPairs
-    Text.Greek.Source.Osis
     Text.Greek.Source.Sblgnt
     Text.Greek.Utility
   ghc-options: -Wall -fwarn-tabs -O2
