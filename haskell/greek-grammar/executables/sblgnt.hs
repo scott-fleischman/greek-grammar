@@ -48,17 +48,24 @@ mainDocumentToOsisText = do
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
   events <- readEvents' sblgntXmlPath
-  let results = tf2p events
-  putStrLn . T.pack . show . (_Right . _2 %~ length) $ results
+  let results = xmlTransform events
+  putStrLn . T.pack . show . (_Right %~ length) $ results
 
 xmlTransform
   :: FilePath * [Maybe P.PositionRange * XmlEventAll]
-  -> [ErrorMessage] + [FileReference * XmlEventAll]
+  -> [ErrorMessage] +
+    [FileReference *
+      ( XmlBeginElement * X.Name * [(X.Name, [X.Content])]
+      + XmlEndElement * X.Name
+      + XmlContent * X.Content
+      + XmlComment * Text
+      + XmlCDATA * Text)]
 xmlTransform x =
       tf2p x
   >>= tf3p
   >>= tf4p
   >>. tf5
+  >>= tf6p
 
 
 main :: IO ()

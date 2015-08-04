@@ -333,27 +333,49 @@ tf12 = tryDrop4e
 tfShow :: Show x => x -> ErrorMessage
 tfShow = ErrorMessage . show
 
-type PartialTransform e c x x' = c * x -> e + (c * x')
-type PartialTransform' e c x = PartialTransform e c x x
+type ErrorMap x x' = x -> [ErrorMessage] + x'
+type ErrorMap' x = x -> [ErrorMessage] + x
 
 showErrorMessage :: Show a => String -> a -> ErrorMessage
-showErrorMessage m = errorMap (m ++) . tfShow
+showErrorMessage m = errorMap ((++) (m ++ " ")) . tfShow
 
 addErrorContext :: Show c => c -> ErrorMessage -> ErrorMessage
 addErrorContext c = errorMap ((++) (show c ++ " "))
 
+addErrorContext' :: Show c => c * ErrorMessage -> ErrorMessage
+addErrorContext' (c, m) = addErrorContext c m
+
 mapErrorContexts :: Show c => (c * [ErrorMessage]) -> [ErrorMessage]
 mapErrorContexts (c, es) = fmap (addErrorContext c) es
 
-tf2p :: PartialTransform' [ErrorMessage] FilePath [Maybe P.PositionRange * XmlEventAll]
+tf2p :: ErrorMap' (FilePath * [Maybe P.PositionRange * XmlEventAll])
 tf2p = (_Left %~ mapErrorContexts) . tf2'' (showErrorMessage "expected prefix BeginDocument")
 
-tf3p :: PartialTransform' [ErrorMessage] FilePath [Maybe P.PositionRange * XmlEventAll]
+tf3p :: ErrorMap' (FilePath * [Maybe P.PositionRange * XmlEventAll])
 tf3p = (_Left %~ mapErrorContexts) . tf3'' (showErrorMessage "expected suffix EndDocument")
 
-tf4p :: PartialTransform [ErrorMessage] FilePath [Maybe P.PositionRange * XmlEventAll] [P.PositionRange * XmlEventAll]
+tf4p :: ErrorMap (FilePath * [Maybe P.PositionRange * XmlEventAll]) (FilePath * [P.PositionRange * XmlEventAll])
 tf4p = (_Left %~ mapErrorContexts) . tf4' (showErrorMessage "missing PositionRange")
 
 
-readEvents' :: FilePath -> IO (FilePath * [(Maybe P.PositionRange, XmlEventAll)])
+tryDrop1All
+  :: (a -> e)
+  -> [c * (a + b)]
+  -> [c * e] + [c * b]
+tryDrop1All e = transformAll (distributeProduct . (_2 %~ tryDrop1 e))
+
+tryDrop1AllError :: (Show a, Show c) => ErrorMap [c * (a + b)] [c * b]
+tryDrop1AllError = (_Left %~ fmap addErrorContext') . tryDrop1All (showErrorMessage "unexpected")
+
+tf6p :: ErrorMap
+  [FileReference * XmlEventAll]
+  [FileReference *
+    ( XmlBeginElement * X.Name * [(X.Name, [X.Content])]
+    + XmlEndElement * X.Name
+    + XmlContent * X.Content
+    + XmlComment * Text
+    + XmlCDATA * Text)]
+tf6p x = tryDrop1AllError x >>= tryDrop1AllError >>= tryDrop1AllError >>= tryDrop1AllError >>= tryDrop1AllError
+
+readEvents' :: FilePath -> IO (FilePath * [Maybe P.PositionRange * XmlEventAll])
 readEvents' p = readEvents p >>= return . tf1 . (,) p
