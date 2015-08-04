@@ -143,6 +143,17 @@ type EventAll
   + EventComment * Text
   + EventCDATA * Text
 
+type Event9
+  = EventEndDocument
+  + EventBeginDoctype * Text * (Maybe XmlExternalId)
+  + EventEndDoctype
+  + EventInstruction * XmlInstruction
+  + EventBeginElement * XmlName * XmlAttributes
+  + EventEndElement * XmlName
+  + EventContent * XmlContent
+  + EventComment * Text
+  + EventCDATA * Text
+
 toEventAll :: X.Event -> EventAll
 toEventAll  X.EventBeginDocument     = sum1    EventBeginDocument
 toEventAll  X.EventEndDocument       = sum2    EventEndDocument
@@ -170,12 +181,17 @@ tx1a :: FilePath * [Maybe P.PositionRange    * EventAll]
 tx1a = _2 . each . _1 . _Just %~ toLineReferenceRange
 
 tx2 :: FilePath * [Maybe LineReferenceRange * EventAll]
-    -> [FilePath * Maybe LineReferenceRange * EventAll]
-tx2 (c, xs) = (c *) <$> xs
+    -> [(FilePath * Maybe LineReferenceRange) * EventAll]
+tx2 (c, xs) = (shiftLeftProduct . (*) c) <$> xs
 
-tx3 ::                  [FilePath * Maybe LineReferenceRange * EventAll]
-    -> [ErrorMessage] + [FilePath * Maybe LineReferenceRange * EventAll]
-tx3 = removePrefixWith' (pure . log) (^. _2 . _2) [sum1 EventBeginDocument]
+tx3 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
+    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * EventAll]
+tx3 = removePrefixWith' (pure . log) (^. _2) [sum1 EventBeginDocument]
+
+tx4 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
+    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
+tx4 = partialMapErrors (tryDrop1 log)
+
 
 -- tf1 :: FilePath * [Maybe P.PositionRange * X.Event]
 --     -> FilePath * [Maybe P.PositionRange * XmlEventAll]

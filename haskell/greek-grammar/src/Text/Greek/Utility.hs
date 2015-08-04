@@ -98,10 +98,13 @@ get3e = get2 . over _Right get2e
 get4e :: a1 + a2 + a3 + a4 -> a4 + a1 + a2 + a3
 get4e = get2 . over _Right get3e
 
-shiftLeft :: a + (b + c) -> (a + b) + c
-shiftLeft (Left a) = Left . Left $ a
-shiftLeft (Right (Left b)) = Left . Right $ b
-shiftLeft (Right (Right c)) = Right c
+shiftLeftSum :: a + (b + c) -> (a + b) + c
+shiftLeftSum (Left a) = Left . Left $ a
+shiftLeftSum (Right (Left b)) = Left . Right $ b
+shiftLeftSum (Right (Right c)) = Right c
+
+shiftLeftProduct :: a * (b * c) -> (a * b) * c
+shiftLeftProduct (a, (b, c)) = (a * b) * c
 
 get2 :: a1 + a2 + a3 -> a2 + a1 + a3
 get2 (Left a1) = Right . Left $ a1
@@ -132,7 +135,7 @@ tryDrop4e :: (a4 -> e) -> a1 + a2 + a3 + a4 -> e + a1 + a2 + a3
 tryDrop4e f = get4e . over prism4e f
 
 
-newtype ErrorMessage = ErrorMessage { getErrorMessage :: [String] }
+newtype ErrorMessage = ErrorMessage { getErrorMessage :: [String] } deriving (Show)
 class Display a where
   log :: a -> ErrorMessage
 
@@ -182,10 +185,10 @@ instance Display Text where
   log = fromString . unpack
 
 
-newtype Line = Line { getLine :: Int } deriving (Eq, Ord)
+newtype Line = Line { getLine :: Int } deriving (Eq, Ord, Show)
 instance Display Line where log (Line l) = concatErrors ["line:", log l]
 
-newtype Column = Column { getColumn :: Int } deriving (Eq, Ord)
+newtype Column = Column { getColumn :: Int } deriving (Eq, Ord, Show)
 instance Display Column where log (Column c) = concatErrors ["column:", log c]
 
 type LineReference = Line * Column

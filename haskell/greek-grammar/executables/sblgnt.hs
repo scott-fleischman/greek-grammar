@@ -11,7 +11,7 @@ import Control.Monad (mapM_, Monad(..))
 import Data.Default (def)
 import Data.Either (Either(..))
 import Data.Functor (fmap)
-import Data.List (filter, intersperse, concat, length)
+import Data.List (filter, intersperse, concat, length, take)
 import Data.Maybe
 import Data.Text (Text, replace, unpack)
 import Data.Text.Format (Only(..))
@@ -41,25 +41,17 @@ report f = load >>= mapM_ putStrLn . showErrorContinue f
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
   events <- readEvents sblgntXmlPath
-  let results = tx1 (sblgntXmlPath * events) >>. tx1a >>. tx2 >>. tx3
+  let results = xmlTransform (sblgntXmlPath * events)
+  putStrLn . T.pack . show . (_Right %~ take 10) $ results
 
-  putStrLn . T.concat . fmap T.pack . getErrorMessage . log . (_Right %~ length) $ results
-
--- xmlTransform
---   :: FilePath * [Maybe P.PositionRange * XmlEventAll]
---   -> [ErrorMessage] +
---     [FileReference *
---       ( XmlBeginElement * X.Name * [(X.Name, [X.Content])]
---       + XmlEndElement * X.Name
---       + XmlContent * X.Content
---       + XmlComment * Text
---       + XmlCDATA * Text)]
--- xmlTransform x =
---       tf2p x
---   >>= tf3p
---   >>= tf4p
---   >>. tf5
---   >>= tf6p
+xmlTransform
+  :: FilePath * [Maybe P.PositionRange * X.Event]
+  -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * EventAll]
+xmlTransform x = return x
+  >>. tx1
+  >>. tx1a
+  >>. tx2
+  >>= tx3
 
 
 main :: IO ()
