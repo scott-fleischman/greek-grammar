@@ -1,10 +1,15 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Text.Greek.Utility where
 
-import Prelude hiding ((*), (+))
+import Prelude hiding ((*), (+), log, getLine)
 import Control.Lens
+import Data.String
+import Data.Text (Text, unpack)
 
 type a + b = Either a b
 infixr 6 +
@@ -127,14 +132,17 @@ tryDrop4e :: (a4 -> e) -> a1 + a2 + a3 + a4 -> e + a1 + a2 + a3
 tryDrop4e f = get4e . over prism4e f
 
 
-newtype ErrorMessage = ErrorMessage { getErrorMessage :: String }
-instance Show ErrorMessage where show = show . getErrorMessage
+newtype ErrorMessage = ErrorMessage { getErrorMessage :: [String] }
+class Display a where
+  log :: a -> ErrorMessage
 
-errorMap :: (String -> String) -> ErrorMessage -> ErrorMessage
-errorMap f m = ErrorMessage (f . getErrorMessage $ m)
+instance Display ErrorMessage where log = id
 
-em :: Show a => (a -> ErrorMessage)
-em = ErrorMessage . show
+concatErrors :: [ErrorMessage] -> ErrorMessage
+concatErrors = ErrorMessage . concat . fmap getErrorMessage
+
+instance IsString ErrorMessage where
+  fromString = ErrorMessage . pure
 
 distributeProduct :: a * (b + c) -> (a * b) + (a * c)
 distributeProduct (a, Left  b) = Left  (a * b)
@@ -145,11 +153,51 @@ singleErrorContext = _Left %~ (_2 %~ pure)
 
 (>.) :: (a -> b) -> (b -> c) -> (a -> c)
 (>.) = flip (.)
+infixr 9 >.
 
-(>>.) :: forall a b m. Monad m => m a -> (a -> b) -> m b
+(>>.) :: forall a b m. Functor m => m a -> (a -> b) -> m b
 (>>.) = flip fmap
 infixl 1 >>.
 
 
 transformAll :: (a -> e + b) -> [a] -> [e] + [b]
 transformAll f = combineEithers . fmap f
+
+
+instance (Display a, Display b) => Display (a * b) where
+  log (a, b) = concatErrors [log a, " ", log b]
+instance (Display a, Display b) => Display (a + b) where
+  log (Left a) = log a
+  log (Right b) = log b
+instance Display Char where
+  log = fromString . pure
+instance Display Int where
+  log = fromString . show
+instance Display a => Display [a] where
+  log = concatErrors . fmap log
+instance Display a => Display (Maybe a) where
+  log Nothing = "-"
+  log (Just a) = log a
+instance Display Text where
+  log = fromString . unpack
+
+
+newtype Line = Line { getLine :: Int } deriving (Eq, Ord)
+instance Display Line where log (Line l) = concatErrors ["line:", log l]
+
+newtype Column = Column { getColumn :: Int } deriving (Eq, Ord)
+instance Display Column where log (Column c) = concatErrors ["column:", log c]
+
+type LineReference = Line * Column
+type LineReferenceRange = LineReference + LineReference * LineReference
+type FileReference = FilePath * LineReferenceRange
+
+
+contextPartialMap :: (a -> e + b) -> c * a -> c * e + c * b
+contextPartialMap f = distributeProduct . over _2 f
+
+partialMapError :: Display c => (a -> ErrorMessage + b) -> c * a -> ErrorMessage + c * b
+partialMapError f = (_Left %~ log) . contextPartialMap f
+
+partialMapErrors :: Display c => (a -> ErrorMessage + b) -> [c * a] -> [ErrorMessage] + [c * b]
+partialMapErrors f = combineEithers . fmap (partialMapError f)

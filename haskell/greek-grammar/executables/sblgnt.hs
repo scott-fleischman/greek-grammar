@@ -40,25 +40,26 @@ report f = load >>= mapM_ putStrLn . showErrorContinue f
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  events <- readEvents' sblgntXmlPath
-  let results = xmlTransform events
-  putStrLn . T.pack . show . (_Right %~ length) $ results
+  events <- readEvents sblgntXmlPath
+  let results = tx1 (sblgntXmlPath * events) >>. tx1a >>. tx2 >>. tx3
 
-xmlTransform
-  :: FilePath * [Maybe P.PositionRange * XmlEventAll]
-  -> [ErrorMessage] +
-    [FileReference *
-      ( XmlBeginElement * X.Name * [(X.Name, [X.Content])]
-      + XmlEndElement * X.Name
-      + XmlContent * X.Content
-      + XmlComment * Text
-      + XmlCDATA * Text)]
-xmlTransform x =
-      tf2p x
-  >>= tf3p
-  >>= tf4p
-  >>. tf5
-  >>= tf6p
+  putStrLn . T.concat . fmap T.pack . getErrorMessage . log . (_Right %~ length) $ results
+
+-- xmlTransform
+--   :: FilePath * [Maybe P.PositionRange * XmlEventAll]
+--   -> [ErrorMessage] +
+--     [FileReference *
+--       ( XmlBeginElement * X.Name * [(X.Name, [X.Content])]
+--       + XmlEndElement * X.Name
+--       + XmlContent * X.Content
+--       + XmlComment * Text
+--       + XmlCDATA * Text)]
+-- xmlTransform x =
+--       tf2p x
+--   >>= tf3p
+--   >>= tf4p
+--   >>. tf5
+--   >>= tf6p
 
 
 main :: IO ()
