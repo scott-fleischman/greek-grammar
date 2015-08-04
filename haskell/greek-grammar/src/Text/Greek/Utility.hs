@@ -15,46 +15,14 @@ infixr 7 *
 (*) :: a -> b -> a * b
 (*) = (,)
 
-type Item              context item =                      context * item
-type ResultItem  error context item = [context * error] +  context * item
-type Items             context item =                     [context * item]
-type ResultItems error context item = [context * error] + [context * item]
-
-mapItem :: (i -> i') -> Item c i -> Item c i'
-mapItem = fmap
-
-tryMapItem :: (i -> [e] + i') -> Item c i -> ResultItem e c i'
-tryMapItem f x@(c, _) = _Left %~ fmap ((,) c) $ traverse f x
-
-tryMapItem' :: (i -> e) -> (i -> Maybe i') -> Item c i -> ResultItem e c i'
-tryMapItem' e f (c, i) = case f i of
-  Just i' -> Right (c * i')
-  Nothing -> Left [(c * e i)]
-
-mapItems :: (i -> i') -> Items c i -> Items c i'
-mapItems = fmap . mapItem
-
-tryMapItems :: (i -> [e] + i') -> Items c i -> ResultItems e c i'
-tryMapItems f = foldr combineEitherList (Right []) . fmap (tryMapItem f)
-
-tryMapItems' :: (i -> e) -> (i -> Maybe i') -> Items c i -> ResultItems e c i'
-tryMapItems' e f = foldr combineEitherList (Right []) . fmap (tryMapItem' e f)
-
-
-combineEitherList :: [a] + b -> [a] + [b] -> [a] + [b]
-combineEitherList (Left as)   (Left  as') = Left (as ++ as')
-combineEitherList (Left as)   (Right _  ) = Left as
+combineEitherList :: a + b -> [a] + [b] -> [a] + [b]
+combineEitherList (Left  a)   (Left  as') = Left (a : as')
+combineEitherList (Left  a)   (Right _  ) = Left [a]
 combineEitherList (Right _) e@(Left  _  ) = e
 combineEitherList (Right b)   (Right bs ) = Right (b : bs)
 
-combineEitherList' :: a + b -> [a] + [b] -> [a] + [b]
-combineEitherList' (Left  a)   (Left  as') = Left (a : as')
-combineEitherList' (Left  a)   (Right _  ) = Left [a]
-combineEitherList' (Right _) e@(Left  _  ) = e
-combineEitherList' (Right b)   (Right bs ) = Right (b : bs)
-
 combineEithers :: [a + b] -> [a] + [b]
-combineEithers = foldr combineEitherList' (Right [])
+combineEithers = foldr combineEitherList (Right [])
 
 
 sum1 :: a1 -> a1 + a2
