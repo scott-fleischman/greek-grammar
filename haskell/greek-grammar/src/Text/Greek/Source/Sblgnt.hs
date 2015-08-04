@@ -27,6 +27,14 @@ removePrefixWith' e f m as
     matchLength = length m
     target = take matchLength as
 
+removeSuffixWith' :: Eq b => ([a] -> e) -> (a -> b) -> [b] -> [a] -> e + [a]
+removeSuffixWith' e f m as
+  | fmap f reverseTarget == reverse m = Right . reverse . drop matchLength $ reverseList
+  | otherwise                         = Left . e . reverse $ reverseTarget
+  where
+    matchLength = length m
+    reverseTarget = take matchLength reverseList
+    reverseList = reverse as
 
 removePrefixWith :: Eq b => (a -> b) -> [b] -> [a] -> Maybe [a]
 removePrefixWith _ []       ys                  = Just ys
@@ -41,10 +49,14 @@ removeSuffixWithHelper _ _ _                              = Nothing
 removeSuffixWith :: Eq b => (a -> b) -> [b] -> [a] -> Maybe [a]
 removeSuffixWith f xs = fmap snd . foldr (removeSuffixWithHelper f) (Just (reverse $ xs, []))
 
-maybeToEither :: (x -> a) -> (x -> Maybe b) -> x -> Either a b
-maybeToEither e f x = case f x of
+maybeToEitherWith :: (x -> a) -> (x -> Maybe b) -> x -> Either a b
+maybeToEitherWith e f x = case f x of
   Just x' -> Right x'
   Nothing -> Left (e x)
+
+maybeToEither :: a -> Maybe b -> a + b
+maybeToEither a Nothing = Left a
+maybeToEither _ (Just b) = Right b
 
 toLineReference :: P.Position -> LineReference
 toLineReference (P.Position line column) = Line line * Column column
@@ -154,6 +166,16 @@ type Event9
   + EventComment * Text
   + EventCDATA * Text
 
+type Event8
+  = EventBeginDoctype * Text * (Maybe XmlExternalId)
+  + EventEndDoctype
+  + EventInstruction * XmlInstruction
+  + EventBeginElement * XmlName * XmlAttributes
+  + EventEndElement * XmlName
+  + EventContent * XmlContent
+  + EventComment * Text
+  + EventCDATA * Text
+
 toEventAll :: X.Event -> EventAll
 toEventAll  X.EventBeginDocument     = sum1    EventBeginDocument
 toEventAll  X.EventEndDocument       = sum2    EventEndDocument
@@ -192,6 +214,21 @@ tx4 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
 tx4 = partialMapErrors (tryDrop1 log)
 
+tx5 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
+    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
+tx5 = removeSuffixWith' (pure . log) (^. _2) [sum1 EventEndDocument]
+
+tx6 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
+    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event8]
+tx6 = partialMapErrors (tryDrop1 log)
+
+tx7 :: [(FilePath * Maybe LineReferenceRange) * Event8]
+    -> [(FilePath * (() + LineReferenceRange)) * Event8]
+tx7 = each . _1 . _2 %~ maybeToEither ()
+
+tx8 :: [(FilePath * (() + LineReferenceRange)) * Event8]
+    -> [(FilePath * LineReferenceRange) * Event8]
+tx8 = partialMapContexts (_2 %~ tryDrop1 log)
 
 -- tf1 :: FilePath * [Maybe P.PositionRange * X.Event]
 --     -> FilePath * [Maybe P.PositionRange * XmlEventAll]

@@ -10,6 +10,7 @@ import Prelude hiding ((*), (+), log, getLine)
 import Control.Lens
 import Data.String
 import Data.Text (Text, unpack)
+import Data.Tuple
 
 type a + b = Either a b
 infixr 6 +
@@ -147,9 +148,12 @@ concatErrors = ErrorMessage . concat . fmap getErrorMessage
 instance IsString ErrorMessage where
   fromString = ErrorMessage . pure
 
-distributeProduct :: a * (b + c) -> (a * b) + (a * c)
-distributeProduct (a, Left  b) = Left  (a * b)
-distributeProduct (a, Right c) = Right (a * c)
+distributeProductRight :: a * (b + c) -> (a * b) + (a * c)
+distributeProductRight (a, Left  b) = Left  (a * b)
+distributeProductRight (a, Right c) = Right (a * c)
+
+distributeProductLeft :: (a + b) * c -> (a * c) + (b * c)
+distributeProductLeft = over _Right swap . over _Left swap . distributeProductRight . swap
 
 singleErrorContext :: (a * e) + b -> (a * [e]) + b
 singleErrorContext = _Left %~ (_2 %~ pure)
@@ -197,10 +201,19 @@ type FileReference = FilePath * LineReferenceRange
 
 
 contextPartialMap :: (a -> e + b) -> c * a -> c * e + c * b
-contextPartialMap f = distributeProduct . over _2 f
+contextPartialMap f = distributeProductRight . over _2 f
+
+contextPartialMapContext :: (c -> e + c') -> c * a -> a * e + c' * a
+contextPartialMapContext f = (_Left %~ swap) . distributeProductLeft . over _1 f
 
 partialMapError :: Display c => (a -> ErrorMessage + b) -> c * a -> ErrorMessage + c * b
 partialMapError f = (_Left %~ log) . contextPartialMap f
 
 partialMapErrors :: Display c => (a -> ErrorMessage + b) -> [c * a] -> [ErrorMessage] + [c * b]
 partialMapErrors f = combineEithers . fmap (partialMapError f)
+
+partialMapContext :: Display a => (c -> ErrorMessage + c') -> c * a -> ErrorMessage + c' * a
+partialMapContext f = (_Left %~ log) . contextPartialMapContext f
+
+partialMapContexts :: Display a => (c -> ErrorMessage + c') -> [c * a] -> [ErrorMessage] + [c' * a]
+partialMapContexts f = combineEithers . fmap (partialMapContext f)
