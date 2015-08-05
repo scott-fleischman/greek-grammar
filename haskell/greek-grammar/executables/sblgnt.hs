@@ -46,16 +46,16 @@ mainDocumentToXml = do
 
 xmlTransform
   :: FilePath * [Maybe P.PositionRange * X.Event]
-  -> [ErrorMessage] + [(FilePath * (() + LineReferenceRange)) * Event8]
+  -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * EventAll]
 xmlTransform x = return x
   >>. tx1
   >>. tx1a
   >>. tx2
   >>= tx3
-  >>= tx4
-  >>= tx5
-  >>= tx6
-  >>. tx7
+  -- >>= tx4
+  -- >>= tx5
+  -- >>= tx6
+  -- >>. tx7
 
 main :: IO ()
 main = mainDocumentToXml

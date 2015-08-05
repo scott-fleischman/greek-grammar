@@ -1,13 +1,16 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Text.Greek.Utility where
 
-import Prelude hiding ((*), (+), log, getLine)
+import Prelude hiding ((*), (+), getLine)
 import Control.Lens
+import Data.List (intersperse)
 import Data.String
 import Data.Text (Text, unpack)
 import Data.Tuple
@@ -136,17 +139,16 @@ tryDrop4e :: (a4 -> e) -> a1 + a2 + a3 + a4 -> e + a1 + a2 + a3
 tryDrop4e f = get4e . over prism4e f
 
 
-newtype ErrorMessage = ErrorMessage { getErrorMessage :: [String] } deriving (Show)
-class Display a where
-  log :: a -> ErrorMessage
+newtype ErrorMessage = ErrorMessage { getErrorMessage :: String } deriving (Show)
 
-instance Display ErrorMessage where log = id
+class Handler e a where
+  handle :: a -> e
 
 concatErrors :: [ErrorMessage] -> ErrorMessage
 concatErrors = ErrorMessage . concat . fmap getErrorMessage
 
 instance IsString ErrorMessage where
-  fromString = ErrorMessage . pure
+  fromString = ErrorMessage
 
 distributeProductRight :: a * (b + c) -> (a * b) + (a * c)
 distributeProductRight (a, Left  b) = Left  (a * b)
@@ -170,50 +172,52 @@ infixl 1 >>.
 transformAll :: (a -> e + b) -> [a] -> [e] + [b]
 transformAll f = combineEithers . fmap f
 
+instance (Handler ErrorMessage a) => Handler [ErrorMessage] a where
+  handle = pure . handle
 
-instance (Display a, Display b) => Display (a * b) where
-  log (a, b) = concatErrors [log a, " ", log b]
-instance (Display a, Display b) => Display (a + b) where
-  log (Left a) = log a
-  log (Right b) = log b
-instance Display Char where
-  log = fromString . pure
-instance Display Int where
-  log = fromString . show
-instance Display a => Display [a] where
-  log = concatErrors . fmap log
-instance Display a => Display (Maybe a) where
-  log Nothing = "-"
-  log (Just a) = log a
-instance Display Text where
-  log = fromString . unpack
+instance (Handler ErrorMessage a, Handler ErrorMessage b) => Handler ErrorMessage (a * b) where
+  handle (a, b) = concatErrors [handle a, " ", handle b]
+instance (Handler ErrorMessage a, Handler ErrorMessage b) => Handler ErrorMessage (a + b) where
+  handle (Left a) = handle a
+  handle (Right b) = handle b
+instance Handler ErrorMessage Char where
+  handle = fromString . pure
+instance Handler ErrorMessage Int where
+  handle = fromString . show
+instance Handler ErrorMessage a => Handler ErrorMessage [a] where
+  handle = concatErrors . intersperse "," . fmap handle
+instance Handler ErrorMessage a => Handler ErrorMessage (Maybe a) where
+  handle Nothing = "-"
+  handle (Just a) = handle a
+instance Handler ErrorMessage Text where
+  handle = fromString . unpack
 
 
 newtype Line = Line { getLine :: Int } deriving (Eq, Ord, Show)
-instance Display Line where log (Line l) = concatErrors ["line:", log l]
+instance Handler ErrorMessage Line where handle (Line l) = concatErrors ["line:", handle l]
 
 newtype Column = Column { getColumn :: Int } deriving (Eq, Ord, Show)
-instance Display Column where log (Column c) = concatErrors ["column:", log c]
+instance Handler ErrorMessage Column where handle (Column c) = concatErrors ["column:", handle c]
 
 type LineReference = Line * Column
 type LineReferenceRange = LineReference + LineReference * LineReference
 type FileReference = FilePath * LineReferenceRange
 
 
-contextPartialMap :: (a -> e + b) -> c * a -> c * e + c * b
-contextPartialMap f = distributeProductRight . over _2 f
+-- contextPartialMap :: (a -> e + b) -> c * a -> c * e + c * b
+-- contextPartialMap f = distributeProductRight . over _2 f
 
-contextPartialMapContext :: (c -> e + c') -> c * a -> a * e + c' * a
-contextPartialMapContext f = (_Left %~ swap) . distributeProductLeft . over _1 f
+-- contextPartialMapContext :: (c -> e + c') -> c * a -> a * e + c' * a
+-- contextPartialMapContext f = (_Left %~ swap) . distributeProductLeft . over _1 f
 
-partialMapError :: Display c => (a -> ErrorMessage + b) -> c * a -> ErrorMessage + c * b
-partialMapError f = (_Left %~ log) . contextPartialMap f
+-- partialMapError :: Display c => (a -> ErrorMessage + b) -> c * a -> ErrorMessage + c * b
+-- partialMapError f = (_Left %~ log) . contextPartialMap f
 
-partialMapErrors :: Display c => (a -> ErrorMessage + b) -> [c * a] -> [ErrorMessage] + [c * b]
-partialMapErrors f = combineEithers . fmap (partialMapError f)
+-- partialMapErrors :: Display c => (a -> ErrorMessage + b) -> [c * a] -> [ErrorMessage] + [c * b]
+-- partialMapErrors f = combineEithers . fmap (partialMapError f)
 
-partialMapContext :: Display a => (c -> ErrorMessage + c') -> c * a -> ErrorMessage + c' * a
-partialMapContext f = (_Left %~ log) . contextPartialMapContext f
+-- partialMapContext :: Display a => (c -> ErrorMessage + c') -> c * a -> ErrorMessage + c' * a
+-- partialMapContext f = (_Left %~ log) . contextPartialMapContext f
 
-partialMapContexts :: Display a => (c -> ErrorMessage + c') -> [c * a] -> [ErrorMessage] + [c' * a]
-partialMapContexts f = combineEithers . fmap (partialMapContext f)
+-- partialMapContexts :: Display a => (c -> ErrorMessage + c') -> [c * a] -> [ErrorMessage] + [c' * a]
+-- partialMapContexts f = combineEithers . fmap (partialMapContext f)

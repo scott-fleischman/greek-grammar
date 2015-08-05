@@ -1,6 +1,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Text.Greek.Source.Sblgnt where
 
@@ -70,47 +71,47 @@ toLineReferenceRange (P.PositionRange start end)
 
 
 data EventBeginDocument = EventBeginDocument deriving (Eq, Ord, Show)
-instance Display EventBeginDocument where log = fromString . show
+instance Handler ErrorMessage EventBeginDocument where handle = fromString . show
 
 data EventEndDocument = EventEndDocument deriving (Eq, Ord, Show)
-instance Display EventEndDocument where log = fromString . show
+instance Handler ErrorMessage EventEndDocument where handle = fromString . show
 
 data EventBeginDoctype = EventBeginDoctype deriving (Eq, Ord, Show)
-instance Display EventBeginDoctype where log = fromString . show
+instance Handler ErrorMessage EventBeginDoctype where handle = fromString . show
 
 data EventEndDoctype = EventEndDoctype deriving (Eq, Ord, Show)
-instance Display EventEndDoctype where log = fromString . show
+instance Handler ErrorMessage EventEndDoctype where handle = fromString . show
 
 data EventInstruction = EventInstruction deriving (Eq, Ord, Show)
-instance Display EventInstruction where log = fromString . show
+instance Handler ErrorMessage EventInstruction where handle = fromString . show
 
 data EventBeginElement = EventBeginElement deriving (Eq, Ord, Show)
-instance Display EventBeginElement where log = fromString . show
+instance Handler ErrorMessage EventBeginElement where handle = fromString . show
 
 data EventEndElement = EventEndElement deriving (Eq, Ord, Show)
-instance Display EventEndElement where log = fromString . show
+instance Handler ErrorMessage EventEndElement where handle = fromString . show
 
 data EventContent = EventContent deriving (Eq, Ord, Show)
-instance Display EventContent where log = fromString . show
+instance Handler ErrorMessage EventContent where handle = fromString . show
 
 data EventComment = EventComment deriving (Eq, Ord, Show)
-instance Display EventComment where log = fromString . show
+instance Handler ErrorMessage EventComment where handle = fromString . show
 
 data EventCDATA = EventCDATA deriving (Eq, Ord, Show)
-instance Display EventCDATA where log = fromString . show
+instance Handler ErrorMessage EventCDATA where handle = fromString . show
 
 data XmlNameId = XmlNameId deriving (Eq, Ord, Show)
-instance Display XmlNameId where log = fromString . show
+instance Handler ErrorMessage XmlNameId where handle = fromString . show
 
 type XmlName = XmlNameId * Text * Maybe Text * Maybe Text
 toXmlName :: X.Name -> XmlName
 toXmlName (X.Name a b c) = XmlNameId * a * b * c
 
 data XmlContentText = XmlContentText deriving (Eq, Ord, Show)
-instance Display XmlContentText where log = fromString . show
+instance Handler ErrorMessage XmlContentText where handle = fromString . show
 
 data XmlContentEntity = XmlContentEntity deriving (Eq, Ord, Show)
-instance Display XmlContentEntity where log = fromString . show
+instance Handler ErrorMessage XmlContentEntity where handle = fromString . show
 
 type XmlContent
   = XmlContentText * Text
@@ -120,17 +121,17 @@ toXmlContent (X.ContentText a)   = sum1  (XmlContentText * a)
 toXmlContent (X.ContentEntity a) = sum2e (XmlContentEntity * a)
 
 data XmlInstructionId = XmlInstructionId deriving (Eq, Ord, Show)
-instance Display XmlInstructionId where log = fromString . show
+instance Handler ErrorMessage XmlInstructionId where handle = fromString . show
 
 type XmlInstruction = XmlInstructionId * Text * Text
 toXmlInstruction :: X.Instruction -> XmlInstruction
 toXmlInstruction (X.Instruction a b) = XmlInstructionId * a * b
 
 data XmlSystemId = XmlSystemId deriving (Eq, Ord, Show)
-instance Display XmlSystemId where log = fromString . show
+instance Handler ErrorMessage XmlSystemId where handle = fromString . show
 
 data XmlPublicId = XmlPublicId deriving (Eq, Ord, Show)
-instance Display XmlPublicId where log = fromString . show
+instance Handler ErrorMessage XmlPublicId where handle = fromString . show
 
 type XmlExternalId
   = XmlSystemId * Text
@@ -208,27 +209,28 @@ tx2 (c, xs) = (shiftLeftProduct . (*) c) <$> xs
 
 tx3 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * EventAll]
-tx3 = removePrefixWith' (pure . log) (^. _2) [sum1 EventBeginDocument]
+tx3 = removePrefixWith' handle (^. _2) [sum1 EventBeginDocument]
 
-tx4 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
-    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
-tx4 = partialMapErrors (tryDrop1 log)
+-- tx4 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
+--     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
+-- tx4 = partialMapErrors (tryDrop1 log)
 
-tx5 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
-    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
-tx5 = removeSuffixWith' (pure . log) (^. _2) [sum1 EventEndDocument]
+-- tx5 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
+--     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
+-- tx5 = removeSuffixWith' (pure . log) (^. _2) [sum1 EventEndDocument]
 
-tx6 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
-    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event8]
-tx6 = partialMapErrors (tryDrop1 log)
+-- tx6 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
+--     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event8]
+-- tx6 = partialMapErrors (tryDrop1 log)
 
-tx7 :: [(FilePath * Maybe LineReferenceRange) * Event8]
-    -> [(FilePath * (() + LineReferenceRange)) * Event8]
-tx7 = each . _1 . _2 %~ maybeToEither ()
+-- tx7 :: [(FilePath * Maybe LineReferenceRange) * Event8]
+--     -> [(FilePath * (() + LineReferenceRange)) * Event8]
+-- tx7 = each . _1 . _2 %~ maybeToEither ()
 
-tx8 :: [(FilePath * (() + LineReferenceRange)) * Event8]
-    -> [(FilePath * LineReferenceRange) * Event8]
-tx8 = partialMapContexts (_2 %~ tryDrop1 log)
+
+-- tx8 :: [(FilePath * (() + LineReferenceRange)) * Event8]
+--     -> [(FilePath * LineReferenceRange) * Event8]
+-- tx8 = partialMapContexts (_2 %~ tryDrop1 log)
 
 -- tf1 :: FilePath * [Maybe P.PositionRange * X.Event]
 --     -> FilePath * [Maybe P.PositionRange * XmlEventAll]
