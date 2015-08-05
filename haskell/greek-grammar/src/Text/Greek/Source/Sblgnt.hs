@@ -157,27 +157,6 @@ type EventAll
   + EventComment * Text
   + EventCDATA * Text
 
-type Event9
-  = EventEndDocument
-  + EventBeginDoctype * Text * (Maybe XmlExternalId)
-  + EventEndDoctype
-  + EventInstruction * XmlInstruction
-  + EventBeginElement * XmlName * XmlAttributes
-  + EventEndElement * XmlName
-  + EventContent * XmlContent
-  + EventComment * Text
-  + EventCDATA * Text
-
-type Event8
-  = EventBeginDoctype * Text * (Maybe XmlExternalId)
-  + EventEndDoctype
-  + EventInstruction * XmlInstruction
-  + EventBeginElement * XmlName * XmlAttributes
-  + EventEndElement * XmlName
-  + EventContent * XmlContent
-  + EventComment * Text
-  + EventCDATA * Text
-
 toEventAll :: X.Event -> EventAll
 toEventAll  X.EventBeginDocument     = sum1    EventBeginDocument
 toEventAll  X.EventEndDocument       = sum2    EventEndDocument
@@ -196,7 +175,7 @@ type XmlEvent
   + EventContent * XmlContent
 
 xmlTransform :: FilePath * [Maybe P.PositionRange * X.Event]
-  -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event8]
+  -> [ErrorMessage] + [FileReference * XmlEvent]
 xmlTransform x = return x
   >>. tx1
   >>. tx1a
@@ -205,8 +184,13 @@ xmlTransform x = return x
   >>= tx4
   >>= tx5
   >>= tx6
-  -- >>. tx7
-
+  >>. tx7
+  >>= tx8
+  >>= tx9
+  >>= tx10
+  >>= tx11
+  >>= tx12
+  >>= tx13
 
 
 tx1 :: FilePath * [Maybe P.PositionRange * X.Event]
@@ -221,32 +205,72 @@ tx2 :: FilePath * [Maybe LineReferenceRange * EventAll]
     -> [(FilePath * Maybe LineReferenceRange) * EventAll]
 tx2 (c, xs) = (shiftLeftProduct . (*) c) <$> xs
 
-
-
 tx3 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * EventAll]
 tx3 = removePrefixWith' handle (^. _2) [sum1 EventBeginDocument]
 
+type Event9
+  = EventEndDocument
+  + EventBeginDoctype * Text * (Maybe XmlExternalId)
+  + EventEndDoctype
+  + EventInstruction * XmlInstruction
+  + EventBeginElement * XmlName * XmlAttributes
+  + EventEndElement * XmlName
+  + EventContent * XmlContent
+  + EventComment * Text
+  + EventCDATA * Text
+
 tx4 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
-tx4 = split . fmap (\x -> x & _2 (tryDrop1 . const . handle $ x))
+tx4 = split . fmap (\x -> x & _2 (tryDrop1c x))
 
 tx5 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
 tx5 = removeSuffixWith' handle (^. _2) [sum1 EventEndDocument]
 
+type Event8
+  = EventBeginDoctype * Text * (Maybe XmlExternalId)
+  + EventEndDoctype
+  + EventInstruction * XmlInstruction
+  + EventBeginElement * XmlName * XmlAttributes
+  + EventEndElement * XmlName
+  + EventContent * XmlContent
+  + EventComment * Text
+  + EventCDATA * Text
+
 tx6 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event8]
-tx6 = split . fmap (\x -> x & _2 (tryDrop1 . const . handle $ x))
+tx6 = split . fmap (\x -> x & _2 (tryDrop1c x))
 
--- tx7 :: [(FilePath * Maybe LineReferenceRange) * Event8]
---     -> [(FilePath * (() + LineReferenceRange)) * Event8]
--- tx7 = each . _1 . _2 %~ maybeToEither ()
+tx7 :: [(FilePath * Maybe LineReferenceRange)  * Event8]
+    -> [(FilePath * (() + LineReferenceRange)) * Event8]
+tx7 = each . _1 . _2 %~ maybeToEither ()
+
+tx8 ::                  [(FilePath * (() + LineReferenceRange)) * Event8]
+    -> [ErrorMessage] + [FileReference                          * Event8]
+tx8 = split . fmap (\x -> x & (_1 . _2) (constHandle tryDrop1 x))
+
+tx9 ::                  [FileReference * (EventBeginDoctype * Text * (Maybe XmlExternalId) + EventEndDoctype + EventInstruction * XmlInstruction + EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
+    -> [ErrorMessage] + [FileReference * (                                                   EventEndDoctype + EventInstruction * XmlInstruction + EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
+tx9 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
+
+tx10 ::                  [FileReference * (EventEndDoctype + EventInstruction * XmlInstruction + EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
+     -> [ErrorMessage] + [FileReference * (                  EventInstruction * XmlInstruction + EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
+tx10 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
+
+tx11 ::                  [FileReference * (EventInstruction * XmlInstruction + EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
+     -> [ErrorMessage] + [FileReference * (                                    EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
+tx11 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
+
+tx12 ::                  [FileReference * (EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
+     -> [ErrorMessage] + [FileReference * (EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent +                       EventCDATA * Text)]
+tx12 = split . fmap (\x -> x & _2 (constHandle tryDrop4 x))
+
+tx13 ::                  [FileReference * (EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventCDATA * Text)]
+     -> [ErrorMessage] + [FileReference * XmlEvent]
+tx13 = split . fmap (\x -> x & _2 (constHandle tryDrop4e x))
 
 
--- tx8 :: [(FilePath * (() + LineReferenceRange)) * Event8]
---     -> [(FilePath * LineReferenceRange) * Event8]
--- tx8 = partialMapContexts (_2 %~ tryDrop1 log)
 
 -- tf1 :: FilePath * [Maybe P.PositionRange * X.Event]
 --     -> FilePath * [Maybe P.PositionRange * XmlEventAll]

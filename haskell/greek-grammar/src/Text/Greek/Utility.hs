@@ -139,10 +139,18 @@ tryDrop4e :: (a4 -> e) -> a1 + a2 + a3 + a4 -> e + a1 + a2 + a3
 tryDrop4e f = get4e . over prism4e f
 
 
-newtype ErrorMessage = ErrorMessage { getErrorMessage :: String } deriving (Show)
-
 class Handler e a where
   handle :: a -> e
+
+
+tryDrop1c :: (Handler e c) => c -> a1 + a2 -> e + a2
+tryDrop1c = tryDrop1 . const . handle
+
+constHandle :: (Handler e c) => ((a1 -> e) -> a -> e + a2) -> c -> a -> e + a2
+constHandle f = f . const . handle
+
+
+newtype ErrorMessage = ErrorMessage { getErrorMessage :: String } deriving (Show)
 
 concatErrors :: [ErrorMessage] -> ErrorMessage
 concatErrors = ErrorMessage . concat . fmap getErrorMessage
@@ -191,6 +199,8 @@ instance Handler ErrorMessage a => Handler ErrorMessage (Maybe a) where
   handle (Just a) = handle a
 instance Handler ErrorMessage Text where
   handle = fromString . unpack
+instance Handler ErrorMessage () where
+  handle () = "-"
 
 
 newtype Line = Line { getLine :: Int } deriving (Eq, Ord, Show)
