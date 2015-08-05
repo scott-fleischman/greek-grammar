@@ -1,6 +1,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 module Text.Greek.Source.Sblgnt where
@@ -194,6 +195,19 @@ type XmlEvent
   + EventEndElement * XmlName
   + EventContent * XmlContent
 
+xmlTransform :: FilePath * [Maybe P.PositionRange * X.Event]
+  -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event8]
+xmlTransform x = return x
+  >>. tx1
+  >>. tx1a
+  >>. tx2
+  >>= tx3
+  >>= tx4
+  >>= tx5
+  >>= tx6
+  -- >>. tx7
+
+
 
 tx1 :: FilePath * [Maybe P.PositionRange * X.Event]
     -> FilePath * [Maybe P.PositionRange * EventAll]
@@ -207,21 +221,23 @@ tx2 :: FilePath * [Maybe LineReferenceRange * EventAll]
     -> [(FilePath * Maybe LineReferenceRange) * EventAll]
 tx2 (c, xs) = (shiftLeftProduct . (*) c) <$> xs
 
+
+
 tx3 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * EventAll]
 tx3 = removePrefixWith' handle (^. _2) [sum1 EventBeginDocument]
 
--- tx4 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
---     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
--- tx4 = partialMapErrors (tryDrop1 log)
+tx4 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
+    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
+tx4 = split . fmap (\x -> x & _2 (tryDrop1 . const . handle $ x))
 
--- tx5 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
---     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
--- tx5 = removeSuffixWith' (pure . log) (^. _2) [sum1 EventEndDocument]
+tx5 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
+    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
+tx5 = removeSuffixWith' handle (^. _2) [sum1 EventEndDocument]
 
--- tx6 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
---     -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event8]
--- tx6 = partialMapErrors (tryDrop1 log)
+tx6 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
+    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event8]
+tx6 = split . fmap (\x -> x & _2 (tryDrop1 . const . handle $ x))
 
 -- tx7 :: [(FilePath * Maybe LineReferenceRange) * Event8]
 --     -> [(FilePath * (() + LineReferenceRange)) * Event8]

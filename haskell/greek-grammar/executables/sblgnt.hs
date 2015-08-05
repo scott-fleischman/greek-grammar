@@ -11,8 +11,7 @@ import Control.Monad (mapM_, Monad(..))
 import Data.Default (def)
 import Data.Either (Either(..))
 import Data.Functor (fmap)
-import Data.List (filter, intersperse, concat, length, take)
-import Data.Maybe
+import Data.List (filter, intersperse, concat, length)
 import Data.Text (Text, replace, unpack)
 import Data.Text.Format (Only(..))
 import Data.Text.Format.Strict (format')
@@ -27,8 +26,6 @@ import Text.Greek.Paths
 import Text.Greek.Source.Sblgnt
 import Text.Greek.Utility
 import qualified Data.Text as T
-import qualified Data.XML.Types as X
-import qualified Text.XML.Stream.Parse as P
 
 load :: IO (Either SBLError Bible)
 load = do
@@ -42,20 +39,7 @@ mainDocumentToXml :: IO ()
 mainDocumentToXml = do
   events <- readEvents sblgntXmlPath
   let results = xmlTransform (sblgntXmlPath * events)
-  putStrLn . T.pack . show . (_Right %~ take 10) $ results
-
-xmlTransform
-  :: FilePath * [Maybe P.PositionRange * X.Event]
-  -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * EventAll]
-xmlTransform x = return x
-  >>. tx1
-  >>. tx1a
-  >>. tx2
-  >>= tx3
-  -- >>= tx4
-  -- >>= tx5
-  -- >>= tx6
-  -- >>. tx7
+  putStrLn . T.pack . show . (_Right %~ length) $ results
 
 main :: IO ()
 main = mainDocumentToXml

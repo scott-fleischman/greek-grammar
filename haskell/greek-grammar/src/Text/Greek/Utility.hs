@@ -24,14 +24,14 @@ infixr 7 *
 (*) :: a -> b -> a * b
 (*) = (,)
 
-combineEitherList :: a + b -> [a] + [b] -> [a] + [b]
-combineEitherList (Left  a)   (Left  as') = Left (a : as')
-combineEitherList (Left  a)   (Right _  ) = Left [a]
-combineEitherList (Right _) e@(Left  _  ) = e
-combineEitherList (Right b)   (Right bs ) = Right (b : bs)
+addSplit :: a + b -> [a] + [b] -> [a] + [b]
+addSplit (Left  a)   (Left  as') = Left (a : as')
+addSplit (Left  a)   (Right _  ) = Left [a]
+addSplit (Right _) e@(Left  _  ) = e
+addSplit (Right b)   (Right bs ) = Right (b : bs)
 
-combineEithers :: [a + b] -> [a] + [b]
-combineEithers = foldr combineEitherList (Right [])
+split :: [a + b] -> [a] + [b]
+split = foldr addSplit (Right [])
 
 
 sum1 :: a1 -> a1 + a2
@@ -169,10 +169,10 @@ infixr 9 >.
 infixl 1 >>.
 
 
-transformAll :: (a -> e + b) -> [a] -> [e] + [b]
-transformAll f = combineEithers . fmap f
+-- transformAll :: (a -> e + b) -> [a] -> [e] + [b]
+-- transformAll f = combineEithers . fmap f
 
-instance (Handler ErrorMessage a) => Handler [ErrorMessage] a where
+instance (Handler e a) => Handler [e] a where
   handle = pure . handle
 
 instance (Handler ErrorMessage a, Handler ErrorMessage b) => Handler ErrorMessage (a * b) where
