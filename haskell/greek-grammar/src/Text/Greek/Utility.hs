@@ -143,9 +143,6 @@ class Handler e a where
   handle :: a -> e
 
 
-tryDrop1c :: (Handler e c) => c -> a1 + a2 -> e + a2
-tryDrop1c = tryDrop1 . const . handle
-
 constHandle :: (Handler e c) => ((a1 -> e) -> a -> e + a2) -> c -> a -> e + a2
 constHandle f = f . const . handle
 
@@ -176,9 +173,6 @@ infixr 9 >.
 (>>.) = flip fmap
 infixl 1 >>.
 
-
--- transformAll :: (a -> e + b) -> [a] -> [e] + [b]
--- transformAll f = combineEithers . fmap f
 
 instance (Handler e a) => Handler [e] a where
   handle = pure . handle
@@ -212,22 +206,3 @@ instance Handler ErrorMessage Column where handle (Column c) = concatErrors ["co
 type LineReference = Line * Column
 type LineReferenceRange = LineReference + LineReference * LineReference
 type FileReference = FilePath * LineReferenceRange
-
-
--- contextPartialMap :: (a -> e + b) -> c * a -> c * e + c * b
--- contextPartialMap f = distributeProductRight . over _2 f
-
--- contextPartialMapContext :: (c -> e + c') -> c * a -> a * e + c' * a
--- contextPartialMapContext f = (_Left %~ swap) . distributeProductLeft . over _1 f
-
--- partialMapError :: Display c => (a -> ErrorMessage + b) -> c * a -> ErrorMessage + c * b
--- partialMapError f = (_Left %~ log) . contextPartialMap f
-
--- partialMapErrors :: Display c => (a -> ErrorMessage + b) -> [c * a] -> [ErrorMessage] + [c * b]
--- partialMapErrors f = combineEithers . fmap (partialMapError f)
-
--- partialMapContext :: Display a => (c -> ErrorMessage + c') -> c * a -> ErrorMessage + c' * a
--- partialMapContext f = (_Left %~ log) . contextPartialMapContext f
-
--- partialMapContexts :: Display a => (c -> ErrorMessage + c') -> [c * a] -> [ErrorMessage] + [c' * a]
--- partialMapContexts f = combineEithers . fmap (partialMapContext f)
