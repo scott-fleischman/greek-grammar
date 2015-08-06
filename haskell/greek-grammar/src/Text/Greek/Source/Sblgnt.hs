@@ -12,13 +12,13 @@ import Control.Lens
 import Data.String
 import Data.Text (Text)
 import Text.Greek.Utility
-import qualified Data.Conduit.Attoparsec as P
+import qualified Data.Conduit.Attoparsec as X
 import qualified Data.XML.Types as X
-import qualified Text.XML.Stream.Parse as P
+import qualified Text.XML.Stream.Parse as X
 
 
-readEvents :: FilePath -> IO [(Maybe P.PositionRange, X.Event)]
-readEvents p = runResourceT $ sourceFile p =$= P.parseBytesPos P.def $$ sinkList
+readEvents :: FilePath -> IO [(Maybe X.PositionRange, X.Event)]
+readEvents p = runResourceT $ sourceFile p =$= X.parseBytesPos X.def $$ sinkList
 
 
 removePrefixWith' :: Eq b => ([a] -> e) -> (a -> b) -> [b] -> [a] -> e + [a]
@@ -42,11 +42,11 @@ maybeToEither :: a -> Maybe b -> a + b
 maybeToEither a Nothing = Left a
 maybeToEither _ (Just b) = Right b
 
-toLineReference :: P.Position -> LineReference
-toLineReference (P.Position line column) = Line line * Column column
+toLineReference :: X.Position -> LineReference
+toLineReference (X.Position line column) = Line line * Column column
 
-toLineReferenceRange :: P.PositionRange -> LineReferenceRange
-toLineReferenceRange (P.PositionRange start end)
+toLineReferenceRange :: X.PositionRange -> LineReferenceRange
+toLineReferenceRange (X.PositionRange start end)
   | start == end = sum1  (toLineReference start)
   | otherwise    = sum2e (toLineReference start * toLineReference end)
 
@@ -156,7 +156,7 @@ type XmlEvent
   + EventEndElement * XmlName
   + EventContent * XmlContent
 
-xmlTransform :: FilePath * [Maybe P.PositionRange * X.Event]
+xmlTransform :: FilePath * [Maybe X.PositionRange * X.Event]
   -> [ErrorMessage] + [FileReference * XmlEvent]
 xmlTransform x = return x
   >>. tx1
@@ -175,11 +175,11 @@ xmlTransform x = return x
   >>= tx13
 
 
-tx1 :: FilePath * [Maybe P.PositionRange * X.Event]
-    -> FilePath * [Maybe P.PositionRange * EventAll]
+tx1 :: FilePath * [Maybe X.PositionRange * X.Event]
+    -> FilePath * [Maybe X.PositionRange * EventAll]
 tx1 = _2 . each . _2 %~ toEventAll
 
-tx1a :: FilePath * [Maybe P.PositionRange    * EventAll]
+tx1a :: FilePath * [Maybe X.PositionRange    * EventAll]
      -> FilePath * [Maybe LineReferenceRange * EventAll]
 tx1a = _2 . each . _1 . _Just %~ toLineReferenceRange
 
