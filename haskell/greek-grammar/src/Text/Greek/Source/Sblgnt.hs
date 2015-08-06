@@ -24,16 +24,16 @@ readEvents :: X.FilePath -> IO [(Maybe X.PositionRange, X.Event)]
 readEvents p = runResourceT $ sourceFile p =$= X.parseBytesPos X.def $$ sinkList
 
 
-removePrefixWith' :: Eq b => ([a] -> e) -> (a -> b) -> [b] -> [a] -> e + [a]
-removePrefixWith' e f m as
+removePrefixWith :: Eq b => ([a] -> e) -> (a -> b) -> [b] -> [a] -> e + [a]
+removePrefixWith e f m as
   | fmap f target == m = Right $ drop matchLength as
   | otherwise          = Left $ e target
   where
     matchLength = length m
     target = take matchLength as
 
-removeSuffixWith' :: Eq b => ([a] -> e) -> (a -> b) -> [b] -> [a] -> e + [a]
-removeSuffixWith' e f m as
+removeSuffixWith :: Eq b => ([a] -> e) -> (a -> b) -> [b] -> [a] -> e + [a]
+removeSuffixWith e f m as
   | fmap f reverseTarget == reverse m = Right . reverse . drop matchLength $ reverseList
   | otherwise                         = Left . e . reverse $ reverseTarget
   where
@@ -150,25 +150,26 @@ xmlTransform x = return x
   >>= tx13
 
 
-tx1 :: X.FilePath * [Maybe X.PositionRange * X.Event]
-    -> X.FilePath * [Maybe X.PositionRange * EventAll]
+tx1 :: a * [b * X.Event]
+    -> a * [b * EventAll]
 tx1 = _2 . each . _2 %~ toEventAll
 
-tx1a :: X.FilePath * [Maybe X.PositionRange    * EventAll]
-     -> X.FilePath * [Maybe LineReferenceRange * EventAll]
+tx1a :: a * [Maybe X.PositionRange    * b]
+     -> a * [Maybe LineReferenceRange * b]
 tx1a = _2 . each . _1 . _Just %~ toLineReferenceRange
 
-tx1b :: X.FilePath * [Maybe LineReferenceRange * EventAll]
-     ->   FilePath * [Maybe LineReferenceRange * EventAll]
+tx1b :: X.FilePath * a
+     ->   FilePath * a
 tx1b = _1 %~ FilePath
 
-tx2 :: FilePath * [Maybe LineReferenceRange * EventAll]
-    -> [(FilePath * Maybe LineReferenceRange) * EventAll]
+tx2 ::   a * [b  * c]
+    -> [(a *  b) * c]
 tx2 (c, xs) = (shiftLeftProduct . (*) c) <$> xs
 
-tx3 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
-    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * EventAll]
-tx3 = removePrefixWith' handle (^. _2) [sum1 EventBeginDocument]
+tx3 :: Handler e [a * EventAll] =>
+                 [a * EventAll]
+    -> [e] +     [a * EventAll]
+tx3 = removePrefixWith handle (^. _2) [sum1 EventBeginDocument]
 
 type Event9
   = EventEndDocument
@@ -181,13 +182,15 @@ type Event9
   + EventComment * Text
   + EventCDATA * Text
 
-tx4 ::                  [(FilePath * Maybe LineReferenceRange) * EventAll]
-    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
+tx4 :: Handler e (a * EventAll) =>
+                 [a * EventAll]
+    -> [e] +     [a * Event9]
 tx4 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
 
-tx5 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
-    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event9]
-tx5 = removeSuffixWith' handle (^. _2) [sum1 EventEndDocument]
+tx5 :: Handler e [a * Event9] =>
+                 [a * Event9]
+    -> [e] +     [a * Event9]
+tx5 = removeSuffixWith handle (^. _2) [sum1 EventEndDocument]
 
 type Event8
   = EventBeginDoctype * Text * (Maybe XmlExternalId)
@@ -199,34 +202,41 @@ type Event8
   + EventComment * Text
   + EventCDATA * Text
 
-tx6 ::                  [(FilePath * Maybe LineReferenceRange) * Event9]
-    -> [ErrorMessage] + [(FilePath * Maybe LineReferenceRange) * Event8]
+tx6 :: Handler e (a * Event9) =>
+                 [a * Event9]
+    -> [e] +     [a * Event8]
 tx6 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
 
-tx7 :: [(FilePath * Maybe LineReferenceRange)  * Event8]
-    -> [(FilePath * (() + LineReferenceRange)) * Event8]
+tx7 :: [(a * Maybe b)  * c]
+    -> [(a * (() + b)) * c]
 tx7 = each . _1 . _2 %~ maybeToEither ()
 
-tx8 ::                  [(FilePath * (() + LineReferenceRange)) * Event8]
-    -> [ErrorMessage] + [FileReference                          * Event8]
+tx8 :: Handler e ((FilePath * (() + LineReferenceRange)) * a) =>
+                 [(FilePath * (() + LineReferenceRange)) * a]
+    -> [e] +     [FileReference                          * a]
 tx8 = split . fmap (\x -> x & (_1 . _2) (constHandle tryDrop1 x))
 
-tx9 ::                  [FileReference * (EventBeginDoctype * Text * (Maybe XmlExternalId) + EventEndDoctype + EventInstruction * XmlInstruction + EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
-    -> [ErrorMessage] + [FileReference * (                                                   EventEndDoctype + EventInstruction * XmlInstruction + EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
+tx9 :: Handler e (a * (EventBeginDoctype * Text * (Maybe XmlExternalId) + b)) =>          
+                 [a * (EventBeginDoctype * Text * (Maybe XmlExternalId) + b)]
+    -> [e] +     [a * (                                                   b)]
 tx9 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
 
-tx10 ::                  [FileReference * (EventEndDoctype + EventInstruction * XmlInstruction + EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
-     -> [ErrorMessage] + [FileReference * (                  EventInstruction * XmlInstruction + EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
+tx10 :: Handler e (a * (EventEndDoctype + b)) =>
+                  [a * (EventEndDoctype + b)]
+     -> [e] +     [a * (                  b)]
 tx10 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
 
-tx11 ::                  [FileReference * (EventInstruction * XmlInstruction + EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
-     -> [ErrorMessage] + [FileReference * (                                    EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
+tx11 :: Handler e (a * (EventInstruction * XmlInstruction + b)) =>
+                  [a * (EventInstruction * XmlInstruction + b)]
+     -> [e] +     [a * (                                    b)]
 tx11 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
 
-tx12 ::                  [FileReference * (EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventComment * Text + EventCDATA * Text)]
-     -> [ErrorMessage] + [FileReference * (EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent +                       EventCDATA * Text)]
+tx12 :: Handler e (a * (b1 + b2 + b3 + EventComment * Text + c)) =>
+                  [a * (b1 + b2 + b3 + EventComment * Text + c)]
+     -> [e] +     [a * (b1 + b2 + b3 +                       c)]
 tx12 = split . fmap (\x -> x & _2 (constHandle tryDrop4 x))
 
-tx13 ::                  [FileReference * (EventBeginElement * XmlName * XmlAttributes + EventEndElement * XmlName + EventContent * XmlContent + EventCDATA * Text)]
-     -> [ErrorMessage] + [FileReference * XmlEvent]
+tx13 :: Handler e (a * (b1 + b2 + b3 + EventCDATA * Text)) =>
+                  [a * (b1 + b2 + b3 + EventCDATA * Text)]
+     -> [e] +     [a * (b1 + b2 + b3                    )]
 tx13 = split . fmap (\x -> x & _2 (constHandle tryDrop4e x))
