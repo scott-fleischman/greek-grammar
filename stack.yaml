@@ -4,4 +4,4 @@ packages:
 - 'haskell/greek-grammar'
 - 'haskell/ucd'
 extra-deps:
-resolver: nightly-2015-08-04
+resolver: nightly-2015-08-06
