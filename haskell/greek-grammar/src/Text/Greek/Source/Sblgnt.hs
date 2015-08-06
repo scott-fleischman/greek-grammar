@@ -9,7 +9,6 @@ module Text.Greek.Source.Sblgnt where
 import Prelude hiding ((*), (+), log, FilePath)
 import Conduit
 import Control.Lens
-import Data.String
 import Data.Text (Text)
 import Text.Greek.Utility
 import qualified Data.Conduit.Attoparsec as X
@@ -17,9 +16,7 @@ import qualified Data.XML.Types as X
 import qualified Text.XML.Stream.Parse as X
 import qualified Prelude as X (FilePath)
 
-newtype FilePath = FilePath { getFilePath :: X.FilePath }
-instance Handler ErrorMessage FilePath where
-  handle = fromString . getFilePath
+newtype FilePath = FilePath { getFilePath :: X.FilePath } deriving (Eq, Ord, Show)
 
 type FileReference = FilePath * LineReferenceRange
 
@@ -58,47 +55,23 @@ toLineReferenceRange (X.PositionRange start end)
 
 
 data EventBeginDocument = EventBeginDocument deriving (Eq, Ord, Show)
-instance Handler ErrorMessage EventBeginDocument where handle = fromString . show
-
 data EventEndDocument = EventEndDocument deriving (Eq, Ord, Show)
-instance Handler ErrorMessage EventEndDocument where handle = fromString . show
-
 data EventBeginDoctype = EventBeginDoctype deriving (Eq, Ord, Show)
-instance Handler ErrorMessage EventBeginDoctype where handle = fromString . show
-
 data EventEndDoctype = EventEndDoctype deriving (Eq, Ord, Show)
-instance Handler ErrorMessage EventEndDoctype where handle = fromString . show
-
 data EventInstruction = EventInstruction deriving (Eq, Ord, Show)
-instance Handler ErrorMessage EventInstruction where handle = fromString . show
-
 data EventBeginElement = EventBeginElement deriving (Eq, Ord, Show)
-instance Handler ErrorMessage EventBeginElement where handle = fromString . show
-
 data EventEndElement = EventEndElement deriving (Eq, Ord, Show)
-instance Handler ErrorMessage EventEndElement where handle = fromString . show
-
 data EventContent = EventContent deriving (Eq, Ord, Show)
-instance Handler ErrorMessage EventContent where handle = fromString . show
-
 data EventComment = EventComment deriving (Eq, Ord, Show)
-instance Handler ErrorMessage EventComment where handle = fromString . show
-
 data EventCDATA = EventCDATA deriving (Eq, Ord, Show)
-instance Handler ErrorMessage EventCDATA where handle = fromString . show
-
 data XmlNameId = XmlNameId deriving (Eq, Ord, Show)
-instance Handler ErrorMessage XmlNameId where handle = fromString . show
 
 type XmlName = XmlNameId * Text * Maybe Text * Maybe Text
 toXmlName :: X.Name -> XmlName
 toXmlName (X.Name a b c) = XmlNameId * a * b * c
 
 data XmlContentText = XmlContentText deriving (Eq, Ord, Show)
-instance Handler ErrorMessage XmlContentText where handle = fromString . show
-
 data XmlContentEntity = XmlContentEntity deriving (Eq, Ord, Show)
-instance Handler ErrorMessage XmlContentEntity where handle = fromString . show
 
 type XmlContent
   = XmlContentText * Text
@@ -108,17 +81,14 @@ toXmlContent (X.ContentText a)   = sum1  (XmlContentText * a)
 toXmlContent (X.ContentEntity a) = sum2e (XmlContentEntity * a)
 
 data XmlInstructionId = XmlInstructionId deriving (Eq, Ord, Show)
-instance Handler ErrorMessage XmlInstructionId where handle = fromString . show
 
 type XmlInstruction = XmlInstructionId * Text * Text
 toXmlInstruction :: X.Instruction -> XmlInstruction
 toXmlInstruction (X.Instruction a b) = XmlInstructionId * a * b
 
 data XmlSystemId = XmlSystemId deriving (Eq, Ord, Show)
-instance Handler ErrorMessage XmlSystemId where handle = fromString . show
 
 data XmlPublicId = XmlPublicId deriving (Eq, Ord, Show)
-instance Handler ErrorMessage XmlPublicId where handle = fromString . show
 
 type XmlExternalId
   = XmlSystemId * Text

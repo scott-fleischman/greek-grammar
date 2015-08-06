@@ -10,9 +10,7 @@ module Text.Greek.Utility where
 
 import Prelude hiding ((*), (+), getLine)
 import Control.Lens
-import Data.List (intersperse)
 import Data.String
-import Data.Text (Text, unpack)
 import Data.Tuple
 
 type a + b = Either a b
@@ -176,32 +174,12 @@ infixl 1 >>.
 
 instance (Handler e a) => Handler [e] a where
   handle = pure . handle
-
-instance (Handler ErrorMessage a, Handler ErrorMessage b) => Handler ErrorMessage (a * b) where
-  handle (a, b) = concatErrors [handle a, " ", handle b]
-instance (Handler ErrorMessage a, Handler ErrorMessage b) => Handler ErrorMessage (a + b) where
-  handle (Left a) = handle a
-  handle (Right b) = handle b
-instance Handler ErrorMessage Char where
-  handle = fromString . pure
-instance Handler ErrorMessage Int where
+instance (Show a) => Handler ErrorMessage a where
   handle = fromString . show
-instance Handler ErrorMessage a => Handler ErrorMessage [a] where
-  handle = concatErrors . intersperse "," . fmap handle
-instance Handler ErrorMessage a => Handler ErrorMessage (Maybe a) where
-  handle Nothing = "-"
-  handle (Just a) = handle a
-instance Handler ErrorMessage Text where
-  handle = fromString . unpack
-instance Handler ErrorMessage () where
-  handle () = "-"
 
 
 newtype Line = Line { getLine :: Int } deriving (Eq, Ord, Show)
-instance Handler ErrorMessage Line where handle (Line l) = concatErrors ["line:", handle l]
-
 newtype Column = Column { getColumn :: Int } deriving (Eq, Ord, Show)
-instance Handler ErrorMessage Column where handle (Column c) = concatErrors ["column:", handle c]
 
 type LineReference = Line * Column
 type LineReferenceRange = LineReference + LineReference * LineReference
