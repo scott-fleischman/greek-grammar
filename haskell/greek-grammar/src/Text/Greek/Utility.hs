@@ -205,4 +205,3 @@ instance Handler ErrorMessage Column where handle (Column c) = concatErrors ["co
 
 type LineReference = Line * Column
 type LineReferenceRange = LineReference + LineReference * LineReference
-type FileReference = FilePath * LineReferenceRange

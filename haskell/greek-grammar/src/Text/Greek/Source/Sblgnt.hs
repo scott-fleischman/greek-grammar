@@ -6,7 +6,7 @@
 
 module Text.Greek.Source.Sblgnt where
 
-import Prelude hiding ((*), (+), log)
+import Prelude hiding ((*), (+), log, FilePath)
 import Conduit
 import Control.Lens
 import Data.String
@@ -15,9 +15,15 @@ import Text.Greek.Utility
 import qualified Data.Conduit.Attoparsec as X
 import qualified Data.XML.Types as X
 import qualified Text.XML.Stream.Parse as X
+import qualified Prelude as X (FilePath)
 
+newtype FilePath = FilePath { getFilePath :: X.FilePath }
+instance Handler ErrorMessage FilePath where
+  handle = fromString . getFilePath
 
-readEvents :: FilePath -> IO [(Maybe X.PositionRange, X.Event)]
+type FileReference = FilePath * LineReferenceRange
+
+readEvents :: X.FilePath -> IO [(Maybe X.PositionRange, X.Event)]
 readEvents p = runResourceT $ sourceFile p =$= X.parseBytesPos X.def $$ sinkList
 
 
@@ -49,8 +55,6 @@ toLineReferenceRange :: X.PositionRange -> LineReferenceRange
 toLineReferenceRange (X.PositionRange start end)
   | start == end = sum1  (toLineReference start)
   | otherwise    = sum2e (toLineReference start * toLineReference end)
-
-
 
 
 data EventBeginDocument = EventBeginDocument deriving (Eq, Ord, Show)
@@ -156,11 +160,12 @@ type XmlEvent
   + EventEndElement * XmlName
   + EventContent * XmlContent
 
-xmlTransform :: FilePath * [Maybe X.PositionRange * X.Event]
+xmlTransform :: X.FilePath * [Maybe X.PositionRange * X.Event]
   -> [ErrorMessage] + [FileReference * XmlEvent]
 xmlTransform x = return x
   >>. tx1
   >>. tx1a
+  >>. tx1b
   >>. tx2
   >>= tx3
   >>= tx4
@@ -175,13 +180,17 @@ xmlTransform x = return x
   >>= tx13
 
 
-tx1 :: FilePath * [Maybe X.PositionRange * X.Event]
-    -> FilePath * [Maybe X.PositionRange * EventAll]
+tx1 :: X.FilePath * [Maybe X.PositionRange * X.Event]
+    -> X.FilePath * [Maybe X.PositionRange * EventAll]
 tx1 = _2 . each . _2 %~ toEventAll
 
-tx1a :: FilePath * [Maybe X.PositionRange    * EventAll]
-     -> FilePath * [Maybe LineReferenceRange * EventAll]
+tx1a :: X.FilePath * [Maybe X.PositionRange    * EventAll]
+     -> X.FilePath * [Maybe LineReferenceRange * EventAll]
 tx1a = _2 . each . _1 . _Just %~ toLineReferenceRange
+
+tx1b :: X.FilePath * [Maybe LineReferenceRange * EventAll]
+     ->   FilePath * [Maybe LineReferenceRange * EventAll]
+tx1b = _1 %~ FilePath
 
 tx2 :: FilePath * [Maybe LineReferenceRange * EventAll]
     -> [(FilePath * Maybe LineReferenceRange) * EventAll]
