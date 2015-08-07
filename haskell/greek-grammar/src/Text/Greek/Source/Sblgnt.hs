@@ -29,27 +29,6 @@ readEvents :: X.FilePath -> IO [(Maybe X.PositionRange, X.Event)]
 readEvents p = runResourceT $ sourceFile p =$= X.parseBytesPos X.def $$ sinkList
 
 
-removePrefixWith :: Eq b => ([a] -> e) -> (a -> b) -> [b] -> [a] -> e + [a]
-removePrefixWith e f m as
-  | fmap f target == m = Right $ drop matchLength as
-  | otherwise          = Left $ e target
-  where
-    matchLength = length m
-    target = take matchLength as
-
-removeSuffixWith :: Eq b => ([a] -> e) -> (a -> b) -> [b] -> [a] -> e + [a]
-removeSuffixWith e f m as
-  | fmap f reverseTarget == reverse m = Right . reverse . drop matchLength $ reverseList
-  | otherwise                         = Left . e . reverse $ reverseTarget
-  where
-    matchLength = length m
-    reverseTarget = take matchLength reverseList
-    reverseList = reverse as
-
-maybeToEither :: a -> Maybe b -> a + b
-maybeToEither a Nothing = Left a
-maybeToEither _ (Just b) = Right b
-
 toLineReference :: X.Position -> LineReference
 toLineReference (X.Position line column) = Line line * Column column
 
