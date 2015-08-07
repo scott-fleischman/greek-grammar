@@ -133,11 +133,6 @@ toEventExtra (X.EventContent c)        = sum8   (EventContent * toXmlContent c)
 toEventExtra (X.EventComment t)        = sum9   (EventComment * t)
 toEventExtra (X.EventCDATA t)          = sum10e (EventCDATA * t)
 
-type EventSimple
-  = EventBeginElement * XmlName * XmlAttributes
-  + EventEndElement * XmlName
-  + EventContent * XmlContent
-
 
 tx1 :: a * [b * X.Event]
     -> a * [b * EventExtra]

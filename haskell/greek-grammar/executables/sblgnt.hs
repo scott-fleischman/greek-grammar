@@ -24,7 +24,6 @@ import Text.Greek.Corpus.Bible.Stats
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
 import Text.Greek.Source.Sblgnt
-import Text.Greek.Utility
 import qualified Data.Text as T
 
 load :: IO (Either SBLError Bible)
@@ -37,9 +36,8 @@ report f = load >>= mapM_ putStrLn . showErrorContinue f
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  events <- readEvents sblgntXmlPath
-  let results = xmlTransform (sblgntXmlPath * events)
-  putStrLn . T.pack . show . (_Right %~ length) $ results
+  events <- readSblgntEvents sblgntXmlPath
+  putStrLn . T.pack . show . (_Right %~ length) $ events
 
 main :: IO ()
 main = mainDocumentToXml
