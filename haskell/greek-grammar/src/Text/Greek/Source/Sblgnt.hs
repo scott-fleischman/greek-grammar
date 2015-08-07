@@ -3,6 +3,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Text.Greek.Source.Sblgnt where
 
@@ -14,9 +15,50 @@ import Text.Greek.Xml
 import qualified Prelude as X (FilePath)
 
 type FinalEvent
-  = EventBeginElement * Text * XmlAttributes
+  = EventBeginElement * ElementAll * XmlAttributes
   + EventEndElement * Text
   + EventContent * XmlContent
+
+data AElement = AElement deriving (Eq, Ord, Show)
+data BookElement = BookElement deriving (Eq, Ord, Show)
+data LicenseElement = LicenseElement deriving (Eq, Ord, Show)
+data MarkEndElement = MarkEndElement deriving (Eq, Ord, Show)
+data PElement = PElement deriving (Eq, Ord, Show)
+data PrefixElement = PrefixElement deriving (Eq, Ord, Show)
+data SblgntElement = SblgntElement deriving (Eq, Ord, Show)
+data SuffixElement = SuffixElement deriving (Eq, Ord, Show)
+data TitleElement = TitleElement deriving (Eq, Ord, Show)
+data VerseNumberElement = VerseNumberElement deriving (Eq, Ord, Show)
+data WElement = WElement deriving (Eq, Ord, Show)
+
+type ElementAll
+  = AElement
+  + BookElement
+  + LicenseElement
+  + MarkEndElement
+  + PElement
+  + PrefixElement
+  + SblgntElement
+  + SuffixElement
+  + TitleElement
+  + VerseNumberElement
+  + WElement
+
+toElementAll :: Text -> Text + ElementAll
+toElementAll "a"            = Right . sum1   $ AElement
+toElementAll "book"         = Right . sum2   $ BookElement
+toElementAll "license"      = Right . sum3   $ LicenseElement
+toElementAll "mark-end"     = Right . sum4   $ MarkEndElement
+toElementAll "p"            = Right . sum5   $ PElement
+toElementAll "prefix"       = Right . sum6   $ PrefixElement
+toElementAll "sblgnt"       = Right . sum7   $ SblgntElement
+toElementAll "suffix"       = Right . sum8   $ SuffixElement
+toElementAll "title"        = Right . sum9   $ TitleElement
+toElementAll "verse-number" = Right . sum10  $ VerseNumberElement
+toElementAll "w"            = Right . sum11e $ WElement
+toElementAll t              = Left t
+
+
 
 readSblgntEvents :: X.FilePath -> IO ([ErrorMessage] + [FileReference * FinalEvent])
 readSblgntEvents = fmap (>>= tx) . readEvents
@@ -35,6 +77,7 @@ tx x = return x
   >>= tx18
   >>= tx19
   >>. tx19a
+  >>= tx20
 
 type EventSimple
   = EventBeginElement * XmlName * XmlAttributes
@@ -93,3 +136,8 @@ tx19 = handleMap (_2 . _Right . _Left . _2 . _2) tryDrop2Nothing
 tx19a :: [a * (b1 + b2 * (XmlNameId * b1b) + b3)]
       -> [a * (b1 + b2 * (            b1b) + b3)]
 tx19a = over (each . _2 . _Right . _Left . _2) snd
+
+tx20 :: Handler e (a * (b1 * Text       * as + b2)) =>
+                  [a * (b1 * Text       * as + b2)]
+     -> [e] +     [a * (b1 * ElementAll * as + b2)]
+tx20 = (_Left %~ fmap handle) . split . fmap (\x -> (_Left .~ x) . (_2 . _Left . _2 . _1) toElementAll $ x)

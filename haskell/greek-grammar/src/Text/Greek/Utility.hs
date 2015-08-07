@@ -55,6 +55,24 @@ sum9 :: a9 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
 sum9 = Right . sum8
 sum10 :: a10 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11
 sum10 = Right . sum9
+sum11 :: a11 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12
+sum11 = Right . sum10
+sum12 :: a12 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13
+sum12 = Right . sum11
+sum13 :: a13 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14
+sum13 = Right . sum12
+sum14 :: a14 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15
+sum14 = Right . sum13
+sum15 :: a15 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16
+sum15 = Right . sum14
+sum16 :: a16 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17
+sum16 = Right . sum15
+sum17 :: a17 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18
+sum17 = Right . sum16
+sum18 :: a18 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18 + a19
+sum18 = Right . sum17
+sum19 :: a19 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18 + a19 + a20
+sum19 = Right . sum18
 
 sum2e :: a2 -> a1 + a2
 sum2e = Right
@@ -76,6 +94,24 @@ sum10e :: a10 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
 sum10e = Right . sum9e
 sum11e :: a11 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11
 sum11e = Right . sum10e
+sum12e :: a12 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12
+sum12e = Right . sum11e
+sum13e :: a13 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13
+sum13e = Right . sum12e
+sum14e :: a14 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14
+sum14e = Right . sum13e
+sum15e :: a15 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15
+sum15e = Right . sum14e
+sum16e :: a16 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16
+sum16e = Right . sum15e
+sum17e :: a17 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17
+sum17e = Right . sum16e
+sum18e :: a18 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18
+sum18e = Right . sum17e
+sum19e :: a19 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18 + a19
+sum19e = Right . sum18e
+sum20e :: a20 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + a13 + a14 + a15 + a16 + a17 + a18 + a19 + a20
+sum20e = Right . sum19e
 
 
 prism1 :: Prism (a1 + a2) (a1' + a2) a1 a1'
@@ -246,7 +282,7 @@ partialMapGroupBy :: forall a b e. (Ord b) => (a -> e + b) -> [a] -> [a] * Map b
 partialMapGroupBy f = foldr g ([] * M.empty) where
   g :: a -> [a] * Map b [a] -> [a] * Map b [a]
   g a x = case f a of
-    Left _ -> x & _1 %~ (a :)
+    Left _  -> x & _1 %~ (a :)
     Right b -> x & _2 %~ consValue a b
 
 partialQuery :: (Ord b) => (a -> e + b) -> [a] -> [a] * [b * [a]]
@@ -256,12 +292,12 @@ choose :: forall a b e. (a -> e + b) -> [a] -> [b]
 choose f = foldr g [] where
   g :: a -> [b] -> [b]
   g a bs = case f a of
-    Left _ -> bs
+    Left _  -> bs
     Right b -> b : bs
 
 
 tryDrop2Nothing :: (Maybe b -> e) -> a * Maybe b -> e + a
 tryDrop2Nothing f x = case b of
   Nothing -> Right $ x ^. _1
-  Just _ -> Left $ f b
+  Just _  -> Left $ f b
   where b = x ^. _2
