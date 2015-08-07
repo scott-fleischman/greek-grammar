@@ -13,7 +13,7 @@ data VerbKind a b c d where
   PresentActiveSubjunctive       :: VerbKind 1 'Present       'Active  'Subjunctive
   PresentActiveOptative          :: VerbKind 1 'Present       'Active  'Optative
   PresentActiveImperative        :: VerbKind 1 'Present       'Active  'Imperative
-  PresentActiveInfinitive 		 :: VerbKind 1 'Present       'Active  'Infinitive
+  PresentActiveInfinitive        :: VerbKind 1 'Present       'Active  'Infinitive
   PresentMiddleIndicative        :: VerbKind 1 'Present       'Middle  'Indicative
   PresentMiddleSubjunctive       :: VerbKind 1 'Present       'Middle  'Subjunctive
   PresentMiddleOptative          :: VerbKind 1 'Present       'Middle  'Optative
@@ -82,15 +82,3 @@ data VerbKind a b c d where
   PluperfectActiveIndicative     :: VerbKind 1 'Pluperfect    'Active  'Indicative
   PluperfectMiddleIndicative     :: VerbKind 1 'Pluperfect    'Middle  'Indicative
   PluperfectPassiveIndicative    :: VerbKind 1 'Pluperfect    'Passive 'Indicative
-
-
-
-
-
-
-
-
-	
-
-
-
