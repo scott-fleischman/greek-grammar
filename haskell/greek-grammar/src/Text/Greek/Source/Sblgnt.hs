@@ -33,24 +33,24 @@ type EventSimple
 tx9 :: Handler e (a * (EventBeginDoctype * Text * (Maybe XmlExternalId) + b)) =>          
                  [a * (EventBeginDoctype * Text * (Maybe XmlExternalId) + b)]
     -> [e] +     [a * (                                                   b)]
-tx9 = partialMap _2 tryDrop1
+tx9 = handleMap _2 tryDrop1
 
 tx10 :: Handler e (a * (EventEndDoctype + b)) =>
                   [a * (EventEndDoctype + b)]
      -> [e] +     [a * (                  b)]
-tx10 = partialMap _2 tryDrop1
+tx10 = handleMap _2 tryDrop1
 
 tx11 :: Handler e (a * (EventInstruction * XmlInstruction + b)) =>
                   [a * (EventInstruction * XmlInstruction + b)]
      -> [e] +     [a * (                                    b)]
-tx11 = partialMap _2 tryDrop1
+tx11 = handleMap _2 tryDrop1
 
 tx12 :: Handler e (a * (b1 + b2 + b3 + EventComment * Text + c)) =>
                   [a * (b1 + b2 + b3 + EventComment * Text + c)]
      -> [e] +     [a * (b1 + b2 + b3 +                       c)]
-tx12 = partialMap _2 tryDrop4
+tx12 = handleMap _2 tryDrop4
 
 tx13 :: Handler e (a * (b1 + b2 + b3 + EventCDATA * Text)) =>
                   [a * (b1 + b2 + b3 + EventCDATA * Text)]
      -> [e] +     [a * (b1 + b2 + b3                    )]
-tx13 = partialMap _2 tryDrop4e
+tx13 = handleMap _2 tryDrop4e

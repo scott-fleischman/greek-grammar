@@ -169,7 +169,7 @@ type Event9
 tx4 :: Handler e (a * EventExtra) =>
                  [a * EventExtra]
     -> [e] +     [a * Event9]
-tx4 = partialMap _2 tryDrop1
+tx4 = handleMap _2 tryDrop1
 
 tx5 :: Handler e [a * Event9] =>
                  [a * Event9]
@@ -179,7 +179,7 @@ tx5 = removeSuffixWith handle (^. _2) [sum1 EventEndDocument]
 tx6 :: Handler e (a * Event9) =>
                  [a * Event9]
     -> [e] +     [a * EventAll]
-tx6 = partialMap _2 tryDrop1
+tx6 = handleMap _2 tryDrop1
 
 tx7 :: [(a * Maybe b)  * c]
     -> [(a * (() + b)) * c]
@@ -188,4 +188,4 @@ tx7 = each . _1 . _2 %~ maybeToEither ()
 tx8 :: Handler e ((FilePath * (() + LineReferenceRange)) * a) =>
                  [(FilePath * (() + LineReferenceRange)) * a]
     -> [e] +     [FileReference                          * a]
-tx8 = partialMap (_1 . _2) tryDrop1
+tx8 = handleMap (_1 . _2) tryDrop1

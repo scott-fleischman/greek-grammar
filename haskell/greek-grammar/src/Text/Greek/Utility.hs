@@ -5,6 +5,7 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Text.Greek.Utility where
 
@@ -139,12 +140,12 @@ tryDrop4e :: (a4 -> e) -> a1 + a2 + a3 + a4 -> e + a1 + a2 + a3
 tryDrop4e f = get4e . over prism4e f
 
 
+only1 :: (a2 -> e) -> a1 + a2 -> e + a1
+only1 f = tryDrop1 f . get2e
+
 class Handler e a where
   handle :: a -> e
 
-
-constHandle :: (Handler e c) => ((a1 -> e) -> a -> e + a2) -> c -> a -> e + a2
-constHandle f = f . const . handle
 
 
 newtype ErrorMessage = ErrorMessage { getErrorMessage :: String } deriving (Show)
@@ -180,12 +181,29 @@ instance (Show a) => Handler ErrorMessage a where
   handle = fromString . show
 
 
-partialMap :: (Handler e s) =>
-     ((a -> e + a2) -> s -> e + t)
-  -> ((a1 -> e) -> a -> e + a2)
+constHandle :: (Handler e c) => ((a1 -> e) -> a -> e + a2) -> c -> a -> e + a2
+constHandle f = f . const . handle
+
+tryOver
+  ::   (c -> r  -> b)
+  -> ((b2 -> r) -> c)
+  -> r
+  -> b
+tryOver s p x = s (p . const $ x) x
+
+partialMap
+  :: ((a -> s + a2) -> s -> s + t)
+  -> ((a1 -> s) -> a -> s + a2)
+  -> [s]
+  -> [s] + [t]
+partialMap s p = split . fmap (tryOver s p)
+
+handleMap :: (Handler e s)
+  => ((a -> s + a2) -> s -> s + t)
+  -> ((a1 -> s) -> a -> s + a2)
   -> [s]
   -> [e] + [t]
-partialMap s p = split . fmap (\x -> x & s (constHandle p x))
+handleMap s p = (_Left . each %~ handle) . partialMap s p
 
 
 
@@ -211,13 +229,32 @@ maybeToEither a Nothing = Left a
 maybeToEither _ (Just b) = Right b
 
 
+consValue :: Ord b => a -> b -> Map b [a] -> Map b [a]
+consValue a b m = case M.lookup b m of
+  Just as -> M.insert b (a : as) m
+  Nothing -> M.insert b [a] m
 
-mapGroupBy :: (Ord b) => (a -> b) -> [a] -> Map b [a]
+mapGroupBy :: forall a b. (Ord b) => (a -> b) -> [a] -> Map b [a]
 mapGroupBy f = foldr g M.empty where
-  g a m = case M.lookup b m of
-    Just as -> M.insert b (a : as) m
-    Nothing -> M.insert b [a] m
-    where b = f a
+  g :: a -> Map b [a] -> Map b [a]
+  g a = consValue a (f a)
 
 query :: (Ord b) => (a -> b) -> [a] -> [b * [a]]
 query f = M.toList . mapGroupBy f
+
+partialMapGroupBy :: forall a b e. (Ord b) => (a -> e + b) -> [a] -> [a] * Map b [a]
+partialMapGroupBy f = foldr g ([] * M.empty) where
+  g :: a -> [a] * Map b [a] -> [a] * Map b [a]
+  g a x = case f a of
+    Left _ -> x & _1 %~ (a :)
+    Right b -> x & _2 %~ consValue a b
+
+partialQuery :: (Ord b) => (a -> e + b) -> [a] -> [a] * [b * [a]]
+partialQuery f = (_2 %~ M.toList) . partialMapGroupBy f
+
+choose :: forall a b e. (a -> e + b) -> [a] -> [b]
+choose f = foldr g [] where
+  g :: a -> [b] -> [b]
+  g a bs = case f a of
+    Left _ -> bs
+    Right b -> b : bs
