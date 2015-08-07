@@ -14,8 +14,8 @@ import Text.Greek.Xml
 import qualified Prelude as X (FilePath)
 
 type FinalEvent
-  = EventBeginElement * (XmlNameId * Text) * XmlAttributes
-  + EventEndElement * XmlName
+  = EventBeginElement * Text * XmlAttributes
+  + EventEndElement * Text
   + EventContent * XmlContent
 
 readSblgntEvents :: X.FilePath -> IO ([ErrorMessage] + [FileReference * FinalEvent])
@@ -31,6 +31,10 @@ tx x = return x
   >>= tx15
   >>= tx16
   >>= tx17
+  >>. tx17a
+  >>= tx18
+  >>= tx19
+  >>. tx19a
 
 type EventSimple
   = EventBeginElement * XmlName * XmlAttributes
@@ -62,12 +66,30 @@ tx15 :: Handler e (a * (b1 + b2 + b3 + EventCDATA * Text)) =>
     -> [e] +      [a * (b1 + b2 + b3                    )]
 tx15 = handleMap _2 tryDrop4e
 
-tx16 :: Handler e (a * (b1 * (b1a * b1b * b1c * Maybe b1d) * y + b2)) =>
-                  [a * (b1 * (b1a * b1b * b1c * Maybe b1d) * y + b2)]
+tx16 :: Handler e (a * (b1 * (b1a * b1b * b1c * Maybe Text) * y + b2)) =>
+                  [a * (b1 * (b1a * b1b * b1c * Maybe Text) * y + b2)]
     -> [e] +      [a * (b1 * (b1a * b1b * b1c            ) * y + b2)]
 tx16 = handleMap (_2 . _Left . _2 . _1 . _2 . _2) tryDrop2Nothing
 
-tx17 :: Handler e (a * (b1 * (b1a * b1b * Maybe b1c) * y + b2)) =>
-                  [a * (b1 * (b1a * b1b * Maybe b1c) * y + b2)]
+tx17 :: Handler e (a * (b1 * (b1a * b1b * Maybe Text) * y + b2)) =>
+                  [a * (b1 * (b1a * b1b * Maybe Text) * y + b2)]
     -> [e] +      [a * (b1 * (b1a * b1b            ) * y + b2)]
 tx17 = handleMap (_2 . _Left . _2 . _1 . _2) tryDrop2Nothing
+
+tx17a :: [a * (b1 * (XmlNameId * b1b) * y + b2)]
+      -> [a * (b1 * (            b1b) * y + b2)]
+tx17a = over (each . _2 . _Left . _2 . _1) snd
+
+tx18 :: Handler e (a * (b1 + b2 * (b2a * b2b * b2c * Maybe Text) + b3)) =>
+                  [a * (b1 + b2 * (b2a * b2b * b2c * Maybe Text) + b3)]
+    -> [e] +      [a * (b1 + b2 * (b2a * b2b * b2c             ) + b3)]
+tx18 = handleMap (_2 . _Right . _Left . _2 . _2 . _2) tryDrop2Nothing
+
+tx19 :: Handler e (a * (b1 + b2 * (b2a * b2b * Maybe Text) + b3)) =>
+                  [a * (b1 + b2 * (b2a * b2b * Maybe Text) + b3)]
+    -> [e] +      [a * (b1 + b2 * (b2a * b2b             ) + b3)]
+tx19 = handleMap (_2 . _Right . _Left . _2 . _2) tryDrop2Nothing
+
+tx19a :: [a * (b1 + b2 * (XmlNameId * b1b) + b3)]
+      -> [a * (b1 + b2 * (            b1b) + b3)]
+tx19a = over (each . _2 . _Right . _Left . _2) snd
