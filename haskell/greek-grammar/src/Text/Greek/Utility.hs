@@ -178,8 +178,9 @@ instance (Show a) => Handler ErrorMessage a where
   handle = fromString . show
 
 
-newtype Line = Line { getLine :: Int } deriving (Eq, Ord, Show)
-newtype Column = Column { getColumn :: Int } deriving (Eq, Ord, Show)
-
-type LineReference = Line * Column
-type LineReferenceRange = LineReference + LineReference * LineReference
+partialMap :: (Handler e s) =>
+     ((a -> e + a2) -> s -> e + t)
+  -> ((a1 -> e) -> a -> e + a2)
+  -> [s]
+  -> [e] + [t]
+partialMap s p = split . fmap (\x -> x & s (constHandle p x))

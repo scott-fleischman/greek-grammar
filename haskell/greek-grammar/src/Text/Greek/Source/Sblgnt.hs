@@ -16,8 +16,13 @@ import qualified Data.XML.Types as X
 import qualified Text.XML.Stream.Parse as X
 import qualified Prelude as X (FilePath)
 
+
+newtype Line = Line { getLine :: Int } deriving (Eq, Ord, Show)
+newtype Column = Column { getColumn :: Int } deriving (Eq, Ord, Show)
 newtype FilePath = FilePath { getFilePath :: X.FilePath } deriving (Eq, Ord, Show)
 
+type LineReference = Line * Column
+type LineReferenceRange = LineReference + LineReference * LineReference
 type FileReference = FilePath * LineReferenceRange
 
 readEvents :: X.FilePath -> IO [(Maybe X.PositionRange, X.Event)]
@@ -185,7 +190,7 @@ type Event9
 tx4 :: Handler e (a * EventAll) =>
                  [a * EventAll]
     -> [e] +     [a * Event9]
-tx4 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
+tx4 = partialMap _2 tryDrop1
 
 tx5 :: Handler e [a * Event9] =>
                  [a * Event9]
@@ -205,7 +210,7 @@ type Event8
 tx6 :: Handler e (a * Event9) =>
                  [a * Event9]
     -> [e] +     [a * Event8]
-tx6 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
+tx6 = partialMap _2 tryDrop1
 
 tx7 :: [(a * Maybe b)  * c]
     -> [(a * (() + b)) * c]
@@ -214,29 +219,29 @@ tx7 = each . _1 . _2 %~ maybeToEither ()
 tx8 :: Handler e ((FilePath * (() + LineReferenceRange)) * a) =>
                  [(FilePath * (() + LineReferenceRange)) * a]
     -> [e] +     [FileReference                          * a]
-tx8 = split . fmap (\x -> x & (_1 . _2) (constHandle tryDrop1 x))
+tx8 = partialMap (_1 . _2) tryDrop1
 
 tx9 :: Handler e (a * (EventBeginDoctype * Text * (Maybe XmlExternalId) + b)) =>          
                  [a * (EventBeginDoctype * Text * (Maybe XmlExternalId) + b)]
     -> [e] +     [a * (                                                   b)]
-tx9 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
+tx9 = partialMap _2 tryDrop1
 
 tx10 :: Handler e (a * (EventEndDoctype + b)) =>
                   [a * (EventEndDoctype + b)]
      -> [e] +     [a * (                  b)]
-tx10 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
+tx10 = partialMap _2 tryDrop1
 
 tx11 :: Handler e (a * (EventInstruction * XmlInstruction + b)) =>
                   [a * (EventInstruction * XmlInstruction + b)]
      -> [e] +     [a * (                                    b)]
-tx11 = split . fmap (\x -> x & _2 (constHandle tryDrop1 x))
+tx11 = partialMap _2 tryDrop1
 
 tx12 :: Handler e (a * (b1 + b2 + b3 + EventComment * Text + c)) =>
                   [a * (b1 + b2 + b3 + EventComment * Text + c)]
      -> [e] +     [a * (b1 + b2 + b3 +                       c)]
-tx12 = split . fmap (\x -> x & _2 (constHandle tryDrop4 x))
+tx12 = partialMap _2 tryDrop4
 
 tx13 :: Handler e (a * (b1 + b2 + b3 + EventCDATA * Text)) =>
                   [a * (b1 + b2 + b3 + EventCDATA * Text)]
      -> [e] +     [a * (b1 + b2 + b3                    )]
-tx13 = split . fmap (\x -> x & _2 (constHandle tryDrop4e x))
+tx13 = partialMap _2 tryDrop4e
