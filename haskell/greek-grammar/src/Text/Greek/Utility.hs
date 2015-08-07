@@ -241,6 +241,11 @@ handleMap :: (Handler e s)
   -> [e] + [t]
 handleMap s p = (_Left . each %~ handle) . partialMap s p
 
+partialMap' :: (t -> a -> a1 + b1) -> t -> [a] -> [a] + [b1]
+partialMap' s p = split . fmap (\x -> (_Left .~ x) . s p $ x)
+
+handleMap' :: (Handler b a) => (t -> a -> a1 + b1) -> t -> [a] -> [b] + [b1]
+handleMap' s p = (_Left %~ fmap handle) . partialMap' s p
 
 
 removePrefixWith :: Eq b => ([a] -> e) -> (a -> b) -> [b] -> [a] -> e + [a]

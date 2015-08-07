@@ -16,7 +16,7 @@ import qualified Prelude as X (FilePath)
 
 type FinalEvent
   = EventBeginElement * ElementAll * XmlAttributes
-  + EventEndElement * Text
+  + EventEndElement * ElementAll
   + EventContent * XmlContent
 
 data AElement = AElement deriving (Eq, Ord, Show)
@@ -78,6 +78,7 @@ tx x = return x
   >>= tx19
   >>. tx19a
   >>= tx20
+  >>= tx21
 
 type EventSimple
   = EventBeginElement * XmlName * XmlAttributes
@@ -140,4 +141,9 @@ tx19a = over (each . _2 . _Right . _Left . _2) snd
 tx20 :: Handler e (a * (b1 * Text       * as + b2)) =>
                   [a * (b1 * Text       * as + b2)]
      -> [e] +     [a * (b1 * ElementAll * as + b2)]
-tx20 = (_Left %~ fmap handle) . split . fmap (\x -> (_Left .~ x) . (_2 . _Left . _2 . _1) toElementAll $ x)
+tx20 = handleMap' (_2 . _Left . _2 . _1) toElementAll
+
+tx21 :: Handler e (a * (b1 + b2 * Text       + b3)) =>
+                  [a * (b1 + b2 * Text       + b3)]
+     -> [e] +     [a * (b1 + b2 * ElementAll + b3)]
+tx21 = handleMap' (_2 . _Right . _Left . _2) toElementAll
