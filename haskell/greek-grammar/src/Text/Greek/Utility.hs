@@ -12,6 +12,8 @@ import Prelude hiding ((*), (+), getLine)
 import Control.Lens
 import Data.String
 import Data.Tuple
+import Data.Map (Map)
+import qualified Data.Map as M
 
 type a + b = Either a b
 infixr 6 +
@@ -207,3 +209,15 @@ removeSuffixWith e f m as
 maybeToEither :: a -> Maybe b -> a + b
 maybeToEither a Nothing = Left a
 maybeToEither _ (Just b) = Right b
+
+
+
+mapGroupBy :: (Ord b) => (a -> b) -> [a] -> Map b [a]
+mapGroupBy f = foldr g M.empty where
+  g a m = case M.lookup b m of
+    Just as -> M.insert b (a : as) m
+    Nothing -> M.insert b [a] m
+    where b = f a
+
+query :: (Ord b) => (a -> b) -> [a] -> [b * [a]]
+query f = M.toList . mapGroupBy f
