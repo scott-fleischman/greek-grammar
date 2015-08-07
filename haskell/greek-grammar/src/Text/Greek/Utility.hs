@@ -258,3 +258,10 @@ choose f = foldr g [] where
   g a bs = case f a of
     Left _ -> bs
     Right b -> b : bs
+
+
+tryDrop2Nothing :: (Maybe b -> e) -> a * Maybe b -> e + a
+tryDrop2Nothing f x = case b of
+  Nothing -> Right $ x ^. _1
+  Just _ -> Left $ f b
+  where b = x ^. _2
