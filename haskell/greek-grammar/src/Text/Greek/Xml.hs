@@ -6,9 +6,11 @@ module Text.Greek.Xml where
 import Prelude hiding ((*), (+), log, FilePath)
 import Conduit
 import Control.Lens
+import Data.Char
 import Data.Text (Text)
 import Text.Greek.Utility
 import qualified Data.Conduit.Attoparsec as X
+import qualified Data.Text as T
 import qualified Data.XML.Types as X
 import qualified Text.XML.Stream.Parse as X
 import qualified Prelude as X (FilePath)
@@ -48,6 +50,23 @@ xmlTransform x = return x
   >>. tx7
   >>= tx8
 
+trimContent :: [a * EventAll] -> [a * EventAll]
+trimContent = foldr trimContentItem []
+
+trimContentItem :: (a * EventAll) -> [a * EventAll] -> [a * EventAll]
+trimContentItem x xs
+  | (_, b) <- x
+  , x1 : x2 : xs' <- xs
+  , (_, c) <- x1
+  , (_, b2) <- x2
+  , Right (Right (Right (Left (EventBeginElement, _)))) <- b
+  , Right (Right (Right (Right (Right (Left (EventContent, Left (XmlContentText, t))))))) <- c
+  , Right (Right (Right (Left (EventBeginElement, _)))) <- b2
+  , T.all isSpace t
+  = x : x2 : xs'
+
+  | otherwise
+  = x : xs
 
 readEventsConduit :: X.FilePath -> IO [(Maybe X.PositionRange, X.Event)]
 readEventsConduit p = runResourceT $ sourceFile p =$= X.parseBytesPos X.def $$ sinkList

@@ -66,6 +66,7 @@ readSblgntEvents = fmap (>>= tx) . readEvents
 tx :: [FileReference * EventAll]
    -> [ErrorMessage] + [FileReference * FinalEvent]
 tx x = return x
+  >>. trimContent
   >>= tx11
   >>= tx12
   >>= tx13
