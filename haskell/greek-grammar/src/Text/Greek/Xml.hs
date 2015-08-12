@@ -65,6 +65,16 @@ trimContentItem x xs
   , T.all isSpace t
   = x : x2 : xs'
 
+  | (_, e) <- x
+  , x1 : x2 : xs' <- xs
+  , (_, c) <- x1
+  , (_, e2) <- x2
+  , Right (Right (Right (Right (Left (EventEndElement, _))))) <- e
+  , Right (Right (Right (Right (Right (Left (EventContent, Left (XmlContentText, t))))))) <- c
+  , Right (Right (Right (Right (Left (EventEndElement, _))))) <- e2
+  , T.all isSpace t
+  = x : x2 : xs'
+
   | otherwise
   = x : xs
 
