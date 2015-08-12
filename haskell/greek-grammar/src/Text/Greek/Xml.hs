@@ -60,7 +60,7 @@ trimContentItem x xs
   , (_, c) <- x1
   , (_, b2) <- x2
   , Right (Right (Right (Left (EventBeginElement, _)))) <- b
-  , Right (Right (Right (Right (Right (Left (EventContent, Left (XmlContentText, t))))))) <- c
+  , Right (Right (Right (Right (Right (Left (EventContent, Left (XmlContentText t))))))) <- c
   , Right (Right (Right (Left (EventBeginElement, _)))) <- b2
   , T.all isSpace t
   = x : x2 : xs'
@@ -70,7 +70,7 @@ trimContentItem x xs
   , (_, c) <- x1
   , (_, e2) <- x2
   , Right (Right (Right (Right (Left (EventEndElement, _))))) <- e
-  , Right (Right (Right (Right (Right (Left (EventContent, Left (XmlContentText, t))))))) <- c
+  , Right (Right (Right (Right (Right (Left (EventContent, Left (XmlContentText t))))))) <- c
   , Right (Right (Right (Right (Left (EventEndElement, _))))) <- e2
   , T.all isSpace t
   = x : x2 : xs'
@@ -107,15 +107,15 @@ type XmlName = XmlNameId * Text * Maybe Text * Maybe Text
 toXmlName :: X.Name -> XmlName
 toXmlName (X.Name a b c) = XmlNameId * a * b * c
 
-data XmlContentText = XmlContentText deriving (Eq, Ord, Show)
-data XmlContentEntity = XmlContentEntity deriving (Eq, Ord, Show)
+newtype XmlContentText = XmlContentText Text deriving (Eq, Ord, Show)
+newtype XmlContentEntity = XmlContentEntity Text deriving (Eq, Ord, Show)
 
 type XmlContent
-  = XmlContentText * Text
-  + XmlContentEntity * Text
+  = XmlContentText
+  + XmlContentEntity
 toXmlContent :: X.Content -> XmlContent
-toXmlContent (X.ContentText a)   = sum1  (XmlContentText * a)
-toXmlContent (X.ContentEntity a) = sum2e (XmlContentEntity * a)
+toXmlContent (X.ContentText a)   = sum1  (XmlContentText a)
+toXmlContent (X.ContentEntity a) = sum2e (XmlContentEntity a)
 
 data XmlInstructionId = XmlInstructionId deriving (Eq, Ord, Show)
 
