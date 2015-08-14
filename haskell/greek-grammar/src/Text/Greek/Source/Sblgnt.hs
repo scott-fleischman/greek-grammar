@@ -89,62 +89,62 @@ type EventSimple
 tx11 :: Handler e (a * (EventBeginDoctype * Text * (Maybe XmlExternalId) + b)) =>          
                   [a * (EventBeginDoctype * Text * (Maybe XmlExternalId) + b)]
     -> [e] +      [a * (                                                   b)]
-tx11 = handleMap _2 tryDrop1
+tx11 = handleMap lens2e tryDrop1
 
 tx12 :: Handler e (a * (EventEndDoctype + b)) =>
                   [a * (EventEndDoctype + b)]
     -> [e] +      [a * (                  b)]
-tx12 = handleMap _2 tryDrop1
+tx12 = handleMap lens2e tryDrop1
 
 tx13 :: Handler e (a * (EventInstruction * XmlInstruction + b)) =>
                   [a * (EventInstruction * XmlInstruction + b)]
     -> [e] +      [a * (                                    b)]
-tx13 = handleMap _2 tryDrop1
+tx13 = handleMap lens2e tryDrop1
 
 tx14 :: Handler e (a * (b1 + b2 + b3 + EventComment * Text + c)) =>
                   [a * (b1 + b2 + b3 + EventComment * Text + c)]
     -> [e] +      [a * (b1 + b2 + b3 +                       c)]
-tx14 = handleMap _2 tryDrop4
+tx14 = handleMap lens2e tryDrop4
 
 tx15 :: Handler e (a * (b1 + b2 + b3 + EventCDATA * Text)) =>
                   [a * (b1 + b2 + b3 + EventCDATA * Text)]
     -> [e] +      [a * (b1 + b2 + b3                    )]
-tx15 = handleMap _2 tryDrop4e
+tx15 = handleMap lens2e tryDrop4e
 
 tx16 :: Handler e (a * (b1 * (b1a * b1b * b1c * Maybe Text) * y + b2)) =>
                   [a * (b1 * (b1a * b1b * b1c * Maybe Text) * y + b2)]
-    -> [e] +      [a * (b1 * (b1a * b1b * b1c            ) * y + b2)]
-tx16 = handleMap (_2 . _Left . _2 . _1 . _2 . _2) tryDrop2Nothing
+    -> [e] +      [a * (b1 * (b1a * b1b * b1c             ) * y + b2)]
+tx16 = handleMap (lens2e . prism1 . lens2 . lens3e) tryDrop2Nothing
 
 tx17 :: Handler e (a * (b1 * (b1a * b1b * Maybe Text) * y + b2)) =>
                   [a * (b1 * (b1a * b1b * Maybe Text) * y + b2)]
-    -> [e] +      [a * (b1 * (b1a * b1b            ) * y + b2)]
-tx17 = handleMap (_2 . _Left . _2 . _1 . _2) tryDrop2Nothing
+    -> [e] +      [a * (b1 * (b1a * b1b             ) * y + b2)]
+tx17 = handleMap (lens2e . prism1 . lens2 . lens2e) tryDrop2Nothing
 
 tx17a :: [a * (b1 * (XmlNameId * b1b) * y + b2)]
       -> [a * (b1 * (            b1b) * y + b2)]
-tx17a = over (each . _2 . _Left . _2 . _1) snd
+tx17a = over (each . lens2e . prism1 . lens2) snd
 
-tx18 :: Handler e (a * (b1 + b2 * (b2a * b2b * b2c * Maybe Text) + b3)) =>
-                  [a * (b1 + b2 * (b2a * b2b * b2c * Maybe Text) + b3)]
-    -> [e] +      [a * (b1 + b2 * (b2a * b2b * b2c             ) + b3)]
-tx18 = handleMap (_2 . _Right . _Left . _2 . _2 . _2) tryDrop2Nothing
+tx18 :: Handler e (a * (b1 + b2 * b2a * b2b * b2c * Maybe Text + b3)) =>
+                  [a * (b1 + b2 * b2a * b2b * b2c * Maybe Text + b3)]
+    -> [e] +      [a * (b1 + b2 * b2a * b2b * b2c              + b3)]
+tx18 = handleMap (lens2e . prism2 . lens4e) tryDrop2Nothing
 
-tx19 :: Handler e (a * (b1 + b2 * (b2a * b2b * Maybe Text) + b3)) =>
-                  [a * (b1 + b2 * (b2a * b2b * Maybe Text) + b3)]
-    -> [e] +      [a * (b1 + b2 * (b2a * b2b             ) + b3)]
-tx19 = handleMap (_2 . _Right . _Left . _2 . _2) tryDrop2Nothing
+tx19 :: Handler e (a * (b1 + b2 * b2a * b2b * Maybe Text + b3)) =>
+                  [a * (b1 + b2 * b2a * b2b * Maybe Text + b3)]
+    -> [e] +      [a * (b1 + b2 * b2a * b2b              + b3)]
+tx19 = handleMap (lens2e . prism2 . lens3e) tryDrop2Nothing
 
 tx19a :: [a * (b1 + b2 * (XmlNameId * b1b) + b3)]
       -> [a * (b1 + b2 * (            b1b) + b3)]
-tx19a = over (each . _2 . _Right . _Left . _2) snd
+tx19a = over (each . lens2e . prism2 . lens2e) snd
 
 tx20 :: Handler e (a * (b1 * Text       * as + b2)) =>
                   [a * (b1 * Text       * as + b2)]
      -> [e] +     [a * (b1 * ElementAll * as + b2)]
-tx20 = handleMap' (_2 . _Left . _2 . _1) toElementAll
+tx20 = handleMap' (lens2e . prism1 . lens2) toElementAll
 
 tx21 :: Handler e (a * (b1 + b2 * Text       + b3)) =>
                   [a * (b1 + b2 * Text       + b3)]
      -> [e] +     [a * (b1 + b2 * ElementAll + b3)]
-tx21 = handleMap' (_2 . _Right . _Left . _2) toElementAll
+tx21 = handleMap' (lens2e . prism2 . lens2e) toElementAll

@@ -114,6 +114,22 @@ sum20e :: a20 -> a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 + 
 sum20e = Right . sum19e
 
 
+lens1 :: Lens (a1 * a2) (a1' * a2) a1 a1'
+lens1 = _1
+lens2 :: Lens (a1 * a2 * a3) (a1 * a2' * a3) a2 a2'
+lens2 = _2 . lens1
+lens3 :: Lens (a1 * a2 * a3 * a4) (a1 * a2 * a3' * a4) a3 a3'
+lens3 = _2 . lens2
+lens4 :: Lens (a1 * a2 * a3 * a4 * a5) (a1 * a2 * a3 * a4' * a5) a4 a4'
+lens4 = _2 . lens3
+
+lens2e :: Lens (a1 * a2) (a1 * a2') a2 a2'
+lens2e = _2
+lens3e :: Lens (a1 * a2 * a3) (a1 * a2 * a3') a3 a3'
+lens3e = _2 . lens2e
+lens4e :: Lens (a1 * a2 * a3 * a4) (a1 * a2 * a3 * a4') a4 a4'
+lens4e = _2 . lens3e
+
 prism1 :: Prism (a1 + a2) (a1' + a2) a1 a1'
 prism1 = _Left
 prism2 :: Prism (a1 + a2 + a3) (a1 + a2' + a3) a2 a2'
