@@ -8,7 +8,6 @@
 module Text.Greek.Source.Sblgnt where
 
 import Prelude hiding ((*), (+), log, FilePath)
-import Control.Lens
 import Text.Greek.Utility
 import Text.Greek.Xml
 import qualified Prelude as X (FilePath)
@@ -67,10 +66,8 @@ tx :: [FileReference * XmlEventAll]
 tx x = return x
   >>. trimContent
   >>= removeUnusedXmlEvents
-  >>. tx16a
-  >>= tx16b
-  >>. tx17a
-  >>= tx17b
+  >>= removeBeginElementNamespace
+  >>= removeEndElementNamespace
   >>= useBeginElementType
   >>= useEndElementType
 
@@ -82,37 +79,31 @@ type XmlUnused
   + XmlComment
 
 removeUnusedXmlEvents
-  :: Handler e (a * (b + c + d + XmlUnused)) =>
-               [a * (b + c + d + XmlUnused)]
+  :: Handler e (a * (b + c + d + XmlUnused))
+  =>           [a * (b + c + d + XmlUnused)]
   -> [e] +     [a * (b + c + d            )]
 removeUnusedXmlEvents = handleMap lens2e tryDrop4e
 
-tx16a :: [a * (XmlBeginElement * (XmlLocalName * (None + XmlNamespace) * (None + XmlNamePrefix)) * y + b2)]
-      -> [a * (XmlBeginElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix))          * y + b2)]
-tx16a = over (each . lens2e . prism1 . lens2 . lens2e) extractSum
+removeBeginElementNamespace
+  :: Handler e (a * (XmlBeginElement * (XmlLocalName * (None + XmlNamespace) * (None + XmlNamePrefix)) * y + b2))
+  =>           [a * (XmlBeginElement * (XmlLocalName * (None + XmlNamespace) * (None + XmlNamePrefix)) * y + b2)]
+  -> [e] +     [a * (XmlBeginElement *  XmlLocalName                                                   * y + b2)]
+removeBeginElementNamespace = handleMap (lens2e . prism1 . lens2) removeNamespace
 
-tx16b :: Handler e (a * (XmlBeginElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix)) * y + b2)) =>
-                   [a * (XmlBeginElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix)) * y + b2)]
-      -> [e] +     [a * (XmlBeginElement *  XmlLocalName                                          * y + b2)]
-tx16b = handleMap (lens2e . prism1 . lens2) tryDrop2eNone
-
-tx17a :: [a * (b1 + XmlEndElement * (XmlLocalName * (None + XmlNamespace) * (None + XmlNamePrefix)) + b2)]
-      -> [a * (b1 + XmlEndElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix))          + b2)]
-tx17a = over (each . lens2e . prism2 . lens2e . lens2e) extractSum
-
-tx17b :: Handler e (a * (b1 + XmlEndElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix)) + b2)) =>
-                   [a * (b1 + XmlEndElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix)) + b2)]
-      -> [e] +     [a * (b1 + XmlEndElement *  XmlLocalName                                          + b2)]
-tx17b = handleMap (lens2e . prism2 . lens2e) tryDrop2eNone
+removeEndElementNamespace
+  :: Handler e (a * (b1 + XmlEndElement * XmlLocalName * (None + XmlNamespace) * (None + XmlNamePrefix) + b2))
+  =>           [a * (b1 + XmlEndElement * XmlLocalName * (None + XmlNamespace) * (None + XmlNamePrefix) + b2)]
+  -> [e] +     [a * (b1 + XmlEndElement * XmlLocalName                                                  + b2)]
+removeEndElementNamespace = handleMap (lens2e . prism2 . lens2e) removeNamespace
 
 useBeginElementType
-  :: Handler e (a * (XmlBeginElement * XmlLocalName * as + b2)) =>
-               [a * (XmlBeginElement * XmlLocalName * as + b2)]
+  :: Handler e (a * (XmlBeginElement * XmlLocalName * as + b2))
+  =>           [a * (XmlBeginElement * XmlLocalName * as + b2)]
   -> [e] +     [a * (XmlBeginElement * ElementAll   * as + b2)]
 useBeginElementType = handleMap' (lens2e . prism1 . lens2) toElementAll
 
 useEndElementType
-  :: Handler e (a * (b1 + XmlEndElement * XmlLocalName + b3)) =>
-               [a * (b1 + XmlEndElement * XmlLocalName + b3)]
+  :: Handler e (a * (b1 + XmlEndElement * XmlLocalName + b3))
+  =>           [a * (b1 + XmlEndElement * XmlLocalName + b3)]
   -> [e] +     [a * (b1 + XmlEndElement * ElementAll   + b3)]
 useEndElementType = handleMap' (lens2e . prism2 . lens2e) toElementAll

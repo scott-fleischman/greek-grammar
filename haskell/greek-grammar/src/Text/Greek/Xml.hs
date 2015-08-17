@@ -50,6 +50,14 @@ xmlTransform x = return x
   >>= removeEndDocumentType
   >>= ensureLineReferenceRange
 
+
+removeNamespace
+  :: (None + (XmlNamespace * XmlNamePrefix) -> e)
+  -> XmlLocalName * ((None + XmlNamespace) * (None + XmlNamePrefix))
+  -> e + XmlLocalName
+removeNamespace e = tryDrop2eNone e . over lens2e extractSum
+
+
 trimContent :: [a * XmlEventAll] -> [a * XmlEventAll]
 trimContent = foldr trimContentItem []
 
