@@ -1,5 +1,4 @@
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -8,6 +7,7 @@
 module Text.Greek.Source.Sblgnt where
 
 import Prelude hiding ((*), (+), log, FilePath)
+import Control.Lens
 import Text.Greek.Utility
 import Text.Greek.Xml
 import qualified Prelude as X (FilePath)
@@ -58,12 +58,12 @@ toElementAll t                             = Left t
 
 
 
-readSblgntEvents :: X.FilePath -> IO ([ErrorMessage] + [FileReference * FinalXmlEvent])
+readSblgntEvents :: X.FilePath -> IO ([ErrorMessage] + [FileReference * FinalXmlEvent + Sblgnt * [FileReference * FinalXmlEvent]])
 readSblgntEvents = fmap (>>= sblgntTransform) . readEvents
 
 sblgntTransform
   :: [FileReference * XmlEventAll]
-  -> [ErrorMessage] + [FileReference * FinalXmlEvent]
+  -> [ErrorMessage] + [FileReference * FinalXmlEvent + Sblgnt * [FileReference * FinalXmlEvent]]
 sblgntTransform x = return x
   >>. trimContent
   >>= removeUnusedXmlEvents
@@ -71,6 +71,8 @@ sblgntTransform x = return x
   >>= removeEndElementNamespace
   >>= useBeginElementType
   >>= useEndElementType
+  >>= extractSblgnt
+  -- >>= topLevelSblgnt
 
 type XmlUnused
   = XmlCDATA
@@ -108,3 +110,63 @@ useEndElementType
   =>           [a * (b1 + XmlEndElement * XmlLocalName + b3)]
   -> [e] +     [a * (b1 + XmlEndElement * ElementAll   + b3)]
 useEndElementType = handleMap' (lens2e . prism2 . lens2e) toElementAll
+
+
+newtype Sblgnt = Sblgnt () deriving (Eq, Ord, Show)
+
+extractSblgnt
+  :: Handler e (SublistErrorCase [a * FinalXmlEvent])
+  => [a * FinalXmlEvent]
+  -> [e] + [a * FinalXmlEvent + Sblgnt * [a * FinalXmlEvent]]
+extractSblgnt = handleSublist buildSblgntSublist
+
+topLevelSblgnt
+  :: Handler e (a * FinalXmlEvent + Sblgnt * [a * FinalXmlEvent])
+  => [a * FinalXmlEvent + Sblgnt * [a * FinalXmlEvent]]
+  -> [e] + [Sblgnt * [a * FinalXmlEvent]]
+topLevelSblgnt = handleMap (lens id (flip const)) tryDrop1
+
+
+handleSublist
+  :: Handler e (SublistErrorCase [a])
+  => (a -> Sublist a t -> Sublist a t)
+  -> [a]
+  -> [e] + [a + t * [a]]
+handleSublist f as = case foldr f (SublistOutside []) as of
+  SublistError e -> sum1 $ handle e
+  SublistInside (a, (as', _)) -> sum1 $ handle (OnlyBeginElement (a : as'))
+  SublistOutside os -> sum2e os
+
+data SublistErrorCase a
+  = NestedSublist a
+  | OnlyEndElement a
+  | OnlyBeginElement a
+  deriving (Show)
+
+data Sublist a t
+  = SublistError (SublistErrorCase [a])
+  | SublistInside (a * [a] * [a + t * [a]])
+  | SublistOutside [a + t * [a]]
+
+buildSblgntSublist
+  :: a * FinalXmlEvent
+  -> Sublist (a * FinalXmlEvent) Sblgnt
+  -> Sublist (a * FinalXmlEvent) Sblgnt
+buildSblgntSublist x@(_, event) s
+  | Left (XmlBeginElement _, (Left (SblgntElement _), [])) <- event
+  = case s of
+    e@(SublistError _) -> e
+    SublistOutside os -> SublistInside (x * [] * os)
+    SublistInside (a, (as, _)) -> SublistError $ NestedSublist (x : a : as)
+
+  | Right (Left (XmlEndElement _, Left (SblgntElement _))) <- event
+  = case s of
+    e@(SublistError _) -> e
+    SublistOutside _ -> SublistError $ OnlyEndElement [x]
+    SublistInside (_, (as, os)) -> SublistOutside (sum2e (Sblgnt (), as) : os)
+
+  | otherwise
+  = case s of
+    e@(SublistError _) -> e
+    SublistInside i -> SublistInside (over lens2 (x :) i)
+    SublistOutside os -> SublistOutside (sum1 x : os)
