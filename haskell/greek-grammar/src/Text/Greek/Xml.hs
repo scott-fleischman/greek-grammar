@@ -23,23 +23,24 @@ type LineReference = Line * Column
 type LineReferenceRange = LineReference + LineReference * LineReference
 type FileReference = FilePath * LineReferenceRange
 
-type EventAll
-  = EventBeginDoctype * Text * (Maybe XmlExternalId)
-  + EventEndDoctype
-  + EventInstruction * XmlInstruction
-  + EventBeginElement * XmlName * XmlAttributes
-  + EventEndElement * XmlName
-  + EventContent * XmlContent
-  + EventComment * Text
-  + EventCDATA * Text
+type XmlEventAll
+  = XmlBeginElement * XmlName * XmlAttributes
+  + XmlEndElement * XmlName
+  + XmlContent
+  + XmlCDATA
+  + XmlBeginDoctype * XmlDoctypeName * (None + XmlExternalId)
+  + XmlEndDoctype
+  + XmlInstruction
+  + XmlComment
 
-readEvents :: X.FilePath -> IO ([ErrorMessage] + [FileReference * EventAll])
+readEvents :: X.FilePath -> IO ([ErrorMessage] + [FileReference * XmlEventAll])
 readEvents p = fmap xmlTransform . fmap (p *) . readEventsConduit $ p
 
 xmlTransform :: X.FilePath * [Maybe X.PositionRange * X.Event]
-  -> [ErrorMessage] + [FileReference * EventAll]
+  -> [ErrorMessage] + [FileReference * XmlEventAll]
 xmlTransform x = return x
   >>. tx1
+  >>. tx1'
   >>. tx1a
   >>. tx1b
   >>. tx2
@@ -47,21 +48,20 @@ xmlTransform x = return x
   >>= tx4
   >>= tx5
   >>= tx6
-  >>. tx7
   >>= tx8
 
-trimContent :: [a * EventAll] -> [a * EventAll]
+trimContent :: [a * XmlEventAll] -> [a * XmlEventAll]
 trimContent = foldr trimContentItem []
 
-trimContentItem :: (a * EventAll) -> [a * EventAll] -> [a * EventAll]
+trimContentItem :: (a * XmlEventAll) -> [a * XmlEventAll] -> [a * XmlEventAll]
 trimContentItem x xs
   | (_, b) <- x
   , x1 : x2 : xs' <- xs
   , (_, c) <- x1
   , (_, b2) <- x2
-  , Right (Right (Right (Left (EventBeginElement, _)))) <- b
-  , Right (Right (Right (Right (Right (Left (EventContent, Left (XmlContentText t))))))) <- c
-  , Right (Right (Right (Left (EventBeginElement, _)))) <- b2
+  , Left (XmlBeginElement _, _) <- b
+  , Right (Right (Left (Left (XmlContentText t)))) <- c
+  , Left (XmlBeginElement _, _) <- b2
   , T.all isSpace t
   = x : x2 : xs'
 
@@ -69,9 +69,9 @@ trimContentItem x xs
   , x1 : x2 : xs' <- xs
   , (_, c) <- x1
   , (_, e2) <- x2
-  , Right (Right (Right (Right (Left (EventEndElement, _))))) <- e
-  , Right (Right (Right (Right (Right (Left (EventContent, Left (XmlContentText t))))))) <- c
-  , Right (Right (Right (Right (Left (EventEndElement, _))))) <- e2
+  , Right (Left (XmlEndElement _, _)) <- e
+  , Right (Right (Left (Left (XmlContentText t)))) <- c
+  , Right (Left (XmlEndElement _, _)) <- e2
   , T.all isSpace t
   = x : x2 : xs'
 
@@ -91,130 +91,113 @@ toLineReferenceRange (X.PositionRange start end)
   | otherwise    = sum2e (toLineReference start * toLineReference end)
 
 
-data EventBeginDocument = EventBeginDocument deriving (Eq, Ord, Show)
-data EventEndDocument = EventEndDocument deriving (Eq, Ord, Show)
-data EventBeginDoctype = EventBeginDoctype deriving (Eq, Ord, Show)
-data EventEndDoctype = EventEndDoctype deriving (Eq, Ord, Show)
-data EventInstruction = EventInstruction deriving (Eq, Ord, Show)
-data EventBeginElement = EventBeginElement deriving (Eq, Ord, Show)
-data EventEndElement = EventEndElement deriving (Eq, Ord, Show)
-data EventContent = EventContent deriving (Eq, Ord, Show)
-data EventComment = EventComment deriving (Eq, Ord, Show)
-data EventCDATA = EventCDATA deriving (Eq, Ord, Show)
-data XmlNameId = XmlNameId deriving (Eq, Ord, Show)
+newtype XmlBeginDocument = XmlBeginDocument () deriving (Eq, Ord, Show)
+newtype XmlEndDocument = XmlEndDocument () deriving (Eq, Ord, Show)
+newtype XmlBeginDoctype = XmlBeginDoctype () deriving (Eq, Ord, Show)
+newtype XmlEndDoctype = XmlEndDoctype () deriving (Eq, Ord, Show)
+newtype XmlBeginElement = XmlBeginElement () deriving (Eq, Ord, Show)
+newtype XmlEndElement = XmlEndElement () deriving (Eq, Ord, Show)
 
-type XmlName = XmlNameId * Text * Maybe Text * Maybe Text
+newtype XmlDoctypeName = XmlDoctypeName Text deriving (Eq, Ord, Show)
+
+newtype XmlComment = XmlComment Text deriving (Eq, Ord, Show)
+newtype XmlCDATA = XmlCDATA Text deriving (Eq, Ord, Show)
+
+newtype XmlLocalName = XmlLocalName Text deriving (Eq, Ord, Show)
+newtype XmlNamespace = XmlNamespace Text deriving (Eq, Ord, Show)
+newtype XmlNamePrefix = XmlNamePrefix Text deriving (Eq, Ord, Show)
+
+type XmlName = XmlLocalName * (None + XmlNamespace) * (None + XmlNamePrefix)
 toXmlName :: X.Name -> XmlName
-toXmlName (X.Name a b c) = XmlNameId * a * b * c
+toXmlName (X.Name a b c) = XmlLocalName a * (prism2e %~ XmlNamespace) (maybeToNone b) * (prism2e %~ XmlNamePrefix) (maybeToNone c)
 
 newtype XmlContentText = XmlContentText Text deriving (Eq, Ord, Show)
 newtype XmlContentEntity = XmlContentEntity Text deriving (Eq, Ord, Show)
 
-type XmlContent
-  = XmlContentText
-  + XmlContentEntity
+type XmlContent = XmlContentText + XmlContentEntity
 toXmlContent :: X.Content -> XmlContent
 toXmlContent (X.ContentText a)   = sum1  (XmlContentText a)
 toXmlContent (X.ContentEntity a) = sum2e (XmlContentEntity a)
 
-data XmlInstructionId = XmlInstructionId deriving (Eq, Ord, Show)
+newtype XmlInstructionTarget = XmlInstructionTarget Text deriving (Eq, Ord, Show)
+newtype XmlInstructionData = XmlInstructionData Text deriving (Eq, Ord, Show)
 
-type XmlInstruction = XmlInstructionId * Text * Text
+type XmlInstruction = XmlInstructionTarget * XmlInstructionData
 toXmlInstruction :: X.Instruction -> XmlInstruction
-toXmlInstruction (X.Instruction a b) = XmlInstructionId * a * b
+toXmlInstruction (X.Instruction a b) = XmlInstructionTarget a * XmlInstructionData b
 
-data XmlSystemId = XmlSystemId deriving (Eq, Ord, Show)
+newtype XmlSystemId = XmlSystemId Text deriving (Eq, Ord, Show)
 
-data XmlPublicId = XmlPublicId deriving (Eq, Ord, Show)
+newtype XmlPublicOwnerId = XmlPublicOwnerId Text deriving (Eq, Ord, Show)
+newtype XmlPublicTextId = XmlPublicTextId Text deriving (Eq, Ord, Show)
 
-type XmlExternalId
-  = XmlSystemId * Text
-  + XmlPublicId * Text * Text
+type XmlPublicId = XmlPublicOwnerId * XmlPublicTextId
+
+type XmlExternalId = XmlSystemId + XmlPublicId
 toXmlExternalId :: X.ExternalID -> XmlExternalId
-toXmlExternalId (X.SystemID a)   = sum1  (XmlSystemId * a)
-toXmlExternalId (X.PublicID a b) = sum2e (XmlPublicId * a * b)
+toXmlExternalId (X.SystemID a)   = sum1  (XmlSystemId a)
+toXmlExternalId (X.PublicID a b) = sum2e (XmlPublicOwnerId a * XmlPublicTextId b)
 
 type XmlAttributes = [XmlName * [XmlContent]]
 toXmlAttributes :: [X.Name * [X.Content]] -> [XmlName * [XmlContent]]
 toXmlAttributes = over (each . _1) toXmlName . over (each . _2 . each) toXmlContent
 
-type EventExtra
-  = EventBeginDocument
-  + EventEndDocument
-  + EventBeginDoctype * Text * (Maybe XmlExternalId)
-  + EventEndDoctype
-  + EventInstruction * XmlInstruction
-  + EventBeginElement * XmlName * XmlAttributes
-  + EventEndElement * XmlName
-  + EventContent * XmlContent
-  + EventComment * Text
-  + EventCDATA * Text
+type XmlEventExtra = XmlBeginDocument + XmlEndDocument + XmlEventAll
 
-toEventExtra :: X.Event -> EventExtra
-toEventExtra  X.EventBeginDocument     = sum1    EventBeginDocument
-toEventExtra  X.EventEndDocument       = sum2    EventEndDocument
-toEventExtra (X.EventBeginDoctype t e) = sum3   (EventBeginDoctype * t * fmap toXmlExternalId e)
-toEventExtra  X.EventEndDoctype        = sum4    EventEndDoctype
-toEventExtra (X.EventInstruction i)    = sum5   (EventInstruction * toXmlInstruction i)
-toEventExtra (X.EventBeginElement n a) = sum6   (EventBeginElement * toXmlName n * toXmlAttributes a)
-toEventExtra (X.EventEndElement n)     = sum7   (EventEndElement * toXmlName n)
-toEventExtra (X.EventContent c)        = sum8   (EventContent * toXmlContent c)
-toEventExtra (X.EventComment t)        = sum9   (EventComment * t)
-toEventExtra (X.EventCDATA t)          = sum10e (EventCDATA * t)
+toXmlEventExtra :: X.Event -> XmlEventExtra
+toXmlEventExtra  X.EventBeginDocument     = sum1   (XmlBeginDocument ())
+toXmlEventExtra  X.EventEndDocument       = sum2   (XmlEndDocument ())
+toXmlEventExtra (X.EventBeginElement n a) = sum3   (XmlBeginElement () * toXmlName n * toXmlAttributes a)
+toXmlEventExtra (X.EventEndElement n)     = sum4   (XmlEndElement () * toXmlName n)
+toXmlEventExtra (X.EventContent c)        = sum5   (toXmlContent c)
+toXmlEventExtra (X.EventCDATA t)          = sum6   (XmlCDATA t)
+toXmlEventExtra (X.EventBeginDoctype t e) = sum7   (XmlBeginDoctype () * XmlDoctypeName t * (prism2e %~ toXmlExternalId) (maybeToNone e))
+toXmlEventExtra  X.EventEndDoctype        = sum8   (XmlEndDoctype ())
+toXmlEventExtra (X.EventInstruction i)    = sum9   (toXmlInstruction i)
+toXmlEventExtra (X.EventComment t)        = sum10e (XmlComment t)
 
 
 tx1 :: a * [b * X.Event]
-    -> a * [b * EventExtra]
-tx1 = _2 . each . _2 %~ toEventExtra
+    -> a * [b * XmlEventExtra]
+tx1 = over (lens2e . each . lens2e) toXmlEventExtra
 
-tx1a :: a * [Maybe X.PositionRange    * b]
-     -> a * [Maybe LineReferenceRange * b]
-tx1a = _2 . each . _1 . _Just %~ toLineReferenceRange
+tx1' :: a * [  Maybe X.PositionRange  * b]
+     -> a * [(None + X.PositionRange) * b]
+tx1' = over (lens2e . each . lens1) maybeToNone
+
+tx1a :: a * [(None + X.PositionRange   ) * b]
+     -> a * [(None + LineReferenceRange) * b]
+tx1a = over (lens2e . each . lens1 . prism2e) toLineReferenceRange
 
 tx1b :: X.FilePath * a
      ->   FilePath * a
-tx1b = _1 %~ FilePath
+tx1b = over lens1 FilePath
 
 tx2 ::   a * [b  * c]
     -> [(a *  b) * c]
 tx2 (c, xs) = (shiftLeftProduct . (*) c) <$> xs
 
-tx3 :: Handler e [a * EventExtra] =>
-                 [a * EventExtra]
-    -> [e] +     [a * EventExtra]
-tx3 = removePrefixWith handle (^. _2) [sum1 EventBeginDocument]
+tx3 :: Handler e [a * XmlEventExtra] =>
+                 [a * XmlEventExtra]
+    -> [e] +     [a * XmlEventExtra]
+tx3 = removePrefixWith handle (^. lens2e) [sum1 (XmlBeginDocument ())]
 
-type Event9
-  = EventEndDocument
-  + EventBeginDoctype * Text * (Maybe XmlExternalId)
-  + EventEndDoctype
-  + EventInstruction * XmlInstruction
-  + EventBeginElement * XmlName * XmlAttributes
-  + EventEndElement * XmlName
-  + EventContent * XmlContent
-  + EventComment * Text
-  + EventCDATA * Text
+tx4 :: Handler e (a * (XmlBeginDocument + XmlEndDocument + XmlEventAll)) =>
+                 [a * (XmlBeginDocument + XmlEndDocument + XmlEventAll)]
+    -> [e] +     [a * (                   XmlEndDocument + XmlEventAll)]
+tx4 = handleMap lens2e tryDrop1
 
-tx4 :: Handler e (a * EventExtra) =>
-                 [a * EventExtra]
-    -> [e] +     [a * Event9]
-tx4 = handleMap _2 tryDrop1
+tx5 :: Handler e [a * (XmlEndDocument + XmlEventAll)] =>
+                 [a * (XmlEndDocument + XmlEventAll)]
+    -> [e] +     [a * (XmlEndDocument + XmlEventAll)]
+tx5 = removeSuffixWith handle (^. lens2e) [sum1 (XmlEndDocument ())]
 
-tx5 :: Handler e [a * Event9] =>
-                 [a * Event9]
-    -> [e] +     [a * Event9]
-tx5 = removeSuffixWith handle (^. _2) [sum1 EventEndDocument]
+tx6 :: Handler e (a * (XmlEndDocument + XmlEventAll)) =>
+                 [a * (XmlEndDocument + XmlEventAll)]
+    -> [e] +     [a * (                 XmlEventAll)]
+tx6 = handleMap lens2e tryDrop1
 
-tx6 :: Handler e (a * Event9) =>
-                 [a * Event9]
-    -> [e] +     [a * EventAll]
-tx6 = handleMap _2 tryDrop1
-
-tx7 :: [(a * Maybe b)  * c]
-    -> [(a * (() + b)) * c]
-tx7 = each . _1 . _2 %~ maybeToEither ()
-
-tx8 :: Handler e ((FilePath * (() + LineReferenceRange)) * a) =>
-                 [(FilePath * (() + LineReferenceRange)) * a]
-    -> [e] +     [FileReference                          * a]
-tx8 = handleMap (_1 . _2) tryDrop1
+tx8 :: Handler e ((FilePath * (None + LineReferenceRange)) * a) =>
+                 [(FilePath * (None + LineReferenceRange)) * a]
+    -> [e] +     [(FilePath *         LineReferenceRange ) * a]
+tx8 = handleMap (lens1 . lens2e) tryDrop1

@@ -9,27 +9,26 @@ module Text.Greek.Source.Sblgnt where
 
 import Prelude hiding ((*), (+), log, FilePath)
 import Control.Lens
-import Data.Text (Text)
 import Text.Greek.Utility
 import Text.Greek.Xml
 import qualified Prelude as X (FilePath)
 
-type FinalEvent
-  = EventBeginElement * ElementAll * XmlAttributes
-  + EventEndElement * ElementAll
-  + EventContent * XmlContent
+type FinalXmlEvent
+  = XmlBeginElement * ElementAll * XmlAttributes
+  + XmlEndElement * ElementAll
+  + XmlContent
 
-data AElement = AElement deriving (Eq, Ord, Show)
-data BookElement = BookElement deriving (Eq, Ord, Show)
-data LicenseElement = LicenseElement deriving (Eq, Ord, Show)
-data MarkEndElement = MarkEndElement deriving (Eq, Ord, Show)
-data PElement = PElement deriving (Eq, Ord, Show)
-data PrefixElement = PrefixElement deriving (Eq, Ord, Show)
-data SblgntElement = SblgntElement deriving (Eq, Ord, Show)
-data SuffixElement = SuffixElement deriving (Eq, Ord, Show)
-data TitleElement = TitleElement deriving (Eq, Ord, Show)
-data VerseNumberElement = VerseNumberElement deriving (Eq, Ord, Show)
-data WElement = WElement deriving (Eq, Ord, Show)
+newtype AElement = AElement () deriving (Eq, Ord, Show)
+newtype BookElement = BookElement () deriving (Eq, Ord, Show)
+newtype LicenseElement = LicenseElement () deriving (Eq, Ord, Show)
+newtype MarkEndElement = MarkEndElement () deriving (Eq, Ord, Show)
+newtype PElement = PElement () deriving (Eq, Ord, Show)
+newtype PrefixElement = PrefixElement () deriving (Eq, Ord, Show)
+newtype SblgntElement = SblgntElement () deriving (Eq, Ord, Show)
+newtype SuffixElement = SuffixElement () deriving (Eq, Ord, Show)
+newtype TitleElement = TitleElement () deriving (Eq, Ord, Show)
+newtype VerseNumberElement = VerseNumberElement () deriving (Eq, Ord, Show)
+newtype WElement = WElement () deriving (Eq, Ord, Show)
 
 type ElementAll
   = AElement
@@ -44,107 +43,73 @@ type ElementAll
   + VerseNumberElement
   + WElement
 
-toElementAll :: Text -> Text + ElementAll
-toElementAll "a"            = Right . sum1   $ AElement
-toElementAll "book"         = Right . sum2   $ BookElement
-toElementAll "license"      = Right . sum3   $ LicenseElement
-toElementAll "mark-end"     = Right . sum4   $ MarkEndElement
-toElementAll "p"            = Right . sum5   $ PElement
-toElementAll "prefix"       = Right . sum6   $ PrefixElement
-toElementAll "sblgnt"       = Right . sum7   $ SblgntElement
-toElementAll "suffix"       = Right . sum8   $ SuffixElement
-toElementAll "title"        = Right . sum9   $ TitleElement
-toElementAll "verse-number" = Right . sum10  $ VerseNumberElement
-toElementAll "w"            = Right . sum11e $ WElement
-toElementAll t              = Left t
+toElementAll :: XmlLocalName -> XmlLocalName + ElementAll
+toElementAll (XmlLocalName "a"           ) = Right . sum1   $ AElement ()
+toElementAll (XmlLocalName "book"        ) = Right . sum2   $ BookElement ()
+toElementAll (XmlLocalName "license"     ) = Right . sum3   $ LicenseElement ()
+toElementAll (XmlLocalName "mark-end"    ) = Right . sum4   $ MarkEndElement ()
+toElementAll (XmlLocalName "p"           ) = Right . sum5   $ PElement ()
+toElementAll (XmlLocalName "prefix"      ) = Right . sum6   $ PrefixElement ()
+toElementAll (XmlLocalName "sblgnt"      ) = Right . sum7   $ SblgntElement ()
+toElementAll (XmlLocalName "suffix"      ) = Right . sum8   $ SuffixElement ()
+toElementAll (XmlLocalName "title"       ) = Right . sum9   $ TitleElement ()
+toElementAll (XmlLocalName "verse-number") = Right . sum10  $ VerseNumberElement ()
+toElementAll (XmlLocalName "w"           ) = Right . sum11e $ WElement ()
+toElementAll t                             = Left t
 
 
 
-readSblgntEvents :: X.FilePath -> IO ([ErrorMessage] + [FileReference * FinalEvent])
+readSblgntEvents :: X.FilePath -> IO ([ErrorMessage] + [FileReference * FinalXmlEvent])
 readSblgntEvents = fmap (>>= tx) . readEvents
 
-tx :: [FileReference * EventAll]
-   -> [ErrorMessage] + [FileReference * FinalEvent]
+tx :: [FileReference * XmlEventAll]
+   -> [ErrorMessage] + [FileReference * FinalXmlEvent]
 tx x = return x
   >>. trimContent
   >>= tx11
-  >>= tx12
-  >>= tx13
-  >>= tx14
-  >>= tx15
-  >>= tx16
-  >>= tx17
+  >>. tx16a
+  >>= tx16b
   >>. tx17a
-  >>= tx18
-  >>= tx19
-  >>. tx19a
+  >>= tx17b
   >>= tx20
   >>= tx21
 
-type EventSimple
-  = EventBeginElement * XmlName * XmlAttributes
-  + EventEndElement * XmlName
-  + EventContent * XmlContent
+type XmlUnused
+  = XmlCDATA
+  + XmlBeginDoctype * XmlDoctypeName * (None + XmlExternalId)
+  + XmlEndDoctype
+  + XmlInstruction
+  + XmlComment
 
-tx11 :: Handler e (a * (EventBeginDoctype * Text * (Maybe XmlExternalId) + b)) =>          
-                  [a * (EventBeginDoctype * Text * (Maybe XmlExternalId) + b)]
-    -> [e] +      [a * (                                                   b)]
-tx11 = handleMap lens2e tryDrop1
+tx11 :: Handler e (a * (b + c + d + XmlUnused)) =>
+                  [a * (b + c + d + XmlUnused)]
+    -> [e] +      [a * (b + c + d            )]
+tx11 = handleMap lens2e tryDrop4e
 
-tx12 :: Handler e (a * (EventEndDoctype + b)) =>
-                  [a * (EventEndDoctype + b)]
-    -> [e] +      [a * (                  b)]
-tx12 = handleMap lens2e tryDrop1
+tx16a :: [a * (XmlBeginElement * (XmlLocalName * (None + XmlNamespace) * (None + XmlNamePrefix)) * y + b2)]
+      -> [a * (XmlBeginElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix))          * y + b2)]
+tx16a = over (each . lens2e . prism1 . lens2 . lens2e) extractSum
 
-tx13 :: Handler e (a * (EventInstruction * XmlInstruction + b)) =>
-                  [a * (EventInstruction * XmlInstruction + b)]
-    -> [e] +      [a * (                                    b)]
-tx13 = handleMap lens2e tryDrop1
+tx16b :: Handler e (a * (XmlBeginElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix)) * y + b2)) =>
+                   [a * (XmlBeginElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix)) * y + b2)]
+      -> [e] +     [a * (XmlBeginElement *  XmlLocalName                                          * y + b2)]
+tx16b = handleMap (lens2e . prism1 . lens2) tryDrop2eNone
 
-tx14 :: Handler e (a * (b1 + b2 + b3 + EventComment * Text + c)) =>
-                  [a * (b1 + b2 + b3 + EventComment * Text + c)]
-    -> [e] +      [a * (b1 + b2 + b3 +                       c)]
-tx14 = handleMap lens2e tryDrop4
+tx17a :: [a * (b1 + XmlEndElement * (XmlLocalName * (None + XmlNamespace) * (None + XmlNamePrefix)) + b2)]
+      -> [a * (b1 + XmlEndElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix))          + b2)]
+tx17a = over (each . lens2e . prism2 . lens2e . lens2e) extractSum
 
-tx15 :: Handler e (a * (b1 + b2 + b3 + EventCDATA * Text)) =>
-                  [a * (b1 + b2 + b3 + EventCDATA * Text)]
-    -> [e] +      [a * (b1 + b2 + b3                    )]
-tx15 = handleMap lens2e tryDrop4e
+tx17b :: Handler e (a * (b1 + XmlEndElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix)) + b2)) =>
+                   [a * (b1 + XmlEndElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix)) + b2)]
+      -> [e] +     [a * (b1 + XmlEndElement *  XmlLocalName                                          + b2)]
+tx17b = handleMap (lens2e . prism2 . lens2e) tryDrop2eNone
 
-tx16 :: Handler e (a * (b1 * (b1a * b1b * b1c * Maybe Text) * y + b2)) =>
-                  [a * (b1 * (b1a * b1b * b1c * Maybe Text) * y + b2)]
-    -> [e] +      [a * (b1 * (b1a * b1b * b1c             ) * y + b2)]
-tx16 = handleMap (lens2e . prism1 . lens2 . lens3e) tryDrop2Nothing
-
-tx17 :: Handler e (a * (b1 * (b1a * b1b * Maybe Text) * y + b2)) =>
-                  [a * (b1 * (b1a * b1b * Maybe Text) * y + b2)]
-    -> [e] +      [a * (b1 * (b1a * b1b             ) * y + b2)]
-tx17 = handleMap (lens2e . prism1 . lens2 . lens2e) tryDrop2Nothing
-
-tx17a :: [a * (b1 * (XmlNameId * b1b) * y + b2)]
-      -> [a * (b1 * (            b1b) * y + b2)]
-tx17a = over (each . lens2e . prism1 . lens2) snd
-
-tx18 :: Handler e (a * (b1 + b2 * b2a * b2b * b2c * Maybe Text + b3)) =>
-                  [a * (b1 + b2 * b2a * b2b * b2c * Maybe Text + b3)]
-    -> [e] +      [a * (b1 + b2 * b2a * b2b * b2c              + b3)]
-tx18 = handleMap (lens2e . prism2 . lens4e) tryDrop2Nothing
-
-tx19 :: Handler e (a * (b1 + b2 * b2a * b2b * Maybe Text + b3)) =>
-                  [a * (b1 + b2 * b2a * b2b * Maybe Text + b3)]
-    -> [e] +      [a * (b1 + b2 * b2a * b2b              + b3)]
-tx19 = handleMap (lens2e . prism2 . lens3e) tryDrop2Nothing
-
-tx19a :: [a * (b1 + b2 * (XmlNameId * b1b) + b3)]
-      -> [a * (b1 + b2 * (            b1b) + b3)]
-tx19a = over (each . lens2e . prism2 . lens2e) snd
-
-tx20 :: Handler e (a * (b1 * Text       * as + b2)) =>
-                  [a * (b1 * Text       * as + b2)]
-     -> [e] +     [a * (b1 * ElementAll * as + b2)]
+tx20 :: Handler e (a * (XmlBeginElement * XmlLocalName * as + b2)) =>
+                  [a * (XmlBeginElement * XmlLocalName * as + b2)]
+     -> [e] +     [a * (XmlBeginElement * ElementAll   * as + b2)]
 tx20 = handleMap' (lens2e . prism1 . lens2) toElementAll
 
-tx21 :: Handler e (a * (b1 + b2 * Text       + b3)) =>
-                  [a * (b1 + b2 * Text       + b3)]
-     -> [e] +     [a * (b1 + b2 * ElementAll + b3)]
+tx21 :: Handler e (a * (b1 + XmlEndElement * XmlLocalName + b3)) =>
+                  [a * (b1 + XmlEndElement * XmlLocalName + b3)]
+     -> [e] +     [a * (b1 + XmlEndElement * ElementAll   + b3)]
 tx21 = handleMap' (lens2e . prism2 . lens2e) toElementAll

@@ -25,6 +25,15 @@ infixr 7 *
 (*) :: a -> b -> a * b
 (*) = (,)
 
+newtype None = None () deriving (Eq, Ord, Show)
+maybeToNone :: Maybe a -> None + a
+maybeToNone = maybeToEither (None ())
+
+maybeToEither :: a -> Maybe b -> a + b
+maybeToEither a Nothing = Left a
+maybeToEither _ (Just b) = Right b
+
+
 addSplit :: a + b -> [a] + [b] -> [a] + [b]
 addSplit (Left  a)   (Left  as') = Left (a : as')
 addSplit (Left  a)   (Right _  ) = Left [a]
@@ -215,6 +224,11 @@ distributeProductRight (a, Right c) = Right (a * c)
 distributeProductLeft :: (a + b) * c -> (a * c) + (b * c)
 distributeProductLeft = over _Right swap . over _Left swap . distributeProductRight . swap
 
+extractSum :: (a + b) * (a + c) -> a + b * c
+extractSum (Left a, _) = Left a
+extractSum (_, Left a) = Left a
+extractSum (Right b, Right c) = Right (b * c)
+
 singleErrorContext :: (a * e) + b -> (a * [e]) + b
 singleErrorContext = _Left %~ (_2 %~ pure)
 
@@ -281,10 +295,6 @@ removeSuffixWith e f m as
     reverseTarget = take matchLength reverseList
     reverseList = reverse as
 
-maybeToEither :: a -> Maybe b -> a + b
-maybeToEither a Nothing = Left a
-maybeToEither _ (Just b) = Right b
-
 
 consValue :: Ord b => a -> b -> Map b [a] -> Map b [a]
 consValue a b m = case M.lookup b m of
@@ -317,8 +327,8 @@ choose f = foldr g [] where
     Right b -> b : bs
 
 
-tryDrop2Nothing :: (Maybe b -> e) -> a * Maybe b -> e + a
-tryDrop2Nothing f x = case b of
-  Nothing -> Right $ x ^. _1
-  Just _  -> Left $ f b
+tryDrop2eNone :: (None + b -> e) -> a * (None + b) -> e + a
+tryDrop2eNone f x = case b of
+  Left _   -> Right $ x ^. _1
+  Right _  -> Left $ f b
   where b = x ^. _2
