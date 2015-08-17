@@ -59,11 +59,12 @@ toElementAll t                             = Left t
 
 
 readSblgntEvents :: X.FilePath -> IO ([ErrorMessage] + [FileReference * FinalXmlEvent])
-readSblgntEvents = fmap (>>= tx) . readEvents
+readSblgntEvents = fmap (>>= sblgntTransform) . readEvents
 
-tx :: [FileReference * XmlEventAll]
-   -> [ErrorMessage] + [FileReference * FinalXmlEvent]
-tx x = return x
+sblgntTransform
+  :: [FileReference * XmlEventAll]
+  -> [ErrorMessage] + [FileReference * FinalXmlEvent]
+sblgntTransform x = return x
   >>. trimContent
   >>= removeUnusedXmlEvents
   >>= removeBeginElementNamespace
