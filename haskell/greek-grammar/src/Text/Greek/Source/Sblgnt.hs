@@ -30,26 +30,26 @@ newtype VerseNumberElement = VerseNumberElement () deriving (Eq, Ord, Show)
 newtype WElement = WElement () deriving (Eq, Ord, Show)
 
 type ElementAll
-  = AElement
+  = SblgntElement
+  + AElement
   + BookElement
   + LicenseElement
   + MarkEndElement
   + PElement
   + PrefixElement
-  + SblgntElement
   + SuffixElement
   + TitleElement
   + VerseNumberElement
   + WElement
 
 toElementAll :: XmlLocalName -> XmlLocalName + ElementAll
-toElementAll (XmlLocalName "a"           ) = Right . sum1   $ AElement ()
-toElementAll (XmlLocalName "book"        ) = Right . sum2   $ BookElement ()
-toElementAll (XmlLocalName "license"     ) = Right . sum3   $ LicenseElement ()
-toElementAll (XmlLocalName "mark-end"    ) = Right . sum4   $ MarkEndElement ()
-toElementAll (XmlLocalName "p"           ) = Right . sum5   $ PElement ()
-toElementAll (XmlLocalName "prefix"      ) = Right . sum6   $ PrefixElement ()
-toElementAll (XmlLocalName "sblgnt"      ) = Right . sum7   $ SblgntElement ()
+toElementAll (XmlLocalName "sblgnt"      ) = Right . sum1   $ SblgntElement ()
+toElementAll (XmlLocalName "a"           ) = Right . sum2   $ AElement ()
+toElementAll (XmlLocalName "book"        ) = Right . sum3   $ BookElement ()
+toElementAll (XmlLocalName "license"     ) = Right . sum4   $ LicenseElement ()
+toElementAll (XmlLocalName "mark-end"    ) = Right . sum5   $ MarkEndElement ()
+toElementAll (XmlLocalName "p"           ) = Right . sum6   $ PElement ()
+toElementAll (XmlLocalName "prefix"      ) = Right . sum7   $ PrefixElement ()
 toElementAll (XmlLocalName "suffix"      ) = Right . sum8   $ SuffixElement ()
 toElementAll (XmlLocalName "title"       ) = Right . sum9   $ TitleElement ()
 toElementAll (XmlLocalName "verse-number") = Right . sum10  $ VerseNumberElement ()
