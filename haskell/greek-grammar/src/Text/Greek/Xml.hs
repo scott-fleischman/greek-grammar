@@ -39,16 +39,16 @@ readEvents p = fmap xmlTransform . fmap (p *) . readEventsConduit $ p
 xmlTransform :: X.FilePath * [Maybe X.PositionRange * X.Event]
   -> [ErrorMessage] + [FileReference * XmlEventAll]
 xmlTransform x = return x
-  >>. tx1
-  >>. tx1'
-  >>. tx1a
-  >>. tx1b
-  >>. tx2
-  >>= tx3
-  >>= tx4
-  >>= tx5
-  >>= tx6
-  >>= tx8
+  >>. useXmlTypes
+  >>. nonePositionRange
+  >>. useLineReferenceRange
+  >>. wrapFilePath
+  >>. mapContext
+  >>= removeBeginDocumentData
+  >>= removeBeginDocumentType
+  >>= removeEndDocumentData
+  >>= removeEndDocumentType
+  >>= ensureLineReferenceRange
 
 trimContent :: [a * XmlEventAll] -> [a * XmlEventAll]
 trimContent = foldr trimContentItem []
@@ -157,47 +157,57 @@ toXmlEventExtra (X.EventInstruction i)    = sum9   (toXmlInstruction i)
 toXmlEventExtra (X.EventComment t)        = sum10e (XmlComment t)
 
 
-tx1 :: a * [b * X.Event]
-    -> a * [b * XmlEventExtra]
-tx1 = over (lens2e . each . lens2e) toXmlEventExtra
+useXmlTypes
+  :: a * [b * X.Event]
+  -> a * [b * XmlEventExtra]
+useXmlTypes = over (lens2e . each . lens2e) toXmlEventExtra
 
-tx1' :: a * [  Maybe X.PositionRange  * b]
-     -> a * [(None + X.PositionRange) * b]
-tx1' = over (lens2e . each . lens1) maybeToNone
+nonePositionRange
+  :: a * [  Maybe X.PositionRange  * b]
+  -> a * [(None + X.PositionRange) * b]
+nonePositionRange = over (lens2e . each . lens1) maybeToNone
 
-tx1a :: a * [(None + X.PositionRange   ) * b]
-     -> a * [(None + LineReferenceRange) * b]
-tx1a = over (lens2e . each . lens1 . prism2e) toLineReferenceRange
+useLineReferenceRange
+  :: a * [(None + X.PositionRange   ) * b]
+  -> a * [(None + LineReferenceRange) * b]
+useLineReferenceRange = over (lens2e . each . lens1 . prism2e) toLineReferenceRange
 
-tx1b :: X.FilePath * a
-     ->   FilePath * a
-tx1b = over lens1 FilePath
+wrapFilePath
+  :: X.FilePath * a
+  ->   FilePath * a
+wrapFilePath = over lens1 FilePath
 
-tx2 ::   a * [b  * c]
-    -> [(a *  b) * c]
-tx2 (c, xs) = (shiftLeftProduct . (*) c) <$> xs
+mapContext
+  ::   a * [b  * c]
+  -> [(a *  b) * c]
+mapContext (c, xs) = (shiftLeftProduct . (*) c) <$> xs
 
-tx3 :: Handler e [a * XmlEventExtra] =>
-                 [a * XmlEventExtra]
-    -> [e] +     [a * XmlEventExtra]
-tx3 = removePrefixWith handle (^. lens2e) [sum1 (XmlBeginDocument ())]
+removeBeginDocumentData
+  :: Handler e [a * XmlEventExtra] =>
+               [a * XmlEventExtra]
+  -> [e] +     [a * XmlEventExtra]
+removeBeginDocumentData = removePrefixWith handle (^. lens2e) [sum1 (XmlBeginDocument ())]
 
-tx4 :: Handler e (a * (XmlBeginDocument + XmlEndDocument + XmlEventAll)) =>
-                 [a * (XmlBeginDocument + XmlEndDocument + XmlEventAll)]
-    -> [e] +     [a * (                   XmlEndDocument + XmlEventAll)]
-tx4 = handleMap lens2e tryDrop1
+removeBeginDocumentType
+  :: Handler e (a * (XmlBeginDocument + XmlEndDocument + XmlEventAll)) =>
+               [a * (XmlBeginDocument + XmlEndDocument + XmlEventAll)]
+  -> [e] +     [a * (                   XmlEndDocument + XmlEventAll)]
+removeBeginDocumentType = handleMap lens2e tryDrop1
 
-tx5 :: Handler e [a * (XmlEndDocument + XmlEventAll)] =>
-                 [a * (XmlEndDocument + XmlEventAll)]
-    -> [e] +     [a * (XmlEndDocument + XmlEventAll)]
-tx5 = removeSuffixWith handle (^. lens2e) [sum1 (XmlEndDocument ())]
+removeEndDocumentData
+  :: Handler e [a * (XmlEndDocument + XmlEventAll)] =>
+               [a * (XmlEndDocument + XmlEventAll)]
+  -> [e] +     [a * (XmlEndDocument + XmlEventAll)]
+removeEndDocumentData = removeSuffixWith handle (^. lens2e) [sum1 (XmlEndDocument ())]
 
-tx6 :: Handler e (a * (XmlEndDocument + XmlEventAll)) =>
-                 [a * (XmlEndDocument + XmlEventAll)]
-    -> [e] +     [a * (                 XmlEventAll)]
-tx6 = handleMap lens2e tryDrop1
+removeEndDocumentType
+  :: Handler e (a * (XmlEndDocument + XmlEventAll)) =>
+               [a * (XmlEndDocument + XmlEventAll)]
+  -> [e] +     [a * (                 XmlEventAll)]
+removeEndDocumentType = handleMap lens2e tryDrop1
 
-tx8 :: Handler e ((FilePath * (None + LineReferenceRange)) * a) =>
-                 [(FilePath * (None + LineReferenceRange)) * a]
-    -> [e] +     [(FilePath *         LineReferenceRange ) * a]
-tx8 = handleMap (lens1 . lens2e) tryDrop1
+ensureLineReferenceRange
+  :: Handler e ((FilePath * (None + LineReferenceRange)) * a) =>
+               [(FilePath * (None + LineReferenceRange)) * a]
+  -> [e] +     [(FilePath *         LineReferenceRange ) * a]
+ensureLineReferenceRange = handleMap (lens1 . lens2e) tryDrop1

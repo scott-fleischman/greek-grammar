@@ -66,13 +66,13 @@ tx :: [FileReference * XmlEventAll]
    -> [ErrorMessage] + [FileReference * FinalXmlEvent]
 tx x = return x
   >>. trimContent
-  >>= tx11
+  >>= removeUnusedXmlEvents
   >>. tx16a
   >>= tx16b
   >>. tx17a
   >>= tx17b
-  >>= tx20
-  >>= tx21
+  >>= useBeginElementType
+  >>= useEndElementType
 
 type XmlUnused
   = XmlCDATA
@@ -81,10 +81,11 @@ type XmlUnused
   + XmlInstruction
   + XmlComment
 
-tx11 :: Handler e (a * (b + c + d + XmlUnused)) =>
-                  [a * (b + c + d + XmlUnused)]
-    -> [e] +      [a * (b + c + d            )]
-tx11 = handleMap lens2e tryDrop4e
+removeUnusedXmlEvents
+  :: Handler e (a * (b + c + d + XmlUnused)) =>
+               [a * (b + c + d + XmlUnused)]
+  -> [e] +     [a * (b + c + d            )]
+removeUnusedXmlEvents = handleMap lens2e tryDrop4e
 
 tx16a :: [a * (XmlBeginElement * (XmlLocalName * (None + XmlNamespace) * (None + XmlNamePrefix)) * y + b2)]
       -> [a * (XmlBeginElement * (XmlLocalName * (None + XmlNamespace * XmlNamePrefix))          * y + b2)]
@@ -104,12 +105,14 @@ tx17b :: Handler e (a * (b1 + XmlEndElement * (XmlLocalName * (None + XmlNamespa
       -> [e] +     [a * (b1 + XmlEndElement *  XmlLocalName                                          + b2)]
 tx17b = handleMap (lens2e . prism2 . lens2e) tryDrop2eNone
 
-tx20 :: Handler e (a * (XmlBeginElement * XmlLocalName * as + b2)) =>
-                  [a * (XmlBeginElement * XmlLocalName * as + b2)]
-     -> [e] +     [a * (XmlBeginElement * ElementAll   * as + b2)]
-tx20 = handleMap' (lens2e . prism1 . lens2) toElementAll
+useBeginElementType
+  :: Handler e (a * (XmlBeginElement * XmlLocalName * as + b2)) =>
+               [a * (XmlBeginElement * XmlLocalName * as + b2)]
+  -> [e] +     [a * (XmlBeginElement * ElementAll   * as + b2)]
+useBeginElementType = handleMap' (lens2e . prism1 . lens2) toElementAll
 
-tx21 :: Handler e (a * (b1 + XmlEndElement * XmlLocalName + b3)) =>
-                  [a * (b1 + XmlEndElement * XmlLocalName + b3)]
-     -> [e] +     [a * (b1 + XmlEndElement * ElementAll   + b3)]
-tx21 = handleMap' (lens2e . prism2 . lens2e) toElementAll
+useEndElementType
+  :: Handler e (a * (b1 + XmlEndElement * XmlLocalName + b3)) =>
+               [a * (b1 + XmlEndElement * XmlLocalName + b3)]
+  -> [e] +     [a * (b1 + XmlEndElement * ElementAll   + b3)]
+useEndElementType = handleMap' (lens2e . prism2 . lens2e) toElementAll
