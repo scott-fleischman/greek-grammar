@@ -58,12 +58,12 @@ toElementAll t                             = Left t
 
 
 
-readSblgntEvents :: X.FilePath -> IO ([ErrorMessage] + [FileReference * FinalXmlEvent + Sblgnt * [FileReference * FinalXmlEvent]])
+readSblgntEvents :: X.FilePath -> IO ([ErrorMessage] + [Sblgnt * [FileReference * FinalXmlEvent]])
 readSblgntEvents = fmap (>>= sblgntTransform) . readEvents
 
 sblgntTransform
   :: [FileReference * XmlEventAll]
-  -> [ErrorMessage] + [FileReference * FinalXmlEvent + Sblgnt * [FileReference * FinalXmlEvent]]
+  -> [ErrorMessage] + [Sblgnt * [FileReference * FinalXmlEvent]]
 sblgntTransform x = return x
   >>. trimContent
   >>= removeUnusedXmlEvents
@@ -72,7 +72,7 @@ sblgntTransform x = return x
   >>= useBeginElementType
   >>= useEndElementType
   >>= extractSblgnt
-  -- >>= topLevelSblgnt
+  >>= topLevelSblgnt
 
 type XmlUnused
   = XmlCDATA
