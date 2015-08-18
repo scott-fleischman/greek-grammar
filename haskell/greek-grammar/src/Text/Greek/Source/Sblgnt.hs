@@ -134,7 +134,7 @@ handleSublist
   -> [e] + [a + t * [a]]
 handleSublist f as = case foldr f (SublistOutside []) as of
   SublistError e -> sum1 $ handle e
-  SublistInside (a, (as', _)) -> sum1 $ handle (OnlyBeginElement (a : as'))
+  SublistInside (a, (as', _)) -> sum1 $ handle (OnlyEndElement (a : as'))
   SublistOutside os -> sum2e os
 
 data SublistErrorCase a
@@ -156,14 +156,14 @@ buildSblgntSublist x@(_, event) s
   | Left (XmlBeginElement _, (Left (SblgntElement _), [])) <- event
   = case s of
     e@(SublistError _) -> e
-    SublistOutside os -> SublistInside (x * [] * os)
-    SublistInside (a, (as, _)) -> SublistError $ NestedSublist (x : a : as)
+    SublistOutside _ -> SublistError $ OnlyBeginElement [x]
+    SublistInside (_, (as, os)) -> SublistOutside (sum2e (Sblgnt (), as) : os)
 
   | Right (Left (XmlEndElement _, Left (SblgntElement _))) <- event
   = case s of
     e@(SublistError _) -> e
-    SublistOutside _ -> SublistError $ OnlyEndElement [x]
-    SublistInside (_, (as, os)) -> SublistOutside (sum2e (Sblgnt (), as) : os)
+    SublistOutside os -> SublistInside (x * [] * os)
+    SublistInside (a, (as, _)) -> SublistError $ NestedSublist (x : a : as)
 
   | otherwise
   = case s of

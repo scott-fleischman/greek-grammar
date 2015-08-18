@@ -3,22 +3,13 @@
 
 module Main where
 
-import Prelude ((.), ($), Bool(..), (==), (/=), (&&), Int, (>>=), show)
-import qualified Prelude as Unsafe ((!!))
-import Control.Applicative (pure)
-import Control.Lens hiding ((<.>))
-import Control.Monad (mapM_, Monad(..))
+import Prelude hiding (Word)
 import Data.Default (def)
-import Data.Either (Either(..))
-import Data.Functor (fmap)
-import Data.List (filter, intersperse, concat, length)
-import Data.Text (Text, replace, unpack)
+import Data.List
+import Data.Text (Text)
 import Data.Text.Format (Only(..))
 import Data.Text.Format.Strict (format')
-import Data.Text.IO (putStrLn, writeFile)
 import System.FilePath
-import System.IO (IO)
-import Text.XML (readFile)
 import Text.Greek.Corpus.Bible
 import Text.Greek.Corpus.Bible.Stats
 import Text.Greek.NewTestament.SBL
@@ -26,22 +17,23 @@ import Text.Greek.Paths
 import Text.Greek.Source.Sblgnt
 import Text.Greek.Utility
 import qualified Data.Text as T
+import qualified Data.Text.IO as T
+import qualified Text.XML as X
 
 load :: IO (Either SBLError Bible)
 load = do
-  doc <- readFile def sblgntOsisPath
+  doc <- X.readFile def sblgntOsisPath
   return $ loadOsis doc
 
 report :: (Bible -> [Text]) -> IO ()
-report f = load >>= mapM_ putStrLn . showErrorContinue f
+report f = load >>= mapM_ T.putStrLn . showErrorContinue f
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
   events <- readSblgntEvents sblgntXmlPath
   case events of
-    Left es -> mapM_ (putStrLn . T.pack . show) es
-    Right es -> mapM_ (putStrLn . T.pack . show . length) es
-    -- Right es -> mapM_ (putStrLn . T.pack . show) $ (each . _2 %~ length) . query (^. _2 . _2 . _1) . choose (tryOver _2 only1) $ es
+    Left es -> mapM_ (T.putStrLn . T.pack . show) es
+    Right es -> mapM_ (T.putStrLn . T.pack . show . length) es
 
 main :: IO ()
 main = mainDocumentToXml
@@ -54,25 +46,25 @@ dumpBible = report showResults
 
 -- for working in GHCi
 getBook :: Int -> IO (Book)
-getBook n = load >>= \ (Right bible) -> return . (Unsafe.!! n) . bibleBooks $ bible
+getBook n = load >>= \ (Right bible) -> return . (!! n) . bibleBooks $ bible
 
 dumpWords :: Int -> IO ()
 dumpWords bookIndex = do
   book <- getBook bookIndex
-  mapM_ (\(Word t (Verse v) _) -> putStrLn $ format' "{}\t\t{}" (t, v)) $ segmentsToWords . segments $ book
+  mapM_ (\(Word t (Verse v) _) -> T.putStrLn $ format' "{}\t\t{}" (t, v)) $ segmentsToWords . segments $ book
 
 dumpCharacters :: Int -> IO ()
 dumpCharacters bookIndex = do
   book <- getBook bookIndex
-  mapM_ (\(Character c (Word t _ _) _ _) -> putStrLn $ format' "{} {}" (c, t)) $ wordsToCharacters . segmentsToWords . segments $ book
+  mapM_ (\(Character c (Word t _ _) _ _) -> T.putStrLn $ format' "{} {}" (c, t)) $ wordsToCharacters . segmentsToWords . segments $ book
 
 writeSblgntAgda :: IO ()
 writeSblgntAgda = do
   bibleResult <- load
   case bibleResult of
-    Left _ -> putStrLn "Error"
+    Left _ -> T.putStrLn "Error"
     Right bible -> do
-      writeFile (agdaSblgntPath <.> "agda") (indexAgda bible)
+      T.writeFile (agdaSblgntPath <.> "agda") (indexAgda bible)
       mapM_ writeBookAgda (bibleBooks bible)
 
 indexAgda :: Bible -> Text
@@ -92,7 +84,7 @@ indexAgda bible = format' "module Text.Greek.SBLGNT where\n\
   books = bibleBooks bible
 
 writeBookAgda :: Book -> IO ()
-writeBookAgda book = writeFile (agdaSblgntPath </> unpack (bookId book) <.> "agda") (bookToAgda book)
+writeBookAgda book = T.writeFile (agdaSblgntPath </> T.unpack (bookId book) <.> "agda") (bookToAgda book)
 
 bookToAgda :: Book -> Text
 bookToAgda (Book i t ss) = format' "module Text.Greek.SBLGNT.{} where\n\
@@ -111,13 +103,13 @@ bookToAgda (Book i t ss) = format' "module Text.Greek.SBLGNT.{} where\n\
   agdaBook = agdaBookName t
 
 agdaBookName :: Text -> Text
-agdaBookName b = replace " " "-" b
+agdaBookName b = T.replace " " "-" b
 
 wordToAgda :: Word -> Text
 wordToAgda (Word wt (Verse v) _) = format' "word ({}) \"{}\"" (wordTextToAgda wt, v)
 
 wordTextToAgda :: Text -> Text
-wordTextToAgda wt = format' "{} ∷ []" (Only . concat . intersperse " ∷ " . fmap escapeLambda . fmap pure . filter (\c -> c /= '’' && c /= '᾽') $ (unpack wt))
+wordTextToAgda wt = format' "{} ∷ []" (Only . concat . intersperse " ∷ " . fmap escapeLambda . fmap pure . filter (\c -> c /= '’' && c /= '᾽') $ (T.unpack wt))
   where
     escapeLambda c = case c == "λ" of
       True -> "∙λ"
