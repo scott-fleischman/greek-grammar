@@ -116,15 +116,15 @@ newtype Sblgnt = Sblgnt () deriving (Eq, Ord, Show)
 
 extractSblgnt
   :: Handler e (SublistErrorCase [a * FinalXmlEvent])
-  => [a * FinalXmlEvent]
+  =>       [a * FinalXmlEvent]
   -> [e] + [a * FinalXmlEvent + Sblgnt * [a * FinalXmlEvent]]
 extractSblgnt = handleSublist buildSblgntSublist
 
 topLevelSblgnt
   :: Handler e (a * FinalXmlEvent + Sblgnt * [a * FinalXmlEvent])
-  => [a * FinalXmlEvent + Sblgnt * [a * FinalXmlEvent]]
-  -> [e] + [Sblgnt * [a * FinalXmlEvent]]
-topLevelSblgnt = handleMap (lens id (flip const)) tryDrop1
+  =>           [a * FinalXmlEvent + Sblgnt * [a * FinalXmlEvent]]
+  -> [e] +     [                    Sblgnt * [a * FinalXmlEvent]]
+topLevelSblgnt = handleMap id tryDrop1
 
 
 handleSublist
