@@ -118,7 +118,7 @@ extractSblgnt
   :: Handler e (SublistError [a * FinalXmlEvent])
   =>       [a * FinalXmlEvent]
   -> [e] + [a * FinalXmlEvent + Sblgnt * [a * FinalXmlEvent]]
-extractSblgnt = handleSublist buildSblgntSublist
+extractSblgnt = handleSublist (buildSublist (^? lens2e . prism1 . lens2 . prism1) (^? lens2e . prism2 . lens2e . prism1) (Sblgnt ()))
 
 topLevelSblgnt
   :: Handler e (a * FinalXmlEvent + Sblgnt * [a * FinalXmlEvent])
@@ -147,12 +147,6 @@ data SublistState a t
   = SublistStateError (SublistError [a])
   | SublistStateInside (a * [a] * [a + t * [a]])
   | SublistStateOutside [a + t * [a]]
-
-buildSblgntSublist
-  :: a * FinalXmlEvent
-  -> SublistState (a * FinalXmlEvent) Sblgnt
-  -> SublistState (a * FinalXmlEvent) Sblgnt
-buildSblgntSublist = buildSublist (^? lens2e . prism1 . lens2 . prism1) (^? lens2e . prism2 . lens2e . prism1) (Sblgnt ())
 
 buildSublist
   :: (s -> Maybe a)
