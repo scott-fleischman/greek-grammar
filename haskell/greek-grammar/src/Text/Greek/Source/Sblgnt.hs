@@ -152,14 +152,23 @@ buildSblgntSublist
   :: a * FinalXmlEvent
   -> SublistState (a * FinalXmlEvent) Sblgnt
   -> SublistState (a * FinalXmlEvent) Sblgnt
-buildSblgntSublist x@(_, event) s
-  | Left (XmlBeginElement _, (Left (SblgntElement _), [])) <- event
+buildSblgntSublist = buildSublist (^? lens2e . prism1 . lens2 . prism1) (^? lens2e . prism2 . lens2e . prism1) (Sblgnt ())
+
+buildSublist
+  :: (s -> Maybe a)
+  -> (s -> Maybe b)
+  -> t
+  -> s
+  -> SublistState s t
+  -> SublistState s t
+buildSublist getBegin getEnd t x s
+  | Just _ <- getBegin x
   = case s of
     e@(SublistStateError _) -> e
     SublistStateOutside _ -> SublistStateError $ OnlyBeginElement [x]
-    SublistStateInside (_, (as, os)) -> SublistStateOutside (sum2e (Sblgnt (), as) : os)
+    SublistStateInside (_, (as, os)) -> SublistStateOutside (sum2e (t, as) : os)
 
-  | Right (Left (XmlEndElement _, Left (SblgntElement _))) <- event
+  | Just _ <- getEnd x
   = case s of
     e@(SublistStateError _) -> e
     SublistStateOutside os -> SublistStateInside (x * [] * os)
