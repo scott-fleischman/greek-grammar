@@ -77,6 +77,13 @@ trimContentItem x xs
   , T.all isSpace t
   = x : x2 : xs'
 
+  | x1 : x2 : xs' <- xs
+  , Just (XmlEndElement _, _)   <- x  ^? lens2e . prism2
+  , Just (XmlContentText t)     <- x1 ^? lens2e . prism3 . prism1
+  , Just (XmlBeginElement _, _) <- x2 ^? lens2e . prism1
+  , T.all isSpace t
+  = x : x2 : xs'
+
   | otherwise
   = x : xs
 
