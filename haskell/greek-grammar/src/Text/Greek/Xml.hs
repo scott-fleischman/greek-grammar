@@ -63,23 +63,17 @@ trimContent = foldr trimContentItem []
 
 trimContentItem :: (a * XmlEventAll) -> [a * XmlEventAll] -> [a * XmlEventAll]
 trimContentItem x xs
-  | (_, b) <- x
-  , x1 : x2 : xs' <- xs
-  , (_, c) <- x1
-  , (_, b2) <- x2
-  , Left (XmlBeginElement _, _) <- b
-  , Right (Right (Left (Left (XmlContentText t)))) <- c
-  , Left (XmlBeginElement _, _) <- b2
+  | x1 : x2 : xs' <- xs
+  , Just (XmlBeginElement _, _) <- x  ^? lens2e . prism1
+  , Just (XmlContentText t)     <- x1 ^? lens2e . prism3 . prism1
+  , Just (XmlBeginElement _, _) <- x2 ^? lens2e . prism1
   , T.all isSpace t
   = x : x2 : xs'
 
-  | (_, e) <- x
-  , x1 : x2 : xs' <- xs
-  , (_, c) <- x1
-  , (_, e2) <- x2
-  , Right (Left (XmlEndElement _, _)) <- e
-  , Right (Right (Left (Left (XmlContentText t)))) <- c
-  , Right (Left (XmlEndElement _, _)) <- e2
+  | x1 : x2 : xs' <- xs
+  , Just (XmlEndElement _, _) <- x  ^? lens2e . prism2
+  , Just (XmlContentText t)   <- x1 ^? lens2e . prism3 . prism1
+  , Just (XmlEndElement _, _) <- x2 ^? lens2e . prism2
   , T.all isSpace t
   = x : x2 : xs'
 
