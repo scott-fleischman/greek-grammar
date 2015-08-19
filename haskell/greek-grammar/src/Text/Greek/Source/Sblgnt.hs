@@ -115,7 +115,7 @@ useEndElementType = handleMap' (lens2e . prism2 . lens2e) toElementAll
 newtype Sblgnt = Sblgnt () deriving (Eq, Ord, Show)
 
 extractSblgnt
-  :: Handler e (SublistErrorCase [a * FinalXmlEvent])
+  :: Handler e (SublistError [a * FinalXmlEvent])
   =>       [a * FinalXmlEvent]
   -> [e] + [a * FinalXmlEvent + Sblgnt * [a * FinalXmlEvent]]
 extractSblgnt = handleSublist buildSblgntSublist
@@ -128,45 +128,45 @@ topLevelSblgnt = handleMap id tryDrop1
 
 
 handleSublist
-  :: Handler e (SublistErrorCase [a])
-  => (a -> Sublist a t -> Sublist a t)
+  :: Handler e (SublistError [a])
+  => (a -> SublistState a t -> SublistState a t)
   -> [a]
   -> [e] + [a + t * [a]]
-handleSublist f as = case foldr f (SublistOutside []) as of
-  SublistError e -> sum1 $ handle e
-  SublistInside (a, (as', _)) -> sum1 $ handle (OnlyEndElement (a : as'))
-  SublistOutside os -> sum2e os
+handleSublist f as = case foldr f (SublistStateOutside []) as of
+  SublistStateError e -> sum1 $ handle e
+  SublistStateInside (a, (as', _)) -> sum1 $ handle (OnlyEndElement (a : as'))
+  SublistStateOutside os -> sum2e os
 
-data SublistErrorCase a
+data SublistError a
   = NestedSublist a
   | OnlyEndElement a
   | OnlyBeginElement a
   deriving (Show)
 
-data Sublist a t
-  = SublistError (SublistErrorCase [a])
-  | SublistInside (a * [a] * [a + t * [a]])
-  | SublistOutside [a + t * [a]]
+data SublistState a t
+  = SublistStateError (SublistError [a])
+  | SublistStateInside (a * [a] * [a + t * [a]])
+  | SublistStateOutside [a + t * [a]]
 
 buildSblgntSublist
   :: a * FinalXmlEvent
-  -> Sublist (a * FinalXmlEvent) Sblgnt
-  -> Sublist (a * FinalXmlEvent) Sblgnt
+  -> SublistState (a * FinalXmlEvent) Sblgnt
+  -> SublistState (a * FinalXmlEvent) Sblgnt
 buildSblgntSublist x@(_, event) s
   | Left (XmlBeginElement _, (Left (SblgntElement _), [])) <- event
   = case s of
-    e@(SublistError _) -> e
-    SublistOutside _ -> SublistError $ OnlyBeginElement [x]
-    SublistInside (_, (as, os)) -> SublistOutside (sum2e (Sblgnt (), as) : os)
+    e@(SublistStateError _) -> e
+    SublistStateOutside _ -> SublistStateError $ OnlyBeginElement [x]
+    SublistStateInside (_, (as, os)) -> SublistStateOutside (sum2e (Sblgnt (), as) : os)
 
   | Right (Left (XmlEndElement _, Left (SblgntElement _))) <- event
   = case s of
-    e@(SublistError _) -> e
-    SublistOutside os -> SublistInside (x * [] * os)
-    SublistInside (a, (as, _)) -> SublistError $ NestedSublist (x : a : as)
+    e@(SublistStateError _) -> e
+    SublistStateOutside os -> SublistStateInside (x * [] * os)
+    SublistStateInside (a, (as, _)) -> SublistStateError $ NestedSublist (x : a : as)
 
   | otherwise
   = case s of
-    e@(SublistError _) -> e
-    SublistInside i -> SublistInside (over lens2 (x :) i)
-    SublistOutside os -> SublistOutside (sum1 x : os)
+    e@(SublistStateError _) -> e
+    SublistStateInside i -> SublistStateInside (over lens2 (x :) i)
+    SublistStateOutside os -> SublistStateOutside (sum1 x : os)
