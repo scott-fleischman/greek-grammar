@@ -6,12 +6,26 @@
 
 module Text.Greek.Source.Sblgnt where
 
-import Prelude hiding ((*), (+), log, FilePath)
+import Prelude hiding ((*), (+))
 import Control.Lens
 import Text.Greek.Utility
 import Text.Greek.Xml
-import qualified Prelude as X (FilePath)
+import qualified Data.XML.Types as X
+-- import qualified Prelude as X (FilePath)
 
+
+readSblgntEvents :: FilePath -> IO ([XmlError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes])
+readSblgntEvents = fmap (>>= sblgntTransform) . readEvents
+
+sblgntTransform
+  :: [FileReference * X.Event]
+  -> [XmlError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes]
+sblgntTransform x = return x
+  >>. dropComments
+  >>. trimContent _2
+  >>= toBasicEvents
+
+{-
 type FinalXmlEvent
   = XmlBeginElement * ElementAll * XmlAttributes
   + XmlEndElement * ElementAll
@@ -173,3 +187,4 @@ buildSublist getBegin getEnd t x s
     e@(SublistStateError _) -> e
     SublistStateInside i -> SublistStateInside (over lens2 (x :) i)
     SublistStateOutside os -> SublistStateOutside (sum1 x : os)
+-}

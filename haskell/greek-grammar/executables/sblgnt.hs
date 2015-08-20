@@ -33,7 +33,7 @@ mainDocumentToXml = do
   events <- readSblgntEvents sblgntXmlPath
   case events of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
-    Right es -> mapM_ (T.putStrLn . T.pack . show . length) es
+    Right es -> (T.putStrLn . T.pack . show . length) es
 
 main :: IO ()
 main = mainDocumentToXml
