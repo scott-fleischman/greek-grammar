@@ -25,6 +25,7 @@ sblgntTransform x = return x
   >>. trimContent _2
   >>= toBasicEvents
 
+
 {-
 type FinalXmlEvent
   = XmlBeginElement * ElementAll * XmlAttributes

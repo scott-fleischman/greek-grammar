@@ -77,7 +77,6 @@ data BasicEvent e c a
   | BasicEventEndElement e
   | BasicEventContent c
   deriving (Show)
-makeLenses ''BasicEvent
 makePrisms ''BasicEvent
 
 toBasicEvent :: X.Event -> X.Event + BasicEvent X.Name X.Content XmlAttributes

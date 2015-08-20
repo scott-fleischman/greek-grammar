@@ -4,6 +4,7 @@
 module Main where
 
 import Prelude hiding (Word)
+import Control.Lens hiding ((<.>))
 import Data.Default (def)
 import Data.List
 import Data.Text (Text)
@@ -16,6 +17,7 @@ import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
 import Text.Greek.Source.Sblgnt
 import Text.Greek.Utility
+import Text.Greek.Xml
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Text.XML as X
@@ -33,7 +35,7 @@ mainDocumentToXml = do
   events <- readSblgntEvents sblgntXmlPath
   case events of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
-    Right es -> (T.putStrLn . T.pack . show . length) es
+    Right es -> mapM_ (T.putStrLn . T.pack . show) . over (each . _2) length . query (^. _1) . choose' (^? _2 . _BasicEventBeginElement) $ es
 
 main :: IO ()
 main = mainDocumentToXml

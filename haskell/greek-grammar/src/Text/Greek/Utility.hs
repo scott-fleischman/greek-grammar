@@ -23,6 +23,10 @@ type a * b = (a, b)
 (>>.) = flip fmap
 infixl 1 >>.
 
+maybeToEither :: a -> Maybe b -> a + b
+maybeToEither a Nothing = Left a
+maybeToEither _ (Just b) = Right b
+
 addSplit :: a + b -> [a] + [b] -> [a] + [b]
 addSplit (Left  a)   (Left  as') = Left (a : as')
 addSplit (Left  a)   (Right _  ) = Left [a]
@@ -79,6 +83,9 @@ choose f = foldr g [] where
     Left _  -> bs
     Right b -> b : bs
 
+choose' :: forall a b. (a -> Maybe b) -> [a] -> [b]
+choose' f = choose (maybeToEither () . f)
+
 
 {-
 
@@ -91,10 +98,6 @@ infixr 7 *
 newtype None = None () deriving (Eq, Ord, Show)
 maybeToNone :: Maybe a -> None + a
 maybeToNone = maybeToEither (None ())
-
-maybeToEither :: a -> Maybe b -> a + b
-maybeToEither a Nothing = Left a
-maybeToEither _ (Just b) = Right b
 
 
 sum1 :: a1 -> a1 + a2
