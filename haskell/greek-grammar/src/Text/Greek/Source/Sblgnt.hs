@@ -14,16 +14,17 @@ import qualified Data.XML.Types as X
 -- import qualified Prelude as X (FilePath)
 
 
-readSblgntEvents :: FilePath -> IO ([XmlError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes])
+readSblgntEvents :: FilePath -> IO ([XmlError] + [FileReference * BasicEvent XmlLocalName X.Content XmlAttributes])
 readSblgntEvents = fmap (>>= sblgntTransform) . readEvents
 
 sblgntTransform
   :: [FileReference * X.Event]
-  -> [XmlError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes]
+  -> [XmlError] + [FileReference * BasicEvent XmlLocalName X.Content XmlAttributes]
 sblgntTransform x = return x
   >>. dropComments
   >>. trimContent _2
   >>= toBasicEvents
+  >>= splitMap (_2 tryDropEventElementNamespace)
 
 
 {-

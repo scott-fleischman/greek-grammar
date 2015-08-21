@@ -9,7 +9,7 @@ import Prelude hiding ((*), (+))
 import Conduit
 import Control.Lens
 import Data.Char
--- import Data.Text (Text)
+import Data.Text (Text)
 import Text.Greek.Utility
 import qualified Data.Conduit.Attoparsec as X
 import qualified Data.Text as T
@@ -29,6 +29,7 @@ data XmlError
   | XmlErrorExpectedEndDocument (Maybe X.PositionRange, X.Event)
   | XmlErrorUnexpectedEmptyPositionRange (Maybe X.PositionRange, X.Event)
   | XmlErrorNonBasicEvent FileReference X.Event
+  | XmlErrorUnexpectedNamespace X.Name
   deriving (Show)
 
 data LineReference = LineReference
@@ -72,12 +73,13 @@ dropComments :: [FileReference * X.Event] -> [FileReference * X.Event]
 dropComments = foldr dropComment []
 
 type XmlAttributes = [X.Name * [X.Content]]
-data BasicEvent e c a
-  = BasicEventBeginElement e a
-  | BasicEventEndElement e
+type BasicEvent e c a = BasicEventFull e e c a
+data BasicEventFull be ee c a
+  = BasicEventBeginElement be a
+  | BasicEventEndElement ee
   | BasicEventContent c
   deriving (Show)
-makePrisms ''BasicEvent
+makePrisms ''BasicEventFull
 
 toBasicEvent :: X.Event -> X.Event + BasicEvent X.Name X.Content XmlAttributes
 toBasicEvent (X.EventBeginElement n as) = Right (BasicEventBeginElement n as)
@@ -128,6 +130,16 @@ trimContentItem g x xs
   | otherwise
   = x : xs
 
+newtype XmlLocalName = XmlLocalName Text deriving (Eq, Ord, Show)
+
+tryDropNamespace :: X.Name -> XmlError + XmlLocalName
+tryDropNamespace (X.Name localName Nothing Nothing) = Right $ XmlLocalName localName
+tryDropNamespace n = Left $ XmlErrorUnexpectedNamespace n
+
+tryDropEventElementNamespace :: BasicEvent X.Name c a -> XmlError + BasicEvent XmlLocalName c a
+tryDropEventElementNamespace x
+  = (_BasicEventBeginElement . _1) tryDropNamespace x
+  >>= _BasicEventEndElement tryDropNamespace
 
 {-
 
