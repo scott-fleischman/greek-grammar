@@ -14,23 +14,26 @@ import qualified Data.XML.Types as X
 -- import qualified Prelude as X (FilePath)
 
 
-readSblgntEvents :: FilePath -> IO ([XmlError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes])
-readSblgntEvents = fmap (>>= sblgntTransform) . readEvents
+readSblgntEvents :: FilePath -> IO ([SblgntError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes])
+readSblgntEvents = fmap sblgntTransform . readEvents
 
 sblgntTransform
-  :: [FileReference * X.Event]
-  -> [XmlError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes]
-sblgntTransform x = return x
+  :: [XmlInternalError] + [FileReference * X.Event]
+  -> [SblgntError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes]
+sblgntTransform x
+  =   applyError SblgntErrorXmlInternal x
   >>. dropComments
   >>. trimContent _2
-  >>= toBasicEvents
+  >>= applyError SblgntErrorXml . toBasicEvents
   -- >>= splitMap tryDropEventElementNamespace
   -- >>= splitMap ((_2 . _BasicEventBeginElement . _1) toElementAll)
   -- >>= splitMap ((_2 . _BasicEventEndElement) toElementAll)
 
 data SblgntError
-  = SblgntErrorXml XmlError
+  = SblgntErrorXmlInternal XmlInternalError
+  | SblgntErrorXml (XmlError FileReference)
   | SblgntErrorUnexpectedElementName FileReference XmlLocalName
+  deriving (Show)
 
 data ElementAll
   = ElementAllSblgnt

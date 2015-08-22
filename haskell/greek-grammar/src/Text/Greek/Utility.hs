@@ -87,6 +87,9 @@ choose' :: forall a b. (a -> Maybe b) -> [a] -> [b]
 choose' f = choose (maybeToEither () . f)
 
 
+applyError :: Each a0 b0 a1 b1 => (a1 -> b1) -> a0 + c -> b0 + c
+applyError = over (_Left . each)
+
 {-
 
 type a * b = (a, b)

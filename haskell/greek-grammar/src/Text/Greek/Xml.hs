@@ -30,13 +30,16 @@ newtype Path = Path { getPath :: FilePath } deriving (Eq, Ord, Show)
 readEventsConduit :: FilePath -> IO [Maybe X.PositionRange * X.Event]
 readEventsConduit p = runResourceT $ sourceFile p =$= X.parseBytesPos X.def $$ sinkList
 
-data XmlError
-  = XmlErrorEmptyEvents
-  | XmlErrorExpectedBeginDocument (Maybe X.PositionRange, X.Event)
-  | XmlErrorExpectedEndDocument (Maybe X.PositionRange, X.Event)
-  | XmlErrorUnexpectedEmptyPositionRange (Maybe X.PositionRange, X.Event)
-  | XmlErrorNonBasicEvent FileReference X.Event
-  | XmlErrorUnexpectedNamespace FileReference X.Name
+data XmlInternalError
+  = XmlInternalErrorEmptyEvents
+  | XmlInternalErrorExpectedBeginDocument (Maybe X.PositionRange, X.Event)
+  | XmlInternalErrorExpectedEndDocument (Maybe X.PositionRange, X.Event)
+  | XmlInternalErrorUnexpectedEmptyPositionRange (Maybe X.PositionRange, X.Event)
+  deriving (Show)
+
+data XmlError c
+  = XmlErrorNonBasicEvent c X.Event
+  | XmlErrorUnexpectedNamespace c X.Name
   deriving (Show)
 
 data LineReference = LineReference
@@ -53,23 +56,23 @@ toFileReference :: FilePath -> X.PositionRange -> FileReference
 toFileReference p (X.PositionRange (X.Position startLine startColumn) (X.Position endLine endColumn))
   = FileReference (Path p) (LineReference (Line startLine) (Column startColumn)) (LineReference (Line endLine) (Column endColumn))
 
-tryDropBeginDocument :: [Maybe X.PositionRange * X.Event] -> [XmlError] + [Maybe X.PositionRange * X.Event]
-tryDropBeginDocument [] = Left [XmlErrorEmptyEvents]
+tryDropBeginDocument :: [Maybe X.PositionRange * X.Event] -> [XmlInternalError] + [Maybe X.PositionRange * X.Event]
+tryDropBeginDocument [] = Left [XmlInternalErrorEmptyEvents]
 tryDropBeginDocument (x : xs) = case x of
   (_, X.EventBeginDocument) -> Right xs
-  _ -> Left . pure $ XmlErrorExpectedBeginDocument x
+  _ -> Left . pure $ XmlInternalErrorExpectedBeginDocument x
 
-tryDropEndDocument :: [Maybe X.PositionRange * X.Event] -> [XmlError] + [Maybe X.PositionRange * X.Event]
-tryDropEndDocument [] = Left [XmlErrorEmptyEvents]
+tryDropEndDocument :: [Maybe X.PositionRange * X.Event] -> [XmlInternalError] + [Maybe X.PositionRange * X.Event]
+tryDropEndDocument [] = Left [XmlInternalErrorEmptyEvents]
 tryDropEndDocument (x : xs) = case x of
   (_, X.EventEndDocument) -> Right xs
-  _ -> Left . pure $ XmlErrorExpectedEndDocument x
+  _ -> Left . pure $ XmlInternalErrorExpectedEndDocument x
 
-tryConvertPosition :: FilePath -> Maybe X.PositionRange * X.Event -> XmlError + (FileReference * X.Event)
+tryConvertPosition :: FilePath -> Maybe X.PositionRange * X.Event -> XmlInternalError + (FileReference * X.Event)
 tryConvertPosition p (Just r, e) = Right (toFileReference p r, e)
-tryConvertPosition _ x = Left $ XmlErrorUnexpectedEmptyPositionRange x
+tryConvertPosition _ x = Left $ XmlInternalErrorUnexpectedEmptyPositionRange x
 
-tryConvertPositions :: FilePath -> [Maybe X.PositionRange * X.Event] -> [XmlError] + [FileReference * X.Event]
+tryConvertPositions :: FilePath -> [Maybe X.PositionRange * X.Event] -> [XmlInternalError] + [FileReference * X.Event]
 tryConvertPositions p = splitMap (tryConvertPosition p)
 
 dropComment :: (FileReference * X.Event) -> [FileReference * X.Event] -> [FileReference * X.Event]
@@ -94,13 +97,13 @@ toBasicEvent (X.EventEndElement n) = Right (BasicEventEndElement n)
 toBasicEvent (X.EventContent c) = Right (BasicEventContent c)
 toBasicEvent x = Left x
 
-toBasicEvents :: [FileReference * X.Event] -> [XmlError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes]
+toBasicEvents :: [c * X.Event] -> [XmlError c] + [c * BasicEvent X.Name X.Content XmlAttributes]
 toBasicEvents = splitMap (tryOver _2 toBasicEvent XmlErrorNonBasicEvent _1)
 
-readEvents :: FilePath -> IO ([XmlError] + [FileReference * X.Event])
+readEvents :: FilePath -> IO ([XmlInternalError] + [FileReference * X.Event])
 readEvents p = fmap (initialTransform p) . readEventsConduit $ p
 
-initialTransform :: FilePath -> [Maybe X.PositionRange * X.Event] -> [XmlError] + [FileReference * X.Event]
+initialTransform :: FilePath -> [Maybe X.PositionRange * X.Event] -> [XmlInternalError] + [FileReference * X.Event]
 initialTransform p x = return x
   >>= tryDropBeginDocument
   >>. reverse
@@ -139,11 +142,11 @@ trimContentItem g x xs
 
 newtype XmlLocalName = XmlLocalName Text deriving (Eq, Ord, Show)
 
-tryDropNamespace :: FileReference -> X.Name -> XmlError + XmlLocalName
+tryDropNamespace :: r -> X.Name -> XmlError r + XmlLocalName
 tryDropNamespace _ (X.Name localName Nothing Nothing) = Right $ XmlLocalName localName
 tryDropNamespace r n = Left $ XmlErrorUnexpectedNamespace r n
 
-tryDropEventElementNamespace :: FileReference * (BasicEvent X.Name c a) -> XmlError + (FileReference * (BasicEvent XmlLocalName c a))
+tryDropEventElementNamespace :: r * (BasicEvent X.Name c a) -> XmlError r + (r * (BasicEvent XmlLocalName c a))
 tryDropEventElementNamespace x
   = (_2 . _BasicEventBeginElement . _1) d x
   >>= (_2 . _BasicEventEndElement) d
