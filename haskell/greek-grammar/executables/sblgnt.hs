@@ -35,7 +35,7 @@ mainDocumentToXml = do
   events <- readSblgntEvents sblgntXmlPath
   case events of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
-    Right es -> mapM_ (T.putStrLn . T.pack . show) . over (each . _2) length . query (^. _1) . choose' (^? _2 . _BasicEventBeginElement) $ es
+    Right es -> mapM_ (T.putStrLn . T.pack . show) . over (each . _2) length . query (\x -> (x ^. _1, x ^.. _2 . each . _1)) . choose' (^? _2 . _BasicEventBeginElement) $ es
 
 main :: IO ()
 main = mainDocumentToXml

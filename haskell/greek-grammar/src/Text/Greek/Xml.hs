@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Text.Greek.Xml where
 
@@ -16,6 +17,12 @@ import qualified Data.Text as T
 import qualified Data.XML.Types as X
 import qualified Text.XML.Stream.Parse as X
 
+xmlNamespace :: Text
+xmlNamespace = "http://www.w3.org/XML/1998/namespace"
+
+xmlNamespacePrefix :: Text
+xmlNamespacePrefix = "xml"
+
 newtype Line = Line { getLine :: Int } deriving (Eq, Ord, Show)
 newtype Column = Column { getColumn :: Int } deriving (Eq, Ord, Show)
 newtype Path = Path { getPath :: FilePath } deriving (Eq, Ord, Show)
@@ -29,7 +36,7 @@ data XmlError
   | XmlErrorExpectedEndDocument (Maybe X.PositionRange, X.Event)
   | XmlErrorUnexpectedEmptyPositionRange (Maybe X.PositionRange, X.Event)
   | XmlErrorNonBasicEvent FileReference X.Event
-  | XmlErrorUnexpectedNamespace X.Name
+  | XmlErrorUnexpectedNamespace FileReference X.Name
   deriving (Show)
 
 data LineReference = LineReference
@@ -132,14 +139,15 @@ trimContentItem g x xs
 
 newtype XmlLocalName = XmlLocalName Text deriving (Eq, Ord, Show)
 
-tryDropNamespace :: X.Name -> XmlError + XmlLocalName
-tryDropNamespace (X.Name localName Nothing Nothing) = Right $ XmlLocalName localName
-tryDropNamespace n = Left $ XmlErrorUnexpectedNamespace n
+tryDropNamespace :: FileReference -> X.Name -> XmlError + XmlLocalName
+tryDropNamespace _ (X.Name localName Nothing Nothing) = Right $ XmlLocalName localName
+tryDropNamespace r n = Left $ XmlErrorUnexpectedNamespace r n
 
-tryDropEventElementNamespace :: BasicEvent X.Name c a -> XmlError + BasicEvent XmlLocalName c a
+tryDropEventElementNamespace :: FileReference * (BasicEvent X.Name c a) -> XmlError + (FileReference * (BasicEvent XmlLocalName c a))
 tryDropEventElementNamespace x
-  = (_BasicEventBeginElement . _1) tryDropNamespace x
-  >>= _BasicEventEndElement tryDropNamespace
+  = (_2 . _BasicEventBeginElement . _1) d x
+  >>= (_2 . _BasicEventEndElement) d
+    where d = tryDropNamespace (x ^. _1)
 
 {-
 

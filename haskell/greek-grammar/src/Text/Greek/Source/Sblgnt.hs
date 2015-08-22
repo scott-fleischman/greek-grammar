@@ -14,18 +14,51 @@ import qualified Data.XML.Types as X
 -- import qualified Prelude as X (FilePath)
 
 
-readSblgntEvents :: FilePath -> IO ([XmlError] + [FileReference * BasicEvent XmlLocalName X.Content XmlAttributes])
+readSblgntEvents :: FilePath -> IO ([XmlError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes])
 readSblgntEvents = fmap (>>= sblgntTransform) . readEvents
 
 sblgntTransform
   :: [FileReference * X.Event]
-  -> [XmlError] + [FileReference * BasicEvent XmlLocalName X.Content XmlAttributes]
+  -> [XmlError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes]
 sblgntTransform x = return x
   >>. dropComments
   >>. trimContent _2
   >>= toBasicEvents
-  >>= splitMap (_2 tryDropEventElementNamespace)
+  -- >>= splitMap tryDropEventElementNamespace
+  -- >>= splitMap ((_2 . _BasicEventBeginElement . _1) toElementAll)
+  -- >>= splitMap ((_2 . _BasicEventEndElement) toElementAll)
 
+data SblgntError
+  = SblgntErrorXml XmlError
+  | SblgntErrorUnexpectedElementName FileReference XmlLocalName
+
+data ElementAll
+  = ElementAllSblgnt
+  | ElementAllA
+  | ElementAllBook
+  | ElementAllLicense
+  | ElementAllMarkEnd
+  | ElementAllP
+  | ElementAllPrefix
+  | ElementAllSuffix
+  | ElementAllTitle
+  | ElementAllVerseNumber
+  | ElementAllW
+  deriving (Eq, Ord, Show)
+
+toElementAll :: XmlLocalName -> XmlLocalName + ElementAll
+toElementAll (XmlLocalName "sblgnt"      ) = Right ElementAllSblgnt
+toElementAll (XmlLocalName "a"           ) = Right ElementAllA
+toElementAll (XmlLocalName "book"        ) = Right ElementAllBook
+toElementAll (XmlLocalName "license"     ) = Right ElementAllLicense
+toElementAll (XmlLocalName "mark-end"    ) = Right ElementAllMarkEnd
+toElementAll (XmlLocalName "p"           ) = Right ElementAllP
+toElementAll (XmlLocalName "prefix"      ) = Right ElementAllPrefix
+toElementAll (XmlLocalName "suffix"      ) = Right ElementAllSuffix
+toElementAll (XmlLocalName "title"       ) = Right ElementAllTitle
+toElementAll (XmlLocalName "verse-number") = Right ElementAllVerseNumber
+toElementAll (XmlLocalName "w"           ) = Right ElementAllW
+toElementAll t                             = Left t
 
 {-
 type FinalXmlEvent
