@@ -50,6 +50,13 @@ tryOver l f e g x = over _Left handleError basicTraverse
     handleError = e (view g x)
     basicTraverse = l f x
 
+tryOverAll
+  :: LensLike (Either e') s t a b -> (a -> e' + b)
+  -> (c -> e' -> e) -> Getter s c
+  -> [s]
+  -> [e] + [t]
+tryOverAll l f e g = splitMap (tryOver l f e g)
+
 
 consValue :: Ord b => a -> b -> Map b [a] -> Map b [a]
 consValue a b m = case M.lookup b m of

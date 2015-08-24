@@ -142,15 +142,25 @@ trimContentItem g x xs
 
 newtype XmlLocalName = XmlLocalName Text deriving (Eq, Ord, Show)
 
-tryDropNamespace :: r -> X.Name -> XmlError r + XmlLocalName
-tryDropNamespace _ (X.Name localName Nothing Nothing) = Right $ XmlLocalName localName
-tryDropNamespace r n = Left $ XmlErrorUnexpectedNamespace r n
+tryDropNamespace :: X.Name -> X.Name + XmlLocalName
+tryDropNamespace (X.Name n Nothing Nothing) = Right $ XmlLocalName n
+tryDropNamespace n = Left $ n
 
-tryDropEventElementNamespace :: r * (BasicEvent X.Name c a) -> XmlError r + (r * (BasicEvent XmlLocalName c a))
-tryDropEventElementNamespace x
-  = (_2 . _BasicEventBeginElement . _1) d x
-  >>= (_2 . _BasicEventEndElement) d
-    where d = tryDropNamespace (x ^. _1)
+-- tryDropNamespace :: Getter s c -> Lens s t X.Name XmlLocalName -> s -> XmlError c + t
+-- tryDropNamespace g l s = case namespace of
+--   Nothing -> Right $ set l (XmlLocalName localName) s
+--   Just _  -> Left  $ XmlErrorUnexpectedNamespace (view g s) name
+--   where
+--     name@(X.Name localName namespace _) = s ^. l
+
+-- tryDropEventElementNamespace
+--   :: LensLike (Either X.Name) s t (BasicEventFull be ee c a) (BasicEventFull be' ee' c a)
+--   -> Getter s ctx
+--   -> s
+--   -> XmlError ctx + t
+-- tryDropEventElementNamespace l1 l2 c1 c2 x
+--   =   tryOver (l1 . _BasicEventBeginElement . _1) tryDropNamespace XmlErrorUnexpectedNamespace c1 x
+--   >>= tryOver (l2 . _BasicEventEndElement) tryDropNamespace XmlErrorUnexpectedNamespace c2
 
 {-
 

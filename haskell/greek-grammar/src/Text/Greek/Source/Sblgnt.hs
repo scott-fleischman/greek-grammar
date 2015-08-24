@@ -11,23 +11,23 @@ import Control.Lens
 import Text.Greek.Utility
 import Text.Greek.Xml
 import qualified Data.XML.Types as X
--- import qualified Prelude as X (FilePath)
 
 
-readSblgntEvents :: FilePath -> IO ([SblgntError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes])
+readSblgntEvents :: FilePath -> IO ([SblgntError] + [FileReference * BasicEvent ElementAll X.Content XmlAttributes])
 readSblgntEvents = fmap sblgntTransform . readEvents
 
 sblgntTransform
   :: [XmlInternalError] + [FileReference * X.Event]
-  -> [SblgntError] + [FileReference * BasicEvent X.Name X.Content XmlAttributes]
+  -> [SblgntError] + [FileReference * BasicEvent ElementAll X.Content XmlAttributes]
 sblgntTransform x
   =   applyError SblgntErrorXmlInternal x
   >>. dropComments
   >>. trimContent _2
   >>= applyError SblgntErrorXml . toBasicEvents
-  -- >>= splitMap tryDropEventElementNamespace
-  -- >>= splitMap ((_2 . _BasicEventBeginElement . _1) toElementAll)
-  -- >>= splitMap ((_2 . _BasicEventEndElement) toElementAll)
+  >>= applyError SblgntErrorXml . tryOverAll (_2 . _BasicEventBeginElement . _1) tryDropNamespace XmlErrorUnexpectedNamespace _1
+  >>= applyError SblgntErrorXml . tryOverAll (_2 . _BasicEventEndElement) tryDropNamespace XmlErrorUnexpectedNamespace _1
+  >>= tryOverAll (_2 . _BasicEventBeginElement . _1) toElementAll SblgntErrorUnexpectedElementName _1
+  >>= tryOverAll (_2 . _BasicEventEndElement) toElementAll SblgntErrorUnexpectedElementName _1
 
 data SblgntError
   = SblgntErrorXmlInternal XmlInternalError
