@@ -20,12 +20,12 @@ sblgntTransform
   :: [XmlInternalError] + [FileReference * X.Event]
   -> [SblgntError] + [FileReference * BasicEvent ElementAll X.Content XmlAttributes]
 sblgntTransform x
-  =   applyError SblgntErrorXmlInternal x
+  =   liftError SblgntErrorXmlInternal x
   >>. dropComments
   >>. trimContent _2
-  >>= applyError SblgntErrorXml . toBasicEvents
-  >>= applyError SblgntErrorXml . tryOverAll (_2 . _BasicEventBeginElement . _1) tryDropNamespace XmlErrorUnexpectedNamespace _1
-  >>= applyError SblgntErrorXml . tryOverAll (_2 . _BasicEventEndElement) tryDropNamespace XmlErrorUnexpectedNamespace _1
+  >>= liftError SblgntErrorXml . toBasicEvents
+  >>= liftError SblgntErrorXml . tryOverAll (_2 . _BasicEventBeginElement . _1) tryDropNamespace XmlErrorUnexpectedNamespace _1
+  >>= liftError SblgntErrorXml . tryOverAll (_2 . _BasicEventEndElement) tryDropNamespace XmlErrorUnexpectedNamespace _1
   >>= tryOverAll (_2 . _BasicEventBeginElement . _1) toElementAll SblgntErrorUnexpectedElementName _1
   >>= tryOverAll (_2 . _BasicEventEndElement) toElementAll SblgntErrorUnexpectedElementName _1
 
