@@ -16,7 +16,9 @@ import Data.Map (Map)
 import qualified Data.Map as M
 
 type a + b = Either a b
+infixr 6 +
 type a * b = (a, b)
+infixr 7 *
 
 (>>.) :: forall a b m. Functor m => m a -> (a -> b) -> m b
 (>>.) = flip fmap

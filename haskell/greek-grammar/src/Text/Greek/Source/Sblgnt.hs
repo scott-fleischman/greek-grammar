@@ -10,6 +10,7 @@ import Control.Lens
 import Text.Greek.Utility
 import Text.Greek.Xml
 import qualified Data.XML.Types as X
+import qualified Text.Greek.Sublist as S
 
 
 readSblgntEvents :: FilePath -> IO ([SblgntError] + [FileReference * BasicEvent ElementAll X.Content XmlAttributes])
@@ -62,7 +63,67 @@ toElementAll (XmlLocalName "verse-number") = Right ElementAllVerseNumber
 toElementAll (XmlLocalName "w"           ) = Right ElementAllW
 toElementAll t                             = Left t
 
+data ElementAll'
+  = ElementAll'A
+  | ElementAll'Book
+  | ElementAll'License
+  | ElementAll'MarkEnd
+  | ElementAll'P
+  | ElementAll'Prefix
+  | ElementAll'Suffix
+  | ElementAll'Title
+  | ElementAll'VerseNumber
+  | ElementAll'W
+  deriving (Eq, Ord, Show)
 
+splitElementAll :: ElementAll -> () + ElementAll'
+splitElementAll ElementAllSblgnt = Left ()
+splitElementAll ElementAllA = Right ElementAll'A
+splitElementAll ElementAllBook = Right ElementAll'Book
+splitElementAll ElementAllLicense = Right ElementAll'License
+splitElementAll ElementAllMarkEnd = Right ElementAll'MarkEnd
+splitElementAll ElementAllP = Right ElementAll'P
+splitElementAll ElementAllPrefix = Right ElementAll'Prefix
+splitElementAll ElementAllSuffix = Right ElementAll'Suffix
+splitElementAll ElementAllTitle = Right ElementAll'Title
+splitElementAll ElementAllVerseNumber = Right ElementAll'VerseNumber
+splitElementAll ElementAllW = Right ElementAll'W
+
+splitSblgnt
+  :: (FileReference * BasicEvent ElementAll X.Content XmlAttributes)
+  -> S.TopLevel
+    (FileReference * XmlAttributes)
+    (FileReference)
+    (FileReference * BasicEvent ElementAll' X.Content XmlAttributes)
+splitSblgnt (r, BasicEventBeginElement e a) = case splitElementAll e of
+  Left _ -> S.TopLevelBegin (r, a)
+  Right e' -> S.TopLevelPass (r, BasicEventBeginElement e' a)
+splitSblgnt (r, BasicEventEndElement e) = case splitElementAll e of
+  Left _ -> S.TopLevelEnd r
+  Right e' -> S.TopLevelPass (r, BasicEventEndElement e')
+splitSblgnt (r, BasicEventContent c) = S.TopLevelPass (r, BasicEventContent c)
+
+refineSblgntBegin :: (FileReference * XmlAttributes) -> Maybe FileReference
+refineSblgntBegin (r, []) = Just r
+refineSblgntBegin _ = Nothing
+
+data Sblgnt = Sblgnt [FileReference * BasicEvent ElementAll' X.Content XmlAttributes] deriving (Show)
+
+createSblgnt :: a -> b
+  -> [FileReference * BasicEvent ElementAll' X.Content XmlAttributes]
+  -> Maybe (Sblgnt + FileReference * BasicEvent ElementAll' X.Content XmlAttributes)
+createSblgnt _ _ = Just . Left . Sblgnt
+
+sblgntBuilder :: S.Builder
+  (FileReference * BasicEvent ElementAll X.Content XmlAttributes)
+  (FileReference * XmlAttributes)
+  FileReference
+  FileReference
+  FileReference
+  (FileReference * BasicEvent ElementAll' X.Content XmlAttributes)
+  (FileReference * BasicEvent ElementAll' X.Content XmlAttributes)
+  (Sblgnt + FileReference * BasicEvent ElementAll' X.Content XmlAttributes)
+sblgntBuilder = S.Builder splitSblgnt refineSblgntBegin Just Just createSblgnt Right
 
 {-
 type FinalXmlEvent
