@@ -42,20 +42,24 @@ splitMap f = split . fmap f
 
 tryOver
   :: LensLike (Either e') s t a b -> (a -> e' + b)
-  -> (c -> e' -> e) -> Getter s c
+  -> (s -> e' -> e)
   -> s
   -> e + t
-tryOver l f e g x = over _Left handleError basicTraverse
+tryOver l f e x = over _Left handleError basicTraverse
   where
-    handleError = e (view g x)
+    handleError = e x
     basicTraverse = l f x
 
 tryOverAll
   :: LensLike (Either e') s t a b -> (a -> e' + b)
-  -> (c -> e' -> e) -> Getter s c
+  -> (s -> e' -> e)
   -> [s]
   -> [e] + [t]
-tryOverAll l f e g = splitMap (tryOver l f e g)
+tryOverAll l f e = splitMap (tryOver l f e)
+
+
+errorContext :: (c -> a -> e) -> Getter s c -> s -> (a -> e)
+errorContext e g = e . (view g)
 
 
 consValue :: Ord b => a -> b -> Map b [a] -> Map b [a]

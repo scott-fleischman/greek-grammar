@@ -24,10 +24,10 @@ sblgntTransform x
   >>. dropComments
   >>. trimContent _2
   >>= liftError SblgntErrorXml . toBasicEvents
-  >>= liftError SblgntErrorXml . tryOverAll (_2 . _BasicEventBeginElement . _1) tryDropNamespace XmlErrorUnexpectedNamespace _1
-  >>= liftError SblgntErrorXml . tryOverAll (_2 . _BasicEventEndElement) tryDropNamespace XmlErrorUnexpectedNamespace _1
-  >>= tryOverAll (_2 . _BasicEventBeginElement . _1) toElementAll SblgntErrorUnexpectedElementName _1
-  >>= tryOverAll (_2 . _BasicEventEndElement) toElementAll SblgntErrorUnexpectedElementName _1
+  >>= liftError SblgntErrorXml . tryOverAll (_2 . _BasicEventBeginElement . _1) tryDropNamespace (errorContext XmlErrorUnexpectedNamespace _1)
+  >>= liftError SblgntErrorXml . tryOverAll (_2 . _BasicEventEndElement) tryDropNamespace (errorContext XmlErrorUnexpectedNamespace _1)
+  >>= tryOverAll (_2 . _BasicEventBeginElement . _1) toElementAll (errorContext SblgntErrorUnexpectedElementName _1)
+  >>= tryOverAll (_2 . _BasicEventEndElement) toElementAll (errorContext SblgntErrorUnexpectedElementName _1)
 
 data SblgntError
   = SblgntErrorXmlInternal XmlInternalError

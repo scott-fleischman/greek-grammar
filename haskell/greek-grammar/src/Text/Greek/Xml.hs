@@ -98,7 +98,7 @@ toBasicEvent (X.EventContent c) = Right (BasicEventContent c)
 toBasicEvent x = Left x
 
 toBasicEvents :: [c * X.Event] -> [XmlError c] + [c * BasicEvent X.Name X.Content XmlAttributes]
-toBasicEvents = splitMap (tryOver _2 toBasicEvent XmlErrorNonBasicEvent _1)
+toBasicEvents = splitMap (tryOver _2 toBasicEvent (errorContext XmlErrorNonBasicEvent _1))
 
 readEvents :: FilePath -> IO ([XmlInternalError] + [FileReference * X.Event])
 readEvents p = fmap (initialTransform p) . readEventsConduit $ p
