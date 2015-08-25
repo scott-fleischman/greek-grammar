@@ -1,7 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Text.Greek.Source.Sblgnt where
@@ -62,6 +61,8 @@ toElementAll (XmlLocalName "title"       ) = Right ElementAllTitle
 toElementAll (XmlLocalName "verse-number") = Right ElementAllVerseNumber
 toElementAll (XmlLocalName "w"           ) = Right ElementAllW
 toElementAll t                             = Left t
+
+
 
 {-
 type FinalXmlEvent
@@ -179,50 +180,4 @@ topLevelSblgnt
 topLevelSblgnt = handleMap id tryDrop1
 
 
-handleSublist
-  :: Handler e (SublistError [a])
-  => (a -> SublistState a t -> SublistState a t)
-  -> [a]
-  -> [e] + [a + t * [a]]
-handleSublist f as = case foldr f (SublistStateOutside []) as of
-  SublistStateError e -> sum1 $ handle e
-  SublistStateInside (a, (as', _)) -> sum1 $ handle (OnlyEndElement (a : as'))
-  SublistStateOutside os -> sum2e os
-
-data SublistError a
-  = NestedSublist a
-  | OnlyEndElement a
-  | OnlyBeginElement a
-  deriving (Show)
-
-data SublistState a t
-  = SublistStateError (SublistError [a])
-  | SublistStateInside (a * [a] * [a + t * [a]])
-  | SublistStateOutside [a + t * [a]]
-
-buildSublist
-  :: (s -> Maybe a)
-  -> (s -> Maybe b)
-  -> t
-  -> s
-  -> SublistState s t
-  -> SublistState s t
-buildSublist getBegin getEnd t x s
-  | Just _ <- getBegin x
-  = case s of
-    e@(SublistStateError _) -> e
-    SublistStateOutside _ -> SublistStateError $ OnlyBeginElement [x]
-    SublistStateInside (_, (as, os)) -> SublistStateOutside (sum2e (t, as) : os)
-
-  | Just _ <- getEnd x
-  = case s of
-    e@(SublistStateError _) -> e
-    SublistStateOutside os -> SublistStateInside (x * [] * os)
-    SublistStateInside (a, (as, _)) -> SublistStateError $ NestedSublist (x : a : as)
-
-  | otherwise
-  = case s of
-    e@(SublistStateError _) -> e
-    SublistStateInside i -> SublistStateInside (over lens2 (x :) i)
-    SublistStateOutside os -> SublistStateOutside (sum1 x : os)
 -}
