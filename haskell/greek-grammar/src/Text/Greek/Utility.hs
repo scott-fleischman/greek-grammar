@@ -102,6 +102,11 @@ choose' f = choose (maybeToEither () . f)
 liftError :: Each a0 b0 a1 b1 => (a1 -> b1) -> a0 + c -> b0 + c
 liftError = over (_Left . each)
 
+single :: e -> (s -> e) -> [s] -> [e] + s
+single e _ [] = Left . pure $ e
+single _ _ [s] = Right s
+single _ f (_ : ss) = Left (fmap f ss)
+
 {-
 
 type a * b = (a, b)

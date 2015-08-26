@@ -13,12 +13,12 @@ import qualified Data.XML.Types as X
 import qualified Text.Greek.Sublist as S
 
 
-readSblgntEvents :: FilePath -> IO ([SblgntError] + [FileReference * BasicEvent ElementAll X.Content XmlAttributes])
+readSblgntEvents :: FilePath -> IO ([SblgntError] + [FileReference * BasicEvent ElementAll' X.Content XmlAttributes])
 readSblgntEvents = fmap sblgntTransform . readEvents
 
 sblgntTransform
   :: [XmlInternalError] + [FileReference * X.Event]
-  -> [SblgntError] + [FileReference * BasicEvent ElementAll X.Content XmlAttributes]
+  -> [SblgntError] + [FileReference * BasicEvent ElementAll' X.Content XmlAttributes]
 sblgntTransform x
   =   liftError SblgntErrorXmlInternal x
   >>. dropComments
@@ -28,11 +28,19 @@ sblgntTransform x
   >>= liftError SblgntErrorXml . tryOverAll (_2 . _BasicEventEndElement) tryDropNamespace (errorContext XmlErrorUnexpectedNamespace _1)
   >>= tryOverAll (_2 . _BasicEventBeginElement . _1) toElementAll (errorContext SblgntErrorUnexpectedElementName _1)
   >>= tryOverAll (_2 . _BasicEventEndElement) toElementAll (errorContext SblgntErrorUnexpectedElementName _1)
+  >>= liftError SblgntErrorSblgntSublist . over _Left pure . S.foldrSublist splitSblgnt
+  >>= split . over (each . _Left) SblgntErrorUnexpectedTopLevel
+  >>. fmap (view _3)
+  >>= single SblgntErrorEmptyTopLevel SblgntErrorUnexpectedTopLevels
 
 data SblgntError
   = SblgntErrorXmlInternal XmlInternalError
   | SblgntErrorXml (XmlError FileReference)
   | SblgntErrorUnexpectedElementName FileReference XmlLocalName
+  | SblgntErrorSblgntSublist (S.Error (FileReference * XmlAttributes) FileReference)
+  | SblgntErrorUnexpectedTopLevel (FileReference * BasicEvent ElementAll' X.Content XmlAttributes)
+  | SblgntErrorEmptyTopLevel
+  | SblgntErrorUnexpectedTopLevels [FileReference * BasicEvent ElementAll' X.Content XmlAttributes]
   deriving (Show)
 
 data ElementAll
