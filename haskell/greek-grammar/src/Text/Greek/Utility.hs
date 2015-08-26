@@ -104,3 +104,7 @@ single :: e -> (s -> e) -> [s] -> [e] + s
 single e _ [] = Left . pure $ e
 single _ _ [s] = Right s
 single _ f (_ : ss) = Left (fmap f ss)
+
+empty :: [s] -> [s] + ()
+empty [] = Right ()
+empty xs = Left xs

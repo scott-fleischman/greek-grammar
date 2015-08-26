@@ -30,6 +30,7 @@ sblgntTransform x
   >>= tryOverAll (_2 . _BasicEventEndElement) toElementAll (errorContext SblgntErrorUnexpectedElementName _1)
   >>= liftError SblgntErrorSblgntSublist . over _Left pure . S.foldrSublist splitSblgnt
   >>= split . over (each . _Left) SblgntErrorUnexpectedTopLevel
+  >>= tryOverAll (_1 . _2) empty (errorContext SblgntErrorInvalidSblgntAttributes (_1 . _1))
   >>. fmap (view _3)
   >>= single SblgntErrorEmptyTopLevel SblgntErrorUnexpectedTopLevels
 
@@ -39,6 +40,7 @@ data SblgntError
   | SblgntErrorUnexpectedElementName FileReference XmlLocalName
   | SblgntErrorSblgntSublist (S.Error (FileReference * XmlAttributes) FileReference)
   | SblgntErrorUnexpectedTopLevel (FileReference * BasicEvent ElementAll' X.Content XmlAttributes)
+  | SblgntErrorInvalidSblgntAttributes FileReference XmlAttributes
   | SblgntErrorEmptyTopLevel
   | SblgntErrorUnexpectedTopLevels [FileReference * BasicEvent ElementAll' X.Content XmlAttributes]
   deriving (Show)
@@ -85,17 +87,17 @@ data ElementAll'
   deriving (Eq, Ord, Show)
 
 splitElementAll :: ElementAll -> () + ElementAll'
-splitElementAll ElementAllSblgnt = Left ()
-splitElementAll ElementAllA = Right ElementAll'A
-splitElementAll ElementAllBook = Right ElementAll'Book
-splitElementAll ElementAllLicense = Right ElementAll'License
-splitElementAll ElementAllMarkEnd = Right ElementAll'MarkEnd
-splitElementAll ElementAllP = Right ElementAll'P
-splitElementAll ElementAllPrefix = Right ElementAll'Prefix
-splitElementAll ElementAllSuffix = Right ElementAll'Suffix
-splitElementAll ElementAllTitle = Right ElementAll'Title
+splitElementAll ElementAllSblgnt      = Left ()
+splitElementAll ElementAllA           = Right ElementAll'A
+splitElementAll ElementAllBook        = Right ElementAll'Book
+splitElementAll ElementAllLicense     = Right ElementAll'License
+splitElementAll ElementAllMarkEnd     = Right ElementAll'MarkEnd
+splitElementAll ElementAllP           = Right ElementAll'P
+splitElementAll ElementAllPrefix      = Right ElementAll'Prefix
+splitElementAll ElementAllSuffix      = Right ElementAll'Suffix
+splitElementAll ElementAllTitle       = Right ElementAll'Title
 splitElementAll ElementAllVerseNumber = Right ElementAll'VerseNumber
-splitElementAll ElementAllW = Right ElementAll'W
+splitElementAll ElementAllW           = Right ElementAll'W
 
 splitSblgnt
   :: (FileReference * BasicEvent ElementAll X.Content XmlAttributes)
