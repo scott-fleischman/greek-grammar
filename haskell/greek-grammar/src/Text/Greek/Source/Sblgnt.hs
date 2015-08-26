@@ -103,27 +103,7 @@ splitSblgnt (r, BasicEventEndElement e) = case splitElementAll e of
   Right e' -> S.TopLevelPass (r, BasicEventEndElement e')
 splitSblgnt (r, BasicEventContent c) = S.TopLevelPass (r, BasicEventContent c)
 
-refineSblgntBegin :: (FileReference * XmlAttributes) -> Maybe FileReference
-refineSblgntBegin (r, []) = Just r
-refineSblgntBegin _ = Nothing
 
-data Sblgnt = Sblgnt [FileReference * BasicEvent ElementAll' X.Content XmlAttributes] deriving (Show)
-
-createSblgnt :: a -> b
-  -> [FileReference * BasicEvent ElementAll' X.Content XmlAttributes]
-  -> Maybe (Sblgnt + FileReference * BasicEvent ElementAll' X.Content XmlAttributes)
-createSblgnt _ _ = Just . Left . Sblgnt
-
-sblgntBuilder :: S.Builder
-  (FileReference * BasicEvent ElementAll X.Content XmlAttributes)
-  (FileReference * XmlAttributes)
-  FileReference
-  FileReference
-  FileReference
-  (FileReference * BasicEvent ElementAll' X.Content XmlAttributes)
-  (FileReference * BasicEvent ElementAll' X.Content XmlAttributes)
-  (Sblgnt + FileReference * BasicEvent ElementAll' X.Content XmlAttributes)
-sblgntBuilder = S.Builder splitSblgnt refineSblgntBegin Just Just createSblgnt Right
 
 {-
 type FinalXmlEvent
