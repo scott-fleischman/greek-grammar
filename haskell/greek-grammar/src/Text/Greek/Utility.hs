@@ -8,9 +8,10 @@
 
 module Text.Greek.Utility where
 
-import Prelude hiding ((*), (+), getLine)
+import Prelude hiding ((*), (+))
 import Control.Lens
 import Data.Map (Map)
+import Data.Tuple
 import qualified Data.Map as M
 
 type a + b = Either a b
@@ -97,8 +98,11 @@ choose' :: forall a b. (a -> Maybe b) -> [a] -> [b]
 choose' f = choose (maybeToEither () . f)
 
 
-liftError :: Each a0 b0 a1 b1 => (a1 -> b1) -> a0 + c -> b0 + c
-liftError = over (_Left . each)
+liftErrors :: Each a0 b0 a1 b1 => (a1 -> b1) -> a0 + c -> b0 + c
+liftErrors = over (_Left . each)
+
+liftError :: (a -> a1) -> a + c -> [a1] + c
+liftError f = over _Left (pure . f)
 
 single :: e -> (s -> e) -> [s] -> [e] + s
 single e _ [] = Left . pure $ e
@@ -108,3 +112,19 @@ single _ f (_ : ss) = Left (fmap f ss)
 empty :: [s] -> [s] + ()
 empty [] = Right ()
 empty xs = Left xs
+
+distributeProductRight :: a * (b + c) -> (a * b) + (a * c)
+distributeProductRight (a, Left  b) = Left  (a, b)
+distributeProductRight (a, Right c) = Right (a, c)
+
+distributeProductLeft :: (a + b) * c -> (a * c) + (b * c)
+distributeProductLeft = over _Right swap . over _Left swap . distributeProductRight . swap
+
+extractSum :: (a + b) * (a + c) -> a + b * c
+extractSum (Left a, _) = Left a
+extractSum (_, Left a) = Left a
+extractSum (Right b, Right c) = Right (b, c)
+
+extractProduct :: (a * b) + (a * c) -> a * (b + c)
+extractProduct (Left (a, b))  = (a, Left b)
+extractProduct (Right (a, c)) = (a, Right c)

@@ -15,12 +15,12 @@ import Text.Greek.Corpus.Bible
 import Text.Greek.Corpus.Bible.Stats
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
-import Text.Greek.Source.Sblgnt
 import Text.Greek.Utility
 import Text.Greek.Xml
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Text.XML as X
+import qualified Text.Greek.Source.Sblgnt as S
 
 load :: IO (Either SBLError Bible)
 load = do
@@ -32,10 +32,10 @@ report f = load >>= mapM_ T.putStrLn . showErrorContinue f
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  events <- readSblgntEvents sblgntXmlPath
+  events <- S.readSblgntEvents sblgntXmlPath
   case events of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
-    Right es -> mapM_ (T.putStrLn . T.pack . show) . sortOn (^. _2) . over (each . _2) length . query (\x -> (x ^. _1, x ^.. _2 . each . _1)) . choose' (^? _2 . _BasicEventBeginElement) $ es
+    Right es -> mapM_ (T.putStrLn . format' "{} {}" . over _1 S.getGreekText) . sortOn (^. _2) . over (each . _2) length . query (S.wordGreekText) . choose' (^? _2 . _Right) $ es
 
 main :: IO ()
 main = mainDocumentToXml
