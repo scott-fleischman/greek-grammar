@@ -70,9 +70,7 @@ anyEvent :: Stream s m Event => ParsecT s u m Event
 anyEvent = satisfy (const True)
 
 sblgnt :: Stream s m Event => ParsecT s u m [Event]
-sblgnt = do
-  _ <- begin sblgntName
-  manyTill anyEvent (try (end sblgntName))
+sblgnt = begin sblgntName *> manyTill anyEvent (try (end sblgntName))
   where sblgntName = XmlLocalName "sblgnt"
 
 parseEvents :: FilePath -> [Event] -> ParseError + [Event]
