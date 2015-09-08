@@ -32,10 +32,10 @@ report f = load >>= mapM_ T.putStrLn . showErrorContinue f
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  events <- S.readSblgntEvents sblgntXmlPath
-  case events of
+  result <- S.readSblgntEvents sblgntXmlPath
+  case result of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
-    Right es -> T.putStrLn . T.pack . show . length $ es
+    Right sblgnt -> T.putStrLn . T.pack . show . length . S.sblgntBooks $ sblgnt
 
 main :: IO ()
 main = mainDocumentToXml

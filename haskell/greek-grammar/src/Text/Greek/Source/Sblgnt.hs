@@ -22,13 +22,13 @@ type Event = FileReference * BasicEvent XmlLocalName X.Content XmlAttributes
 type EventParser = ParsecT [Event] () Identity
 type AttributeParser = ParsecT XmlAttributes () Identity
 
-readSblgntEvents :: FilePath -> IO ([SblgntError] + [Event])
+readSblgntEvents :: FilePath -> IO ([SblgntError] + Sblgnt)
 readSblgntEvents p = fmap (sblgntTransform p) . readEvents $ p
 
 sblgntTransform
   :: FilePath
   -> [XmlInternalError] + [FileReference * X.Event]
-  -> [SblgntError] + [Event]
+  -> [SblgntError] + Sblgnt
 sblgntTransform p x
   =   liftErrors SblgntErrorXmlInternal x
   >>. dropComments
@@ -92,13 +92,16 @@ contentParser = parseEvent getContent
 
 newtype Paragraph = Paragraph Text deriving Show
 
-paragraphParser :: EventParser Paragraph
-paragraphParser = elementSimple "p" contentParser Paragraph
+paragraphParser :: EventParser c -> EventParser c
+paragraphParser p = elementSimple "p" p id
+
+paragraphSimpleParser :: EventParser Paragraph
+paragraphSimpleParser = fmap Paragraph (paragraphParser contentParser)
 
 newtype Title = Title [Paragraph] deriving Show
 
 titleParser :: EventParser Title
-titleParser = elementSimple "title" (many paragraphParser) Title
+titleParser = elementSimple "title" (many paragraphSimpleParser) Title
 
 data Link = Link { linkHref :: Text, linkContent :: Text } deriving Show
 
@@ -107,19 +110,38 @@ data ParagraphLink
   = ParagraphLinkContent Content
   | ParagraphLinkLink Link
   deriving Show
-newtype License = License [ParagraphLink] deriving Show
 
 linkParser :: EventParser Link
 linkParser = elementSimple "a" contentParser (Link "")
 
 paragraphLinkParser :: EventParser ParagraphLink
-paragraphLinkParser = elementSimple "p" (content <|> link) id
+paragraphLinkParser = content <|> link
   where
     content = fmap (ParagraphLinkContent . Content) contentParser
     link = fmap ParagraphLinkLink linkParser
 
+newtype License = License [ParagraphLink] deriving Show
+licenseParser :: EventParser License
+licenseParser = elementSimple "license" (paragraphParser (many paragraphLinkParser)) License
+
+data Book = Book deriving Show
+
+bookParser :: EventParser Book
+bookParser = fmap (const Book) (elementOpen "book")
+
 anyEvent :: Stream s m Event => ParsecT s u m Event
 anyEvent = satisfy (const True)
 
-parseEvents :: FilePath -> [Event] -> ParseError + [Event]
-parseEvents p = parse (elementOpen "sblgnt") p
+data Sblgnt = Sblgnt { sblgntTitle :: Title, sblgntLicense :: License, sblgntBooks :: [Book] } deriving Show
+
+sblgntParser :: EventParser Sblgnt
+sblgntParser = elementSimple "sblgnt" sblgntContent id
+  where
+    sblgntContent = do
+      title <- titleParser
+      license <- licenseParser
+      books <- many bookParser
+      return $ Sblgnt title license books
+
+parseEvents :: FilePath -> [Event] -> ParseError + Sblgnt
+parseEvents = parse sblgntParser
