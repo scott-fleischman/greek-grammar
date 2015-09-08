@@ -9,15 +9,13 @@ import Prelude hiding ((*), (+), getLine)
 import Control.Lens
 import Text.Greek.Utility
 import Text.Greek.Xml
+import Text.Parsec.Combinator
 import Text.Parsec.Pos (SourcePos)
 import Text.Parsec.Prim
 import qualified Data.XML.Types as X
 import qualified Text.Parsec.Pos as P
 
 type Event = FileReference * BasicEvent XmlLocalName X.Content XmlAttributes
-type Parser = Parsec Event ()
-type GenParser tok st = Parsec [tok] st
-type EventParser st = GenParser Event st
 
 readSblgntEvents :: FilePath -> IO ([SblgntError] + [Event])
 readSblgntEvents = fmap sblgntTransform . readEvents
@@ -50,5 +48,25 @@ updateSourcePos p (r, _) _ = flip P.setSourceColumn column . flip P.setSourceLin
     line = getLine . lineReferenceLine $ beginPos
     column = getColumn . lineReferenceColumn $ beginPos
 
-begin :: Stream s m Event => Event -> ParsecT s u m Event
-begin = undefined
+begin :: Stream s m Event => XmlLocalName -> ParsecT s u m Event
+begin n = satisfy isBegin
+  where
+    isBegin :: Event -> Bool
+    isBegin (_, (BasicEventBeginElement n' _)) | n == n' = True
+    isBegin _ = False
+
+end :: Stream s m Event => XmlLocalName -> ParsecT s u m Event
+end n = satisfy isEnd
+  where
+    isEnd :: Event -> Bool
+    isEnd (_, (BasicEventEndElement n')) | n == n' = True
+    isEnd _ = False
+
+anyEvent :: Stream s m Event => ParsecT s u m Event
+anyEvent = satisfy (const True)
+
+sblgnt :: Stream s m Event => ParsecT s u m [Event]
+sblgnt = do
+  _ <- begin sblgntName
+  manyTill anyEvent (try (end sblgntName))
+  where sblgntName = XmlLocalName "sblgnt"
