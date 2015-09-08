@@ -20,6 +20,7 @@ import qualified Text.Parsec.Pos as P
 type Event = FileReference * BasicEvent XmlLocalName X.Content XmlAttributes
 
 type EventParser = ParsecT [Event] () Identity
+type AttributeParser = ParsecT XmlAttributes () Identity
 
 readSblgntEvents :: FilePath -> IO ([SblgntError] + [Event])
 readSblgntEvents p = fmap (sblgntTransform p) . readEvents $ p
@@ -43,8 +44,6 @@ data SblgntError
   | SblgntErrorUnexpectedNamespace FileReference X.Name
   | SblgntErrorEventParse ParseError
   deriving (Show)
-
-newtype Paragraph = Paragraph Text deriving Show
 
 parseEvent :: Stream s m Event => (Event -> Maybe a) -> ParsecT s u m a
 parseEvent = tokenPrim show updateSourcePos
@@ -78,18 +77,46 @@ elementOpen :: Stream s m Event => Text -> ParsecT s u m [Event]
 elementOpen n = begin name *> manyTill anyEvent (try (end name))
   where name = XmlLocalName n
 
-element :: Text -> EventParser a -> (a -> b) -> EventParser b
-element n p f = f <$> go
+elementSimple :: Text -> EventParser a -> (a -> b) -> EventParser b
+elementSimple n p f = f <$> go
   where
     go = begin name *> p <* end name
     name = XmlLocalName n
 
-getContent :: Event -> Maybe Text
-getContent (_, BasicEventContent (X.ContentText t)) = Just t
-getContent _ = Nothing
-
 contentParser :: EventParser Text
 contentParser = parseEvent getContent
+  where
+    getContent :: Event -> Maybe Text
+    getContent (_, BasicEventContent (X.ContentText t)) = Just t
+    getContent _ = Nothing
+
+newtype Paragraph = Paragraph Text deriving Show
+
+paragraphParser :: EventParser Paragraph
+paragraphParser = elementSimple "p" contentParser Paragraph
+
+newtype Title = Title [Paragraph] deriving Show
+
+titleParser :: EventParser Title
+titleParser = elementSimple "title" (many paragraphParser) Title
+
+data Link = Link { linkHref :: Text, linkContent :: Text } deriving Show
+
+newtype Content = Content Text deriving Show
+data ParagraphLink
+  = ParagraphLinkContent Content
+  | ParagraphLinkLink Link
+  deriving Show
+newtype License = License [ParagraphLink] deriving Show
+
+linkParser :: EventParser Link
+linkParser = elementSimple "a" contentParser (Link "")
+
+paragraphLinkParser :: EventParser ParagraphLink
+paragraphLinkParser = elementSimple "p" (content <|> link) id
+  where
+    content = fmap (ParagraphLinkContent . Content) contentParser
+    link = fmap ParagraphLinkLink linkParser
 
 anyEvent :: Stream s m Event => ParsecT s u m Event
 anyEvent = satisfy (const True)
