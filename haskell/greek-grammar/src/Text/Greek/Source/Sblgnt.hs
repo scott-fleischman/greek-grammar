@@ -19,6 +19,8 @@ import qualified Text.Parsec.Pos as P
 
 type Event = FileReference * BasicEvent XmlLocalName X.Content XmlAttributes
 
+type EventParser = ParsecT [Event] () Identity
+
 readSblgntEvents :: FilePath -> IO ([SblgntError] + [Event])
 readSblgntEvents p = fmap (sblgntTransform p) . readEvents $ p
 
@@ -41,6 +43,9 @@ data SblgntError
   | SblgntErrorUnexpectedNamespace FileReference X.Name
   | SblgntErrorEventParse ParseError
   deriving (Show)
+
+parseEvent :: Stream s m Event => (Event -> Maybe a) -> ParsecT s u m a
+parseEvent = tokenPrim show updateSourcePos
 
 satisfy :: Stream s m Event => (Event -> Bool) -> ParsecT s u m Event
 satisfy p = tokenPrim show updateSourcePos testEvent
@@ -70,6 +75,13 @@ end n = satisfy isEnd
 element :: Stream s m Event => Text -> ParsecT s u m [Event]
 element n = begin name *> manyTill anyEvent (try (end name))
   where name = XmlLocalName n
+
+getContent :: Event -> Maybe Text
+getContent (_, BasicEventContent (X.ContentText t)) = Just t
+getContent _ = Nothing
+
+contentParser :: EventParser Text
+contentParser = parseEvent getContent
 
 anyEvent :: Stream s m Event => ParsecT s u m Event
 anyEvent = satisfy (const True)
