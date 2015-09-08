@@ -44,6 +44,8 @@ data SblgntError
   | SblgntErrorEventParse ParseError
   deriving (Show)
 
+newtype Paragraph = Paragraph Text deriving Show
+
 parseEvent :: Stream s m Event => (Event -> Maybe a) -> ParsecT s u m a
 parseEvent = tokenPrim show updateSourcePos
 
@@ -72,9 +74,15 @@ end n = satisfy isEnd
     isEnd (_, (BasicEventEndElement n')) | n == n' = True
     isEnd _ = False
 
-element :: Stream s m Event => Text -> ParsecT s u m [Event]
-element n = begin name *> manyTill anyEvent (try (end name))
+elementOpen :: Stream s m Event => Text -> ParsecT s u m [Event]
+elementOpen n = begin name *> manyTill anyEvent (try (end name))
   where name = XmlLocalName n
+
+element :: Text -> EventParser a -> (a -> b) -> EventParser b
+element n p f = f <$> go
+  where
+    go = begin name *> p <* end name
+    name = XmlLocalName n
 
 getContent :: Event -> Maybe Text
 getContent (_, BasicEventContent (X.ContentText t)) = Just t
@@ -87,4 +95,4 @@ anyEvent :: Stream s m Event => ParsecT s u m Event
 anyEvent = satisfy (const True)
 
 parseEvents :: FilePath -> [Event] -> ParseError + [Event]
-parseEvents p = parse (element "sblgnt") p
+parseEvents p = parse (elementOpen "sblgnt") p
