@@ -19,23 +19,26 @@ import qualified Text.Parsec.Pos as P
 type Event = FileReference * BasicEvent XmlLocalName X.Content XmlAttributes
 
 readSblgntEvents :: FilePath -> IO ([SblgntError] + [Event])
-readSblgntEvents = fmap sblgntTransform . readEvents
+readSblgntEvents p = fmap (sblgntTransform p) . readEvents $ p
 
 sblgntTransform
-  :: [XmlInternalError] + [FileReference * X.Event]
+  :: FilePath
+  -> [XmlInternalError] + [FileReference * X.Event]
   -> [SblgntError] + [Event]
-sblgntTransform x
+sblgntTransform p x
   =   liftErrors SblgntErrorXmlInternal x
   >>. dropComments
   >>. trimContent _2
   >>= liftErrors SblgntErrorXml . toBasicEvents
   >>= tryOverAll (_2 . _BasicEventBeginElement . _1) tryDropNamespace (errorContext SblgntErrorUnexpectedNamespace _1)
   >>= tryOverAll (_2 . _BasicEventEndElement) tryDropNamespace (errorContext SblgntErrorUnexpectedNamespace _1)
+  >>= over _Left (pure . SblgntErrorEventParse) . parseEvents p
 
 data SblgntError
   = SblgntErrorXmlInternal XmlInternalError
   | SblgntErrorXml (XmlError FileReference)
   | SblgntErrorUnexpectedNamespace FileReference X.Name
+  | SblgntErrorEventParse ParseError
   deriving (Show)
 
 satisfy :: Stream s m Event => (Event -> Bool) -> ParsecT s u m Event
@@ -72,5 +75,5 @@ sblgnt = do
   manyTill anyEvent (try (end sblgntName))
   where sblgntName = XmlLocalName "sblgnt"
 
-parseEvents :: [Event] -> ParseError + [Event]
-parseEvents = parse sblgnt "SBLGNT"
+parseEvents :: FilePath -> [Event] -> ParseError + [Event]
+parseEvents p = parse sblgnt p
