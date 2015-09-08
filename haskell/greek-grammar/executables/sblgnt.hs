@@ -35,7 +35,7 @@ mainDocumentToXml = do
   events <- S.readSblgntEvents sblgntXmlPath
   case events of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
-    Right es -> mapM_ (T.putStrLn . format' "{} {}" . over _1 S.getGreekText) . sortOn (^. _2) . over (each . _2) length . query (S.wordGreekText) . choose' (^? _2 . _Right) $ es
+    Right es -> T.putStrLn . T.pack . show . length $ es
 
 main :: IO ()
 main = mainDocumentToXml
