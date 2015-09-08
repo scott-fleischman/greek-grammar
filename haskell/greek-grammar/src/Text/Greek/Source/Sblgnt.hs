@@ -6,7 +6,8 @@
 module Text.Greek.Source.Sblgnt where
 
 import Prelude hiding ((*), (+), getLine)
-import Control.Lens
+import Control.Lens hiding (element)
+import Data.Text (Text)
 import Text.Greek.Utility
 import Text.Greek.Xml
 import Text.Parsec.Combinator
@@ -66,12 +67,12 @@ end n = satisfy isEnd
     isEnd (_, (BasicEventEndElement n')) | n == n' = True
     isEnd _ = False
 
+element :: Stream s m Event => Text -> ParsecT s u m [Event]
+element n = begin name *> manyTill anyEvent (try (end name))
+  where name = XmlLocalName n
+
 anyEvent :: Stream s m Event => ParsecT s u m Event
 anyEvent = satisfy (const True)
 
-sblgnt :: Stream s m Event => ParsecT s u m [Event]
-sblgnt = begin sblgntName *> manyTill anyEvent (try (end sblgntName))
-  where sblgntName = XmlLocalName "sblgnt"
-
 parseEvents :: FilePath -> [Event] -> ParseError + [Event]
-parseEvents p = parse sblgnt p
+parseEvents p = parse (element "sblgnt") p
