@@ -17,10 +17,10 @@ import Text.Parsec.Prim
 import qualified Data.XML.Types as X
 import qualified Text.Parsec.Pos as P
 
-type Event = FileReference * BasicEvent XmlLocalName X.Content XmlAttributes
+type Event = FileReference * BasicEvent XmlLocalName X.Content [XmlAttribute]
 
 type EventParser = ParsecT [Event] () Identity
-type AttributeParser = ParsecT XmlAttributes () Identity
+type AttributeParser = ParsecT [XmlAttribute] () Identity
 
 readSblgntEvents :: FilePath -> IO ([SblgntError] + Sblgnt)
 readSblgntEvents p = fmap (sblgntTransform p) . readEvents $ p
@@ -48,6 +48,9 @@ data SblgntError
 parseEvent :: Stream s m Event => (Event -> Maybe a) -> ParsecT s u m a
 parseEvent = tokenPrim show updateSourcePos
 
+parseAttribute :: Stream s m XmlAttribute => (XmlAttribute -> Maybe a) -> ParsecT s u m a
+parseAttribute = tokenPrim show (const . const)
+
 satisfy :: Stream s m Event => (Event -> Bool) -> ParsecT s u m Event
 satisfy p = tokenPrim show updateSourcePos testEvent
   where testEvent x = if p x then Just x else Nothing
@@ -59,28 +62,28 @@ updateSourcePos p (r, _) _ = flip P.setSourceColumn column . flip P.setSourceLin
     line = getLine . lineReferenceLine $ beginPos
     column = getColumn . lineReferenceColumn $ beginPos
 
-begin :: Stream s m Event => XmlLocalName -> ParsecT s u m Event
-begin n = satisfy isBegin
+beginSimple :: Stream s m Event => XmlLocalName -> ParsecT s u m Event
+beginSimple n = satisfy isBegin
   where
     isBegin :: Event -> Bool
     isBegin (_, (BasicEventBeginElement n' _)) | n == n' = True
     isBegin _ = False
 
-end :: Stream s m Event => XmlLocalName -> ParsecT s u m Event
-end n = satisfy isEnd
+endSimple :: Stream s m Event => XmlLocalName -> ParsecT s u m Event
+endSimple n = satisfy isEnd
   where
     isEnd :: Event -> Bool
     isEnd (_, (BasicEventEndElement n')) | n == n' = True
     isEnd _ = False
 
 elementOpen :: Stream s m Event => Text -> ParsecT s u m [Event]
-elementOpen n = begin name *> manyTill anyEvent (try (end name))
+elementOpen n = beginSimple name *> manyTill anyEvent (try (endSimple name))
   where name = XmlLocalName n
 
 elementSimple :: Text -> EventParser a -> (a -> b) -> EventParser b
 elementSimple n p f = f <$> go
   where
-    go = begin name *> p <* end name
+    go = beginSimple name *> p <* endSimple name
     name = XmlLocalName n
 
 contentParser :: EventParser Text

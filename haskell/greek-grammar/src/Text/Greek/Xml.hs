@@ -82,7 +82,7 @@ dropComment x xs = x : xs
 dropComments :: [FileReference * X.Event] -> [FileReference * X.Event]
 dropComments = foldr dropComment []
 
-type XmlAttributes = [X.Name * [X.Content]]
+type XmlAttribute = X.Name * [X.Content]
 type BasicEvent e c a = BasicEventFull e e c a
 data BasicEventFull be ee c a
   = BasicEventBeginElement be a
@@ -91,13 +91,13 @@ data BasicEventFull be ee c a
   deriving (Show)
 makePrisms ''BasicEventFull
 
-toBasicEvent :: X.Event -> X.Event + BasicEvent X.Name X.Content XmlAttributes
+toBasicEvent :: X.Event -> X.Event + BasicEvent X.Name X.Content [XmlAttribute]
 toBasicEvent (X.EventBeginElement n as) = Right (BasicEventBeginElement n as)
 toBasicEvent (X.EventEndElement n) = Right (BasicEventEndElement n)
 toBasicEvent (X.EventContent c) = Right (BasicEventContent c)
 toBasicEvent x = Left x
 
-toBasicEvents :: [c * X.Event] -> [XmlError c] + [c * BasicEvent X.Name X.Content XmlAttributes]
+toBasicEvents :: [c * X.Event] -> [XmlError c] + [c * BasicEvent X.Name X.Content [XmlAttribute]]
 toBasicEvents = splitMap (tryOver _2 toBasicEvent (errorContext XmlErrorNonBasicEvent _1))
 
 readEvents :: FilePath -> IO ([XmlInternalError] + [FileReference * X.Event])
