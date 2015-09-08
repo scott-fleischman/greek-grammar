@@ -10,6 +10,7 @@ import Control.Lens
 import Text.Greek.Utility
 import Text.Greek.Xml
 import Text.Parsec.Combinator
+import Text.Parsec.Error (ParseError)
 import Text.Parsec.Pos (SourcePos)
 import Text.Parsec.Prim
 import qualified Data.XML.Types as X
@@ -70,3 +71,6 @@ sblgnt = do
   _ <- begin sblgntName
   manyTill anyEvent (try (end sblgntName))
   where sblgntName = XmlLocalName "sblgnt"
+
+parseEvents :: [Event] -> ParseError + [Event]
+parseEvents = parse sblgnt "SBLGNT"
