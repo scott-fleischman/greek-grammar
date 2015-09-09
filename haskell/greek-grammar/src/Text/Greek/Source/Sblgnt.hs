@@ -65,6 +65,14 @@ updateEventPos p (r, _) _ = flip P.setSourceColumn column . flip P.setSourceLine
 emptyAttributes :: AttributeParser ()
 emptyAttributes = fmap (const ()) eof
 
+newtype Target = Target Text deriving Show
+
+hrefAttributeParser :: AttributeParser Target
+hrefAttributeParser = parseAttribute parseHref
+  where
+    parseHref ((X.Name "href" Nothing Nothing), [X.ContentText t]) = Just $ Target t
+    parseHref _ = Nothing
+
 begin :: Stream s m Event => XmlLocalName -> AttributeParser a -> ParsecT s u m a
 begin n ap = parseEvent parseBeginEvent
   where
@@ -73,12 +81,8 @@ begin n ap = parseEvent parseBeginEvent
       Right x -> Just x
     parseBeginEvent _ = Nothing
 
-beginSimple :: Stream s m Event => XmlLocalName -> ParsecT s u m Event
-beginSimple n = satisfy isBegin
-  where
-    isBegin :: Event -> Bool
-    isBegin (_, (BasicEventBeginElement n' _)) | n == n' = True
-    isBegin _ = False
+beginSimple :: Stream s m Event => XmlLocalName -> ParsecT s u m ()
+beginSimple n = begin n emptyAttributes
 
 end :: Stream s m Event => XmlLocalName -> ParsecT s u m Event
 end n = satisfy isEnd
@@ -90,6 +94,16 @@ end n = satisfy isEnd
 elementOpen :: Stream s m Event => Text -> ParsecT s u m [Event]
 elementOpen n = beginSimple name *> manyTill anyEvent (try (end name))
   where name = XmlLocalName n
+
+element :: Text -> AttributeParser a -> EventParser b -> (a -> b -> c) -> EventParser c
+element n ap cp f = go
+  where
+    go = do
+      a <- begin name ap
+      b <- cp
+      _ <- end name
+      return $ f a b
+    name = XmlLocalName n
 
 elementSimple :: Text -> EventParser a -> (a -> b) -> EventParser b
 elementSimple n p f = f <$> go
@@ -117,7 +131,7 @@ newtype Title = Title [Paragraph] deriving Show
 titleParser :: EventParser Title
 titleParser = elementSimple "title" (many paragraphSimpleParser) Title
 
-data Link = Link { linkHref :: Text, linkContent :: Text } deriving Show
+data Link = Link { linkHref :: Target, linkContent :: Text } deriving Show
 
 newtype Content = Content Text deriving Show
 data ParagraphLink
@@ -126,7 +140,7 @@ data ParagraphLink
   deriving Show
 
 linkParser :: EventParser Link
-linkParser = elementSimple "a" contentParser (Link "")
+linkParser = element "a" hrefAttributeParser contentParser Link
 
 paragraphLinkParser :: EventParser ParagraphLink
 paragraphLinkParser = content <|> link
