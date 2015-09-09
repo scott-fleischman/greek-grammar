@@ -10,6 +10,7 @@ import Prelude hiding ((*), (+))
 import Conduit
 import Control.Lens
 import Data.Char
+import Data.String
 import Data.Text (Text)
 import Text.Greek.Utility
 import qualified Data.Conduit.Attoparsec as X
@@ -141,6 +142,7 @@ trimContentItem g x xs
   = x : xs
 
 newtype XmlLocalName = XmlLocalName Text deriving (Eq, Ord, Show)
+instance IsString XmlLocalName where fromString = XmlLocalName . T.pack
 
 tryDropNamespace :: X.Name -> X.Name + XmlLocalName
 tryDropNamespace (X.Name n Nothing Nothing) = Right $ XmlLocalName n

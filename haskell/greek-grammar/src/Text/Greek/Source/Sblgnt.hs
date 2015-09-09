@@ -65,13 +65,16 @@ updateEventPos p (r, _) _ = flip P.setSourceColumn column . flip P.setSourceLine
 emptyAttributes :: AttributeParser ()
 emptyAttributes = fmap (const ()) eof
 
+simpleAttributeParser :: Text -> AttributeParser Text
+simpleAttributeParser n = parseAttribute parseSimple
+  where
+    parseSimple ((X.Name n' Nothing Nothing), [X.ContentText t]) | n == n' = Just t
+    parseSimple _ = Nothing
+
 newtype Target = Target Text deriving Show
 
 hrefAttributeParser :: AttributeParser Target
-hrefAttributeParser = parseAttribute parseHref
-  where
-    parseHref ((X.Name "href" Nothing Nothing), [X.ContentText t]) = Just $ Target t
-    parseHref _ = Nothing
+hrefAttributeParser = Target <$> simpleAttributeParser "href"
 
 begin :: Stream s m Event => XmlLocalName -> AttributeParser a -> ParsecT s u m a
 begin n ap = parseEvent parseBeginEvent
@@ -91,25 +94,22 @@ end n = satisfy isEnd
     isEnd (_, (BasicEventEndElement n')) | n == n' = True
     isEnd _ = False
 
-elementOpen :: Stream s m Event => Text -> ParsecT s u m [Event]
-elementOpen n = beginSimple name *> manyTill anyEvent (try (end name))
-  where name = XmlLocalName n
+elementOpen :: Stream s m Event => XmlLocalName -> ParsecT s u m [Event]
+elementOpen n = beginSimple n *> manyTill anyEvent (try (end n))
 
-element :: Text -> AttributeParser a -> EventParser b -> (a -> b -> c) -> EventParser c
+element :: XmlLocalName -> AttributeParser a -> EventParser b -> (a -> b -> c) -> EventParser c
 element n ap cp f = go
   where
     go = do
-      a <- begin name ap
+      a <- begin n ap
       b <- cp
-      _ <- end name
+      _ <- end n
       return $ f a b
-    name = XmlLocalName n
 
-elementSimple :: Text -> EventParser a -> (a -> b) -> EventParser b
+elementSimple :: XmlLocalName -> EventParser a -> (a -> b) -> EventParser b
 elementSimple n p f = f <$> go
   where
-    go = beginSimple name *> p <* end name
-    name = XmlLocalName n
+    go = beginSimple n *> p <* end n
 
 contentParser :: EventParser Text
 contentParser = parseEvent getContent
