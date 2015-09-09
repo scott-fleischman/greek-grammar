@@ -5,8 +5,9 @@
 
 module Text.Greek.Source.Sblgnt where
 
-import Prelude hiding ((*), (+), getLine)
+import Prelude hiding ((*), (+), getLine, Word)
 import Control.Lens hiding (element)
+import Data.Maybe
 import Data.Text (Text)
 import Text.Greek.Utility
 import Text.Greek.Xml
@@ -71,10 +72,10 @@ simpleAttributeParser n = parseAttribute parseSimple
     parseSimple ((X.Name n' Nothing Nothing), [X.ContentText t]) | n == n' = Just t
     parseSimple _ = Nothing
 
-xmlLangAttributeParser :: AttributeParser Text
-xmlLangAttributeParser = parseAttribute parseSimple
+xmlLangAttributeParser :: Text -> AttributeParser Text
+xmlLangAttributeParser v = parseAttribute parseSimple <?> "Invalid xml:lang attribute"
   where
-    parseSimple ((X.Name "lang" (Just ns) (Just p)), [X.ContentText t]) | ns == xmlNamespace, p == xmlNamespacePrefix = Just t
+    parseSimple ((X.Name "lang" (Just ns) (Just p)), [X.ContentText t]) | ns == xmlNamespace, p == xmlNamespacePrefix, t == v = Just t
     parseSimple _ = Nothing
 
 newtype Target = Target Text deriving Show
@@ -100,6 +101,9 @@ end n = satisfy isEnd
     isEnd (_, (BasicEventEndElement n')) | n == n' = True
     isEnd _ = False
 
+emptyElement :: XmlLocalName -> EventParser ()
+emptyElement n = beginSimple n <* end n
+
 elementOpen :: Stream s m Event => XmlLocalName -> ParsecT s u m [Event]
 elementOpen n = beginSimple n *> manyTill anyEvent (try (end n))
 
@@ -121,6 +125,9 @@ contentParser = parseEvent getContent
     getContent :: Event -> Maybe Text
     getContent (_, BasicEventContent (X.ContentText t)) = Just t
     getContent _ = Nothing
+
+elementContent :: XmlLocalName -> EventParser Text
+elementContent = flip elementSimple contentParser
 
 newtype Paragraph = Paragraph Text deriving Show
 
@@ -156,19 +163,53 @@ newtype License = License [ParagraphLink] deriving Show
 licenseParser :: EventParser License
 licenseParser = fmap License $ elementSimple "license" (paragraphParser (many paragraphLinkParser))
 
+data Verse = Verse { verseId :: Text, verseText :: Text } deriving Show
+
+verseParser :: EventParser Verse
+verseParser = element "verse-number" (simpleAttributeParser "id") contentParser Verse
+
+newtype MarkEnd = MarkEnd Text deriving Show
+
+markEndParser :: EventParser MarkEnd
+markEndParser = element "mark-end" (xmlLangAttributeParser "en") contentParser (const MarkEnd)
+
+data Word = Word { wordSurface :: Text, wordPrefix :: Maybe Text, wordSuffix :: Text } deriving Show
+
+wordParser :: EventParser Word
+wordParser = do
+  prefix <- optionMaybe (elementContent "prefix")
+  surface <- elementContent "w"
+  suffix <- elementContent "suffix"
+  return $ Word surface prefix suffix
+
+data Item = ItemVerse Verse | ItemWord Word deriving Show
+
+itemParser :: EventParser Item
+itemParser = fmap ItemVerse verseParser <|> fmap ItemWord wordParser
+
+data BookParagraph = BookParagraphContent [Item] | BookParagraphMarkEnd MarkEnd deriving Show
+
+bookParagraphParser :: EventParser (Maybe BookParagraph)
+bookParagraphParser
+  =   try (fmap (Just . BookParagraphContent) (paragraphParser (many1 itemParser)))
+  <|> fmap (Just . BookParagraphMarkEnd) markEndParser
+  <|> fmap (const Nothing) (emptyElement "p")
+  <?> "Unknown book paragraph item"
+
 data Book = Book
   { bookId :: Text
   , bookTitle :: Text
+  , bookParagraphs :: [BookParagraph]
   }
   deriving Show
 
 bookParser :: EventParser Book
-bookParser = element "book" (simpleAttributeParser "id") bookContentParser Book
+bookParser = element "book" (simpleAttributeParser "id") bookContentParser (\i (t,p) -> Book i t p)
   where
     bookContentParser = do
-      title <- elementSimple "title" contentParser
-      _ <- many (fmap (const ()) (elementOpen "p") <|> element "mark-end" xmlLangAttributeParser contentParser ((const . const) ()))
-      return title
+      title <- elementContent "title"
+      paragraphs <- many1 bookParagraphParser
+      return (title, catMaybes paragraphs)
 
 anyEvent :: Stream s m Event => ParsecT s u m Event
 anyEvent = satisfy (const True)
