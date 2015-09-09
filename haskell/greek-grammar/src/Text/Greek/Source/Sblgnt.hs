@@ -71,6 +71,12 @@ simpleAttributeParser n = parseAttribute parseSimple
     parseSimple ((X.Name n' Nothing Nothing), [X.ContentText t]) | n == n' = Just t
     parseSimple _ = Nothing
 
+xmlLangAttributeParser :: AttributeParser Text
+xmlLangAttributeParser = parseAttribute parseSimple
+  where
+    parseSimple ((X.Name "lang" (Just ns) (Just p)), [X.ContentText t]) | ns == xmlNamespace, p == xmlNamespacePrefix = Just t
+    parseSimple _ = Nothing
+
 newtype Target = Target Text deriving Show
 
 hrefAttributeParser :: AttributeParser Target
@@ -161,7 +167,7 @@ bookParser = element "book" (simpleAttributeParser "id") bookContentParser Book
   where
     bookContentParser = do
       title <- elementSimple "title" contentParser
-      _ <- many (elementOpen "p")
+      _ <- many (fmap (const ()) (elementOpen "p") <|> element "mark-end" xmlLangAttributeParser contentParser ((const . const) ()))
       return title
 
 anyEvent :: Stream s m Event => ParsecT s u m Event
