@@ -106,10 +106,8 @@ element n ap cp f = go
       _ <- end n
       return $ f a b
 
-elementSimple :: XmlLocalName -> EventParser a -> (a -> b) -> EventParser b
-elementSimple n p f = f <$> go
-  where
-    go = beginSimple n *> p <* end n
+elementSimple :: XmlLocalName -> EventParser a -> EventParser a
+elementSimple n p = beginSimple n *> p <* end n
 
 contentParser :: EventParser Text
 contentParser = parseEvent getContent
@@ -121,7 +119,7 @@ contentParser = parseEvent getContent
 newtype Paragraph = Paragraph Text deriving Show
 
 paragraphParser :: EventParser c -> EventParser c
-paragraphParser p = elementSimple "p" p id
+paragraphParser p = elementSimple "p" p
 
 paragraphSimpleParser :: EventParser Paragraph
 paragraphSimpleParser = fmap Paragraph (paragraphParser contentParser)
@@ -129,7 +127,7 @@ paragraphSimpleParser = fmap Paragraph (paragraphParser contentParser)
 newtype Title = Title [Paragraph] deriving Show
 
 titleParser :: EventParser Title
-titleParser = elementSimple "title" (many paragraphSimpleParser) Title
+titleParser = fmap Title $ elementSimple "title" (many paragraphSimpleParser)
 
 data Link = Link { linkHref :: Target, linkContent :: Text } deriving Show
 
@@ -150,7 +148,7 @@ paragraphLinkParser = content <|> link
 
 newtype License = License [ParagraphLink] deriving Show
 licenseParser :: EventParser License
-licenseParser = elementSimple "license" (paragraphParser (many paragraphLinkParser)) License
+licenseParser = fmap License $ elementSimple "license" (paragraphParser (many paragraphLinkParser))
 
 data Book = Book
   { bookId :: Text
@@ -162,7 +160,7 @@ bookParser :: EventParser Book
 bookParser = element "book" (simpleAttributeParser "id") bookContentParser Book
   where
     bookContentParser = do
-      title <- elementSimple "title" contentParser id
+      title <- elementSimple "title" contentParser
       _ <- many (elementOpen "p")
       return title
 
@@ -172,7 +170,7 @@ anyEvent = satisfy (const True)
 data Sblgnt = Sblgnt { sblgntTitle :: Title, sblgntLicense :: License, sblgntBooks :: [Book] } deriving Show
 
 sblgntParser :: EventParser Sblgnt
-sblgntParser = elementSimple "sblgnt" sblgntContent id
+sblgntParser = elementSimple "sblgnt" sblgntContent
   where
     sblgntContent = do
       title <- titleParser
