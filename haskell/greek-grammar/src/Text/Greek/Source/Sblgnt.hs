@@ -152,10 +152,19 @@ newtype License = License [ParagraphLink] deriving Show
 licenseParser :: EventParser License
 licenseParser = elementSimple "license" (paragraphParser (many paragraphLinkParser)) License
 
-data Book = Book deriving Show
+data Book = Book
+  { bookId :: Text
+  , bookTitle :: Text
+  }
+  deriving Show
 
 bookParser :: EventParser Book
-bookParser = fmap (const Book) (elementOpen "book")
+bookParser = element "book" (simpleAttributeParser "id") bookContentParser Book
+  where
+    bookContentParser = do
+      title <- elementSimple "title" contentParser id
+      _ <- many (elementOpen "p")
+      return title
 
 anyEvent :: Stream s m Event => ParsecT s u m Event
 anyEvent = satisfy (const True)
