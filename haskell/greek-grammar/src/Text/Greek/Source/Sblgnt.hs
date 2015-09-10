@@ -110,10 +110,8 @@ bookParser = element "book" (simpleAttributeParser "id") bookContentParser (\i (
 data Sblgnt = Sblgnt { sblgntTitle :: Title, sblgntLicense :: License, sblgntBooks :: [Book] } deriving Show
 
 sblgntParser :: EventParser Sblgnt
-sblgntParser = elementSimple "sblgnt" sblgntContent
-  where
-    sblgntContent = do
-      title <- titleParser
-      license <- licenseParser
-      books <- many bookParser
-      return $ Sblgnt title license books
+sblgntParser = elementSimple "sblgnt" $ do
+  title <- titleParser
+  license <- licenseParser
+  books <- many bookParser
+  return $ Sblgnt title license books

@@ -29,13 +29,20 @@ import Text.Greek.Phonology.Contractions
 import Text.Greek.Script
 import Text.Greek.Script.Sound
 import Text.XML (readFile)
+import qualified Text.Greek.Xml.Parse as X
+import qualified Text.Greek.Source.Sblgnt as S
+import qualified Text.Greek.Source.SblgntApp as SA
 
-sblgntOsisTestPath :: FilePath
-sblgntOsisTestPath = ".." </> ".." </> sblgntOsisPath
+testRootPath :: FilePath
+testRootPath = ".." </> ".."
 
-loadSblgnt = do
-  sblgnt <- readFile def sblgntOsisTestPath
+loadSblgntOsis = do
+  sblgnt <- readFile def (testRootPath </> sblgntOsisPath)
   isRight (loadOsis sblgnt) @?= True
+
+testReadParseXml parser path = do
+  result <- X.readParseEvents parser path
+  isRight result @?= True
 
 alpha = '\x0391'
 alphaAcute = '\x0386'
@@ -113,7 +120,11 @@ sampleAdjective2FormCategory =
 main = defaultMain
   [ testGroup "UnicodeTokenPairs" . pure . testCase "All valid tokens" $
       mapM_ (\p -> assertEqual (showString "'\\x" . showHex (ord . fst $ p) $ "'") [] (validateToken . snd $ p)) unicodeTokenPairs
-  , testGroup "SBLGNT" [ testCase "Successful load" loadSblgnt ]
+  , testGroup "SBLGNT OSIS" [ testCase "Successful load" loadSblgntOsis ]
+  , testGroup "SBLGNT XML"
+    [ testCase "Load sblgnt.xml" (testReadParseXml S.sblgntParser (testRootPath </> sblgntXmlPath))
+    , testCase "Load sblgntapp.xml" (testReadParseXml SA.sblgntAppParser (testRootPath </> sblgntAppXmlPath))
+    ]
   , testGroup "textToSounds"
     [ testCase "α" $ True @=? case textToSounds "α" of { Right (SingleVowelSound _ : []) -> True ; _ -> False }
     , testCase "β" $ True @=? case textToSounds "β" of { Right (ConsonantSound _ : []) -> True ; _ -> False }
