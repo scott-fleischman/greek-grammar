@@ -19,6 +19,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Text.XML as X
 import qualified Text.Greek.Source.Sblgnt as S
+import qualified Text.Greek.Source.SblgntApp as S
 
 load :: IO (Either SBLError Bible)
 load = do
@@ -30,10 +31,10 @@ report f = load >>= mapM_ T.putStrLn . showErrorContinue f
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  result <- readParseEvents S.sblgntParser sblgntXmlPath
+  result <- readParseEvents S.sblgntAppParser sblgntAppXmlPath
   case result of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
-    Right sblgnt -> T.putStrLn . T.pack . show . length . S.sblgntBooks $ sblgnt
+    Right x -> T.putStrLn . T.pack . show . length $ x
 
 main :: IO ()
 main = mainDocumentToXml
