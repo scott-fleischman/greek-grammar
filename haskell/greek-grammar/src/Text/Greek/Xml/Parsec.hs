@@ -1,5 +1,5 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Text.Greek.Xml.Parsec where
@@ -7,8 +7,10 @@ module Text.Greek.Xml.Parsec where
 import Prelude hiding ((*), (+), getLine)
 import Data.Functor.Identity
 import Data.Text (Text)
+import Text.Greek.FileReference
 import Text.Greek.Utility
-import Text.Greek.Xml
+import Text.Greek.Xml.Common
+import Text.Greek.Xml.Event
 import Text.Parsec.Combinator
 import Text.Parsec.Pos (SourcePos)
 import Text.Parsec.Prim
@@ -102,3 +104,6 @@ elementContentReference = flip elementSimple contentReferenceParser
 
 anyEvent :: Stream s m Event => ParsecT s u m Event
 anyEvent = parseEvent Just
+
+readParseEvents :: EventParser a -> FilePath -> IO ([XmlError] + a)
+readParseEvents parser path = fmap ((=<<) (liftError XmlErrorParse . parse parser path)) . readBasicEvents $ path

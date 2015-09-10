@@ -4,7 +4,6 @@
 module Main where
 
 import Prelude hiding (Word)
-import Control.Lens hiding ((<.>))
 import Data.Default (def)
 import Data.List
 import Data.Text (Text)
@@ -15,8 +14,7 @@ import Text.Greek.Corpus.Bible
 import Text.Greek.Corpus.Bible.Stats
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
-import Text.Greek.Utility
-import Text.Greek.Xml
+import Text.Greek.Xml.Parsec (readParseEvents)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Text.XML as X
@@ -32,7 +30,7 @@ report f = load >>= mapM_ T.putStrLn . showErrorContinue f
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  result <- S.readSblgntEvents sblgntXmlPath
+  result <- readParseEvents S.sblgntParser sblgntXmlPath
   case result of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
     Right sblgnt -> T.putStrLn . T.pack . show . length . S.sblgntBooks $ sblgnt

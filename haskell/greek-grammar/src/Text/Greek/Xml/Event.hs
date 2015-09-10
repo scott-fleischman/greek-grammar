@@ -4,15 +4,16 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Text.Greek.Xml where
+module Text.Greek.Xml.Event where
 
 import Prelude hiding ((*), (+))
 import Conduit
 import Control.Lens
 import Data.Char
-import Data.String
 import Data.Text (Text)
+import Text.Greek.FileReference
 import Text.Greek.Utility
+import Text.Greek.Xml.Common
 import qualified Data.Conduit.Attoparsec as X
 import qualified Data.Text as T
 import qualified Data.XML.Types as X
@@ -24,42 +25,8 @@ xmlNamespace = "http://www.w3.org/XML/1998/namespace"
 xmlNamespacePrefix :: Text
 xmlNamespacePrefix = "xml"
 
-newtype Line = Line { getLine :: Int } deriving (Eq, Ord)
-instance Show Line where show (Line l) = "Line " ++ show l
-
-newtype Column = Column { getColumn :: Int } deriving (Eq, Ord)
-instance Show Column where show (Column c) = "Column " ++ show c
-
-newtype Path = Path { getPath :: FilePath } deriving (Eq, Ord)
-instance IsString Path where fromString = Path
-instance Show Path where show (Path p) = show p
-
 readEventsConduit :: FilePath -> IO [Maybe X.PositionRange * X.Event]
 readEventsConduit p = runResourceT $ sourceFile p =$= X.parseBytesPos X.def $$ sinkList
-
-data XmlInternalError
-  = XmlInternalErrorEmptyEvents
-  | XmlInternalErrorExpectedBeginDocument (Maybe X.PositionRange, X.Event)
-  | XmlInternalErrorExpectedEndDocument (Maybe X.PositionRange, X.Event)
-  | XmlInternalErrorUnexpectedEmptyPositionRange (Maybe X.PositionRange, X.Event)
-  deriving (Show)
-
-data XmlError
-  = XmlErrorNonBasicEvent FileReference X.Event
-  | XmlErrorUnexpectedNamespace FileReference X.Name
-  | XmlErrorInternal XmlInternalError
-  deriving (Show)
-
-data LineReference = LineReference
-  { lineReferenceLine :: Line
-  , lineReferenceColumn :: Column }
-instance Show LineReference where show (LineReference l c) = "LineReference (" ++ show l ++ ") (" ++ show c ++ ")"
-
-data FileReference = FileReference
-  { fileReferencePath :: Path
-  , fileReferenceBegin :: LineReference
-  , fileReferenceEnd :: LineReference }
-instance Show FileReference where show (FileReference p b e) = "FileReference " ++ show p ++ " (" ++ show b ++ ") (" ++ show e ++ ")"
 
 toFileReference :: FilePath -> X.PositionRange -> FileReference
 toFileReference p (X.PositionRange (X.Position startLine startColumn) (X.Position endLine endColumn))
@@ -157,10 +124,3 @@ trimContentItem g x xs
 
   | otherwise
   = x : xs
-
-newtype XmlLocalName = XmlLocalName Text deriving (Eq, Ord, Show)
-instance IsString XmlLocalName where fromString = XmlLocalName . T.pack
-
-tryDropNamespace :: X.Name -> X.Name + XmlLocalName
-tryDropNamespace (X.Name n Nothing Nothing) = Right $ XmlLocalName n
-tryDropNamespace n = Left $ n

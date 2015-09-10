@@ -1,28 +1,14 @@
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Text.Greek.Source.Sblgnt where
 
-import Prelude hiding ((*), (+), Word)
+import Prelude hiding (Word)
 import Data.Maybe
 import Data.Text (Text)
-import Text.Greek.Utility
-import Text.Greek.Xml
+import Text.Greek.FileReference
 import Text.Greek.Xml.Parsec
 import Text.Parsec.Combinator
-import Text.Parsec.Error (ParseError)
 import Text.Parsec.Prim
-
-readSblgntEvents :: FilePath -> IO ([SblgntError] + Sblgnt)
-readSblgntEvents p = fmap transform . readBasicEvents $ p
-  where transform xs = liftErrors SblgntErrorXml xs >>= (liftError SblgntErrorParse . parseEvents p)
-
-data SblgntError
-  = SblgntErrorXml XmlError
-  | SblgntErrorParse ParseError
-  deriving (Show)
 
 newtype Target = Target Text deriving Show
 
@@ -126,6 +112,3 @@ sblgntParser = elementSimple "sblgnt" sblgntContent
       license <- licenseParser
       books <- many bookParser
       return $ Sblgnt title license books
-
-parseEvents :: FilePath -> [Event] -> ParseError + Sblgnt
-parseEvents = parse sblgntParser

@@ -35,6 +35,7 @@ library
     Text.Greek.Conversions
     Text.Greek.Corpus.Bible
     Text.Greek.Corpus.Bible.Stats
+    Text.Greek.FileReference
     Text.Greek.Grammar
     Text.Greek.IO
     Text.Greek.Morphology.Noun
@@ -66,7 +67,8 @@ library
     Text.Greek.Source.Sblgnt
     Text.Greek.Sublist
     Text.Greek.Utility
-    Text.Greek.Xml
+    Text.Greek.Xml.Common
+    Text.Greek.Xml.Event
     Text.Greek.Xml.Parsec
   ghc-options: -Wall -Werror -fwarn-tabs -O2
   hs-source-dirs:   src
