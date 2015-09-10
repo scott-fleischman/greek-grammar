@@ -18,8 +18,7 @@ import Text.Greek.Xml.Parse (readParseEvents)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Text.XML as X
-import qualified Text.Greek.Source.Sblgnt as S
-import qualified Text.Greek.Source.SblgntApp as S
+import qualified Text.Greek.Source.SblgntApp as App
 
 load :: IO (Either SBLError Bible)
 load = do
@@ -29,12 +28,21 @@ load = do
 report :: (Bible -> [Text]) -> IO ()
 report f = load >>= mapM_ T.putStrLn . showErrorContinue f
 
+formatVerse :: App.Verse -> Text
+formatVerse v = format' "{}\n{}" (name, T.concat . fmap formatVariant $ variants)
+  where
+    name = App.verseName v
+    variants = App.verseVariants v
+    formatVariant :: App.Variant -> Text
+    formatVariant (App.Variant (App.MarkedReadingAll r) c) = format' "  {} {}\n" (r, c)
+    formatVariant _ = ""
+
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  result <- readParseEvents S.sblgntAppParser sblgntAppXmlPath
+  result <- readParseEvents App.sblgntAppParser sblgntAppXmlPath
   case result of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
-    Right x -> T.putStrLn . T.pack . show . length $ x
+    Right x -> mapM_ T.putStrLn $ fmap formatVerse . concatMap App.bookVerses $ x
 
 main :: IO ()
 main = mainDocumentToXml
