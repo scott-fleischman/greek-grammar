@@ -6,7 +6,6 @@
 module Text.Greek.Source.Sblgnt where
 
 import Prelude hiding ((*), (+), Word)
-import Control.Lens hiding (element)
 import Data.Maybe
 import Data.Text (Text)
 import Text.Greek.Utility
@@ -15,26 +14,14 @@ import Text.Greek.Xml.Parsec
 import Text.Parsec.Combinator
 import Text.Parsec.Error (ParseError)
 import Text.Parsec.Prim
-import qualified Data.XML.Types as X
 
 readSblgntEvents :: FilePath -> IO ([SblgntError] + Sblgnt)
-readSblgntEvents p = fmap (sblgntTransform p) . readEvents $ p
-
-sblgntTransform
-  :: FilePath
-  -> [XmlInternalError] + [FileReference * X.Event]
-  -> [SblgntError] + Sblgnt
-sblgntTransform p x
-  =   liftErrors SblgntErrorXmlInternal x
-  >>. dropComments
-  >>. trimContent _2
-  >>= liftErrors SblgntErrorXml . toBasicEvents
-  >>= over _Left (pure . SblgntErrorEventParse) . parseEvents p
+readSblgntEvents p = fmap transform . readBasicEvents $ p
+  where transform xs = liftErrors SblgntErrorXml xs >>= (liftError SblgntErrorParse . parseEvents p)
 
 data SblgntError
-  = SblgntErrorXmlInternal XmlInternalError
-  | SblgntErrorXml (XmlError FileReference)
-  | SblgntErrorEventParse ParseError
+  = SblgntErrorXml XmlError
+  | SblgntErrorParse ParseError
   deriving (Show)
 
 newtype Target = Target Text deriving Show

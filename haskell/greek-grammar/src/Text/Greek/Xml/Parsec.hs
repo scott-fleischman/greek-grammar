@@ -15,7 +15,7 @@ import Text.Parsec.Prim
 import qualified Data.XML.Types as X
 import qualified Text.Parsec.Pos as P
 
-type Event = FileReference * BasicEvent X.Name X.Content [XmlAttribute]
+type Event = FileReference * BasicEvent
 
 type EventParser = ParsecT [Event] () Identity
 type AttributeParser = ParsecT [XmlAttribute] () Identity

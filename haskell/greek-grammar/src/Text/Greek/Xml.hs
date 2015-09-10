@@ -44,9 +44,10 @@ data XmlInternalError
   | XmlInternalErrorUnexpectedEmptyPositionRange (Maybe X.PositionRange, X.Event)
   deriving (Show)
 
-data XmlError c
-  = XmlErrorNonBasicEvent c X.Event
-  | XmlErrorUnexpectedNamespace c X.Name
+data XmlError
+  = XmlErrorNonBasicEvent FileReference X.Event
+  | XmlErrorUnexpectedNamespace FileReference X.Name
+  | XmlErrorInternal XmlInternalError
   deriving (Show)
 
 data LineReference = LineReference
@@ -91,7 +92,7 @@ dropComments :: [FileReference * X.Event] -> [FileReference * X.Event]
 dropComments = foldr dropComment []
 
 type XmlAttribute = X.Name * [X.Content]
-type BasicEvent e c a = BasicEventFull e e c a
+type BasicEvent = BasicEventFull X.Name X.Name X.Content [XmlAttribute]
 data BasicEventFull be ee c a
   = BasicEventBeginElement be a
   | BasicEventEndElement ee
@@ -99,25 +100,34 @@ data BasicEventFull be ee c a
   deriving (Show)
 makePrisms ''BasicEventFull
 
-toBasicEvent :: X.Event -> X.Event + BasicEvent X.Name X.Content [XmlAttribute]
+toBasicEvent :: X.Event -> X.Event + BasicEvent
 toBasicEvent (X.EventBeginElement n as) = Right (BasicEventBeginElement n as)
 toBasicEvent (X.EventEndElement n) = Right (BasicEventEndElement n)
 toBasicEvent (X.EventContent c) = Right (BasicEventContent c)
 toBasicEvent x = Left x
 
-toBasicEvents :: [c * X.Event] -> [XmlError c] + [c * BasicEvent X.Name X.Content [XmlAttribute]]
+toBasicEvents :: [FileReference * X.Event] -> [XmlError] + [FileReference * BasicEvent]
 toBasicEvents = splitMap (tryOver _2 toBasicEvent (errorContext XmlErrorNonBasicEvent _1))
 
 readEvents :: FilePath -> IO ([XmlInternalError] + [FileReference * X.Event])
-readEvents p = fmap (initialTransform p) . readEventsConduit $ p
+readEvents p = fmap (xmlInternalTransform p) . readEventsConduit $ p
 
-initialTransform :: FilePath -> [Maybe X.PositionRange * X.Event] -> [XmlInternalError] + [FileReference * X.Event]
-initialTransform p x = return x
+xmlInternalTransform :: FilePath -> [Maybe X.PositionRange * X.Event] -> [XmlInternalError] + [FileReference * X.Event]
+xmlInternalTransform p x = return x
   >>= tryDropBeginDocument
   >>. reverse
   >>= tryDropEndDocument
   >>. reverse
   >>= tryConvertPositions p
+
+readBasicEvents :: FilePath -> IO ([XmlError] + [FileReference * BasicEvent])
+readBasicEvents p = fmap transformBasicEvents . readEvents $ p
+
+transformBasicEvents :: [XmlInternalError] + [FileReference * X.Event] -> [XmlError] + [FileReference * BasicEvent]
+transformBasicEvents xs = liftErrors XmlErrorInternal xs
+  >>. dropComments
+  >>. trimContent _2
+  >>= toBasicEvents
 
 trimContent :: Getter s X.Event -> [s] -> [s]
 trimContent g = foldr (trimContentItem g) []
