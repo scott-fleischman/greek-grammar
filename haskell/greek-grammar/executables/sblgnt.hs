@@ -14,7 +14,7 @@ import Text.Greek.Corpus.Bible
 import Text.Greek.Corpus.Bible.Stats
 import Text.Greek.NewTestament.SBL
 import Text.Greek.Paths
-import Text.Greek.Xml.Parsec (readParseEvents)
+import Text.Greek.Xml.Parse (readParseEvents)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Text.XML as X

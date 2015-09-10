@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Text.Greek.Xml.Parsec where
+module Text.Greek.Xml.Parse where
 
 import Prelude hiding ((*), (+), getLine)
 import Data.Functor.Identity

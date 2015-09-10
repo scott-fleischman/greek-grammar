@@ -6,7 +6,7 @@ import Prelude hiding (Word)
 import Data.Maybe
 import Data.Text (Text)
 import Text.Greek.FileReference
-import Text.Greek.Xml.Parsec
+import Text.Greek.Xml.Parse
 import Text.Parsec.Combinator
 import Text.Parsec.Prim
 
