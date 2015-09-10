@@ -11,7 +11,7 @@ install:
   - stack setup
 
 script:
-  - stack -v test
+  - stack test
  
 notifications:
   flowdock:
