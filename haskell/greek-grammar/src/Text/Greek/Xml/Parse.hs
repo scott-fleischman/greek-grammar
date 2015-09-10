@@ -96,6 +96,13 @@ contentReferenceParser = parseEvent getContent
 contentParser :: EventParser Text
 contentParser = fmap snd contentReferenceParser
 
+contentValueParser :: Text -> EventParser Text
+contentValueParser t = parseEvent getContent
+  where
+    getContent :: Event -> Maybe Text
+    getContent (_, BasicEventContent (X.ContentText t')) | t == t' = Just t'
+    getContent _ = Nothing
+
 elementContent :: X.Name -> EventParser Text
 elementContent = flip elementSimple contentParser
 

@@ -66,6 +66,11 @@ data Word = Word
   , wordSuffix :: Text
   } deriving Show
 
+-- prefixes/suffixes
+-- ⸀ or ⸁ or ⸀1 ⸀2 (following word; dot = second occurrence; number = third and subsequent)
+-- ⸂ ⸃ or ⸄ ⸅  (enclosed words)
+-- [ ]  (doubtful)
+
 wordParser :: EventParser Word
 wordParser = do
   prefix <- optionMaybe (elementContent "prefix")
