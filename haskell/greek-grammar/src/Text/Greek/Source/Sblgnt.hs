@@ -29,14 +29,11 @@ sblgntTransform p x
   >>. dropComments
   >>. trimContent _2
   >>= liftErrors SblgntErrorXml . toBasicEvents
-  >>= tryOverAll (_2 . _BasicEventBeginElement . _1) tryDropNamespace (errorContext SblgntErrorUnexpectedNamespace _1)
-  >>= tryOverAll (_2 . _BasicEventEndElement) tryDropNamespace (errorContext SblgntErrorUnexpectedNamespace _1)
   >>= over _Left (pure . SblgntErrorEventParse) . parseEvents p
 
 data SblgntError
   = SblgntErrorXmlInternal XmlInternalError
   | SblgntErrorXml (XmlError FileReference)
-  | SblgntErrorUnexpectedNamespace FileReference X.Name
   | SblgntErrorEventParse ParseError
   deriving (Show)
 

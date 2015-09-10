@@ -15,7 +15,7 @@ import Text.Parsec.Prim
 import qualified Data.XML.Types as X
 import qualified Text.Parsec.Pos as P
 
-type Event = FileReference * BasicEvent XmlLocalName X.Content [XmlAttribute]
+type Event = FileReference * BasicEvent X.Name X.Content [XmlAttribute]
 
 type EventParser = ParsecT [Event] () Identity
 type AttributeParser = ParsecT [XmlAttribute] () Identity
@@ -52,7 +52,7 @@ xmlLangAttributeParser v = parseAttribute parseSimple <?> "Invalid xml:lang attr
     parseSimple ((X.Name "lang" (Just ns) (Just p)), [X.ContentText t]) | ns == xmlNamespace, p == xmlNamespacePrefix, t == v = Just t
     parseSimple _ = Nothing
 
-begin :: Stream s m Event => XmlLocalName -> AttributeParser a -> ParsecT s u m a
+begin :: Stream s m Event => X.Name -> AttributeParser a -> ParsecT s u m a
 begin n ap = parseEvent parseBeginEvent
   where
     parseBeginEvent (_, (BasicEventBeginElement n' a)) | n == n' = case parse ap "" a of
@@ -60,23 +60,23 @@ begin n ap = parseEvent parseBeginEvent
       Right x -> Just x
     parseBeginEvent _ = Nothing
 
-beginSimple :: Stream s m Event => XmlLocalName -> ParsecT s u m ()
+beginSimple :: Stream s m Event => X.Name -> ParsecT s u m ()
 beginSimple n = begin n emptyAttributes
 
-end :: Stream s m Event => XmlLocalName -> ParsecT s u m Event
+end :: Stream s m Event => X.Name -> ParsecT s u m Event
 end n = satisfy isEnd
   where
     isEnd :: Event -> Bool
     isEnd (_, (BasicEventEndElement n')) | n == n' = True
     isEnd _ = False
 
-emptyElement :: XmlLocalName -> EventParser ()
+emptyElement :: X.Name -> EventParser ()
 emptyElement n = beginSimple n <* end n
 
-elementOpen :: Stream s m Event => XmlLocalName -> ParsecT s u m [Event]
+elementOpen :: Stream s m Event => X.Name -> ParsecT s u m [Event]
 elementOpen n = beginSimple n *> manyTill anyEvent (try (end n))
 
-element :: XmlLocalName -> AttributeParser a -> EventParser b -> (a -> b -> c) -> EventParser c
+element :: X.Name -> AttributeParser a -> EventParser b -> (a -> b -> c) -> EventParser c
 element n ap cp f = go
   where
     go = do
@@ -85,7 +85,7 @@ element n ap cp f = go
       _ <- end n
       return $ f a b
 
-elementSimple :: XmlLocalName -> EventParser a -> EventParser a
+elementSimple :: X.Name -> EventParser a -> EventParser a
 elementSimple n p = beginSimple n *> p <* end n
 
 contentReferenceParser :: EventParser (FileReference, Text)
@@ -98,10 +98,10 @@ contentReferenceParser = parseEvent getContent
 contentParser :: EventParser Text
 contentParser = fmap snd contentReferenceParser
 
-elementContent :: XmlLocalName -> EventParser Text
+elementContent :: X.Name -> EventParser Text
 elementContent = flip elementSimple contentParser
 
-elementContentReference :: XmlLocalName -> EventParser (FileReference, Text)
+elementContentReference :: X.Name -> EventParser (FileReference, Text)
 elementContentReference = flip elementSimple contentReferenceParser
 
 anyEvent :: Stream s m Event => ParsecT s u m Event
