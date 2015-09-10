@@ -26,10 +26,6 @@ parseEvent = tokenPrim show updateEventPos
 parseAttribute :: Stream s m XmlAttribute => (XmlAttribute -> Maybe a) -> ParsecT s u m a
 parseAttribute = tokenPrim show (const . const)
 
-satisfy :: Stream s m Event => (Event -> Bool) -> ParsecT s u m Event
-satisfy p = tokenPrim show updateEventPos testEvent
-  where testEvent x = if p x then Just x else Nothing
-
 updateEventPos :: SourcePos -> (FileReference, t) -> s -> SourcePos
 updateEventPos p (r, _) _ = flip P.setSourceColumn column . flip P.setSourceLine line $ p
   where
@@ -63,12 +59,12 @@ begin n ap = parseEvent parseBeginEvent
 beginSimple :: Stream s m Event => X.Name -> ParsecT s u m ()
 beginSimple n = begin n emptyAttributes
 
-end :: Stream s m Event => X.Name -> ParsecT s u m Event
-end n = satisfy isEnd
+end :: Stream s m Event => X.Name -> ParsecT s u m ()
+end n = parseEvent parseEndEvent
   where
-    isEnd :: Event -> Bool
-    isEnd (_, (BasicEventEndElement n')) | n == n' = True
-    isEnd _ = False
+    parseEndEvent :: Event -> Maybe ()
+    parseEndEvent (_, (BasicEventEndElement n')) | n == n' = Just ()
+    parseEndEvent _ = Nothing
 
 emptyElement :: X.Name -> EventParser ()
 emptyElement n = beginSimple n <* end n
@@ -105,4 +101,4 @@ elementContentReference :: X.Name -> EventParser (FileReference, Text)
 elementContentReference = flip elementSimple contentReferenceParser
 
 anyEvent :: Stream s m Event => ParsecT s u m Event
-anyEvent = satisfy (const True)
+anyEvent = parseEvent Just
