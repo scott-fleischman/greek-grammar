@@ -119,15 +119,21 @@ element n ap cp f = go
 elementSimple :: XmlLocalName -> EventParser a -> EventParser a
 elementSimple n p = beginSimple n *> p <* end n
 
-contentParser :: EventParser Text
-contentParser = parseEvent getContent
+contentReferenceParser :: EventParser (FileReference, Text)
+contentReferenceParser = parseEvent getContent
   where
-    getContent :: Event -> Maybe Text
-    getContent (_, BasicEventContent (X.ContentText t)) = Just t
+    getContent :: Event -> Maybe (FileReference, Text)
+    getContent (r, BasicEventContent (X.ContentText t)) = Just (r, t)
     getContent _ = Nothing
+
+contentParser :: EventParser Text
+contentParser = fmap snd contentReferenceParser
 
 elementContent :: XmlLocalName -> EventParser Text
 elementContent = flip elementSimple contentParser
+
+elementContentReference :: XmlLocalName -> EventParser (FileReference, Text)
+elementContentReference = flip elementSimple contentReferenceParser
 
 newtype Paragraph = Paragraph Text deriving Show
 
@@ -173,14 +179,19 @@ newtype MarkEnd = MarkEnd Text deriving Show
 markEndParser :: EventParser MarkEnd
 markEndParser = element "mark-end" (xmlLangAttributeParser "en") contentParser (const MarkEnd)
 
-data Word = Word { wordSurface :: Text, wordPrefix :: Maybe Text, wordSuffix :: Text } deriving Show
+data Word = Word
+  { wordSurface :: Text
+  , wordFileReference :: FileReference
+  , wordPrefix :: Maybe Text
+  , wordSuffix :: Text
+  } deriving Show
 
 wordParser :: EventParser Word
 wordParser = do
   prefix <- optionMaybe (elementContent "prefix")
-  surface <- elementContent "w"
+  (r, surface) <- elementContentReference "w"
   suffix <- elementContent "suffix"
-  return $ Word surface prefix suffix
+  return $ Word surface r prefix suffix
 
 data Item = ItemVerse Verse | ItemWord Word deriving Show
 
