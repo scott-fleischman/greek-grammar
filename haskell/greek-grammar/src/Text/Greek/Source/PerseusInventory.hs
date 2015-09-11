@@ -13,8 +13,17 @@ tiNamespace = "http://chs.harvard.edu/xmlns/cts/ti"
 ti :: Text -> X.Name
 ti t = X.Name t (Just tiNamespace) Nothing
 
-ctsNamespaceParser :: EventParser [Event]
-ctsNamespaceParser = elementOpen (ti "ctsnamespace")
+newtype Description = Description Text deriving Show
+tiDescriptionParser :: EventParser Description
+tiDescriptionParser = element (ti "description") (xmlLangAttributeParser "eng") contentParser (const Description)
+
+data CtsNamespace = CtsNamespace { ctsNamespaceAbbr :: Text, ctsNamespaceValue :: Text, ctsNamespaceDescription :: Description } deriving Show
+ctsNamespaceParser :: EventParser CtsNamespace
+ctsNamespaceParser = elementA (ti "ctsnamespace") $ \as -> do
+  abbr <- getAttribute "abbr" as
+  ns <- getAttribute "ns" as
+  desc <- tiDescriptionParser
+  return $ CtsNamespace abbr ns desc
 
 collectionParser :: EventParser [Event]
 collectionParser = elementOpen (ti "collection")

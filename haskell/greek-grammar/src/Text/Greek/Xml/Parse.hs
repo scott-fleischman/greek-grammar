@@ -6,6 +6,7 @@ module Text.Greek.Xml.Parse where
 
 import Prelude hiding ((*), (+), getLine)
 import Data.Functor.Identity
+import Data.Map (Map)
 import Data.Text (Text)
 import Text.Greek.FileReference
 import Text.Greek.Utility
@@ -14,6 +15,8 @@ import Text.Greek.Xml.Event
 import Text.Parsec.Combinator
 import Text.Parsec.Pos (SourcePos)
 import Text.Parsec.Prim
+import qualified Data.Map as M
+import qualified Data.Text as T
 import qualified Data.XML.Types as X
 import qualified Text.Parsec.Pos as P
 
@@ -58,6 +61,12 @@ begin n ap = parseEvent parseBeginEvent
       Right x -> Just x
     parseBeginEvent _ = Nothing
 
+beginA :: Stream s m Event => X.Name -> ParsecT s u m [XmlAttribute]
+beginA n = parseEvent parseBeginEvent
+  where
+    parseBeginEvent (_, (BasicEventBeginElement n' a)) | n == n' = Just a
+    parseBeginEvent _ = Nothing
+
 beginSimple :: Stream s m Event => X.Name -> ParsecT s u m ()
 beginSimple n = begin n emptyAttributes
 
@@ -75,13 +84,26 @@ elementOpen :: Stream s m Event => X.Name -> ParsecT s u m [Event]
 elementOpen n = begin n anyAttribute *> manyTill anyEvent (try (end n))
 
 element :: X.Name -> AttributeParser a -> EventParser b -> (a -> b -> c) -> EventParser c
-element n ap cp f = go
+element n ap cp f = do
+  a <- begin n ap
+  b <- cp
+  _ <- end n
+  return $ f a b
+
+elementA :: X.Name -> (Map X.Name [X.Content] -> EventParser b) -> EventParser b
+elementA n f = do
+  as <- beginA n
+  b <- f (M.fromList as)
+  _ <- end n
+  return b
+
+getAttribute :: Stream s m Event => X.Name -> Map X.Name [X.Content] -> ParsecT s u m Text
+getAttribute n m = case M.lookup n m of
+  Just cs -> fmap T.concat $ mapM tryC cs
+  Nothing -> fail $ show n ++ " not found"
   where
-    go = do
-      a <- begin n ap
-      b <- cp
-      _ <- end n
-      return $ f a b
+    tryC (X.ContentText t) = return t
+    tryC _ = fail "unexpected attribute entity"
 
 elementSimple :: X.Name -> EventParser a -> EventParser a
 elementSimple n p = beginSimple n *> p <* end n
