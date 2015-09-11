@@ -5,7 +5,6 @@ module Text.Greek.Source.PerseusInventory where
 import Data.Text (Text)
 import Text.Greek.Xml.Parse
 import Text.Parsec.Combinator
-import Text.Parsec.Prim
 import qualified Data.XML.Types as X
 
 tiNamespace :: Text
@@ -24,13 +23,16 @@ newtype Description = Description Text deriving Show
 tiDescriptionParser :: EventParser Description
 tiDescriptionParser = element (ti "description") (xmlLangAttributeValueParser "eng") contentParser (const Description)
 
-data CtsNamespace = CtsNamespace { ctsNamespaceAbbr :: Text, ctsNamespaceValue :: Text, ctsNamespaceDescription :: Description } deriving Show
+data CtsNamespace = CtsNamespace
+  { ctsNamespaceAbbr :: Text
+  , ctsNamespaceValue :: Text
+  , ctsNamespaceDescription :: Description
+  } deriving Show
 ctsNamespaceParser :: EventParser CtsNamespace
-ctsNamespaceParser = elementA (ti "ctsnamespace") $ \as -> do
-  abbr <- getAttribute "abbr" as
-  ns <- getAttribute "ns" as
-  desc <- tiDescriptionParser
-  return $ CtsNamespace abbr ns desc
+ctsNamespaceParser = elementA (ti "ctsnamespace") $ \as -> CtsNamespace
+  <$> getAttribute "abbr" as
+  <*> getAttribute "ns" as
+  <*> tiDescriptionParser
 
 data Collection = Collection
   { collectionId :: Text
@@ -41,14 +43,13 @@ data Collection = Collection
   , collectionRights :: Text
   } deriving Show
 collectionParser :: EventParser Collection
-collectionParser = elementA (ti "collection") $ \as -> do
-  id' <- getAttribute "id" as
-  title <- elementContent' (dc "title")
-  creator <- elementContent' (dc "creator")
-  coverage <- elementContent' (dc "coverage")
-  description <- elementContent' (dc "description")
-  rights <- elementContent' (dc "rights")
-  return $ Collection id' title creator coverage description rights
+collectionParser = elementA (ti "collection") $ \as -> Collection
+  <$> getAttribute "id" as
+  <*> elementContent' (dc "title")
+  <*> elementContent' (dc "creator")
+  <*> elementContent' (dc "coverage")
+  <*> elementContent' (dc "description")
+  <*> elementContent' (dc "rights")
 
 data TextGroup = TextGroup
   { textGroupProjid :: Text
@@ -57,12 +58,11 @@ data TextGroup = TextGroup
   , textGroupWorks :: [Work]
   } deriving Show
 textGroupParser :: EventParser TextGroup
-textGroupParser = elementA (ti "textgroup") $ \as -> do
-  projid <- getAttribute "projid" as
-  urn <- getAttribute "urn" as
-  name <- elementContent' (ti "groupname")
-  works <- many1 workParser
-  return $ TextGroup projid urn name works
+textGroupParser = elementA (ti "textgroup") $ \as -> TextGroup
+  <$> getAttribute "projid" as
+  <*> getAttribute "urn" as
+  <*> elementContent' (ti "groupname")
+  <*> many1 workParser
 
 data Work = Work
   { workProjid :: Text
@@ -72,13 +72,12 @@ data Work = Work
   , workEditions :: [Edition]
   } deriving Show
 workParser :: EventParser Work
-workParser = elementA (ti "work") $ \as -> do
-  projid   <- getAttribute "projid" as         <?> "work projid"
-  urn      <- getAttribute "urn" as            <?> "work urn"
-  lang     <- getAttribute xmlLangAttribute as <?> "work lang"
-  title    <- elementContent' (ti "title")     <?> "work title"
-  editions <- manyRights (translationParser <?> "work translation") (editionParser <?> "work edition")
-  return $ Work projid urn lang title editions
+workParser = elementA (ti "work") $ \as -> Work
+  <$> getAttribute "projid" as
+  <*> getAttribute "urn" as
+  <*> getAttribute xmlLangAttribute as
+  <*> elementContent' (ti "title")
+  <*> manyRights translationParser editionParser
 
 data Edition = Edition
   {
@@ -95,8 +94,6 @@ translationParser = fmap (const Translation) $ elementOpen (ti "translation")
 perseusInventoryParser :: EventParser ()
 perseusInventoryParser = element (ti "TextInventory") anyAttribute body (\_ _ -> ())
   where
-    body = do
-      _ <- many1 ctsNamespaceParser
-      _ <- many1 collectionParser
-      _ <- many1 textGroupParser
-      return ()
+    body = many1 ctsNamespaceParser
+      *> many1 collectionParser
+      *> many1 textGroupParser
