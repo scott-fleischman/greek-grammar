@@ -49,8 +49,23 @@ collectionParser = elementA (ti "collection") $ \as -> do
   rights <- elementContent' (dc "rights")
   return $ Collection id' title creator coverage description rights
 
-textGroupParser :: EventParser [Event]
-textGroupParser = elementOpen (ti "textgroup")
+data TextGroup = TextGroup
+  { textGroupProjid :: Text
+  , textGroupUrn :: Text
+  , textGroupName :: Text
+  , textGroupWorks :: [Work]
+  } deriving Show
+textGroupParser :: EventParser TextGroup
+textGroupParser = elementA (ti "textgroup") $ \as -> do
+  projid <- getAttribute "projid" as
+  urn <- getAttribute "urn" as
+  name <- elementContent' (ti "groupname")
+  works <- many1 workParser
+  return $ TextGroup projid urn name works
+
+data Work = Work deriving Show
+workParser :: EventParser Work
+workParser = fmap (const Work) $ elementOpen (ti "work")
 
 perseusInventoryParser :: EventParser ()
 perseusInventoryParser = element (ti "TextInventory") anyAttribute body (\_ _ -> ())
