@@ -43,7 +43,7 @@ mainDocumentToXml = do
   result <- readParseEvents S.perseusInventoryParser perseusInventoryXmlPath
   case result of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
-    Right x -> T.putStrLn "success"
+    Right _ -> T.putStrLn "success"
 
 main :: IO ()
 main = mainDocumentToXml

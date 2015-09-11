@@ -72,7 +72,7 @@ emptyElement :: X.Name -> EventParser ()
 emptyElement n = beginSimple n <* end n
 
 elementOpen :: Stream s m Event => X.Name -> ParsecT s u m [Event]
-elementOpen n = beginSimple n *> manyTill anyEvent (try (end n))
+elementOpen n = begin n anyAttribute *> manyTill anyEvent (try (end n))
 
 element :: X.Name -> AttributeParser a -> EventParser b -> (a -> b -> c) -> EventParser c
 element n ap cp f = go
@@ -111,6 +111,9 @@ elementContentReference = flip elementSimple contentReferenceParser
 
 anyEvent :: Stream s m Event => ParsecT s u m Event
 anyEvent = parseEvent Just
+
+anyAttribute :: Stream s m XmlAttribute => ParsecT s u m XmlAttribute
+anyAttribute = parseAttribute Just
 
 readParseEvents :: EventParser a -> FilePath -> IO ([XmlError] + a)
 readParseEvents parser path = fmap ((=<<) (liftError XmlErrorParse . parse parser path)) . readBasicEvents $ path
