@@ -5,6 +5,7 @@ module Text.Greek.Source.PerseusInventory where
 import Data.Text (Text)
 import Text.Greek.Xml.Parse
 import Text.Parsec.Combinator
+import Text.Parsec.Prim
 import qualified Data.XML.Types as X
 
 tiNamespace :: Text
@@ -21,7 +22,7 @@ dc t = X.Name t (Just dcNamespace) Nothing
 
 newtype Description = Description Text deriving Show
 tiDescriptionParser :: EventParser Description
-tiDescriptionParser = element (ti "description") (xmlLangAttributeParser "eng") contentParser (const Description)
+tiDescriptionParser = element (ti "description") (xmlLangAttributeValueParser "eng") contentParser (const Description)
 
 data CtsNamespace = CtsNamespace { ctsNamespaceAbbr :: Text, ctsNamespaceValue :: Text, ctsNamespaceDescription :: Description } deriving Show
 ctsNamespaceParser :: EventParser CtsNamespace
@@ -63,9 +64,33 @@ textGroupParser = elementA (ti "textgroup") $ \as -> do
   works <- many1 workParser
   return $ TextGroup projid urn name works
 
-data Work = Work deriving Show
+data Work = Work
+  { workProjid :: Text
+  , workUrn :: Text
+  , workLang :: Text
+  , workTitle :: Text
+  , workEditions :: [Edition]
+  } deriving Show
 workParser :: EventParser Work
-workParser = fmap (const Work) $ elementOpen (ti "work")
+workParser = elementA (ti "work") $ \as -> do
+  projid   <- getAttribute "projid" as         <?> "work projid"
+  urn      <- getAttribute "urn" as            <?> "work urn"
+  lang     <- getAttribute xmlLangAttribute as <?> "work lang"
+  title    <- elementContent' (ti "title")     <?> "work title"
+  editions <- manyRights (translationParser <?> "work translation") (editionParser <?> "work edition")
+  return $ Work projid urn lang title editions
+
+data Edition = Edition
+  {
+  } deriving Show
+editionParser :: EventParser Edition
+editionParser = fmap (const Edition) $ elementOpen (ti "edition")
+
+data Translation = Translation
+  {
+  } deriving Show
+translationParser :: EventParser Translation
+translationParser = fmap (const Translation) $ elementOpen (ti "translation")
 
 perseusInventoryParser :: EventParser ()
 perseusInventoryParser = element (ti "TextInventory") anyAttribute body (\_ _ -> ())

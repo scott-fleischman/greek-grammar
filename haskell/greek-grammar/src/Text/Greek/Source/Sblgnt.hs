@@ -57,7 +57,7 @@ verseParser = element "verse-number" (simpleAttributeParser "id") contentParser 
 newtype MarkEnd = MarkEnd Text deriving Show
 
 markEndParser :: EventParser MarkEnd
-markEndParser = element "mark-end" (xmlLangAttributeParser "en") contentParser (const MarkEnd)
+markEndParser = element "mark-end" (xmlLangAttributeValueParser "en") contentParser (const MarkEnd)
 
 data Word = Word
   { wordSurface :: Text

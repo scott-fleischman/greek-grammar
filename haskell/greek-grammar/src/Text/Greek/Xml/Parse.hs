@@ -5,6 +5,7 @@
 module Text.Greek.Xml.Parse where
 
 import Prelude hiding ((*), (+), getLine)
+import Data.Either
 import Data.Functor.Identity
 import Data.Map (Map)
 import Data.Text (Text)
@@ -47,10 +48,13 @@ simpleAttributeParser n = parseAttribute parseSimple
     parseSimple ((X.Name n' Nothing Nothing), [X.ContentText t]) | n == n' = Just t
     parseSimple _ = Nothing
 
-xmlLangAttributeParser :: Text -> AttributeParser Text
-xmlLangAttributeParser v = parseAttribute parseSimple <?> "Invalid xml:lang attribute"
+xmlLangAttribute :: X.Name
+xmlLangAttribute = X.Name "lang" (Just xmlNamespace) (Just xmlNamespacePrefix)
+
+xmlLangAttributeValueParser :: Text -> AttributeParser Text
+xmlLangAttributeValueParser v = parseAttribute parseSimple <?> "xml:lang attribute value"
   where
-    parseSimple ((X.Name "lang" (Just ns) (Just p)), [X.ContentText t]) | ns == xmlNamespace, p == xmlNamespacePrefix, t == v = Just t
+    parseSimple (n, [X.ContentText t]) | n == xmlLangAttribute, t == v = Just t
     parseSimple _ = Nothing
 
 begin :: Stream s m Event => X.Name -> AttributeParser a -> ParsecT s u m a
@@ -129,7 +133,7 @@ elementContent :: X.Name -> EventParser Text
 elementContent = flip elementSimple contentParser
 
 elementContent' :: X.Name -> EventParser Text
-elementContent' = flip elementA (const contentParser)
+elementContent' = flip elementA (const (many contentParser >>= return . T.concat))
 
 elementContentReference :: X.Name -> EventParser (FileReference, Text)
 elementContentReference = flip elementSimple contentReferenceParser
@@ -139,6 +143,9 @@ anyEvent = parseEvent Just
 
 anyAttribute :: Stream s m XmlAttribute => ParsecT s u m XmlAttribute
 anyAttribute = parseAttribute Just
+
+manyRights :: Stream s m x => ParsecT s u m a -> ParsecT s u m b -> ParsecT s u m [b]
+manyRights a b = fmap rights $ many (fmap Left a <|> fmap Right b)
 
 readParseEvents :: EventParser a -> FilePath -> IO ([XmlError] + a)
 readParseEvents parser path = fmap ((=<<) (liftError XmlErrorParse . parse parser path)) . readBasicEvents $ path
