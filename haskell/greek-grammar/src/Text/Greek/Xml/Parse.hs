@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -25,6 +26,15 @@ type Event = FileReference * BasicEvent
 
 type EventParser = ParsecT [Event] () Identity
 type AttributeParser = ParsecT [XmlAttribute] () Identity
+type CharParser a = forall s u m. Stream s m Char => ParsecT s u m a
+
+nestParser :: (Stream s1 m t1, Stream s2 Identity t2) => ParsecT s1 u m s2 -> ParsecT s2 () Identity b -> ParsecT s1 u m b
+nestParser p1 p2 = do
+  v <- p1
+  pos <- getPosition
+  case parse (setPosition pos *> p2) (P.sourceName pos) v of
+    Left x -> fail $ show x
+    Right x -> return x
 
 parseEvent :: Stream s m Event => (Event -> Maybe a) -> ParsecT s u m a
 parseEvent = tokenPrim show updateEventPos

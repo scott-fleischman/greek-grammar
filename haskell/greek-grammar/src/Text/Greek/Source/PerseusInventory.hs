@@ -1,10 +1,15 @@
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Text.Greek.Source.PerseusInventory where
 
+import Data.Map (Map)
 import Data.Text (Text)
 import Text.Greek.Xml.Parse
+import Text.Parsec.Char
 import Text.Parsec.Combinator
+import qualified Data.Text as T
 import qualified Data.XML.Types as X
 
 tiNamespace :: Text
@@ -52,20 +57,20 @@ collectionParser = elementA (ti "collection") $ \as -> Collection
   <*> elementContent' (dc "rights")
 
 data TextGroup = TextGroup
-  { textGroupProjid :: Text
+  { textGroupProjid :: Projid
   , textGroupUrn :: Text
   , textGroupName :: Text
   , textGroupWorks :: [Work]
   } deriving Show
 textGroupParser :: EventParser TextGroup
 textGroupParser = elementA (ti "textgroup") $ \as -> TextGroup
-  <$> getAttribute "projid" as
+  <$> parseProjidAttribute as
   <*> getAttribute "urn" as
   <*> elementContent' (ti "groupname")
   <*> many1 workParser
 
 data Work = Work
-  { workProjid :: Text
+  { workProjid :: Projid
   , workUrn :: Text
   , workLang :: Text
   , workTitle :: Text
@@ -73,14 +78,14 @@ data Work = Work
   } deriving Show
 workParser :: EventParser Work
 workParser = elementA (ti "work") $ \as -> Work
-  <$> getAttribute "projid" as
+  <$> parseProjidAttribute as
   <*> getAttribute "urn" as
   <*> getAttribute xmlLangAttribute as
   <*> elementContent' (ti "title")
   <*> manyRights translationParser editionParser
 
 data Edition = Edition
-  { editionProjid :: Text
+  { editionProjid :: Projid
   , editionUrn :: Text
   , editionLabel :: Text
   , editionDescription :: Text
@@ -88,7 +93,7 @@ data Edition = Edition
   } deriving Show
 editionParser :: EventParser Edition
 editionParser = elementA (ti "edition") $ \as -> Edition
-  <$> getAttribute "projid" as
+  <$> parseProjidAttribute as
   <*> getAttribute "urn" as
   <*> elementContent' (ti "label")
   <*> elementContent' (ti "description")
@@ -110,3 +115,13 @@ inventoryParser = elementA (ti "TextInventory") $ \_ -> Inventory
   <$> many1 ctsNamespaceParser
   <*> many1 collectionParser
   <*> many1 textGroupParser
+
+data Projid = Projid { projidNamespace :: Text, projidValue :: Text } deriving Show
+projidParser :: CharParser Projid
+projidParser = Projid
+  <$> fmap T.pack (many1 (noneOf ":"))
+  <* char ':'
+  <*> fmap T.pack (many1 (noneOf ":"))
+
+parseProjidAttribute :: Map X.Name [X.Content] -> EventParser Projid
+parseProjidAttribute as = nestParser (getAttribute "projid" as) projidParser
