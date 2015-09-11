@@ -58,20 +58,20 @@ collectionParser = elementA (ti "collection") $ \as -> Collection
 
 data TextGroup = TextGroup
   { textGroupProjid :: Projid
-  , textGroupUrn :: Text
+  , textGroupUrn :: CtsUrn
   , textGroupName :: Text
   , textGroupWorks :: [Work]
   } deriving Show
 textGroupParser :: EventParser TextGroup
 textGroupParser = elementA (ti "textgroup") $ \as -> TextGroup
   <$> parseProjidAttribute as
-  <*> getAttribute "urn" as
+  <*> parseUrnAttribute as
   <*> elementContent' (ti "groupname")
   <*> many1 workParser
 
 data Work = Work
   { workProjid :: Projid
-  , workUrn :: Text
+  , workUrn :: CtsUrn
   , workLang :: Text
   , workTitle :: Text
   , workEditions :: [Edition]
@@ -79,14 +79,14 @@ data Work = Work
 workParser :: EventParser Work
 workParser = elementA (ti "work") $ \as -> Work
   <$> parseProjidAttribute as
-  <*> getAttribute "urn" as
+  <*> parseUrnAttribute as
   <*> getAttribute xmlLangAttribute as
   <*> elementContent' (ti "title")
   <*> manyRights translationParser editionParser
 
 data Edition = Edition
   { editionProjid :: Projid
-  , editionUrn :: Text
+  , editionUrn :: CtsUrn
   , editionLabel :: Text
   , editionDescription :: Text
   , editionMemberOf :: Text
@@ -94,7 +94,7 @@ data Edition = Edition
 editionParser :: EventParser Edition
 editionParser = elementA (ti "edition") $ \as -> Edition
   <$> parseProjidAttribute as
-  <*> getAttribute "urn" as
+  <*> parseUrnAttribute as
   <*> elementContent' (ti "label")
   <*> elementContent' (ti "description")
   <* optionMaybe (elementOpen (ti "online"))
@@ -125,3 +125,11 @@ projidParser = Projid
 
 parseProjidAttribute :: Map X.Name [X.Content] -> EventParser Projid
 parseProjidAttribute as = nestParser (getAttribute "projid" as) projidParser
+
+newtype CtsUrn = CtsUrn [Text] deriving Show
+ctsUrnParser :: CharParser CtsUrn
+ctsUrnParser = CtsUrn
+  <$> (string "urn:cts" *> many1 (char ':' *> (fmap T.pack (many1 (noneOf ":")))))
+
+parseUrnAttribute :: Map X.Name [X.Content] -> EventParser CtsUrn
+parseUrnAttribute as = nestParser (getAttribute "urn" as) ctsUrnParser
