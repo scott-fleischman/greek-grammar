@@ -7,3 +7,6 @@
 [submodule "data/sblgnt-xml"]
 	path = data/sblgnt-xml
 	url = https://github.com/scott-fleischman/sblgnt-xml.git
+[submodule "data/PerseusDL/catalog_data"]
+	path = data/PerseusDL/catalog_data
+	url = https://github.com/PerseusDL/catalog_data.git
