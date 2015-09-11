@@ -95,15 +95,18 @@ editionParser = elementA (ti "edition") $ \as -> Edition
   <* optionMaybe (elementOpen (ti "online"))
   <*> (emptyElementA (ti "memberof") >>= getAttribute "collection")
 
-data Translation = Translation
-  {
-  } deriving Show
+data Translation = Translation deriving Show
 translationParser :: EventParser Translation
 translationParser = fmap (const Translation) $ elementOpen (ti "translation")
 
-perseusInventoryParser :: EventParser ()
-perseusInventoryParser = element (ti "TextInventory") anyAttribute body (\_ _ -> ())
-  where
-    body = many1 ctsNamespaceParser
-      *> many1 collectionParser
-      *> many1 textGroupParser
+data Inventory = Inventory
+  { inventoryNamespaces :: [CtsNamespace]
+  , inventoryCollections :: [Collection]
+  , inventoryTextGroups :: [TextGroup]
+  } deriving Show
+
+inventoryParser :: EventParser Inventory
+inventoryParser = elementA (ti "TextInventory") $ \_ -> Inventory
+  <$> many1 ctsNamespaceParser
+  <*> many1 collectionParser
+  <*> many1 textGroupParser

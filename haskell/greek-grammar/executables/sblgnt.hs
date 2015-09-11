@@ -40,10 +40,14 @@ formatVerse v = format' "{}\n{}" (name, T.concat . fmap formatVariant $ variants
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  result <- readParseEvents S.perseusInventoryParser perseusInventoryXmlPath
+  result <- readParseEvents S.inventoryParser perseusInventoryXmlPath
   case result of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
-    Right _ -> T.putStrLn "success"
+    Right xs -> T.putStrLn $ format' "groups: {}, Greek works: {}"
+      ( length $ greekCounts
+      , sum $ greekCounts
+      )
+      where greekCounts = filter (/= 0) . fmap (length . filter ((== "grc") . S.workLang) . S.textGroupWorks) . S.inventoryTextGroups $ xs
 
 main :: IO ()
 main = mainDocumentToXml
