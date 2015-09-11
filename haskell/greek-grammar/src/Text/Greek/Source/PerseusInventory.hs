@@ -80,10 +80,20 @@ workParser = elementA (ti "work") $ \as -> Work
   <*> manyRights translationParser editionParser
 
 data Edition = Edition
-  {
+  { editionProjid :: Text
+  , editionUrn :: Text
+  , editionLabel :: Text
+  , editionDescription :: Text
+  , editionMemberOf :: Text
   } deriving Show
 editionParser :: EventParser Edition
-editionParser = fmap (const Edition) $ elementOpen (ti "edition")
+editionParser = elementA (ti "edition") $ \as -> Edition
+  <$> getAttribute "projid" as
+  <*> getAttribute "urn" as
+  <*> elementContent' (ti "label")
+  <*> elementContent' (ti "description")
+  <* optionMaybe (elementOpen (ti "online"))
+  <*> (emptyElementA (ti "memberof") >>= getAttribute "collection")
 
 data Translation = Translation
   {

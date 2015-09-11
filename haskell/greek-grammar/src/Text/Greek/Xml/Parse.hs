@@ -84,6 +84,9 @@ end n = parseEvent parseEndEvent
 emptyElement :: X.Name -> EventParser ()
 emptyElement n = beginSimple n <* end n
 
+emptyElementA :: X.Name -> EventParser (Map X.Name [X.Content])
+emptyElementA n = M.fromList <$> beginA n <* end n
+
 elementOpen :: Stream s m Event => X.Name -> ParsecT s u m [Event]
 elementOpen n = begin n (many anyAttribute) *> manyTill anyEvent (try (end n))
 
