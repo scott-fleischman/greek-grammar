@@ -81,7 +81,7 @@ emptyElement :: X.Name -> EventParser ()
 emptyElement n = beginSimple n <* end n
 
 elementOpen :: Stream s m Event => X.Name -> ParsecT s u m [Event]
-elementOpen n = begin n anyAttribute *> manyTill anyEvent (try (end n))
+elementOpen n = begin n (many anyAttribute) *> manyTill anyEvent (try (end n))
 
 element :: X.Name -> AttributeParser a -> EventParser b -> (a -> b -> c) -> EventParser c
 element n ap cp f = do
@@ -127,6 +127,9 @@ contentValueParser t = parseEvent getContent
 
 elementContent :: X.Name -> EventParser Text
 elementContent = flip elementSimple contentParser
+
+elementContent' :: X.Name -> EventParser Text
+elementContent' = flip elementA (const contentParser)
 
 elementContentReference :: X.Name -> EventParser (FileReference, Text)
 elementContentReference = flip elementSimple contentReferenceParser
