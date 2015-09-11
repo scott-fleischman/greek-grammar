@@ -25,3 +25,15 @@ agdaSblgntPath = projectRootPath </> "agda" </> "Text" </> "Greek" </> "SBLGNT"
 
 unicodeDataPath :: FilePath
 unicodeDataPath = projectRootPath </> "data" </> "ucd" </> "UnicodeData" <.> "txt"
+
+perseusFolderPath :: FilePath
+perseusFolderPath = projectRootPath </> "data" </> "PerseusDL"
+
+perseusCatalogPath :: FilePath
+perseusCatalogPath = perseusFolderPath </> "catalog_data"
+
+perseusGreekPath :: FilePath
+perseusGreekPath = perseusFolderPath </> "canonical-greekLit"
+
+perseusInventoryXmlPath :: FilePath
+perseusInventoryXmlPath = perseusCatalogPath </> "perseus" </> "perseuscts.xml"

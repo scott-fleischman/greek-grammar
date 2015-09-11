@@ -19,6 +19,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Text.XML as X
 import qualified Text.Greek.Source.SblgntApp as App
+import qualified Text.Greek.Source.PerseusInventory as S
 
 load :: IO (Either SBLError Bible)
 load = do
@@ -39,10 +40,10 @@ formatVerse v = format' "{}\n{}" (name, T.concat . fmap formatVariant $ variants
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  result <- readParseEvents App.sblgntAppParser sblgntAppXmlPath
+  result <- readParseEvents S.perseusInventoryParser perseusInventoryXmlPath
   case result of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
-    Right x -> mapM_ T.putStrLn $ fmap formatVerse . concatMap App.bookVerses $ x
+    Right x -> T.putStrLn "success"
 
 main :: IO ()
 main = mainDocumentToXml

@@ -64,6 +64,7 @@ library
     Text.Greek.Script.Sound
     Text.Greek.Script.Token
     Text.Greek.Script.UnicodeTokenPairs
+    Text.Greek.Source.PerseusInventory
     Text.Greek.Source.Sblgnt
     Text.Greek.Source.SblgntApp
     Text.Greek.Sublist
