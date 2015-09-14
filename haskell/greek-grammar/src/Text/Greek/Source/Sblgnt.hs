@@ -1,8 +1,10 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Text.Greek.Source.Sblgnt where
 
 import Prelude hiding (Word)
+import Control.Lens (makePrisms)
 import Data.Maybe
 import Data.Text (Text)
 import Text.Greek.FileReference
@@ -79,11 +81,13 @@ wordParser = do
   return $ Word surface r prefix suffix
 
 data Item = ItemVerse Verse | ItemWord Word deriving Show
+makePrisms ''Item
 
 itemParser :: EventParser Item
 itemParser = fmap ItemVerse verseParser <|> fmap ItemWord wordParser
 
 data BookParagraph = BookParagraphContent [Item] | BookParagraphMarkEnd MarkEnd deriving Show
+makePrisms ''BookParagraph
 
 bookParagraphParser :: EventParser (Maybe BookParagraph)
 bookParagraphParser
