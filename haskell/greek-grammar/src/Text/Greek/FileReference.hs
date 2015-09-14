@@ -15,11 +15,19 @@ instance Show Path where show (Path p) = show p
 
 data LineReference = LineReference
   { lineReferenceLine :: Line
-  , lineReferenceColumn :: Column }
+  , lineReferenceColumn :: Column
+  } deriving (Eq, Ord)
 instance Show LineReference where show (LineReference l c) = "LineReference (" ++ show l ++ ") (" ++ show c ++ ")"
 
 data FileReference = FileReference
   { fileReferencePath :: Path
   , fileReferenceBegin :: LineReference
-  , fileReferenceEnd :: LineReference }
+  , fileReferenceEnd :: LineReference
+  }
 instance Show FileReference where show (FileReference p b e) = "FileReference " ++ show p ++ " (" ++ show b ++ ") (" ++ show e ++ ")"
+
+data FileCharReference = FileCharReference
+  { fileCharReferencePath :: Path
+  , fileCharReferenceLine :: LineReference
+  } deriving (Eq, Ord)
+instance Show FileCharReference where show (FileCharReference p l) = "FileCharReference " ++ show p ++ " (" ++ show l ++ ")"
