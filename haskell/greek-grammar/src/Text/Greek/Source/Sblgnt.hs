@@ -107,7 +107,11 @@ bookParser = element "book" (simpleAttributeParser "id") bookContentParser (\i (
       paragraphs <- many1 bookParagraphParser
       return (title, catMaybes paragraphs)
 
-data Sblgnt = Sblgnt { sblgntTitle :: Title, sblgntLicense :: License, sblgntBooks :: [Book] } deriving Show
+data Sblgnt = Sblgnt
+  { sblgntTitle :: Title
+  , sblgntLicense :: License
+  , sblgntBooks :: [Book]
+  } deriving Show
 
 sblgntParser :: EventParser Sblgnt
 sblgntParser = elementSimple "sblgnt" $ do

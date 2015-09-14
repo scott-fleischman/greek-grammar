@@ -61,9 +61,11 @@ library
     Text.Greek.Phonology.Vowels
     Text.Greek.Script
     Text.Greek.Script.Letter
+    Text.Greek.Script.Raw
     Text.Greek.Script.Sound
     Text.Greek.Script.Token
     Text.Greek.Script.UnicodeTokenPairs
+    Text.Greek.Source.All
     Text.Greek.Source.PerseusInventory
     Text.Greek.Source.Sblgnt
     Text.Greek.Source.SblgntApp
@@ -90,6 +92,24 @@ executable sblgnt
     lens,
     greek-grammar
   main-is: sblgnt.hs
+  ghc-options: -Wall -fwarn-tabs -O2
+  hs-source-dirs: executables
+  default-language: Haskell2010
+
+executable run
+  build-depends:
+    base,
+    containers,
+    text,
+    text-format,
+    data-default,
+    filepath,
+    vector,
+    xml-types,
+    xml-conduit,
+    lens,
+    greek-grammar
+  main-is: Run.hs
   ghc-options: -Wall -fwarn-tabs -O2
   hs-source-dirs: executables
   default-language: Haskell2010
