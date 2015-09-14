@@ -9,8 +9,6 @@ import Text.Greek.Xml.Common
 import Text.Greek.Xml.Parse
 import qualified Text.Greek.Source.Sblgnt as SBL
 
-data Milestone = Paragraph | Verse | Line | Sentence
-
 data Word = Word
   { wordSurface :: Text
   , wordFileReference :: FileReference

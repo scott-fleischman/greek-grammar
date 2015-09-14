@@ -2,7 +2,7 @@ module Text.Greek.Script.Raw where
 
 import Prelude hiding (Word)
 import Control.Lens
---import Data.Unicode.DecomposeChar
+import Data.Unicode.DecomposeChar
 import Data.Set (Set)
 import Data.Text (Text)
 import Text.Greek.FileReference
@@ -17,8 +17,13 @@ data RawError
   | RawErrorMismatchLength FileReference Text
   deriving Show
 
-ensureText :: Text -> FileReference -> Either RawError [(Char, FileCharReference)]
-ensureText t r = do
+decompose :: Text -> FileReference -> Either RawError [(Char, FileCharReference)]
+decompose t r = do
+  cs <- ensureConsistent t r
+  return $ concatMap (\(a,b) -> fmap (flip (,) b) a) . over (traverse . _1) decomposeChar $ cs
+
+ensureConsistent :: Text -> FileReference -> Either RawError [(Char, FileCharReference)]
+ensureConsistent t r = do
   (p, l, c1, c2) <- onErr RawErrorMultipleLines $ ensureSingleLine r
   cs <- onErr RawErrorMismatchLength $ ensureLengthMatches t c1 c2
   return $ fmap (_2 %~ FileCharReference p . LineReference l) cs
