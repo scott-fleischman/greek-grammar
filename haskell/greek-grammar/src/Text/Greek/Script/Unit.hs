@@ -21,7 +21,7 @@ data Unit = Unit
   { unitLetter :: Char
   , unitReference :: FileCharReference
   , unitMarks :: Map Char FileCharReference
-  } deriving Show
+  } deriving (Eq, Ord, Show)
 
 data UnitError
   = UnitErrorMultipleLines FileReference Text
@@ -31,6 +31,14 @@ data UnitError
 
 toUnits :: Text -> FileReference -> Either UnitError [Unit]
 toUnits t r = decomposeText t r >>= (over _Left UnitErrorParse . parse unitsParser "")
+
+data Property
+  = PropertyLetter Char
+  | PropertyMark Char
+  deriving (Eq, Ord, Show)
+
+getProperties :: Unit -> [Property]
+getProperties (Unit l _ m) = (PropertyLetter l) : fmap PropertyMark (M.keys m)
 
 type CharPair = (Char, FileCharReference)
 type CharPairParser = ParsecT [(Char, FileCharReference)] () Identity
@@ -72,7 +80,7 @@ unitsParser = many1 unitParser
 decomposeText :: Text -> FileReference -> Either UnitError [CharPair]
 decomposeText t r = do
   cs <- ensureConsistent t r
-  return $ concatMap (\(a,b) -> fmap (flip (,) b) a) . over (traverse . _1) decomposeChar $ cs
+  return $ concatMap (_1 id) . over (traverse . _1) decomposeChar $ cs
 
 ensureConsistent :: Text -> FileReference -> Either UnitError [CharPair]
 ensureConsistent t r = do

@@ -75,6 +75,12 @@ mapGroupBy f = foldr g M.empty where
 query :: (Ord b) => (a -> b) -> [a] -> [b * [a]]
 query f = M.toList . mapGroupBy f
 
+concatMapGroupBy :: forall a b. (Ord b) => (a -> [b]) -> [a] -> Map b [a]
+concatMapGroupBy f = foldr (\(a, b) -> consValue a b) M.empty . concatMap (_2 id) . fmap (\s -> (s, f s))
+
+concatQuery :: (Ord b) => (a -> [b]) -> [a] -> [b * [a]]
+concatQuery f = M.toList . concatMapGroupBy f
+
 
 
 partialMapGroupBy :: forall a b e. (Ord b) => (a -> e + b) -> [a] -> [a] * Map b [a]
