@@ -17,7 +17,7 @@ install:
   - stack +RTS -N2 -RTS build --only-snapshot
 
 script:
-  - stack +RTS -N2 -RTS build --test --haddock
+  - stack +RTS -N2 -RTS build --test
 
 notifications:
   flowdock:
