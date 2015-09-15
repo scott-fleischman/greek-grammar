@@ -61,7 +61,10 @@ unitParser :: CharPairParser Unit
 unitParser = do
   (l, r) <- nonMarkParser
   marks <- many markParser
-  return $ Unit l r (M.fromList marks)
+  let marks' = M.fromList marks
+  if length marks == length marks'
+    then return $ Unit l r marks' 
+    else fail "Duplicate marks"
 
 unitsParser :: CharPairParser [Unit]
 unitsParser = many1 unitParser
