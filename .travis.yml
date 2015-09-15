@@ -1,18 +1,28 @@
 language: haskell
 
+sudo: false
+
 before_install:
-  # Instructions taken from https://github.com/commercialhaskell/stack/wiki/Downloads
-  - wget -q -O- http://download.fpcomplete.com/ubuntu/fpco.key | sudo apt-key add -
-  - echo 'deb http://download.fpcomplete.com/ubuntu/precise stable main' | sudo tee /etc/apt/sources.list.d/fpco.list
-  - sudo apt-get update
-  - sudo apt-get install stack -y
+  # https://github.com/commercialhaskell/stack/wiki/Travis
+  - mkdir -p ~/.local/bin
+  - export PATH=~/.local/bin:$PATH
+  - travis_retry curl -L https://github.com/commercialhaskell/stack/releases/download/v0.1.4.0/stack-0.1.4.0-x86_64-linux.tar.gz | tar xz -C ~/.local/bin
+
+addons:
+  apt:
+    sources:
+    - hvr-ghc
+    packages:
+    - ghc-7.10.2
+    - libgmp-dev
 
 install:
-  - stack setup
+  - ./travis_long stack --no-terminal --skip-ghc-check setup
+  - ./travis_long stack --no-terminal --skip-ghc-check test --only-snapshot
 
 script:
-  - stack test
- 
+  - stack --no-terminal --skip-ghc-check test
+
 notifications:
   flowdock:
     secure: "X64/fWAoHxhaakQWvzu7F59id01OFU/ejvzR58au7NnVmou+IvaUWPsUajA0AXyvfRIGXMc+Sq+1rpQ8LWY8O6BEn5PGP1y4fdiJx3n5Kr7bcGDyXL30BDQDIlMOQtewTDu9Podv9bJBlz7yXnblVzNphekV3OA5ow5i+oXYl5k="
