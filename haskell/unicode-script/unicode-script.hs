@@ -268,7 +268,9 @@ makeDecompositionMap content = fromList singleStepDecompositionPairs
     singleStepDecompositionPairs = catMaybes $ fmap (\(x, y) -> case y of { Just y' -> Just (x, y'); Nothing -> Nothing }) singleStepDecompositionMaybePairs
 
 transitiveDecomposition :: Map Text DecomposeSingleStep -> DecomposeSingleStep -> [Text]
-transitiveDecomposition _ (Id x) = [x]
+transitiveDecomposition singleStepMap (Id x)
+  | Just s <- lookup x singleStepMap = transitiveDecomposition singleStepMap s
+  | otherwise = [x]
 transitiveDecomposition singleStepMap (SingleStep x y)
   | Just s <- lookup x singleStepMap = transitiveDecomposition singleStepMap s ++ [y]
   | otherwise = [x, y]
@@ -317,4 +319,4 @@ generateFile (path, convert) = do
   return ()
 
 main :: IO ()
-main = generateFile outputTokenPairs
+main = generateFile generateDecomposeChar
