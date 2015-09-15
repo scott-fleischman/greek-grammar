@@ -2,26 +2,22 @@ language: haskell
 
 sudo: false
 
+cache:
+  directories:
+    - $HOME/.stack/
+
 before_install:
   # https://github.com/commercialhaskell/stack/wiki/Travis
   - mkdir -p ~/.local/bin
   - export PATH=~/.local/bin:$PATH
   - travis_retry curl -L https://github.com/commercialhaskell/stack/releases/download/v0.1.4.0/stack-0.1.4.0-x86_64-linux.tar.gz | tar xz -C ~/.local/bin
 
-addons:
-  apt:
-    sources:
-    - hvr-ghc
-    packages:
-    - ghc-7.10.2
-    - libgmp-dev
-
 install:
-  - stack --no-terminal --skip-ghc-check setup
-  - stack --no-terminal --skip-ghc-check test --only-snapshot
+  - stack +RTS -N2 -RTS setup
+  - stack +RTS -N2 -RTS build --only-snapshot
 
 script:
-  - stack --no-terminal --skip-ghc-check test
+  - stack +RTS -N2 -RTS build --test --haddock
 
 notifications:
   flowdock:
