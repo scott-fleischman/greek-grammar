@@ -5,9 +5,11 @@ module Text.Greek.Render where
 
 import Data.Char
 import Data.Foldable
+import Data.Set (Set)
 import Text.Greek.FileReference
 import Text.Greek.Script.Unit (Unit(..))
 import qualified Data.Map as M
+import qualified Data.Set as S
 import qualified Data.Text.Format as T
 import qualified Data.Text.Lazy as L
 import qualified Text.Greek.Script.Unit as U
@@ -41,3 +43,6 @@ instance Render Int where
 instance Render U.Property where
   render (U.PropertyLetter c) = render c
   render (U.PropertyMark c) = render c
+
+instance Render a => Render (Set a) where
+  render = render . S.toAscList

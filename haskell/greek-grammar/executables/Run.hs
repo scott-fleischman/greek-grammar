@@ -10,6 +10,7 @@ import Text.Greek.Render
 import Text.Greek.Source.All
 import Text.Greek.Script.Unit (Unit)
 import Text.Greek.Utility
+import qualified Data.Set as S
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy as L
@@ -30,7 +31,7 @@ works ws = case errors of
     (errors, results) = partitionEithers . fmap (\(Word s r) -> U.toUnits s r) . concatMap workWords $ ws
 
 units :: [[Unit]] -> IO ()
-units = renderAll . fmap (over _2 length) . sortOn (Down . length . snd) . concatQuery U.getProperties . concat
+units = renderAll . fmap (over _2 length) . sortOn (Down . length . snd) . query (S.fromList . U.getProperties) . concat
 --units = mapM_ (\x -> T.putStrLn . L.toStrict . render $ x) . concat . take 200 . drop 1000
 
 renderAll :: Render t => [t] -> IO ()
