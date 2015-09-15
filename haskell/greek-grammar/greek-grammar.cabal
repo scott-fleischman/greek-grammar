@@ -61,10 +61,10 @@ library
     Text.Greek.Phonology.Vowels
     Text.Greek.Script
     Text.Greek.Script.Letter
-    Text.Greek.Script.Raw
     Text.Greek.Script.Sound
     Text.Greek.Script.Token
     Text.Greek.Script.UnicodeTokenPairs
+    Text.Greek.Script.Unit
     Text.Greek.Source.All
     Text.Greek.Source.PerseusInventory
     Text.Greek.Source.Sblgnt
