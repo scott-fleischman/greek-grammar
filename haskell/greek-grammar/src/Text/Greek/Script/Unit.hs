@@ -29,11 +29,11 @@ data UnitError
   | UnitErrorParse ParseError
   deriving Show
 
-type CharPair = (Char, FileCharReference)
-type CharPairParser = ParsecT [(Char, FileCharReference)] () Identity
-
 toUnits :: Text -> FileReference -> Either UnitError [Unit]
 toUnits t r = decomposeText t r >>= (over _Left UnitErrorParse . parse unitsParser "")
+
+type CharPair = (Char, FileCharReference)
+type CharPairParser = ParsecT [(Char, FileCharReference)] () Identity
 
 parseCharPair :: Stream s m CharPair => (CharPair -> Maybe a) -> ParsecT s u m a
 parseCharPair = tokenPrim show updateEventPos
@@ -54,12 +54,12 @@ satisfy f = parseCharPair go
 markParser :: CharPairParser CharPair
 markParser = satisfy isMark
 
-nonMarkParser :: CharPairParser CharPair
-nonMarkParser = satisfy (not . isMark)
+letterParser :: CharPairParser CharPair
+letterParser = satisfy (or . zipWith ($) [isLetter, isNumber, isPunctuation] . repeat)
 
 unitParser :: CharPairParser Unit
 unitParser = do
-  (l, r) <- nonMarkParser
+  (l, r) <- letterParser
   marks <- many markParser
   let marks' = M.fromList marks
   if length marks == length marks'
