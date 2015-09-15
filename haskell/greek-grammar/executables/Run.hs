@@ -23,9 +23,9 @@ main = do
 works :: [Work] -> IO ()
 works ws = case errors of
   _ : _ -> printErrors errors
-  [] -> mapM_ (\x -> T.putStrLn . L.toStrict . formatCharPair $ x) . concat . take 200 . drop 1000 $ results
+  [] -> mapM_ (\x -> T.putStrLn . L.toStrict . formatUnit $ x) . concat . take 200 . drop 1000 $ results
   where
-    (errors, results) = partitionEithers . fmap (\(Word s r) -> decomposeText s r) . concatMap workWords $ ws
+    (errors, results) = partitionEithers . fmap (\(Word s r) -> toUnits s r) . concatMap workWords $ ws
 
 printErrors :: (Show e, Foldable t) => t e -> IO ()
 printErrors = mapM_ (T.putStrLn . T.pack . show)
