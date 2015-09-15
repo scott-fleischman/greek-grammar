@@ -6,7 +6,7 @@ module Text.Greek.Render where
 import Data.Char
 import Data.Foldable
 import Text.Greek.FileReference
-import Text.Greek.Script.Unit (Unit)
+import Text.Greek.Script.Unit (Unit(..))
 import qualified Data.Map as M
 import qualified Data.Text.Format as T
 import qualified Data.Text.Lazy as L
