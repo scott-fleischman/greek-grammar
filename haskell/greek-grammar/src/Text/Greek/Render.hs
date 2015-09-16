@@ -3,7 +3,6 @@
 
 module Text.Greek.Render where
 
-import Data.Char
 import Data.Foldable
 import Data.Set (Set)
 import Text.Greek.FileReference
@@ -17,16 +16,17 @@ import qualified Text.Greek.Script.Unit as U
 class Render a where
   render :: a -> L.Text
 
-instance Render Char where
-  render c = if isMark c
-    then T.format "\x25CC{}" (T.Only c)
-    else L.singleton c
+instance Render U.Letter where
+  render = L.singleton . U.getLetter
+
+instance Render U.Mark where
+  render = T.format "\x25CC{}" . T.Only . U.getMark
 
 instance (Render a, Render b) => Render (a, b) where
   render (a, b) = T.format "({},{})" (render a, render b)
 
 instance Render Unit where
-  render (Unit c r ms) = T.format "({},{},{})" (c, render r, render (M.toList ms))
+  render (Unit c r ms) = T.format "({},{},{})" (render c, render r, render (M.toList ms))
 
 instance Render FileCharReference where
   render (FileCharReference p l) = T.format "{}:{}" (T.Shown p, render l)

@@ -5,7 +5,6 @@ module Main where
 import Control.Lens
 import Data.Either
 import Data.List
-import Data.Ord
 import Text.Greek.Render
 import Text.Greek.Source.All
 import Text.Greek.Script.Unit (Unit)
@@ -31,7 +30,7 @@ works ws = case errors of
     (errors, results) = partitionEithers . fmap (\(Word s r) -> U.toUnits s r) . concatMap workWords $ ws
 
 units :: [[Unit]] -> IO ()
-units = renderAll . fmap (over _2 length) . sortOn (Down . length . snd) . query (S.fromList . U.getProperties) . concat
+units = renderAll . fmap (over _2 length) . sortOn fst . query (S.fromList . U.getProperties) . concat
 --units = mapM_ (\x -> T.putStrLn . L.toStrict . render $ x) . concat . take 200 . drop 1000
 
 renderAll :: Render t => [t] -> IO ()

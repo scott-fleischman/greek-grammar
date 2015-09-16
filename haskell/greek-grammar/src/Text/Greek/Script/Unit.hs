@@ -18,9 +18,9 @@ import qualified Data.Text as T
 import qualified Text.Parsec.Pos as P
 
 data Unit = Unit
-  { unitLetter :: Char
+  { unitLetter :: Letter
   , unitReference :: FileCharReference
-  , unitMarks :: Map Char FileCharReference
+  , unitMarks :: Map Mark FileCharReference
   } deriving (Eq, Ord, Show)
 
 data UnitError
@@ -33,12 +33,15 @@ toUnits :: Text -> FileReference -> Either UnitError [Unit]
 toUnits t r = decomposeText t r >>= (over _Left UnitErrorParse . parse unitsParser "")
 
 data Property
-  = PropertyLetter Char
-  | PropertyMark Char
+  = PropertyLetter Letter
+  | PropertyMark Mark
   deriving (Eq, Ord, Show)
 
 getProperties :: Unit -> [Property]
 getProperties (Unit l _ m) = (PropertyLetter l) : fmap PropertyMark (M.keys m)
+
+newtype Letter = Letter { getLetter :: Char } deriving (Eq, Show, Ord)
+newtype Mark = Mark { getMark :: Char } deriving (Eq, Show, Ord)
 
 type CharPair = (Char, FileCharReference)
 type CharPairParser = ParsecT [(Char, FileCharReference)] () Identity
@@ -59,11 +62,11 @@ satisfy f = parseCharPair go
     go a@(c, _) | f c = Just a
     go _ = Nothing
 
-markParser :: CharPairParser CharPair
-markParser = satisfy isMark
+markParser :: CharPairParser (Mark, FileCharReference)
+markParser = over _1 Mark <$> satisfy isMark
 
-letterParser :: CharPairParser CharPair
-letterParser = satisfy (or . zipWith ($) [isLetter, isNumber, isPunctuation] . repeat)
+letterParser :: CharPairParser (Letter, FileCharReference)
+letterParser = over _1 Letter <$> satisfy (or . zipWith ($) [isLetter, isNumber, isPunctuation] . repeat)
 
 unitParser :: CharPairParser Unit
 unitParser = do
