@@ -161,6 +161,17 @@ toVowelConsonant L_ψ = Right C_ψ
 
 data UnicodeMark = AcuteMark | GraveMark | CircumflexMark | SmoothMark | RoughMark | IotaSubscriptMark | DiaeresisMark
 
+toUnicodeMark :: U.MarkChar -> Maybe UnicodeMark
+toUnicodeMark (U.MarkChar '\x0300') = Just GraveMark -- COMBINING GRAVE ACCENT
+toUnicodeMark (U.MarkChar '\x0301') = Just AcuteMark -- COMBINING ACUTE ACCENT
+toUnicodeMark (U.MarkChar '\x0308') = Just DiaeresisMark -- COMBINING DIAERESIS
+toUnicodeMark (U.MarkChar '\x0313') = Just SmoothMark -- COMBINING COMMA ABOVE
+toUnicodeMark (U.MarkChar '\x0314') = Just RoughMark -- COMBINING REVERSED COMMA ABOVE
+toUnicodeMark (U.MarkChar '\x0342') = Just CircumflexMark -- COMBINING GREEK PERISPOMENI
+toUnicodeMark (U.MarkChar '\x0345') = Just IotaSubscriptMark -- COMBINING GREEK YPOGEGRAMMENI
+toUnicodeMark _ = Nothing
+
+
 data Accent = AcuteAccent | GraveAccent | CircumflexAccent
 data Breathing = SmoothBreathing | RoughBreathing
 data IotaSubscript = IotaSubscript
