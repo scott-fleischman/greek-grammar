@@ -16,11 +16,11 @@ import qualified Text.Greek.Script.Unit as U
 class Render a where
   render :: a -> L.Text
 
-instance Render U.Letter where
-  render = L.singleton . U.getLetter
+instance Render U.LetterChar where
+  render = L.singleton . U.getLetterChar
 
-instance Render U.Mark where
-  render = T.format "\x25CC{}" . T.Only . U.getMark
+instance Render U.MarkChar where
+  render = T.format "\x25CC{}" . T.Only . U.getMarkChar
 
 instance (Render a, Render b) => Render (a, b) where
   render (a, b) = T.format "({},{})" (render a, render b)

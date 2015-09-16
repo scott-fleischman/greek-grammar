@@ -1,73 +1,137 @@
-{-# LANGUAGE DeriveDataTypeable #-}
-
 module Text.Greek.Script.Letter where
 
-data UnicodeLetter
-  = U_α | U_β | U_γ | U_δ | U_ε | U_ζ | U_η | U_θ | U_ι | U_κ | U_λ | U_μ | U_ν | U_ξ | U_ο | U_π | U_ρ | U_σ | U_ς | U_τ | U_υ | U_φ | U_χ | U_ψ | U_ω
-  | U_Α | U_Β | U_Γ | U_Δ | U_Ε | U_Ζ | U_Η | U_Θ | U_Ι | U_Κ | U_Λ | U_Μ | U_Ν | U_Ξ | U_Ο | U_Π | U_Ρ | U_Σ       | U_Τ | U_Υ | U_Φ | U_Χ | U_Ψ | U_Ω
+import qualified Text.Greek.Script.Unit as U
 
-data FinalForm = FinalForm
+data UnicodeLetter
+  = U_Α | U_Β | U_Γ | U_Δ | U_Ε | U_Ζ | U_Η | U_Θ | U_Ι | U_Κ | U_Λ | U_Μ | U_Ν | U_Ξ | U_Ο | U_Π | U_Ρ | U_Σ       | U_Τ | U_Υ | U_Φ | U_Χ | U_Ψ | U_Ω
+  | U_α | U_β | U_γ | U_δ | U_ε | U_ζ | U_η | U_θ | U_ι | U_κ | U_λ | U_μ | U_ν | U_ξ | U_ο | U_π | U_ρ | U_σ | U_ς | U_τ | U_υ | U_φ | U_χ | U_ψ | U_ω
+  deriving (Eq, Ord, Show)
+
+toUnicodeLetter :: U.LetterChar -> Maybe UnicodeLetter
+toUnicodeLetter (U.LetterChar 'Α') = Just U_Α
+toUnicodeLetter (U.LetterChar 'Β') = Just U_Β
+toUnicodeLetter (U.LetterChar 'Γ') = Just U_Γ
+toUnicodeLetter (U.LetterChar 'Δ') = Just U_Δ
+toUnicodeLetter (U.LetterChar 'Ε') = Just U_Ε
+toUnicodeLetter (U.LetterChar 'Ζ') = Just U_Ζ
+toUnicodeLetter (U.LetterChar 'Η') = Just U_Η
+toUnicodeLetter (U.LetterChar 'Θ') = Just U_Θ
+toUnicodeLetter (U.LetterChar 'Ι') = Just U_Ι
+toUnicodeLetter (U.LetterChar 'Κ') = Just U_Κ
+toUnicodeLetter (U.LetterChar 'Λ') = Just U_Λ
+toUnicodeLetter (U.LetterChar 'Μ') = Just U_Μ
+toUnicodeLetter (U.LetterChar 'Ν') = Just U_Ν
+toUnicodeLetter (U.LetterChar 'Ξ') = Just U_Ξ
+toUnicodeLetter (U.LetterChar 'Ο') = Just U_Ο
+toUnicodeLetter (U.LetterChar 'Π') = Just U_Π
+toUnicodeLetter (U.LetterChar 'Ρ') = Just U_Ρ
+toUnicodeLetter (U.LetterChar 'Σ') = Just U_Σ
+toUnicodeLetter (U.LetterChar 'Τ') = Just U_Τ
+toUnicodeLetter (U.LetterChar 'Υ') = Just U_Υ
+toUnicodeLetter (U.LetterChar 'Φ') = Just U_Φ
+toUnicodeLetter (U.LetterChar 'Χ') = Just U_Χ
+toUnicodeLetter (U.LetterChar 'Ψ') = Just U_Ψ
+toUnicodeLetter (U.LetterChar 'Ω') = Just U_Ω
+toUnicodeLetter (U.LetterChar 'α') = Just U_α
+toUnicodeLetter (U.LetterChar 'β') = Just U_β
+toUnicodeLetter (U.LetterChar 'γ') = Just U_γ
+toUnicodeLetter (U.LetterChar 'δ') = Just U_δ
+toUnicodeLetter (U.LetterChar 'ε') = Just U_ε
+toUnicodeLetter (U.LetterChar 'ζ') = Just U_ζ
+toUnicodeLetter (U.LetterChar 'η') = Just U_η
+toUnicodeLetter (U.LetterChar 'θ') = Just U_θ
+toUnicodeLetter (U.LetterChar 'ι') = Just U_ι
+toUnicodeLetter (U.LetterChar 'κ') = Just U_κ
+toUnicodeLetter (U.LetterChar 'λ') = Just U_λ
+toUnicodeLetter (U.LetterChar 'μ') = Just U_μ
+toUnicodeLetter (U.LetterChar 'ν') = Just U_ν
+toUnicodeLetter (U.LetterChar 'ξ') = Just U_ξ
+toUnicodeLetter (U.LetterChar 'ο') = Just U_ο
+toUnicodeLetter (U.LetterChar 'π') = Just U_π
+toUnicodeLetter (U.LetterChar 'ρ') = Just U_ρ
+toUnicodeLetter (U.LetterChar 'ς') = Just U_ς
+toUnicodeLetter (U.LetterChar 'σ') = Just U_σ
+toUnicodeLetter (U.LetterChar 'τ') = Just U_τ
+toUnicodeLetter (U.LetterChar 'υ') = Just U_υ
+toUnicodeLetter (U.LetterChar 'φ') = Just U_φ
+toUnicodeLetter (U.LetterChar 'χ') = Just U_χ
+toUnicodeLetter (U.LetterChar 'ψ') = Just U_ψ
+toUnicodeLetter (U.LetterChar 'ω') = Just U_ω
+toUnicodeLetter _ = Nothing
+
+data RightQuote = RightQuote deriving (Eq, Ord, Show) -- \x2019
+
 data Letter
   = L_α | L_β | L_γ | L_δ | L_ε | L_ζ | L_η | L_θ | L_ι | L_κ | L_λ | L_μ
-  | L_ν | L_ξ | L_ο | L_π | L_ρ | L_σ (Maybe FinalForm) | L_τ | L_υ | L_φ | L_χ | L_ψ | L_ω
-data LetterCase = Lowercase | Uppercase
+  | L_ν | L_ξ | L_ο | L_π | L_ρ | L_σ | L_τ | L_υ | L_φ | L_χ | L_ψ | L_ω
+data LetterCase = Lowercase | Uppercase deriving (Eq, Ord, Show)
+data Final = Final | NotFinal deriving (Eq, Ord, Show)
 
-toUnicodeLetter :: UnicodeLetter -> (Letter, LetterCase)
-toUnicodeLetter U_α = (L_α, Lowercase)
-toUnicodeLetter U_β = (L_β, Lowercase)
-toUnicodeLetter U_γ = (L_γ, Lowercase)
-toUnicodeLetter U_δ = (L_δ, Lowercase)
-toUnicodeLetter U_ε = (L_ε, Lowercase)
-toUnicodeLetter U_ζ = (L_ζ, Lowercase)
-toUnicodeLetter U_η = (L_η, Lowercase)
-toUnicodeLetter U_θ = (L_θ, Lowercase)
-toUnicodeLetter U_ι = (L_ι, Lowercase)
-toUnicodeLetter U_κ = (L_κ, Lowercase)
-toUnicodeLetter U_λ = (L_λ, Lowercase)
-toUnicodeLetter U_μ = (L_μ, Lowercase)
-toUnicodeLetter U_ν = (L_ν, Lowercase)
-toUnicodeLetter U_ξ = (L_ξ, Lowercase)
-toUnicodeLetter U_ο = (L_ο, Lowercase)
-toUnicodeLetter U_π = (L_π, Lowercase)
-toUnicodeLetter U_ρ = (L_ρ, Lowercase)
-toUnicodeLetter U_σ = (L_σ Nothing, Lowercase)
-toUnicodeLetter U_ς = (L_σ (Just FinalForm), Lowercase)
-toUnicodeLetter U_τ = (L_τ, Lowercase)
-toUnicodeLetter U_υ = (L_υ, Lowercase)
-toUnicodeLetter U_φ = (L_φ, Lowercase)
-toUnicodeLetter U_χ = (L_χ, Lowercase)
-toUnicodeLetter U_ψ = (L_ψ, Lowercase)
-toUnicodeLetter U_ω = (L_ω, Lowercase)
+data LetterInfo = LetterInfo
+  { letterInfoLetter :: Letter
+  , letterInfoCase :: LetterCase
+  , letterInfoFinal :: Final
+  }
 
-toUnicodeLetter U_Α = (L_α, Uppercase)
-toUnicodeLetter U_Β = (L_β, Uppercase)
-toUnicodeLetter U_Γ = (L_γ, Uppercase)
-toUnicodeLetter U_Δ = (L_δ, Uppercase)
-toUnicodeLetter U_Ε = (L_ε, Uppercase)
-toUnicodeLetter U_Ζ = (L_ζ, Uppercase)
-toUnicodeLetter U_Η = (L_η, Uppercase)
-toUnicodeLetter U_Θ = (L_θ, Uppercase)
-toUnicodeLetter U_Ι = (L_ι, Uppercase)
-toUnicodeLetter U_Κ = (L_κ, Uppercase)
-toUnicodeLetter U_Λ = (L_λ, Uppercase)
-toUnicodeLetter U_Μ = (L_μ, Uppercase)
-toUnicodeLetter U_Ν = (L_ν, Uppercase)
-toUnicodeLetter U_Ξ = (L_ξ, Uppercase)
-toUnicodeLetter U_Ο = (L_ο, Uppercase)
-toUnicodeLetter U_Π = (L_π, Uppercase)
-toUnicodeLetter U_Ρ = (L_ρ, Uppercase)
-toUnicodeLetter U_Σ = (L_σ Nothing, Uppercase)
-toUnicodeLetter U_Τ = (L_τ, Uppercase)
-toUnicodeLetter U_Υ = (L_υ, Uppercase)
-toUnicodeLetter U_Φ = (L_φ, Uppercase)
-toUnicodeLetter U_Χ = (L_χ, Uppercase)
-toUnicodeLetter U_Ψ = (L_ψ, Uppercase)
-toUnicodeLetter U_Ω = (L_ω, Uppercase)
+upper :: Letter -> LetterInfo
+upper l = LetterInfo l Uppercase NotFinal
+
+lower :: Letter -> LetterInfo
+lower l = LetterInfo l Lowercase NotFinal
+
+toLetterInfo :: UnicodeLetter -> LetterInfo
+toLetterInfo U_Α = upper L_α
+toLetterInfo U_Β = upper L_β
+toLetterInfo U_Γ = upper L_γ
+toLetterInfo U_Δ = upper L_δ
+toLetterInfo U_Ε = upper L_ε
+toLetterInfo U_Ζ = upper L_ζ
+toLetterInfo U_Η = upper L_η
+toLetterInfo U_Θ = upper L_θ
+toLetterInfo U_Ι = upper L_ι
+toLetterInfo U_Κ = upper L_κ
+toLetterInfo U_Λ = upper L_λ
+toLetterInfo U_Μ = upper L_μ
+toLetterInfo U_Ν = upper L_ν
+toLetterInfo U_Ξ = upper L_ξ
+toLetterInfo U_Ο = upper L_ο
+toLetterInfo U_Π = upper L_π
+toLetterInfo U_Ρ = upper L_ρ
+toLetterInfo U_Σ = upper L_σ
+toLetterInfo U_Τ = upper L_τ
+toLetterInfo U_Υ = upper L_υ
+toLetterInfo U_Φ = upper L_φ
+toLetterInfo U_Χ = upper L_χ
+toLetterInfo U_Ψ = upper L_ψ
+toLetterInfo U_Ω = upper L_ω
+toLetterInfo U_α = lower L_α
+toLetterInfo U_β = lower L_β
+toLetterInfo U_γ = lower L_γ
+toLetterInfo U_δ = lower L_δ
+toLetterInfo U_ε = lower L_ε
+toLetterInfo U_ζ = lower L_ζ
+toLetterInfo U_η = lower L_η
+toLetterInfo U_θ = lower L_θ
+toLetterInfo U_ι = lower L_ι
+toLetterInfo U_κ = lower L_κ
+toLetterInfo U_λ = lower L_λ
+toLetterInfo U_μ = lower L_μ
+toLetterInfo U_ν = lower L_ν
+toLetterInfo U_ξ = lower L_ξ
+toLetterInfo U_ο = lower L_ο
+toLetterInfo U_π = lower L_π
+toLetterInfo U_ρ = lower L_ρ
+toLetterInfo U_σ = lower L_σ
+toLetterInfo U_ς = LetterInfo L_σ Lowercase Final
+toLetterInfo U_τ = lower L_τ
+toLetterInfo U_υ = lower L_υ
+toLetterInfo U_φ = lower L_φ
+toLetterInfo U_χ = lower L_χ
+toLetterInfo U_ψ = lower L_ψ
+toLetterInfo U_ω = lower L_ω
 
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω
-data Consonant
-  = C_β | C_γ | C_δ | C_ζ | C_θ | C_κ | C_λ | C_μ | C_ν
-  | C_ξ | C_π | C_ρ | C_σ (Maybe FinalForm) | C_τ | C_φ | C_χ | C_ψ
+data Consonant = C_β | C_γ | C_δ | C_ζ | C_θ | C_κ | C_λ | C_μ | C_ν | C_ξ | C_π | C_ρ | C_σ | C_τ | C_φ | C_χ | C_ψ
 
 toVowelConsonant :: Letter -> Either Vowel Consonant
 toVowelConsonant L_α = Left V_α
@@ -89,7 +153,7 @@ toVowelConsonant L_ν = Right C_ν
 toVowelConsonant L_ξ = Right C_ξ
 toVowelConsonant L_π = Right C_π
 toVowelConsonant L_ρ = Right C_ρ
-toVowelConsonant (L_σ ff) = Right (C_σ ff)
+toVowelConsonant L_σ = Right C_σ
 toVowelConsonant L_τ = Right C_τ
 toVowelConsonant L_φ = Right C_φ
 toVowelConsonant L_χ = Right C_χ
@@ -102,21 +166,6 @@ data Accent = AcuteAccent | GraveAccent | CircumflexAccent
 data Breathing = SmoothBreathing | RoughBreathing
 data IotaSubscript = IotaSubscript
 data Diaeresis = Diaeresis
-
-data OneOf4 a b c d
-  = OneOf4_0 a
-  | OneOf4_1 b
-  | OneOf4_2 c
-  | OneOf4_3 d
-
-toMark :: UnicodeMark -> OneOf4 Accent Breathing IotaSubscript Diaeresis
-toMark AcuteMark = OneOf4_0 AcuteAccent
-toMark GraveMark = OneOf4_0 GraveAccent
-toMark CircumflexMark = OneOf4_0 CircumflexAccent
-toMark SmoothMark = OneOf4_1 SmoothBreathing
-toMark RoughMark = OneOf4_1 RoughBreathing
-toMark IotaSubscriptMark = OneOf4_2 IotaSubscript
-toMark DiaeresisMark = OneOf4_3 Diaeresis
 
 {-
 
