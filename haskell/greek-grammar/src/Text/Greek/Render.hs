@@ -25,7 +25,7 @@ instance Render U.MarkChar where
 instance (Render a, Render b) => Render (a, b) where
   render (a, b) = T.format "({},{})" (render a, render b)
 
-instance Render Unit where
+instance (Render l, Render m) => Render (Unit l m) where
   render (Unit c r ms) = T.format "({},{},{})" (render c, render r, render (M.toList ms))
 
 instance Render FileCharReference where
@@ -40,9 +40,9 @@ instance Render a => Render [a] where
 instance Render Int where
   render = L.pack . show
 
-instance Render U.Property where
-  render (U.PropertyLetter c) = render c
-  render (U.PropertyMark c) = render c
+instance (Render l, Render m) => Render (U.Property l m) where
+  render (U.PropertyLetter l) = render l
+  render (U.PropertyMark m) = render m
 
 instance Render a => Render (Set a) where
   render = render . S.toAscList

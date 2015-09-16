@@ -112,9 +112,9 @@ makePrisms ''BookParagraph
 
 bookParagraphParser :: EventParser (Maybe BookParagraph)
 bookParagraphParser
-  =   try (fmap (Just . BookParagraphMarkEnd) markEndParser)
+  =   fmap (Just . BookParagraphMarkEnd) markEndParser
+  <|> try (fmap (const Nothing) (emptyElement "p"))
   <|> fmap (Just . BookParagraphContent) (paragraphParser (many1 itemParser))
-  <|> fmap (const Nothing) (emptyElement "p")
   <?> "Unknown book paragraph item"
 
 data Book = Book

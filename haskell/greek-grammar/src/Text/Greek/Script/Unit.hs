@@ -17,10 +17,11 @@ import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Text.Parsec.Pos as P
 
-data Unit = Unit
-  { unitLetter :: LetterChar
+type UnitChar = Unit LetterChar MarkChar
+data Unit l m = Unit
+  { unitLetter :: l
   , unitReference :: FileCharReference
-  , unitMarks :: Map MarkChar FileCharReference
+  , unitMarks :: Map m FileCharReference
   } deriving (Eq, Ord, Show)
 
 data UnitError
@@ -29,15 +30,15 @@ data UnitError
   | UnitErrorParse ParseError
   deriving Show
 
-toUnits :: Text -> FileReference -> Either UnitError [Unit]
+toUnits :: Text -> FileReference -> Either UnitError [UnitChar]
 toUnits t r = decomposeText t r >>= (over _Left UnitErrorParse . parse unitsParser "")
 
-data Property
-  = PropertyLetter LetterChar
-  | PropertyMark MarkChar
+data Property l m
+  = PropertyLetter l
+  | PropertyMark m
   deriving (Eq, Ord, Show)
 
-getProperties :: Unit -> [Property]
+getProperties :: Unit l m -> [Property l m]
 getProperties (Unit l _ m) = (PropertyLetter l) : fmap PropertyMark (M.keys m)
 
 newtype LetterChar = LetterChar { getLetterChar :: Char } deriving (Eq, Show, Ord)
@@ -67,7 +68,7 @@ markParser = over _1 MarkChar <$> satisfy isMark
 letterParser :: CharPairParser (LetterChar, FileCharReference)
 letterParser = over _1 LetterChar <$> satisfy isLetter
 
-unitParser :: CharPairParser Unit
+unitParser :: CharPairParser UnitChar
 unitParser = do
   (l, r) <- letterParser
   marks <- many markParser
@@ -76,7 +77,7 @@ unitParser = do
     then return $ Unit l r marks' 
     else fail "Duplicate marks"
 
-unitsParser :: CharPairParser [Unit]
+unitsParser :: CharPairParser [UnitChar]
 unitsParser = many1 unitParser <* eof
 
 decomposeText :: Text -> FileReference -> Either UnitError [CharPair]
