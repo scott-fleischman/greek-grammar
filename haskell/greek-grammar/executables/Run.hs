@@ -30,8 +30,7 @@ works ws = case errors of
     (errors, results) = partitionEithers . fmap (\(Word s r) -> U.toUnits s r) . concatMap workWords $ ws
 
 units :: [[Unit]] -> IO ()
-units = renderAll . fmap (over _2 length) . sortOn fst . query (S.fromList . U.getProperties) . concat
---units = mapM_ (\x -> T.putStrLn . L.toStrict . render $ x) . concat . take 200 . drop 1000
+units = renderAll . fmap (over _2 length) . sortOn fst . concatQuery (U.getProperties) . concat
 
 renderAll :: Render t => [t] -> IO ()
 renderAll = mapM_ (T.putStrLn . L.toStrict . render)
