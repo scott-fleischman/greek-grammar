@@ -5,6 +5,7 @@ import Control.Lens
 import Data.Text (Text)
 import Text.Greek.FileReference
 import Text.Greek.Paths
+import Text.Greek.Script.Elision
 import Text.Greek.Xml.Common
 import Text.Greek.Xml.Parse
 import qualified Text.Greek.Source.Sblgnt as SBL
@@ -12,6 +13,7 @@ import qualified Text.Greek.Source.Sblgnt as SBL
 data Word = Word
   { wordSurface :: Text
   , wordFileReference :: FileReference
+  , wordElision :: Maybe (ElisionChar, FileCharReference)
   } deriving Show
 
 data Work = Work
@@ -38,4 +40,4 @@ sblgntParagraphsToWords :: Foldable t => t SBL.BookParagraph -> [Word]
 sblgntParagraphsToWords = fmap sblWordToWord . concatMap (toListOf SBL._ItemWord) . concat . concatMap (toListOf SBL._BookParagraphContent)
 
 sblWordToWord :: SBL.Word -> Word
-sblWordToWord (SBL.Word s r _ _) = Word s r
+sblWordToWord (SBL.Word s r e _ _) = Word s r e

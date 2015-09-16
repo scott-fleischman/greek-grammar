@@ -59,7 +59,7 @@ toUnicodeLetter (U.LetterChar 'ψ') = Just U_ψ
 toUnicodeLetter (U.LetterChar 'ω') = Just U_ω
 toUnicodeLetter _ = Nothing
 
-data RightQuote = RightQuote deriving (Eq, Ord, Show) -- \x2019
+data RightQuote = RightQuote deriving (Eq, Ord, Show) -- 
 
 data Letter
   = L_α | L_β | L_γ | L_δ | L_ε | L_ζ | L_η | L_θ | L_ι | L_κ | L_λ | L_μ

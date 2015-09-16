@@ -52,9 +52,8 @@ parseCharPair = tokenPrim show updateEventPos
 updateEventPos :: P.SourcePos -> (t, FileCharReference) -> s -> P.SourcePos
 updateEventPos p (_, r) _ = flip P.setSourceColumn column . flip P.setSourceLine line $ p
   where
-    pos = fileCharReferenceLine r
-    line = getLine . lineReferenceLine $ pos
-    column = getColumn . lineReferenceColumn $ pos
+    line   = r ^. fileCharReferenceLine . lineReferenceLine   . getLine
+    column = r ^. fileCharReferenceLine . lineReferenceColumn . getColumn
 
 satisfy :: (Char -> Bool) -> CharPairParser CharPair
 satisfy f = parseCharPair go
@@ -66,7 +65,7 @@ markParser :: CharPairParser (MarkChar, FileCharReference)
 markParser = over _1 MarkChar <$> satisfy isMark
 
 letterParser :: CharPairParser (LetterChar, FileCharReference)
-letterParser = over _1 LetterChar <$> satisfy (or . zipWith ($) [isLetter, isNumber] . repeat)
+letterParser = over _1 LetterChar <$> satisfy isLetter
 
 unitParser :: CharPairParser Unit
 unitParser = do
@@ -78,7 +77,7 @@ unitParser = do
     else fail "Duplicate marks"
 
 unitsParser :: CharPairParser [Unit]
-unitsParser = many1 unitParser
+unitsParser = many1 unitParser <* eof
 
 decomposeText :: Text -> FileReference -> Either UnitError [CharPair]
 decomposeText t r = do

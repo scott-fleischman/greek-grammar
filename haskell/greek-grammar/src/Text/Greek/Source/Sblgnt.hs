@@ -1,16 +1,21 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Text.Greek.Source.Sblgnt where
 
 import Prelude hiding (Word)
-import Control.Lens (makePrisms)
+import Control.Lens hiding (element)
+import Data.Char
 import Data.Maybe
 import Data.Text (Text)
 import Text.Greek.FileReference
+import Text.Greek.Script.Elision
 import Text.Greek.Xml.Parse
 import Text.Parsec.Combinator
 import Text.Parsec.Prim
+import qualified Data.Text as T
+import qualified Text.ParserCombinators.Parsec as C
 
 newtype Target = Target Text deriving Show
 
@@ -64,6 +69,7 @@ markEndParser = element "mark-end" (xmlLangAttributeValueParser "en") contentPar
 data Word = Word
   { wordSurface :: Text
   , wordFileReference :: FileReference
+  , wordElision :: Maybe (ElisionChar, FileCharReference)
   , wordPrefix :: Maybe Text
   , wordSuffix :: Text
   } deriving Show
@@ -73,12 +79,27 @@ data Word = Word
 -- ⸂ ⸃ or ⸄ ⸅  (enclosed words)
 -- [ ]  (doubtful)
 
+wordContentParser :: C.CharParser () (Text, Maybe ElisionChar)
+wordContentParser = (,)
+  <$> (T.pack <$> many1 (C.satisfy isLetter))
+  <*> (fmap ElisionChar <$> optionMaybe (C.oneOf elisionCharacters))
+  <* eof <?> "unexpected end of word content"
+
+splitReference :: FileReference -> Maybe a -> (FileReference, Maybe (a, FileCharReference))
+splitReference r Nothing = (r, Nothing)
+splitReference r (Just a) =
+  ( r & fileReferenceEnd . lineReferenceColumn %~ (\x -> x - 1)
+  , Just (a, FileCharReference (r ^. fileReferencePath) (r ^. fileReferenceEnd))
+  )
+
 wordParser :: EventParser Word
 wordParser = do
   prefix <- optionMaybe (elementContent "prefix")
-  (r, surface) <- elementContentReference "w"
+  (r, content) <- elementContentReference "w"
+  (surface, elision) <- embedParser wordContentParser (T.unpack content)
+  let (r', elision') = splitReference r elision
   suffix <- elementContent "suffix"
-  return $ Word surface r prefix suffix
+  return $ Word surface r' elision' prefix suffix
 
 data Item = ItemVerse Verse | ItemWord Word deriving Show
 makePrisms ''Item
@@ -91,8 +112,8 @@ makePrisms ''BookParagraph
 
 bookParagraphParser :: EventParser (Maybe BookParagraph)
 bookParagraphParser
-  =   try (fmap (Just . BookParagraphContent) (paragraphParser (many1 itemParser)))
-  <|> fmap (Just . BookParagraphMarkEnd) markEndParser
+  =   try (fmap (Just . BookParagraphMarkEnd) markEndParser)
+  <|> fmap (Just . BookParagraphContent) (paragraphParser (many1 itemParser))
   <|> fmap (const Nothing) (emptyElement "p")
   <?> "Unknown book paragraph item"
 

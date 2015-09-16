@@ -61,6 +61,7 @@ library
     Text.Greek.Phonology.Vowels
     Text.Greek.Render
     Text.Greek.Script
+    Text.Greek.Script.Elision
     Text.Greek.Script.Letter
     Text.Greek.Script.Sound
     Text.Greek.Script.Token

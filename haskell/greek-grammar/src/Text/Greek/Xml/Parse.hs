@@ -6,8 +6,8 @@
 module Text.Greek.Xml.Parse where
 
 import Prelude hiding ((*), (+), getLine)
+import Control.Lens
 import Data.Either
-import Data.Functor.Identity
 import Data.Map (Map)
 import Data.Text (Text)
 import Text.Greek.FileReference
@@ -29,8 +29,10 @@ type AttributeParser = ParsecT [XmlAttribute] () Identity
 type CharParser a = forall s u m. Stream s m Char => ParsecT s u m a
 
 nestParser :: (Stream s1 m t1, Stream s2 Identity t2) => ParsecT s1 u m s2 -> ParsecT s2 () Identity b -> ParsecT s1 u m b
-nestParser p1 p2 = do
-  v <- p1
+nestParser p1 p2 = p1 >>= embedParser p2
+
+embedParser :: (Stream s1 m t1, Stream s2 Identity t2) => ParsecT s2 () Identity b -> s2 -> ParsecT s1 u m b
+embedParser p2 v = do
   pos <- getPosition
   case parse (setPosition pos *> p2) (P.sourceName pos) v of
     Left x -> fail $ show x
@@ -45,9 +47,8 @@ parseAttribute = tokenPrim show (const . const)
 updateEventPos :: SourcePos -> (FileReference, t) -> s -> SourcePos
 updateEventPos p (r, _) _ = flip P.setSourceColumn column . flip P.setSourceLine line $ p
   where
-    beginPos = fileReferenceBegin r
-    line = getLine . lineReferenceLine $ beginPos
-    column = getColumn . lineReferenceColumn $ beginPos
+    line   = r ^. fileReferenceBegin . lineReferenceLine   . getLine
+    column = r ^. fileReferenceBegin . lineReferenceColumn . getColumn
 
 emptyAttributes :: AttributeParser ()
 emptyAttributes = fmap (const ()) eof

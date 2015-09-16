@@ -1,33 +1,42 @@
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module Text.Greek.FileReference where
 
 import Prelude hiding (getLine)
+import Control.Lens
 import Data.String
 
-newtype Line = Line { getLine :: Int } deriving (Eq, Ord)
+newtype Line = Line { _getLine :: Int } deriving (Eq, Ord, Num)
 instance Show Line where show (Line l) = "Line " ++ show l
+makeLenses ''Line
 
-newtype Column = Column { getColumn :: Int } deriving (Eq, Ord)
+newtype Column = Column { _getColumn :: Int } deriving (Eq, Ord, Num)
 instance Show Column where show (Column c) = "Column " ++ show c
+makeLenses ''Column
 
 newtype Path = Path { getPath :: FilePath } deriving (Eq, Ord)
 instance IsString Path where fromString = Path
 instance Show Path where show (Path p) = show p
 
 data LineReference = LineReference
-  { lineReferenceLine :: Line
-  , lineReferenceColumn :: Column
+  { _lineReferenceLine :: Line
+  , _lineReferenceColumn :: Column
   } deriving (Eq, Ord)
 instance Show LineReference where show (LineReference l c) = "LineReference (" ++ show l ++ ") (" ++ show c ++ ")"
+makeLenses ''LineReference
 
 data FileReference = FileReference
-  { fileReferencePath :: Path
-  , fileReferenceBegin :: LineReference
-  , fileReferenceEnd :: LineReference
+  { _fileReferencePath :: Path
+  , _fileReferenceBegin :: LineReference
+  , _fileReferenceEnd :: LineReference
   }
 instance Show FileReference where show (FileReference p b e) = "FileReference " ++ show p ++ " (" ++ show b ++ ") (" ++ show e ++ ")"
+makeLenses ''FileReference
 
 data FileCharReference = FileCharReference
-  { fileCharReferencePath :: Path
-  , fileCharReferenceLine :: LineReference
+  { _fileCharReferencePath :: Path
+  , _fileCharReferenceLine :: LineReference
   } deriving (Eq, Ord)
 instance Show FileCharReference where show (FileCharReference p l) = "FileCharReference " ++ show p ++ " (" ++ show l ++ ")"
+makeLenses ''FileCharReference
