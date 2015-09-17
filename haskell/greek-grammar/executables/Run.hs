@@ -7,6 +7,7 @@ import Control.Category ((>>>))
 import Control.Lens
 import Data.Either
 import Data.List
+import Text.Greek.FileReference
 import Text.Greek.Render
 import Text.Greek.Source.All
 import Text.Greek.Utility
@@ -20,8 +21,11 @@ main = loadAll >>= handleEither
   >>= (wordsToUnits >>> handleListEither)
   >>= (concat >>> unitCharLetters >>> renderSummary)
 
+workWordsToUnits :: [Work (T.Text, FileReference)] -> Either U.UnitError [Work [U.UnitChar]]
+workWordsToUnits = (traverse . workContent) U.toUnits
+
 wordsToUnits :: [Work [BasicWordText]] -> [Either U.UnitError [U.UnitChar]]
-wordsToUnits = fmap (\(BasicWord s _) -> U.toUnits s) . concatMap workContent
+wordsToUnits = fmap (\(BasicWord s _) -> U.toUnits s) . concatMap (view workContent)
 
 renderSummary :: (Render b, Ord b, Foldable t) => [(b, t a)] -> IO ()
 renderSummary = renderAll . fmap (over _2 length) . sortOn fst

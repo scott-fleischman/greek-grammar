@@ -1,3 +1,5 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Text.Greek.Source.All where
 
 import Prelude hiding (Word)
@@ -16,14 +18,15 @@ data BasicWord a = BasicWord
   , wordElision :: Maybe (ElisionChar, FileCharReference)
   } deriving Show
 
+data WorkSource = Sblgnt deriving Show
+
 type WorkText = Work [BasicWordText]
 data Work a = Work
-  { workSource :: WorkSource
-  , workTitle :: Text
-  , workContent :: a
+  { _workSource :: WorkSource
+  , _workTitle :: Text
+  , _workContent :: a
   } deriving Show
-
-data WorkSource = Sblgnt deriving Show
+makeLenses ''Work
 
 loadAll :: IO (Either [XmlError] [WorkText])
 loadAll = loadSblgnt
