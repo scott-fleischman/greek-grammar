@@ -31,8 +31,8 @@ data UnitError
   | UnitErrorParse ParseError
   deriving Show
 
-toUnits :: Text -> FileReference -> Either UnitError [UnitChar]
-toUnits t r = decomposeText t r >>= (over _Left UnitErrorParse . parse unitsParser "")
+toUnits :: (Text, FileReference) -> Either UnitError [UnitChar]
+toUnits (t, r) = decomposeText t r >>= (over _Left UnitErrorParse . parse unitsParser "")
 
 getMarks :: Unit l m -> [m]
 getMarks (Unit _ _ m) = M.keys m

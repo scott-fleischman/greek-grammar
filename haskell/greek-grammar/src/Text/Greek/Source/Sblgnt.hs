@@ -67,8 +67,7 @@ markEndParser :: EventParser MarkEnd
 markEndParser = element "mark-end" (xmlLangAttributeValueParser "en") contentParser (const MarkEnd)
 
 data Word = Word
-  { wordSurface :: Text
-  , wordFileReference :: FileReference
+  { wordSurface :: (Text, FileReference)
   , wordElision :: Maybe (ElisionChar, FileCharReference)
   , wordPrefix :: Maybe Text
   , wordSuffix :: Text
@@ -99,7 +98,7 @@ wordParser = do
   (surface, elision) <- embedParser wordContentParser (T.unpack content)
   let (r', elision') = splitReference r elision
   suffix <- elementContent "suffix"
-  return $ Word surface r' elision' prefix suffix
+  return $ Word (surface, r') elision' prefix suffix
 
 data Item = ItemVerse Verse | ItemWord Word deriving Show
 makePrisms ''Item

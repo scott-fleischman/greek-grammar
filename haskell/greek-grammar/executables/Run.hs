@@ -27,7 +27,7 @@ works ws = case errors of
   _ : _ -> printErrors errors
   [] -> renderSummary . unitMarkLetterPairs . concat $ results
   where
-    (errors, results) = partitionEithers . fmap (\(Word s r _) -> U.toUnits s r) . concatMap workWords $ ws
+    (errors, results) = partitionEithers . fmap (\(Word s _) -> U.toUnits s) . concatMap workWords $ ws
 
 renderSummary :: (Render b, Ord b, Foldable t) => [(b, t a)] -> IO ()
 renderSummary = renderAll . fmap (over _2 length) . sortOn fst
