@@ -1,63 +1,6 @@
 module Text.Greek.Script.Letter where
 
-import qualified Text.Greek.Script.Unit as U
-
-data UnicodeLetter
-  = U_Α | U_Β | U_Γ | U_Δ | U_Ε | U_Ζ | U_Η | U_Θ | U_Ι | U_Κ | U_Λ | U_Μ | U_Ν | U_Ξ | U_Ο | U_Π | U_Ρ | U_Σ       | U_Τ | U_Υ | U_Φ | U_Χ | U_Ψ | U_Ω
-  | U_α | U_β | U_γ | U_δ | U_ε | U_ζ | U_η | U_θ | U_ι | U_κ | U_λ | U_μ | U_ν | U_ξ | U_ο | U_π | U_ρ | U_σ | U_ς | U_τ | U_υ | U_φ | U_χ | U_ψ | U_ω
-  deriving (Eq, Ord, Show)
-
-toUnicodeLetter :: U.LetterChar -> Maybe UnicodeLetter
-toUnicodeLetter (U.LetterChar 'Α') = Just U_Α
-toUnicodeLetter (U.LetterChar 'Β') = Just U_Β
-toUnicodeLetter (U.LetterChar 'Γ') = Just U_Γ
-toUnicodeLetter (U.LetterChar 'Δ') = Just U_Δ
-toUnicodeLetter (U.LetterChar 'Ε') = Just U_Ε
-toUnicodeLetter (U.LetterChar 'Ζ') = Just U_Ζ
-toUnicodeLetter (U.LetterChar 'Η') = Just U_Η
-toUnicodeLetter (U.LetterChar 'Θ') = Just U_Θ
-toUnicodeLetter (U.LetterChar 'Ι') = Just U_Ι
-toUnicodeLetter (U.LetterChar 'Κ') = Just U_Κ
-toUnicodeLetter (U.LetterChar 'Λ') = Just U_Λ
-toUnicodeLetter (U.LetterChar 'Μ') = Just U_Μ
-toUnicodeLetter (U.LetterChar 'Ν') = Just U_Ν
-toUnicodeLetter (U.LetterChar 'Ξ') = Just U_Ξ
-toUnicodeLetter (U.LetterChar 'Ο') = Just U_Ο
-toUnicodeLetter (U.LetterChar 'Π') = Just U_Π
-toUnicodeLetter (U.LetterChar 'Ρ') = Just U_Ρ
-toUnicodeLetter (U.LetterChar 'Σ') = Just U_Σ
-toUnicodeLetter (U.LetterChar 'Τ') = Just U_Τ
-toUnicodeLetter (U.LetterChar 'Υ') = Just U_Υ
-toUnicodeLetter (U.LetterChar 'Φ') = Just U_Φ
-toUnicodeLetter (U.LetterChar 'Χ') = Just U_Χ
-toUnicodeLetter (U.LetterChar 'Ψ') = Just U_Ψ
-toUnicodeLetter (U.LetterChar 'Ω') = Just U_Ω
-toUnicodeLetter (U.LetterChar 'α') = Just U_α
-toUnicodeLetter (U.LetterChar 'β') = Just U_β
-toUnicodeLetter (U.LetterChar 'γ') = Just U_γ
-toUnicodeLetter (U.LetterChar 'δ') = Just U_δ
-toUnicodeLetter (U.LetterChar 'ε') = Just U_ε
-toUnicodeLetter (U.LetterChar 'ζ') = Just U_ζ
-toUnicodeLetter (U.LetterChar 'η') = Just U_η
-toUnicodeLetter (U.LetterChar 'θ') = Just U_θ
-toUnicodeLetter (U.LetterChar 'ι') = Just U_ι
-toUnicodeLetter (U.LetterChar 'κ') = Just U_κ
-toUnicodeLetter (U.LetterChar 'λ') = Just U_λ
-toUnicodeLetter (U.LetterChar 'μ') = Just U_μ
-toUnicodeLetter (U.LetterChar 'ν') = Just U_ν
-toUnicodeLetter (U.LetterChar 'ξ') = Just U_ξ
-toUnicodeLetter (U.LetterChar 'ο') = Just U_ο
-toUnicodeLetter (U.LetterChar 'π') = Just U_π
-toUnicodeLetter (U.LetterChar 'ρ') = Just U_ρ
-toUnicodeLetter (U.LetterChar 'ς') = Just U_ς
-toUnicodeLetter (U.LetterChar 'σ') = Just U_σ
-toUnicodeLetter (U.LetterChar 'τ') = Just U_τ
-toUnicodeLetter (U.LetterChar 'υ') = Just U_υ
-toUnicodeLetter (U.LetterChar 'φ') = Just U_φ
-toUnicodeLetter (U.LetterChar 'χ') = Just U_χ
-toUnicodeLetter (U.LetterChar 'ψ') = Just U_ψ
-toUnicodeLetter (U.LetterChar 'ω') = Just U_ω
-toUnicodeLetter _ = Nothing
+import Text.Greek.Script.Unicode
 
 data Letter
   = L_α | L_β | L_γ | L_δ | L_ε | L_ζ | L_η | L_θ | L_ι | L_κ | L_λ | L_μ
@@ -158,18 +101,6 @@ toVowelConsonant L_φ = Right C_φ
 toVowelConsonant L_χ = Right C_χ
 toVowelConsonant L_ψ = Right C_ψ
 
-
-data UnicodeMark = AcuteMark | GraveMark | CircumflexMark | SmoothMark | RoughMark | IotaSubscriptMark | DiaeresisMark
-
-toUnicodeMark :: U.MarkChar -> Maybe UnicodeMark
-toUnicodeMark (U.MarkChar '\x0300') = Just GraveMark -- COMBINING GRAVE ACCENT
-toUnicodeMark (U.MarkChar '\x0301') = Just AcuteMark -- COMBINING ACUTE ACCENT
-toUnicodeMark (U.MarkChar '\x0308') = Just DiaeresisMark -- COMBINING DIAERESIS
-toUnicodeMark (U.MarkChar '\x0313') = Just SmoothMark -- COMBINING COMMA ABOVE
-toUnicodeMark (U.MarkChar '\x0314') = Just RoughMark -- COMBINING REVERSED COMMA ABOVE
-toUnicodeMark (U.MarkChar '\x0342') = Just CircumflexMark -- COMBINING GREEK PERISPOMENI
-toUnicodeMark (U.MarkChar '\x0345') = Just IotaSubscriptMark -- COMBINING GREEK YPOGEGRAMMENI
-toUnicodeMark _ = Nothing
 
 
 data Accent = AcuteAccent | GraveAccent | CircumflexAccent
