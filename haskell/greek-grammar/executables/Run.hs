@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Main where
@@ -5,6 +6,7 @@ module Main where
 import Control.Lens
 import Data.Either
 import Data.List
+import Data.Set (Set)
 import Text.Greek.Render
 import Text.Greek.Source.All
 import Text.Greek.Utility
@@ -23,21 +25,24 @@ main = do
 works :: [Work] -> IO ()
 works ws = case errors of
   _ : _ -> printErrors errors
-  [] -> unitMarks results
+  [] -> renderSummary . unitMarkLetterPairs . concat $ results
   where
     (errors, results) = partitionEithers . fmap (\(Word s r _) -> U.toUnits s r) . concatMap workWords $ ws
 
-unitMarkLetterPairs :: [[U.UnitChar]] -> IO ()
-unitMarkLetterPairs = renderAll . fmap (over _2 length) . sortOn fst . concatQuery (U.getMarkLetterPairs) . concat
+renderSummary :: (Render b, Ord b, Foldable t) => [(b, t a)] -> IO ()
+renderSummary = renderAll . fmap (over _2 length) . sortOn fst
 
-unitLetterMarkSets :: [[U.UnitChar]] -> IO ()
-unitLetterMarkSets = renderAll . fmap (over _2 length) . sortOn fst . query U.getLetterMarkSet . concat
+unitMarkLetterPairs :: (Ord l, Ord m) => [U.Unit l m] -> [((m, l), [U.Unit l m])]
+unitMarkLetterPairs = concatQuery (U.getMarkLetterPairs)
 
-unitLetters :: [[U.UnitChar]] -> IO ()
-unitLetters = renderAll . fmap (over _2 length) . sortOn fst . query U.unitLetter . concat
+unitLetterMarkSets :: (Ord l, Ord m) => [U.Unit l m] -> [((l, Set m), [U.Unit l m])]
+unitLetterMarkSets = query U.getLetterMarkSet
 
-unitMarks :: [[U.UnitChar]] -> IO ()
-unitMarks = renderAll . fmap (over _2 length) . sortOn fst . concatQuery U.getMarks . concat
+unitLetters :: Ord l => [U.Unit l m] -> [(l, [U.Unit l m])]
+unitLetters = query U.unitLetter
+
+unitMarks :: Ord m => [U.Unit l m] -> [(m, [U.Unit l m])]
+unitMarks = concatQuery U.getMarks
 
 renderAll :: Render t => [t] -> IO ()
 renderAll = mapM_ (T.putStrLn . L.toStrict . render)
