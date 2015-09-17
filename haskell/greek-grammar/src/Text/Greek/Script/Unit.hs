@@ -6,6 +6,7 @@ import Prelude hiding (Word, getLine)
 import Control.Lens
 import Data.Char
 import Data.Map (Map)
+import Data.Set (Set)
 import Data.Text (Text)
 import Data.Unicode.DecomposeChar
 import Text.Greek.FileReference
@@ -33,13 +34,14 @@ data UnitError
 toUnits :: Text -> FileReference -> Either UnitError [UnitChar]
 toUnits t r = decomposeText t r >>= (over _Left UnitErrorParse . parse unitsParser "")
 
-data Property l m
-  = PropertyLetter l
-  | PropertyMark m
-  deriving (Eq, Ord, Show)
+getMarks :: Unit l m -> [m]
+getMarks (Unit _ _ m) = M.keys m
 
-getProperties :: Unit l m -> [Property l m]
-getProperties (Unit l _ m) = (PropertyLetter l) : fmap PropertyMark (M.keys m)
+getMarkLetterPairs :: Unit l m -> [(m, l)]
+getMarkLetterPairs (Unit l _ m) = fmap (flip (,) l) (M.keys m)
+
+getLetterMarkSet :: Unit l m -> (l, Set m)
+getLetterMarkSet (Unit l _ m) = (l, M.keysSet m)
 
 newtype LetterChar = LetterChar { getLetterChar :: Char } deriving (Eq, Show, Ord)
 newtype MarkChar = MarkChar { getMarkChar :: Char } deriving (Eq, Show, Ord)

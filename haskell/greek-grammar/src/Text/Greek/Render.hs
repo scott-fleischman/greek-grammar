@@ -40,9 +40,5 @@ instance Render a => Render [a] where
 instance Render Int where
   render = L.pack . show
 
-instance (Render l, Render m) => Render (U.Property l m) where
-  render (U.PropertyLetter l) = render l
-  render (U.PropertyMark m) = render m
-
 instance Render a => Render (Set a) where
   render = render . S.toAscList

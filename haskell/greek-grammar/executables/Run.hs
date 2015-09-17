@@ -23,12 +23,21 @@ main = do
 works :: [Work] -> IO ()
 works ws = case errors of
   _ : _ -> printErrors errors
-  [] -> units results
+  [] -> unitMarks results
   where
     (errors, results) = partitionEithers . fmap (\(Word s r _) -> U.toUnits s r) . concatMap workWords $ ws
 
-units :: [[U.UnitChar]] -> IO ()
-units = renderAll . fmap (over _2 length) . sortOn fst . concatQuery (U.getProperties) . concat
+unitMarkLetterPairs :: [[U.UnitChar]] -> IO ()
+unitMarkLetterPairs = renderAll . fmap (over _2 length) . sortOn fst . concatQuery (U.getMarkLetterPairs) . concat
+
+unitLetterMarkSets :: [[U.UnitChar]] -> IO ()
+unitLetterMarkSets = renderAll . fmap (over _2 length) . sortOn fst . query U.getLetterMarkSet . concat
+
+unitLetters :: [[U.UnitChar]] -> IO ()
+unitLetters = renderAll . fmap (over _2 length) . sortOn fst . query U.unitLetter . concat
+
+unitMarks :: [[U.UnitChar]] -> IO ()
+unitMarks = renderAll . fmap (over _2 length) . sortOn fst . concatQuery U.getMarks . concat
 
 renderAll :: Render t => [t] -> IO ()
 renderAll = mapM_ (T.putStrLn . L.toStrict . render)
