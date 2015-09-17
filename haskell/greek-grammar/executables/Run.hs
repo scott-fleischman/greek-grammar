@@ -3,6 +3,7 @@
 
 module Main where
 
+import Control.Category ((>>>))
 import Control.Lens
 import Data.Either
 import Data.List
@@ -15,29 +16,27 @@ import qualified Data.Text.Lazy as L
 import qualified Text.Greek.Script.Unit as U
 
 main :: IO ()
-main = loadAll >>= handleEither >>= textWorks
+main = loadAll >>= handleEither
+  >>= (wordsToUnits >>> handleListEither)
+  >>= (concat >>> unitCharLetters >>> renderSummary)
 
-textWorks :: [TextWork] -> IO ()
-textWorks ws = case errors of
-  _ : _ -> printErrors errors
-  [] -> renderSummary . unitCharLetters . concat $ results
-  where
-    (errors, results) = partitionEithers . fmap (\(BasicWord s _) -> U.toUnits s) . concatMap workContent $ ws
+wordsToUnits :: [Work [BasicWordText]] -> [Either U.UnitError [U.UnitChar]]
+wordsToUnits = fmap (\(BasicWord s _) -> U.toUnits s) . concatMap workContent
 
 renderSummary :: (Render b, Ord b, Foldable t) => [(b, t a)] -> IO ()
 renderSummary = renderAll . fmap (over _2 length) . sortOn fst
-
---unitMarkLetterPairs :: (Ord l, Ord m) => [U.Unit l m] -> [((m, l), [U.Unit l m])]
---unitMarkLetterPairs = concatQuery (U.getMarkLetterPairs)
-
---unitLetterMarkSets :: (Ord l, Ord m) => [U.Unit l m] -> [((l, Set m), [U.Unit l m])]
---unitLetterMarkSets = query U.getLetterMarkSet
 
 unitCharLetters :: [U.UnitChar] -> [(U.LetterChar, [U.UnitChar])]
 unitCharLetters = query U.unitLetter
 
 unitCharMarks :: [U.UnitChar] -> [(U.MarkChar, [U.UnitChar])]
 unitCharMarks = concatQuery U.getMarks
+
+--unitMarkLetterPairs :: (Ord l, Ord m) => [U.Unit l m] -> [((m, l), [U.Unit l m])]
+--unitMarkLetterPairs = concatQuery (U.getMarkLetterPairs)
+
+--unitLetterMarkSets :: (Ord l, Ord m) => [U.Unit l m] -> [((l, Set m), [U.Unit l m])]
+--unitLetterMarkSets = query U.getLetterMarkSet
 
 renderAll :: Render t => [t] -> IO ()
 renderAll = mapM_ (T.putStrLn . L.toStrict . render)
