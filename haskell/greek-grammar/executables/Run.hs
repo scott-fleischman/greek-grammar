@@ -7,6 +7,7 @@ import Control.Category ((>>>))
 import Control.Lens
 import Data.Either
 import Data.List
+import Data.Set (Set)
 import Text.Greek.FileReference
 import Text.Greek.Script.Letter
 import Text.Greek.Render
@@ -22,7 +23,7 @@ main :: IO ()
 main = loadAll >>= handleEither
   >>= (workToUnitChar >>> handleListEither)
   >>= (workToUnitUnicode >>> handleListEither)
-  >>= (workToLetterInfo >>> (globalConcatSurface >>> unitMarkLetterPairs >>> renderSummary))
+  >>= (workToLetterInfo >>> (globalConcatSurface >>> unitLetterMarkSets >>> renderSummary))
 
 --  >>= (length >>> show >>> putStrLn)
 
@@ -36,8 +37,8 @@ workToUnitUnicode = fmap ((workContent . traverse . basicWordSurface . traverse)
 
 workToLetterInfo
   :: [Work [BasicWord [U.Unit U.UnicodeLetter U.UnicodeMark]]]
-  -> [Work [BasicWord [U.Unit LetterInfo      U.UnicodeMark]]]
-workToLetterInfo = over (traverse . workContent . traverse . basicWordSurface . traverse . U.unitLetter . _1) toLetterInfo
+  -> [Work [BasicWord [U.Unit LetterInfoFinal U.UnicodeMark]]]
+workToLetterInfo = over (traverse . workContent . traverse . basicWordSurface . traverse . U.unitLetter . _1) toLetterInfoFinal
 
 renderSummary :: (Render b, Ord b, Foldable t) => [(b, t a)] -> IO ()
 renderSummary = renderAll . fmap (over _2 length) . sortOn fst
@@ -51,8 +52,8 @@ unitCharMarks = concatQuery U.getMarks
 unitMarkLetterPairs :: (Ord l, Ord m) => [U.Unit l m] -> [((m, l), [U.Unit l m])]
 unitMarkLetterPairs = concatQuery (U.getMarkLetterPairs)
 
---unitLetterMarkSets :: (Ord l, Ord m) => [U.Unit l m] -> [((l, Set m), [U.Unit l m])]
---unitLetterMarkSets = query U.getLetterMarkSet
+unitLetterMarkSets :: (Ord l, Ord m) => [U.Unit l m] -> [((l, Set m), [U.Unit l m])]
+unitLetterMarkSets = query U.getLetterMarkSet
 
 renderAll :: Render t => [t] -> IO ()
 renderAll = mapM_ (T.putStrLn . L.toStrict . render)

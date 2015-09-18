@@ -3,6 +3,7 @@
 
 module Text.Greek.Render where
 
+import Control.Lens
 import Data.Foldable
 import Data.Set (Set)
 import Text.Greek.FileReference
@@ -53,8 +54,11 @@ instance Render Letter where
   render = render . letterToLetterChar
 
 instance Render LetterInfo where
-  render li = T.format "{} {}" (render . letterInfoToLetterCase $ li, render . letterInfoToLetterChar $ li)
+  render li = T.format "{} {}" (render . view letterInfoCase $ li, render . letterInfoToLetterChar $ li)
 
 instance Render LetterCase where
   render Uppercase = "upper"
   render Lowercase = "lower"
+
+instance Render LetterInfoFinal where
+  render l = T.format "{} {}" (render . view letterInfoCase . letterInfoFinalToLetterInfo $ l, render . letterInfoFinalToLetterChar $ l)
