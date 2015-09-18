@@ -34,7 +34,7 @@ data Segment =
   | SegmentWord Text
   deriving (Eq, Show)
 
-data (Eq a, Show a) => Milestone a = Start a | End a
+data Milestone a = Start a | End a
   deriving (Eq, Show)
 
 data Paragraph = Paragraph
