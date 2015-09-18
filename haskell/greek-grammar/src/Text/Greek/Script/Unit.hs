@@ -6,7 +6,6 @@ module Text.Greek.Script.Unit where
 import Prelude hiding (Word, getLine)
 import Control.Lens
 import Data.Char
-import Data.Map (Map)
 import Data.Set (Set)
 import Data.Text (Text)
 import Data.Unicode.DecomposeChar
@@ -15,7 +14,7 @@ import Text.Greek.Utility
 import Text.Parsec.Combinator
 import Text.Parsec.Error (ParseError)
 import Text.Parsec.Prim
-import qualified Data.Map as M
+import qualified Data.Set as S
 import qualified Data.Text as T
 import qualified Text.Parsec.Pos as P
 
@@ -24,9 +23,8 @@ newtype MarkChar = MarkChar { getMarkChar :: Char } deriving (Eq, Show, Ord)
 
 type UnitChar = Unit LetterChar MarkChar
 data Unit l m = Unit
-  { _unitLetter :: l
-  , _unitReference :: FileCharReference
-  , _unitMarks :: Map m FileCharReference
+  { _unitLetter :: (l, FileCharReference)
+  , _unitMarks :: [(m, FileCharReference)]
   } deriving (Eq, Ord, Show)
 makeLenses ''Unit
 
@@ -40,13 +38,16 @@ toUnitChar :: (Text, FileReference) -> Either UnitError [UnitChar]
 toUnitChar (t, r) = decomposeText t r >>= (over _Left UnitErrorParse . parse unitsParser "")
 
 getMarks :: Unit l m -> [m]
-getMarks (Unit _ _ m) = M.keys m
+getMarks = fmap (view _1) . view unitMarks
+
+getLetter :: Unit l m -> l
+getLetter = view (unitLetter . _1)
 
 getMarkLetterPairs :: Unit l m -> [(m, l)]
-getMarkLetterPairs (Unit l _ m) = fmap (flip (,) l) (M.keys m)
+getMarkLetterPairs (Unit (l, _) m) = fmap (flip (,) l) (fmap fst m)
 
-getLetterMarkSet :: Unit l m -> (l, Set m)
-getLetterMarkSet (Unit l _ m) = (l, M.keysSet m)
+getLetterMarkSet :: Ord m => Unit l m -> (l, Set m)
+getLetterMarkSet (Unit (l, _) m) = (l, S.fromList . fmap fst $ m)
 
 type CharPair = (Char, FileCharReference)
 type CharPairParser = ParsecT [(Char, FileCharReference)] () Identity
@@ -73,13 +74,7 @@ letterParser :: CharPairParser (LetterChar, FileCharReference)
 letterParser = over _1 LetterChar <$> satisfy isLetter
 
 unitParser :: CharPairParser UnitChar
-unitParser = do
-  (l, r) <- letterParser
-  marks <- many markParser
-  let marks' = M.fromList marks
-  if length marks == length marks'
-    then return $ Unit l r marks' 
-    else fail "Duplicate marks"
+unitParser = Unit <$> letterParser <*> many markParser
 
 unitsParser :: CharPairParser [UnitChar]
 unitsParser = many1 unitParser <* eof

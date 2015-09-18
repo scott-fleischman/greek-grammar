@@ -7,7 +7,6 @@ import Data.Foldable
 import Data.Set (Set)
 import Text.Greek.FileReference
 import Text.Greek.Script.Unit (Unit(..))
-import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Data.Text.Format as T
 import qualified Data.Text.Lazy as L
@@ -26,7 +25,7 @@ instance (Render a, Render b) => Render (a, b) where
   render (a, b) = T.format "({},{})" (render a, render b)
 
 instance (Render l, Render m) => Render (Unit l m) where
-  render (Unit c r ms) = T.format "({},{},{})" (render c, render r, render (M.toList ms))
+  render (Unit (c, r) ms) = T.format "({},{},{})" (render c, render r, render ms)
 
 instance Render FileCharReference where
   render (FileCharReference p l) = T.format "{}:{}" (T.Shown p, render l)

@@ -14,23 +14,31 @@ import Text.Greek.Utility
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy as L
+import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 
 main :: IO ()
 main = loadAll >>= handleEither
-  >>= (workWordsToUnitChars >>> handleListEither)
-  >>= (globalConcatSurface >>> unitCharMarks >>> renderSummary)
+  >>= (workToUnitChar >>> handleListEither)
+  >>= (workToUnitUnicode >>> handleListEither)
+  >>= (length >>> show >>> putStrLn)
 
-workWordsToUnitChars
-  :: [Work [BasicWord (T.Text, FileReference)]]
+--  >>= (globalConcatSurface >>> unitCharMarks >>> renderSummary)
+
+workToUnitChar ::        [Work [BasicWord (T.Text, FileReference)]]
   -> [Either U.UnitError (Work [BasicWord [U.UnitChar]])]
-workWordsToUnitChars = fmap ((workContent . traverse . basicWordSurface) U.toUnits)
+workToUnitChar = fmap ((workContent . traverse . basicWordSurface) U.toUnitChar)
+
+workToUnitUnicode ::        [Work [BasicWord [U.UnitChar]]]
+  -> [Either U.UnicodeError (Work [BasicWord [U.UnitUnicode]])]
+workToUnitUnicode = fmap ((workContent . traverse . basicWordSurface . traverse) U.toUnitUnicode)
+
 
 renderSummary :: (Render b, Ord b, Foldable t) => [(b, t a)] -> IO ()
 renderSummary = renderAll . fmap (over _2 length) . sortOn fst
 
 unitCharLetters :: [U.UnitChar] -> [(U.LetterChar, [U.UnitChar])]
-unitCharLetters = query U.unitLetter
+unitCharLetters = query U.getLetter
 
 unitCharMarks :: [U.UnitChar] -> [(U.MarkChar, [U.UnitChar])]
 unitCharMarks = concatQuery U.getMarks

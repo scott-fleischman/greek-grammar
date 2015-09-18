@@ -14,6 +14,12 @@ data UnicodeMark = AcuteMark | GraveMark | CircumflexMark | SmoothMark | RoughMa
 data UnicodeError
   = UnicodeErrorLetter FileCharReference U.LetterChar
   | UnicodeErrorMark FileCharReference U.MarkChar
+  deriving (Show)
+
+type UnitUnicode = U.Unit UnicodeLetter UnicodeMark
+
+toUnitUnicode :: U.UnitChar -> Either UnicodeError UnitUnicode
+toUnitUnicode x = U.unitLetter toUnicodeLetter x >>= (U.unitMarks . traverse) toUnicodeMark
 
 toUnicodeLetter :: (U.LetterChar, FileCharReference) -> Either UnicodeError (UnicodeLetter, FileCharReference)
 toUnicodeLetter (l, r) | Just l' <- toMaybeUnicodeLetter l = Right (l', r)
