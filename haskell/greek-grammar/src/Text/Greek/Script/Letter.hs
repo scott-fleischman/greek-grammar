@@ -1,10 +1,13 @@
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Text.Greek.Script.Letter where
 
 import Control.Lens
 import Text.Greek.Script.Unicode
 import Text.Greek.Script.Unit
+import Text.Greek.Utility
 
 data Letter
   = L_α | L_β | L_γ | L_δ | L_ε | L_ζ | L_η | L_θ | L_ι | L_κ | L_λ | L_μ
@@ -111,16 +114,16 @@ letterToLetterChar L_ω = LetterChar 'ω'
 letterInfoToLetterChar :: LetterInfo -> LetterChar
 letterInfoToLetterChar = letterToLetterChar . view letterInfoLetter
 
-letterInfoFinalToLetterInfo :: LetterInfoFinal -> LetterInfo
-letterInfoFinalToLetterInfo (LetterInfoFinal i) = i
-letterInfoFinalToLetterInfo LetterInfoFinalSigma = LetterInfo L_σ Lowercase
+forgetFinal :: LetterInfoFinal -> LetterInfo
+forgetFinal (LetterInfoFinal i) = i
+forgetFinal LetterInfoFinalSigma = LetterInfo L_σ Lowercase
 
 letterInfoFinalToLetterChar :: LetterInfoFinal -> LetterChar
 letterInfoFinalToLetterChar (LetterInfoFinal i) = letterToLetterChar $ view letterInfoLetter i
 letterInfoFinalToLetterChar LetterInfoFinalSigma = LetterChar 'ς'
 
 letterInfoFinalToLetterCase :: LetterInfoFinal -> LetterCase
-letterInfoFinalToLetterCase = view letterInfoCase . letterInfoFinalToLetterInfo
+letterInfoFinalToLetterCase = view letterInfoCase . forgetFinal
 
 isFinal :: LetterInfoFinal -> IsFinal
 isFinal LetterInfoFinalSigma = Final
@@ -131,8 +134,36 @@ letterCanBeFinal L_σ = CanBeFinal
 letterCanBeFinal _ = CannotBeFinal
 
 letterInfoFinalCanBeFinal :: LetterInfoFinal -> CanBeFinal
-letterInfoFinalCanBeFinal = letterCanBeFinal . view letterInfoLetter . letterInfoFinalToLetterInfo
+letterInfoFinalCanBeFinal = letterCanBeFinal . view letterInfoLetter . forgetFinal
 
+
+data FinalError a
+  = FinalErrorEmptyList
+  | FinalErrorInvalid a
+  deriving (Show)
+
+validateFinalLetters :: forall s t. Lens s t LetterInfoFinal LetterInfo -> [s] -> Either (FinalError s) [t]
+validateFinalLetters f ss = do
+  lastItem <- getLast ss
+  _ <- validateFinalLetter lastItem
+  return $ fmap (over f forgetFinal) ss
+  where
+    getLast :: [s] -> Either (FinalError s) s
+    getLast = maybeToEither FinalErrorEmptyList . foldr go Nothing
+
+    go :: s -> Maybe s -> Maybe s
+    go a Nothing = Just a
+    go _ a@(Just _) = a
+
+    validateFinalLetter :: s -> Either (FinalError s) ()
+    validateFinalLetter s
+      | Left info <- f Left s
+      , Final <- isFinal info
+      , CannotBeFinal <- letterInfoFinalCanBeFinal info
+      = Left $ FinalErrorInvalid s
+
+      | otherwise
+      = Right ()
 
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω deriving (Eq, Show, Ord)
 data Consonant = C_β | C_γ | C_δ | C_ζ | C_θ | C_κ | C_λ | C_μ | C_ν | C_ξ | C_π | C_ρ | C_σ | C_τ | C_φ | C_χ | C_ψ deriving (Eq, Show, Ord)

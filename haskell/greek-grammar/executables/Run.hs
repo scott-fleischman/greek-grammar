@@ -23,22 +23,31 @@ main :: IO ()
 main = loadAll >>= handleEither
   >>= (workToUnitChar >>> handleListEither)
   >>= (workToUnitUnicode >>> handleListEither)
-  >>= (workToLetterInfo >>> (globalConcatSurface >>> unitLetterMarkSets >>> renderSummary))
+  >>= (workToLetterInfo
+    >>> (validateWorkFinal >>> handleListEither))
+  >>= (globalConcatSurface >>> query U.getLetter >>> renderSummary)
 
 --  >>= (length >>> show >>> putStrLn)
 
 workToUnitChar ::        [Work [BasicWord (T.Text, FileReference)]]
   -> [Either U.UnitError (Work [BasicWord [U.UnitChar]])]
-workToUnitChar = fmap ((workContent . traverse . basicWordSurface) U.toUnitChar)
+workToUnitChar = fmap $ (workContent . traverse . basicWordSurface) U.toUnitChar
 
 workToUnitUnicode ::        [Work [BasicWord [U.UnitChar]]]
   -> [Either U.UnicodeError (Work [BasicWord [U.UnitUnicode]])]
-workToUnitUnicode = fmap ((workContent . traverse . basicWordSurface . traverse) U.toUnitUnicode)
+workToUnitUnicode = fmap $ (workContent . traverse . basicWordSurface . traverse) U.toUnitUnicode
 
 workToLetterInfo
   :: [Work [BasicWord [U.Unit U.UnicodeLetter U.UnicodeMark]]]
   -> [Work [BasicWord [U.Unit LetterInfoFinal U.UnicodeMark]]]
 workToLetterInfo = over (traverse . workContent . traverse . basicWordSurface . traverse . U.unitLetter . _1) toLetterInfoFinal
+
+validateWorkFinal
+  ::   [Work [BasicWord [U.Unit LetterInfoFinal U.UnicodeMark]]]
+  -> [Either
+       (FinalError (U.Unit LetterInfoFinal U.UnicodeMark))
+       (Work [BasicWord [U.Unit LetterInfo U.UnicodeMark]])]
+validateWorkFinal = fmap $ (workContent . traverse . basicWordSurface) (validateFinalLetters (U.unitLetter . _1))
 
 renderSummary :: (Render b, Ord b, Foldable t) => [(b, t a)] -> IO ()
 renderSummary = renderAll . fmap (over _2 length) . sortOn fst

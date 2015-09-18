@@ -61,4 +61,4 @@ instance Render LetterCase where
   render Lowercase = "lower"
 
 instance Render LetterInfoFinal where
-  render l = T.format "{} {}" (render . view letterInfoCase . letterInfoFinalToLetterInfo $ l, render . letterInfoFinalToLetterChar $ l)
+  render l = T.format "{} {}" (render . view letterInfoCase . forgetFinal $ l, render . letterInfoFinalToLetterChar $ l)
