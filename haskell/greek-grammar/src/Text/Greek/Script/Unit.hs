@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Text.Greek.Script.Unit where
 
@@ -18,12 +19,16 @@ import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Text.Parsec.Pos as P
 
+newtype LetterChar = LetterChar { getLetterChar :: Char } deriving (Eq, Show, Ord)
+newtype MarkChar = MarkChar { getMarkChar :: Char } deriving (Eq, Show, Ord)
+
 type UnitChar = Unit LetterChar MarkChar
 data Unit l m = Unit
-  { unitLetter :: l
-  , unitReference :: FileCharReference
-  , unitMarks :: Map m FileCharReference
+  { _unitLetter :: l
+  , _unitReference :: FileCharReference
+  , _unitMarks :: Map m FileCharReference
   } deriving (Eq, Ord, Show)
+makeLenses ''Unit
 
 data UnitError
   = UnitErrorMultipleLines FileReference Text
@@ -31,8 +36,8 @@ data UnitError
   | UnitErrorParse ParseError
   deriving Show
 
-toUnits :: (Text, FileReference) -> Either UnitError [UnitChar]
-toUnits (t, r) = decomposeText t r >>= (over _Left UnitErrorParse . parse unitsParser "")
+toUnitChar :: (Text, FileReference) -> Either UnitError [UnitChar]
+toUnitChar (t, r) = decomposeText t r >>= (over _Left UnitErrorParse . parse unitsParser "")
 
 getMarks :: Unit l m -> [m]
 getMarks (Unit _ _ m) = M.keys m
@@ -42,9 +47,6 @@ getMarkLetterPairs (Unit l _ m) = fmap (flip (,) l) (M.keys m)
 
 getLetterMarkSet :: Unit l m -> (l, Set m)
 getLetterMarkSet (Unit l _ m) = (l, M.keysSet m)
-
-newtype LetterChar = LetterChar { getLetterChar :: Char } deriving (Eq, Show, Ord)
-newtype MarkChar = MarkChar { getMarkChar :: Char } deriving (Eq, Show, Ord)
 
 type CharPair = (Char, FileCharReference)
 type CharPairParser = ParsecT [(Char, FileCharReference)] () Identity
