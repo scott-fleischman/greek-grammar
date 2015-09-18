@@ -1,6 +1,7 @@
 module Text.Greek.Script.Letter where
 
 import Text.Greek.Script.Unicode
+import Text.Greek.Script.Unit
 
 data Letter
   = L_α | L_β | L_γ | L_δ | L_ε | L_ζ | L_η | L_θ | L_ι | L_κ | L_λ | L_μ
@@ -10,60 +11,95 @@ data LetterCase = Lowercase | Uppercase deriving (Eq, Ord, Show)
 data Final = Final | NotFinal deriving (Eq, Ord, Show)
 
 data LetterInfo
-  = LetterInfoCase LetterCase Letter
+  = LetterInfoCase Letter LetterCase
   | LetterInfoFinalSigma
   deriving (Eq, Ord, Show)
 
 toLetterInfo :: UnicodeLetter -> LetterInfo
-toLetterInfo U_Α = LetterInfoCase Uppercase L_α
-toLetterInfo U_Β = LetterInfoCase Uppercase L_β
-toLetterInfo U_Γ = LetterInfoCase Uppercase L_γ
-toLetterInfo U_Δ = LetterInfoCase Uppercase L_δ
-toLetterInfo U_Ε = LetterInfoCase Uppercase L_ε
-toLetterInfo U_Ζ = LetterInfoCase Uppercase L_ζ
-toLetterInfo U_Η = LetterInfoCase Uppercase L_η
-toLetterInfo U_Θ = LetterInfoCase Uppercase L_θ
-toLetterInfo U_Ι = LetterInfoCase Uppercase L_ι
-toLetterInfo U_Κ = LetterInfoCase Uppercase L_κ
-toLetterInfo U_Λ = LetterInfoCase Uppercase L_λ
-toLetterInfo U_Μ = LetterInfoCase Uppercase L_μ
-toLetterInfo U_Ν = LetterInfoCase Uppercase L_ν
-toLetterInfo U_Ξ = LetterInfoCase Uppercase L_ξ
-toLetterInfo U_Ο = LetterInfoCase Uppercase L_ο
-toLetterInfo U_Π = LetterInfoCase Uppercase L_π
-toLetterInfo U_Ρ = LetterInfoCase Uppercase L_ρ
-toLetterInfo U_Σ = LetterInfoCase Uppercase L_σ
-toLetterInfo U_Τ = LetterInfoCase Uppercase L_τ
-toLetterInfo U_Υ = LetterInfoCase Uppercase L_υ
-toLetterInfo U_Φ = LetterInfoCase Uppercase L_φ
-toLetterInfo U_Χ = LetterInfoCase Uppercase L_χ
-toLetterInfo U_Ψ = LetterInfoCase Uppercase L_ψ
-toLetterInfo U_Ω = LetterInfoCase Uppercase L_ω
-toLetterInfo U_α = LetterInfoCase Lowercase L_α
-toLetterInfo U_β = LetterInfoCase Lowercase L_β
-toLetterInfo U_γ = LetterInfoCase Lowercase L_γ
-toLetterInfo U_δ = LetterInfoCase Lowercase L_δ
-toLetterInfo U_ε = LetterInfoCase Lowercase L_ε
-toLetterInfo U_ζ = LetterInfoCase Lowercase L_ζ
-toLetterInfo U_η = LetterInfoCase Lowercase L_η
-toLetterInfo U_θ = LetterInfoCase Lowercase L_θ
-toLetterInfo U_ι = LetterInfoCase Lowercase L_ι
-toLetterInfo U_κ = LetterInfoCase Lowercase L_κ
-toLetterInfo U_λ = LetterInfoCase Lowercase L_λ
-toLetterInfo U_μ = LetterInfoCase Lowercase L_μ
-toLetterInfo U_ν = LetterInfoCase Lowercase L_ν
-toLetterInfo U_ξ = LetterInfoCase Lowercase L_ξ
-toLetterInfo U_ο = LetterInfoCase Lowercase L_ο
-toLetterInfo U_π = LetterInfoCase Lowercase L_π
-toLetterInfo U_ρ = LetterInfoCase Lowercase L_ρ
-toLetterInfo U_σ = LetterInfoCase Lowercase L_σ
+toLetterInfo U_Α = LetterInfoCase L_α Uppercase
+toLetterInfo U_Β = LetterInfoCase L_β Uppercase
+toLetterInfo U_Γ = LetterInfoCase L_γ Uppercase
+toLetterInfo U_Δ = LetterInfoCase L_δ Uppercase
+toLetterInfo U_Ε = LetterInfoCase L_ε Uppercase
+toLetterInfo U_Ζ = LetterInfoCase L_ζ Uppercase
+toLetterInfo U_Η = LetterInfoCase L_η Uppercase
+toLetterInfo U_Θ = LetterInfoCase L_θ Uppercase
+toLetterInfo U_Ι = LetterInfoCase L_ι Uppercase
+toLetterInfo U_Κ = LetterInfoCase L_κ Uppercase
+toLetterInfo U_Λ = LetterInfoCase L_λ Uppercase
+toLetterInfo U_Μ = LetterInfoCase L_μ Uppercase
+toLetterInfo U_Ν = LetterInfoCase L_ν Uppercase
+toLetterInfo U_Ξ = LetterInfoCase L_ξ Uppercase
+toLetterInfo U_Ο = LetterInfoCase L_ο Uppercase
+toLetterInfo U_Π = LetterInfoCase L_π Uppercase
+toLetterInfo U_Ρ = LetterInfoCase L_ρ Uppercase
+toLetterInfo U_Σ = LetterInfoCase L_σ Uppercase
+toLetterInfo U_Τ = LetterInfoCase L_τ Uppercase
+toLetterInfo U_Υ = LetterInfoCase L_υ Uppercase
+toLetterInfo U_Φ = LetterInfoCase L_φ Uppercase
+toLetterInfo U_Χ = LetterInfoCase L_χ Uppercase
+toLetterInfo U_Ψ = LetterInfoCase L_ψ Uppercase
+toLetterInfo U_Ω = LetterInfoCase L_ω Uppercase
+toLetterInfo U_α = LetterInfoCase L_α Lowercase
+toLetterInfo U_β = LetterInfoCase L_β Lowercase
+toLetterInfo U_γ = LetterInfoCase L_γ Lowercase
+toLetterInfo U_δ = LetterInfoCase L_δ Lowercase
+toLetterInfo U_ε = LetterInfoCase L_ε Lowercase
+toLetterInfo U_ζ = LetterInfoCase L_ζ Lowercase
+toLetterInfo U_η = LetterInfoCase L_η Lowercase
+toLetterInfo U_θ = LetterInfoCase L_θ Lowercase
+toLetterInfo U_ι = LetterInfoCase L_ι Lowercase
+toLetterInfo U_κ = LetterInfoCase L_κ Lowercase
+toLetterInfo U_λ = LetterInfoCase L_λ Lowercase
+toLetterInfo U_μ = LetterInfoCase L_μ Lowercase
+toLetterInfo U_ν = LetterInfoCase L_ν Lowercase
+toLetterInfo U_ξ = LetterInfoCase L_ξ Lowercase
+toLetterInfo U_ο = LetterInfoCase L_ο Lowercase
+toLetterInfo U_π = LetterInfoCase L_π Lowercase
+toLetterInfo U_ρ = LetterInfoCase L_ρ Lowercase
+toLetterInfo U_σ = LetterInfoCase L_σ Lowercase
 toLetterInfo U_ς = LetterInfoFinalSigma
-toLetterInfo U_τ = LetterInfoCase Lowercase L_τ
-toLetterInfo U_υ = LetterInfoCase Lowercase L_υ
-toLetterInfo U_φ = LetterInfoCase Lowercase L_φ
-toLetterInfo U_χ = LetterInfoCase Lowercase L_χ
-toLetterInfo U_ψ = LetterInfoCase Lowercase L_ψ
-toLetterInfo U_ω = LetterInfoCase Lowercase L_ω
+toLetterInfo U_τ = LetterInfoCase L_τ Lowercase
+toLetterInfo U_υ = LetterInfoCase L_υ Lowercase
+toLetterInfo U_φ = LetterInfoCase L_φ Lowercase
+toLetterInfo U_χ = LetterInfoCase L_χ Lowercase
+toLetterInfo U_ψ = LetterInfoCase L_ψ Lowercase
+toLetterInfo U_ω = LetterInfoCase L_ω Lowercase
+
+letterToLetterChar :: Letter -> LetterChar
+letterToLetterChar L_α = LetterChar 'α'
+letterToLetterChar L_β = LetterChar 'β'
+letterToLetterChar L_γ = LetterChar 'γ'
+letterToLetterChar L_δ = LetterChar 'δ'
+letterToLetterChar L_ε = LetterChar 'ε'
+letterToLetterChar L_ζ = LetterChar 'ζ'
+letterToLetterChar L_η = LetterChar 'η'
+letterToLetterChar L_θ = LetterChar 'θ'
+letterToLetterChar L_ι = LetterChar 'ι'
+letterToLetterChar L_κ = LetterChar 'κ'
+letterToLetterChar L_λ = LetterChar 'λ'
+letterToLetterChar L_μ = LetterChar 'μ'
+letterToLetterChar L_ν = LetterChar 'ν'
+letterToLetterChar L_ξ = LetterChar 'ξ'
+letterToLetterChar L_ο = LetterChar 'ο'
+letterToLetterChar L_π = LetterChar 'π'
+letterToLetterChar L_ρ = LetterChar 'ρ'
+letterToLetterChar L_σ = LetterChar 'σ'
+letterToLetterChar L_τ = LetterChar 'τ'
+letterToLetterChar L_υ = LetterChar 'υ'
+letterToLetterChar L_φ = LetterChar 'φ'
+letterToLetterChar L_χ = LetterChar 'χ'
+letterToLetterChar L_ψ = LetterChar 'ψ'
+letterToLetterChar L_ω = LetterChar 'ω'
+
+letterInfoToLetterChar :: LetterInfo -> LetterChar
+letterInfoToLetterChar (LetterInfoCase l _) = letterToLetterChar l
+letterInfoToLetterChar LetterInfoFinalSigma = LetterChar 'ς'
+
+letterInfoToLetterCase :: LetterInfo -> LetterCase
+letterInfoToLetterCase (LetterInfoCase _ c) = c
+letterInfoToLetterCase LetterInfoFinalSigma = Lowercase
+
 
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω deriving (Eq, Show, Ord)
 data Consonant = C_β | C_γ | C_δ | C_ζ | C_θ | C_κ | C_λ | C_μ | C_ν | C_ξ | C_π | C_ρ | C_σ | C_τ | C_φ | C_χ | C_ψ deriving (Eq, Show, Ord)

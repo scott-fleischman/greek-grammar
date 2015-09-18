@@ -6,10 +6,11 @@ module Text.Greek.Render where
 import Data.Foldable
 import Data.Set (Set)
 import Text.Greek.FileReference
-import Text.Greek.Script.Unit (Unit(..))
+import Text.Greek.Script.Letter
 import qualified Data.Set as S
 import qualified Data.Text.Format as T
 import qualified Data.Text.Lazy as L
+import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 
 class Render a where
@@ -21,11 +22,17 @@ instance Render U.LetterChar where
 instance Render U.MarkChar where
   render = T.format "\x25CC{}" . T.Only . U.getMarkChar
 
+instance Render U.UnicodeLetter where
+  render = render . U.unicodeLetterToLetterChar
+
+instance Render U.UnicodeMark where
+  render = render . U.unicodeMarkToMarkChar
+
 instance (Render a, Render b) => Render (a, b) where
   render (a, b) = T.format "({},{})" (render a, render b)
 
-instance (Render l, Render m) => Render (Unit l m) where
-  render (Unit (c, r) ms) = T.format "({},{},{})" (render c, render r, render ms)
+instance (Render l, Render m) => Render (U.Unit l m) where
+  render (U.Unit (c, r) ms) = T.format "({},{},{})" (render c, render r, render ms)
 
 instance Render FileCharReference where
   render (FileCharReference p l) = T.format "{}:{}" (T.Shown p, render l)
@@ -41,3 +48,13 @@ instance Render Int where
 
 instance Render a => Render (Set a) where
   render = render . S.toAscList
+
+instance Render Letter where
+  render = render . letterToLetterChar
+
+instance Render LetterInfo where
+  render li = T.format "{} {}" (render . letterInfoToLetterCase $ li, render . letterInfoToLetterChar $ li)
+
+instance Render LetterCase where
+  render Uppercase = "upper"
+  render Lowercase = "lower"
