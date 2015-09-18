@@ -4,6 +4,7 @@ module Text.Greek.Source.All where
 
 import Prelude hiding (Word)
 import Control.Lens
+import Data.Foldable
 import Data.Text (Text)
 import Text.Greek.FileReference
 import Text.Greek.Paths
@@ -14,9 +15,10 @@ import qualified Text.Greek.Source.Sblgnt as SBL
 
 type BasicWordText = BasicWord (Text, FileReference)
 data BasicWord a = BasicWord
-  { wordSurface :: a
-  , wordElision :: Maybe (ElisionChar, FileCharReference)
+  { _basicWordSurface :: a
+  , _basicWordElision :: Maybe (ElisionChar, FileCharReference)
   } deriving Show
+makeLenses ''BasicWord
 
 data WorkSource = Sblgnt deriving Show
 
@@ -45,3 +47,9 @@ sblgntParagraphsToWords = fmap sblWordToWord . concatMap (toListOf SBL._ItemWord
 
 sblWordToWord :: SBL.Word -> BasicWordText
 sblWordToWord (SBL.Word s e _ _) = BasicWord s e
+
+concatSurface :: (Foldable tw, Foldable tc) => Work (tw (BasicWord (tc a))) -> [a]
+concatSurface = concatMap (toList . view basicWordSurface) . (view workContent)
+
+globalConcatSurface :: (Foldable twork, Foldable tword, Foldable tc) => twork (Work (tword (BasicWord (tc a)))) -> [a]
+globalConcatSurface = concatMap concatSurface

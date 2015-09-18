@@ -18,14 +18,13 @@ import qualified Text.Greek.Script.Unit as U
 
 main :: IO ()
 main = loadAll >>= handleEither
-  >>= (wordsToUnits >>> handleListEither)
-  >>= (concat >>> unitCharLetters >>> renderSummary)
+  >>= (workWordsToUnitChars >>> handleListEither)
+  >>= (globalConcatSurface >>> unitCharMarks >>> renderSummary)
 
-workWordsToUnits :: [Work (T.Text, FileReference)] -> Either U.UnitError [Work [U.UnitChar]]
-workWordsToUnits = (traverse . workContent) U.toUnits
-
-wordsToUnits :: [Work [BasicWordText]] -> [Either U.UnitError [U.UnitChar]]
-wordsToUnits = fmap (\(BasicWord s _) -> U.toUnits s) . concatMap (view workContent)
+workWordsToUnitChars
+  :: [Work [BasicWord (T.Text, FileReference)]]
+  -> [Either U.UnitError (Work [BasicWord [U.UnitChar]])]
+workWordsToUnitChars = fmap ((workContent . traverse . basicWordSurface) U.toUnits)
 
 renderSummary :: (Render b, Ord b, Foldable t) => [(b, t a)] -> IO ()
 renderSummary = renderAll . fmap (over _2 length) . sortOn fst
