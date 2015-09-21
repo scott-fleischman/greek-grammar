@@ -10,6 +10,7 @@ import Data.Char
 import Data.Maybe
 import Data.Text (Text)
 import Text.Greek.FileReference
+import Text.Greek.Parse.Utility
 import Text.Greek.Script.Elision
 import Text.Greek.Xml.Parse
 import Text.Parsec.Combinator

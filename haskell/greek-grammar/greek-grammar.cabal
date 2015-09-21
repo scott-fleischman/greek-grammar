@@ -51,6 +51,7 @@ library
     Text.Greek.Mounce.Quote
     Text.Greek.Mounce.Verb
     Text.Greek.NewTestament.SBL
+    Text.Greek.Parse.Utility
     Text.Greek.Paths
     Text.Greek.Phonology.Consonants
     Text.Greek.Phonology.Contractions

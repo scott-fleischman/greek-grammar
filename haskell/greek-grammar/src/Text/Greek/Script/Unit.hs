@@ -10,13 +10,13 @@ import Data.Set (Set)
 import Data.Text (Text)
 import Data.Unicode.DecomposeChar
 import Text.Greek.FileReference
+import Text.Greek.Parse.Utility
 import Text.Greek.Utility
 import Text.Parsec.Combinator
 import Text.Parsec.Error (ParseError)
 import Text.Parsec.Prim
 import qualified Data.Set as S
 import qualified Data.Text as T
-import qualified Text.Parsec.Pos as P
 
 newtype LetterChar = LetterChar { getLetterChar :: Char } deriving (Eq, Show, Ord)
 newtype MarkChar = MarkChar { getMarkChar :: Char } deriving (Eq, Show, Ord)
@@ -52,20 +52,8 @@ getLetterMarkSet (Unit (l, _) m) = (l, S.fromList . fmap fst $ m)
 type CharPair = (Char, FileCharReference)
 type CharPairParser = ParsecT [(Char, FileCharReference)] () Identity
 
-parseCharPair :: Stream s m CharPair => (CharPair -> Maybe a) -> ParsecT s u m a
-parseCharPair = tokenPrim show updateEventPos
-
-updateEventPos :: P.SourcePos -> (t, FileCharReference) -> s -> P.SourcePos
-updateEventPos p (_, r) _ = flip P.setSourceColumn column . flip P.setSourceLine line $ p
-  where
-    line   = r ^. fileCharReferenceLine . lineReferenceLine   . getLine
-    column = r ^. fileCharReferenceLine . lineReferenceColumn . getColumn
-
 satisfy :: (Char -> Bool) -> CharPairParser CharPair
-satisfy f = parseCharPair go
-  where
-    go a@(c, _) | f c = Just a
-    go _ = Nothing
+satisfy f = primBool (^. _2 . fileCharReferenceLine) (f . view _1)
 
 markParser :: CharPairParser (MarkChar, FileCharReference)
 markParser = over _1 MarkChar <$> satisfy isMark

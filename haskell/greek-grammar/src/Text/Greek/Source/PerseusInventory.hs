@@ -6,6 +6,7 @@ module Text.Greek.Source.PerseusInventory where
 
 import Data.Map (Map)
 import Data.Text (Text)
+import Text.Greek.Parse.Utility
 import Text.Greek.Xml.Parse
 import Text.Parsec.Char
 import Text.Parsec.Combinator

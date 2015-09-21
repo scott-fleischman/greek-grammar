@@ -11,16 +11,15 @@ import Data.Either
 import Data.Map (Map)
 import Data.Text (Text)
 import Text.Greek.FileReference
+import Text.Greek.Parse.Utility
 import Text.Greek.Utility
 import Text.Greek.Xml.Common
 import Text.Greek.Xml.Event
 import Text.Parsec.Combinator
-import Text.Parsec.Pos (SourcePos)
 import Text.Parsec.Prim
 import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Data.XML.Types as X
-import qualified Text.Parsec.Pos as P
 
 type Event = FileReference * BasicEvent
 
@@ -28,27 +27,11 @@ type EventParser = ParsecT [Event] () Identity
 type AttributeParser = ParsecT [XmlAttribute] () Identity
 type CharParser a = forall s u m. Stream s m Char => ParsecT s u m a
 
-nestParser :: (Stream s1 m t1, Stream s2 Identity t2) => ParsecT s1 u m s2 -> ParsecT s2 () Identity b -> ParsecT s1 u m b
-nestParser p1 p2 = p1 >>= embedParser p2
-
-embedParser :: (Stream s1 m t1, Stream s2 Identity t2) => ParsecT s2 () Identity b -> s2 -> ParsecT s1 u m b
-embedParser p2 v = do
-  pos <- getPosition
-  case parse (setPosition pos *> p2) (P.sourceName pos) v of
-    Left x -> fail $ show x
-    Right x -> return x
-
 parseEvent :: Stream s m Event => (Event -> Maybe a) -> ParsecT s u m a
-parseEvent = tokenPrim show updateEventPos
+parseEvent = primMaybe (^. _1 . fileReferenceBegin)
 
 parseAttribute :: Stream s m XmlAttribute => (XmlAttribute -> Maybe a) -> ParsecT s u m a
 parseAttribute = tokenPrim show (const . const)
-
-updateEventPos :: SourcePos -> (FileReference, t) -> s -> SourcePos
-updateEventPos p (r, _) _ = flip P.setSourceColumn column . flip P.setSourceLine line $ p
-  where
-    line   = r ^. fileReferenceBegin . lineReferenceLine   . getLine
-    column = r ^. fileReferenceBegin . lineReferenceColumn . getColumn
 
 emptyAttributes :: AttributeParser ()
 emptyAttributes = fmap (const ()) eof
