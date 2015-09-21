@@ -8,6 +8,8 @@ import Text.Greek.FileReference
 import Text.Parsec.Prim
 import qualified Text.Parsec.Pos as P
 
+type Parser s t = ParsecT s () Identity t
+
 nestParser :: (Stream s1 m t1, Stream s2 Identity t2) => ParsecT s1 u m s2 -> ParsecT s2 () Identity b -> ParsecT s1 u m b
 nestParser p1 p2 = p1 >>= embedParser p2
 
@@ -32,3 +34,12 @@ updateEventPos f p r _ = flip P.setSourceColumn column . flip P.setSourceLine li
   where
     line   = (f r) ^. lineReferenceLine   . getLine
     column = (f r) ^. lineReferenceColumn . getColumn
+
+tryManyEnd :: (Stream s m t) => ParsecT s u m a -> ParsecT s u m a -> ParsecT s u m [a]
+tryManyEnd b e = tryEnd []
+  where
+    more xs = do
+      x <- b
+      tryEnd (x : xs)
+    tryEnd xs = try (do { x <- e; return (x : xs) })
+      <|> more xs

@@ -13,6 +13,7 @@ import Text.Greek.Script.Letter
 import Text.Greek.Render
 import Text.Greek.Source.All
 import Text.Greek.Utility
+import Text.Parsec.Error (ParseError)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy as L
@@ -45,9 +46,9 @@ workToLetterInfo = over (traverse . workContent . traverse . basicWordSurface . 
 validateWorkFinal
   ::   [Work [BasicWord [U.Unit LetterInfoFinal U.UnicodeMark]]]
   -> [Either
-       (FinalError (U.Unit LetterInfoFinal U.UnicodeMark))
-       (Work [BasicWord [U.Unit LetterInfo U.UnicodeMark]])]
-validateWorkFinal = fmap $ (workContent . traverse . basicWordSurface) (validateFinalLetters (U.unitLetter . _1))
+       (ParseError)
+       (Work [BasicWord [U.Unit LetterInfoFinal U.UnicodeMark]])]
+validateWorkFinal = fmap $ (workContent . traverse . basicWordSurface) (parseFinals (^. U.unitLetter . _2 . fileCharReferenceLine) (^. U.unitLetter . _1))
 
 renderSummary :: (Render b, Ord b, Foldable t) => [(b, t a)] -> IO ()
 renderSummary = renderAll . fmap (over _2 length) . sortOn fst

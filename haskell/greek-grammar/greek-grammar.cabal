@@ -112,7 +112,8 @@ executable run
     xml-types,
     xml-conduit,
     lens,
-    greek-grammar
+    greek-grammar,
+    parsec
   main-is: Run.hs
   ghc-options: -Wall -fwarn-tabs -O2
   hs-source-dirs: executables

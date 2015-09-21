@@ -5,9 +5,13 @@
 module Text.Greek.Script.Letter where
 
 import Control.Lens
+import Text.Greek.FileReference
+import Text.Greek.Parse.Utility
 import Text.Greek.Script.Unicode
 import Text.Greek.Script.Unit
-import Text.Greek.Utility
+import Text.Parsec.Error (ParseError)
+import Text.Parsec.Prim
+import Text.Parsec.Combinator
 
 data Letter
   = L_α | L_β | L_γ | L_δ | L_ε | L_ζ | L_η | L_θ | L_ι | L_κ | L_λ | L_μ
@@ -137,33 +141,27 @@ letterInfoFinalCanBeFinal :: LetterInfoFinal -> CanBeFinal
 letterInfoFinalCanBeFinal = letterCanBeFinal . view letterInfoLetter . forgetFinal
 
 
-data FinalError a
-  = FinalErrorEmptyList
-  | FinalErrorInvalid a
-  deriving (Show)
+parseFinalPrim :: Show s => (s -> LineReference) -> (s -> LetterInfoFinal) -> (LetterInfoFinal -> Bool) -> Parser [s] s
+parseFinalPrim f g h = primBool f (h . g)
 
-validateFinalLetters :: forall s t. Lens s t LetterInfoFinal LetterInfo -> [s] -> Either (FinalError s) [t]
-validateFinalLetters f ss = do
-  lastItem <- getLast ss
-  _ <- validateFinalLetter lastItem
-  return $ fmap (over f forgetFinal) ss
+nonFinalLetterParser :: Show s => (s -> LineReference) -> (s -> LetterInfoFinal) -> Parser [s] s
+nonFinalLetterParser f g = parseFinalPrim f g check
   where
-    getLast :: [s] -> Either (FinalError s) s
-    getLast = maybeToEither FinalErrorEmptyList . foldr go Nothing
+    check i | NotFinal <- isFinal i = True
+    check _ = False
 
-    go :: s -> Maybe s -> Maybe s
-    go a Nothing = Just a
-    go _ a@(Just _) = a
+finalLetterParser :: Show s => (s -> LineReference) -> (s -> LetterInfoFinal) -> Parser [s] s
+finalLetterParser f g = parseFinalPrim f g check
+  where
+    check i | CannotBeFinal <- letterInfoFinalCanBeFinal i, NotFinal <- isFinal i = True
+    check i | CanBeFinal    <- letterInfoFinalCanBeFinal i, Final    <- isFinal i = True
+    check _ = False
 
-    validateFinalLetter :: s -> Either (FinalError s) ()
-    validateFinalLetter s
-      | Left info <- f Left s
-      , Final <- isFinal info
-      , CannotBeFinal <- letterInfoFinalCanBeFinal info
-      = Left $ FinalErrorInvalid s
+finalParser :: Show s => (s -> LineReference) -> (s -> LetterInfoFinal) -> Parser [s] [s]
+finalParser f g = tryManyEnd (nonFinalLetterParser f g) (finalLetterParser f g <* eof)
 
-      | otherwise
-      = Right ()
+parseFinals :: Show s => (s -> LineReference) -> (s -> LetterInfoFinal) -> [s] -> Either ParseError [s]
+parseFinals f g = parse (finalParser f g) ""
 
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω deriving (Eq, Show, Ord)
 data Consonant = C_β | C_γ | C_δ | C_ζ | C_θ | C_κ | C_λ | C_μ | C_ν | C_ξ | C_π | C_ρ | C_σ | C_τ | C_φ | C_χ | C_ψ deriving (Eq, Show, Ord)
