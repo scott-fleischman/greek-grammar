@@ -17,150 +17,128 @@ data Letter
   = L_α | L_β | L_γ | L_δ | L_ε | L_ζ | L_η | L_θ | L_ι | L_κ | L_λ | L_μ
   | L_ν | L_ξ | L_ο | L_π | L_ρ | L_σ | L_τ | L_υ | L_φ | L_χ | L_ψ | L_ω
   deriving (Eq, Ord, Show)
-data LetterCase = Lowercase | Uppercase deriving (Eq, Ord, Show)
-data IsFinal = Final | NotFinal deriving (Eq, Ord, Show)
-data CanBeFinal = CanBeFinal | CannotBeFinal deriving (Eq, Ord, Show)
+data Case = Lowercase | Uppercase deriving (Eq, Ord, Show)
+data Position = NotLast | Last deriving (Eq, Ord, Show)
 
-data LetterInfo = LetterInfo
-  { _letterInfoLetter :: Letter
-  , _letterInfoCase :: LetterCase
+data Info = Info
+  { _infoCase :: Case
+  , _infoLetter :: Letter
+  , _infoPosition :: Position
   } deriving (Eq, Ord, Show)
-makeLenses ''LetterInfo
+makeLenses ''Info
 
-data LetterInfoFinal
-  = LetterInfoFinal LetterInfo
-  | LetterInfoFinalSigma
+data InfoFinal
+  = InfoNotFinal Case Letter
+  | InfoFinalSigma
   deriving (Eq, Ord, Show)
 
-upper :: Letter -> LetterInfoFinal
-upper l = LetterInfoFinal (LetterInfo l Uppercase)
+upper :: Letter -> InfoFinal
+upper = InfoNotFinal Uppercase
 
-lower :: Letter -> LetterInfoFinal
-lower l = LetterInfoFinal (LetterInfo l Lowercase)
+lower :: Letter -> InfoFinal
+lower = InfoNotFinal Lowercase
 
-toLetterInfoFinal :: UnicodeLetter -> LetterInfoFinal
-toLetterInfoFinal U_Α = upper L_α
-toLetterInfoFinal U_Β = upper L_β
-toLetterInfoFinal U_Γ = upper L_γ
-toLetterInfoFinal U_Δ = upper L_δ
-toLetterInfoFinal U_Ε = upper L_ε
-toLetterInfoFinal U_Ζ = upper L_ζ
-toLetterInfoFinal U_Η = upper L_η
-toLetterInfoFinal U_Θ = upper L_θ
-toLetterInfoFinal U_Ι = upper L_ι
-toLetterInfoFinal U_Κ = upper L_κ
-toLetterInfoFinal U_Λ = upper L_λ
-toLetterInfoFinal U_Μ = upper L_μ
-toLetterInfoFinal U_Ν = upper L_ν
-toLetterInfoFinal U_Ξ = upper L_ξ
-toLetterInfoFinal U_Ο = upper L_ο
-toLetterInfoFinal U_Π = upper L_π
-toLetterInfoFinal U_Ρ = upper L_ρ
-toLetterInfoFinal U_Σ = upper L_σ
-toLetterInfoFinal U_Τ = upper L_τ
-toLetterInfoFinal U_Υ = upper L_υ
-toLetterInfoFinal U_Φ = upper L_φ
-toLetterInfoFinal U_Χ = upper L_χ
-toLetterInfoFinal U_Ψ = upper L_ψ
-toLetterInfoFinal U_Ω = upper L_ω
-toLetterInfoFinal U_α = lower L_α
-toLetterInfoFinal U_β = lower L_β
-toLetterInfoFinal U_γ = lower L_γ
-toLetterInfoFinal U_δ = lower L_δ
-toLetterInfoFinal U_ε = lower L_ε
-toLetterInfoFinal U_ζ = lower L_ζ
-toLetterInfoFinal U_η = lower L_η
-toLetterInfoFinal U_θ = lower L_θ
-toLetterInfoFinal U_ι = lower L_ι
-toLetterInfoFinal U_κ = lower L_κ
-toLetterInfoFinal U_λ = lower L_λ
-toLetterInfoFinal U_μ = lower L_μ
-toLetterInfoFinal U_ν = lower L_ν
-toLetterInfoFinal U_ξ = lower L_ξ
-toLetterInfoFinal U_ο = lower L_ο
-toLetterInfoFinal U_π = lower L_π
-toLetterInfoFinal U_ρ = lower L_ρ
-toLetterInfoFinal U_σ = lower L_σ
-toLetterInfoFinal U_ς = LetterInfoFinalSigma
-toLetterInfoFinal U_τ = lower L_τ
-toLetterInfoFinal U_υ = lower L_υ
-toLetterInfoFinal U_φ = lower L_φ
-toLetterInfoFinal U_χ = lower L_χ
-toLetterInfoFinal U_ψ = lower L_ψ
-toLetterInfoFinal U_ω = lower L_ω
+toInfoFinal :: UnicodeLetter -> InfoFinal
+toInfoFinal U_Α = upper L_α
+toInfoFinal U_Β = upper L_β
+toInfoFinal U_Γ = upper L_γ
+toInfoFinal U_Δ = upper L_δ
+toInfoFinal U_Ε = upper L_ε
+toInfoFinal U_Ζ = upper L_ζ
+toInfoFinal U_Η = upper L_η
+toInfoFinal U_Θ = upper L_θ
+toInfoFinal U_Ι = upper L_ι
+toInfoFinal U_Κ = upper L_κ
+toInfoFinal U_Λ = upper L_λ
+toInfoFinal U_Μ = upper L_μ
+toInfoFinal U_Ν = upper L_ν
+toInfoFinal U_Ξ = upper L_ξ
+toInfoFinal U_Ο = upper L_ο
+toInfoFinal U_Π = upper L_π
+toInfoFinal U_Ρ = upper L_ρ
+toInfoFinal U_Σ = upper L_σ
+toInfoFinal U_Τ = upper L_τ
+toInfoFinal U_Υ = upper L_υ
+toInfoFinal U_Φ = upper L_φ
+toInfoFinal U_Χ = upper L_χ
+toInfoFinal U_Ψ = upper L_ψ
+toInfoFinal U_Ω = upper L_ω
+toInfoFinal U_α = lower L_α
+toInfoFinal U_β = lower L_β
+toInfoFinal U_γ = lower L_γ
+toInfoFinal U_δ = lower L_δ
+toInfoFinal U_ε = lower L_ε
+toInfoFinal U_ζ = lower L_ζ
+toInfoFinal U_η = lower L_η
+toInfoFinal U_θ = lower L_θ
+toInfoFinal U_ι = lower L_ι
+toInfoFinal U_κ = lower L_κ
+toInfoFinal U_λ = lower L_λ
+toInfoFinal U_μ = lower L_μ
+toInfoFinal U_ν = lower L_ν
+toInfoFinal U_ξ = lower L_ξ
+toInfoFinal U_ο = lower L_ο
+toInfoFinal U_π = lower L_π
+toInfoFinal U_ρ = lower L_ρ
+toInfoFinal U_σ = lower L_σ
+toInfoFinal U_ς = InfoFinalSigma
+toInfoFinal U_τ = lower L_τ
+toInfoFinal U_υ = lower L_υ
+toInfoFinal U_φ = lower L_φ
+toInfoFinal U_χ = lower L_χ
+toInfoFinal U_ψ = lower L_ψ
+toInfoFinal U_ω = lower L_ω
 
-letterToLetterChar :: Letter -> LetterChar
-letterToLetterChar L_α = LetterChar 'α'
-letterToLetterChar L_β = LetterChar 'β'
-letterToLetterChar L_γ = LetterChar 'γ'
-letterToLetterChar L_δ = LetterChar 'δ'
-letterToLetterChar L_ε = LetterChar 'ε'
-letterToLetterChar L_ζ = LetterChar 'ζ'
-letterToLetterChar L_η = LetterChar 'η'
-letterToLetterChar L_θ = LetterChar 'θ'
-letterToLetterChar L_ι = LetterChar 'ι'
-letterToLetterChar L_κ = LetterChar 'κ'
-letterToLetterChar L_λ = LetterChar 'λ'
-letterToLetterChar L_μ = LetterChar 'μ'
-letterToLetterChar L_ν = LetterChar 'ν'
-letterToLetterChar L_ξ = LetterChar 'ξ'
-letterToLetterChar L_ο = LetterChar 'ο'
-letterToLetterChar L_π = LetterChar 'π'
-letterToLetterChar L_ρ = LetterChar 'ρ'
-letterToLetterChar L_σ = LetterChar 'σ'
-letterToLetterChar L_τ = LetterChar 'τ'
-letterToLetterChar L_υ = LetterChar 'υ'
-letterToLetterChar L_φ = LetterChar 'φ'
-letterToLetterChar L_χ = LetterChar 'χ'
-letterToLetterChar L_ψ = LetterChar 'ψ'
-letterToLetterChar L_ω = LetterChar 'ω'
+toLetterChar :: Letter -> LetterChar
+toLetterChar L_α = LetterChar 'α'
+toLetterChar L_β = LetterChar 'β'
+toLetterChar L_γ = LetterChar 'γ'
+toLetterChar L_δ = LetterChar 'δ'
+toLetterChar L_ε = LetterChar 'ε'
+toLetterChar L_ζ = LetterChar 'ζ'
+toLetterChar L_η = LetterChar 'η'
+toLetterChar L_θ = LetterChar 'θ'
+toLetterChar L_ι = LetterChar 'ι'
+toLetterChar L_κ = LetterChar 'κ'
+toLetterChar L_λ = LetterChar 'λ'
+toLetterChar L_μ = LetterChar 'μ'
+toLetterChar L_ν = LetterChar 'ν'
+toLetterChar L_ξ = LetterChar 'ξ'
+toLetterChar L_ο = LetterChar 'ο'
+toLetterChar L_π = LetterChar 'π'
+toLetterChar L_ρ = LetterChar 'ρ'
+toLetterChar L_σ = LetterChar 'σ'
+toLetterChar L_τ = LetterChar 'τ'
+toLetterChar L_υ = LetterChar 'υ'
+toLetterChar L_φ = LetterChar 'φ'
+toLetterChar L_χ = LetterChar 'χ'
+toLetterChar L_ψ = LetterChar 'ψ'
+toLetterChar L_ω = LetterChar 'ω'
 
-letterInfoToLetterChar :: LetterInfo -> LetterChar
-letterInfoToLetterChar = letterToLetterChar . view letterInfoLetter
+finalToPair :: InfoFinal -> (Case, LetterChar)
+finalToPair (InfoNotFinal c l) = (c, toLetterChar l)
+finalToPair InfoFinalSigma = (Lowercase, LetterChar 'ς')
 
-forgetFinal :: LetterInfoFinal -> LetterInfo
-forgetFinal (LetterInfoFinal i) = i
-forgetFinal LetterInfoFinalSigma = LetterInfo L_σ Lowercase
+parseFinalPrim :: Show s => (s -> LineReference) -> LensLike Maybe s t a b -> (a -> Maybe b) -> Parser [s] t
+parseFinalPrim f g h = primMaybe f (g h)
 
-letterInfoFinalToLetterChar :: LetterInfoFinal -> LetterChar
-letterInfoFinalToLetterChar (LetterInfoFinal i) = letterToLetterChar $ view letterInfoLetter i
-letterInfoFinalToLetterChar LetterInfoFinalSigma = LetterChar 'ς'
-
-letterInfoFinalToLetterCase :: LetterInfoFinal -> LetterCase
-letterInfoFinalToLetterCase = view letterInfoCase . forgetFinal
-
-isFinal :: LetterInfoFinal -> IsFinal
-isFinal LetterInfoFinalSigma = Final
-isFinal _ = NotFinal
-
-letterCanBeFinal :: Letter -> CanBeFinal
-letterCanBeFinal L_σ = CanBeFinal
-letterCanBeFinal _ = CannotBeFinal
-
-letterInfoFinalCanBeFinal :: LetterInfoFinal -> CanBeFinal
-letterInfoFinalCanBeFinal = letterCanBeFinal . view letterInfoLetter . forgetFinal
-
-
-parseFinalPrim :: Show s => (s -> LineReference) -> (s -> LetterInfoFinal) -> (LetterInfoFinal -> Bool) -> Parser [s] s
-parseFinalPrim f g h = primBool f (h . g)
-
-nonFinalLetterParser :: Show s => (s -> LineReference) -> (s -> LetterInfoFinal) -> Parser [s] s
-nonFinalLetterParser f g = parseFinalPrim f g check
+nonFinalLetterParser :: Show s => (s -> LineReference) -> Lens s t InfoFinal Info -> Parser [s] t
+nonFinalLetterParser f g = parseFinalPrim f g apply
   where
-    check i | NotFinal <- isFinal i = True
-    check _ = False
+    apply (InfoNotFinal c l) = Just $ Info c l NotLast
+    apply _ = Nothing
 
-finalLetterParser :: Show s => (s -> LineReference) -> (s -> LetterInfoFinal) -> Parser [s] s
-finalLetterParser f g = parseFinalPrim f g check
+finalLetterParser :: Show s => (s -> LineReference) -> Lens s t InfoFinal Info -> Parser [s] t
+finalLetterParser f g = parseFinalPrim f g apply
   where
-    check i | CannotBeFinal <- letterInfoFinalCanBeFinal i, NotFinal <- isFinal i = True
-    check i | CanBeFinal    <- letterInfoFinalCanBeFinal i, Final    <- isFinal i = True
-    check _ = False
+    apply (InfoNotFinal _ l) | L_σ <- l = Nothing
+    apply (InfoNotFinal c l) = Just $ Info c l Last
+    apply InfoFinalSigma = Just $ Info Lowercase L_σ Last
 
-finalParser :: Show s => (s -> LineReference) -> (s -> LetterInfoFinal) -> Parser [s] [s]
+finalParser :: Show s => (s -> LineReference) -> Lens s t InfoFinal Info -> Parser [s] [t]
 finalParser f g = tryManyEnd (nonFinalLetterParser f g) (finalLetterParser f g <* eof)
 
-parseFinals :: Show s => (s -> LineReference) -> (s -> LetterInfoFinal) -> [s] -> Either ParseError [s]
+parseFinals :: Show s => (s -> LineReference) -> Lens s t InfoFinal Info -> [s] -> Either ParseError [t]
 parseFinals f g = parse (finalParser f g) ""
 
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω deriving (Eq, Show, Ord)

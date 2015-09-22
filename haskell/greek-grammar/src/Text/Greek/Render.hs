@@ -7,10 +7,11 @@ import Control.Lens
 import Data.Foldable
 import Data.Set (Set)
 import Text.Greek.FileReference
-import Text.Greek.Script.Letter
+import Text.Greek.Script.Letter (Letter)
 import qualified Data.Set as S
 import qualified Data.Text.Format as T
 import qualified Data.Text.Lazy as L
+import qualified Text.Greek.Script.Letter as Letter
 import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 
@@ -51,14 +52,22 @@ instance Render a => Render (Set a) where
   render = render . S.toAscList
 
 instance Render Letter where
-  render = render . letterToLetterChar
+  render = render . Letter.toLetterChar
 
-instance Render LetterInfo where
-  render li = T.format "{} {}" (render . view letterInfoCase $ li, render . letterInfoToLetterChar $ li)
+instance Render Letter.Position where
+  render Letter.Last = "last"
+  render Letter.NotLast = "not last"
 
-instance Render LetterCase where
-  render Uppercase = "upper"
-  render Lowercase = "lower"
+instance Render Letter.Info where
+  render li = T.format "{} {} {}"
+    ( render . view Letter.infoCase $ li
+    , render . Letter.toLetterChar . view Letter.infoLetter $ li
+    , render . view Letter.infoPosition $ li
+    )
 
-instance Render LetterInfoFinal where
-  render l = T.format "{} {}" (render . view letterInfoCase . forgetFinal $ l, render . letterInfoFinalToLetterChar $ l)
+instance Render Letter.Case where
+  render Letter.Uppercase = "upper"
+  render Letter.Lowercase = "lower"
+
+instance Render Letter.InfoFinal where
+  render info | (c, l) <- Letter.finalToPair info = T.format "{} {}" (render c, render l)

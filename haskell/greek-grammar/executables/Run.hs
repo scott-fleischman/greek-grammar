@@ -9,7 +9,6 @@ import Data.Either
 import Data.List
 import Data.Set (Set)
 import Text.Greek.FileReference
-import Text.Greek.Script.Letter
 import Text.Greek.Render
 import Text.Greek.Source.All
 import Text.Greek.Utility
@@ -17,6 +16,7 @@ import Text.Parsec.Error (ParseError)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy as L
+import qualified Text.Greek.Script.Letter as Letter
 import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 
@@ -40,15 +40,15 @@ workToUnitUnicode = fmap $ (workContent . traverse . basicWordSurface . traverse
 
 workToLetterInfo
   :: [Work [BasicWord [U.Unit U.UnicodeLetter U.UnicodeMark]]]
-  -> [Work [BasicWord [U.Unit LetterInfoFinal U.UnicodeMark]]]
-workToLetterInfo = over (traverse . workContent . traverse . basicWordSurface . traverse . U.unitLetter . _1) toLetterInfoFinal
+  -> [Work [BasicWord [U.Unit Letter.InfoFinal U.UnicodeMark]]]
+workToLetterInfo = over (traverse . workContent . traverse . basicWordSurface . traverse . U.unitLetter . _1) Letter.toInfoFinal
 
 validateWorkFinal
-  ::   [Work [BasicWord [U.Unit LetterInfoFinal U.UnicodeMark]]]
+  ::   [Work [BasicWord [U.Unit Letter.InfoFinal U.UnicodeMark]]]
   -> [Either
        (ParseError)
-       (Work [BasicWord [U.Unit LetterInfoFinal U.UnicodeMark]])]
-validateWorkFinal = fmap $ (workContent . traverse . basicWordSurface) (parseFinals (^. U.unitLetter . _2 . fileCharReferenceLine) (^. U.unitLetter . _1))
+       (Work [BasicWord [U.Unit Letter.Info      U.UnicodeMark]])]
+validateWorkFinal = fmap $ (workContent . traverse . basicWordSurface) (Letter.parseFinals (^. U.unitLetter . _2 . fileCharReferenceLine) (U.unitLetter . _1))
 
 renderSummary :: (Render b, Ord b, Foldable t) => [(b, t a)] -> IO ()
 renderSummary = renderAll . fmap (over _2 length) . sortOn fst
