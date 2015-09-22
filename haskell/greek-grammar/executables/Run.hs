@@ -3,7 +3,6 @@
 
 module Main where
 
-import Control.Category ((>>>))
 import Control.Lens
 import Data.Either
 import Data.List
@@ -22,11 +21,10 @@ import qualified Text.Greek.Script.Unit as U
 
 main :: IO ()
 main = loadAll >>= handleEither
-  >>= (workToUnitChar >>> handleListEither)
-  >>= (workToUnitUnicode >>> handleListEither)
-  >>= (workToLetterInfo
-    >>> (validateWorkFinal >>> handleListEither))
-  >>= (globalConcatSurface >>> query U.getMarkSet >>> renderSummary)
+  >>= handleListEither . workToUnitChar
+  >>= handleListEither . workToUnitUnicode
+  >>= handleListEither . validateWorkFinal . workToLetterInfo
+  >>= renderSummary . query U.getMarkSet . globalConcatSurface
 
 workToUnitChar ::        [Work [BasicWord (T.Text, FileReference)]]
   -> [Either U.UnitError (Work [BasicWord [U.UnitChar]])]
