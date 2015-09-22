@@ -26,9 +26,7 @@ main = loadAll >>= handleEither
   >>= (workToUnitUnicode >>> handleListEither)
   >>= (workToLetterInfo
     >>> (validateWorkFinal >>> handleListEither))
-  >>= (globalConcatSurface >>> query U.getLetter >>> renderSummary)
-
---  >>= (length >>> show >>> putStrLn)
+  >>= (globalConcatSurface >>> query U.getMarkSet >>> renderSummary)
 
 workToUnitChar ::        [Work [BasicWord (T.Text, FileReference)]]
   -> [Either U.UnitError (Work [BasicWord [U.UnitChar]])]

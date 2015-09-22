@@ -49,6 +49,9 @@ getMarkLetterPairs (Unit (l, _) m) = fmap (flip (,) l) (fmap fst m)
 getLetterMarkSet :: Ord m => Unit l m -> (l, Set m)
 getLetterMarkSet (Unit (l, _) m) = (l, S.fromList . fmap fst $ m)
 
+getMarkSet :: Ord m => Unit l m -> Set m
+getMarkSet (Unit _ m) = S.fromList . fmap fst $ m
+
 type CharPair = (Char, FileCharReference)
 type CharPairParser = ParsecT [(Char, FileCharReference)] () Identity
 
