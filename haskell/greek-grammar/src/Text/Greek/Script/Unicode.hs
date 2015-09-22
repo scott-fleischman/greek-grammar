@@ -8,7 +8,7 @@ data UnicodeLetter
   | U_α | U_β | U_γ | U_δ | U_ε | U_ζ | U_η | U_θ | U_ι | U_κ | U_λ | U_μ | U_ν | U_ξ | U_ο | U_π | U_ρ | U_σ | U_ς | U_τ | U_υ | U_φ | U_χ | U_ψ | U_ω
   deriving (Eq, Ord, Show)
 
-data UnicodeMark = AcuteMark | GraveMark | CircumflexMark | SmoothMark | RoughMark | IotaSubscriptMark | DiaeresisMark
+data UnicodeMark = U_Acute | U_Grave | U_Circumflex | U_Smooth | U_Rough | U_IotaSubscript | U_Diaeresis
   deriving (Eq, Ord, Show)
 
 data UnicodeError
@@ -133,20 +133,20 @@ unicodeLetterToLetterChar U_ψ = (U.LetterChar 'ψ')
 unicodeLetterToLetterChar U_ω = (U.LetterChar 'ω')
 
 toMaybeUnicodeMark :: U.MarkChar -> Maybe UnicodeMark
-toMaybeUnicodeMark (U.MarkChar '\x0300') = Just GraveMark          -- COMBINING GRAVE ACCENT
-toMaybeUnicodeMark (U.MarkChar '\x0301') = Just AcuteMark          -- COMBINING ACUTE ACCENT
-toMaybeUnicodeMark (U.MarkChar '\x0308') = Just DiaeresisMark      -- COMBINING DIAERESIS
-toMaybeUnicodeMark (U.MarkChar '\x0313') = Just SmoothMark         -- COMBINING COMMA ABOVE
-toMaybeUnicodeMark (U.MarkChar '\x0314') = Just RoughMark          -- COMBINING REVERSED COMMA ABOVE
-toMaybeUnicodeMark (U.MarkChar '\x0342') = Just CircumflexMark     -- COMBINING GREEK PERISPOMENI
-toMaybeUnicodeMark (U.MarkChar '\x0345') = Just IotaSubscriptMark  -- COMBINING GREEK YPOGEGRAMMENI
+toMaybeUnicodeMark (U.MarkChar '\x0300') = Just U_Grave          -- COMBINING GRAVE ACCENT
+toMaybeUnicodeMark (U.MarkChar '\x0301') = Just U_Acute          -- COMBINING ACUTE ACCENT
+toMaybeUnicodeMark (U.MarkChar '\x0308') = Just U_Diaeresis      -- COMBINING DIAERESIS
+toMaybeUnicodeMark (U.MarkChar '\x0313') = Just U_Smooth         -- COMBINING COMMA ABOVE
+toMaybeUnicodeMark (U.MarkChar '\x0314') = Just U_Rough          -- COMBINING REVERSED COMMA ABOVE
+toMaybeUnicodeMark (U.MarkChar '\x0342') = Just U_Circumflex     -- COMBINING GREEK PERISPOMENI
+toMaybeUnicodeMark (U.MarkChar '\x0345') = Just U_IotaSubscript  -- COMBINING GREEK YPOGEGRAMMENI
 toMaybeUnicodeMark _ = Nothing
 
 unicodeMarkToMarkChar :: UnicodeMark -> U.MarkChar
-unicodeMarkToMarkChar GraveMark         = U.MarkChar '\x0300' -- COMBINING GRAVE ACCENT
-unicodeMarkToMarkChar AcuteMark         = U.MarkChar '\x0301' -- COMBINING ACUTE ACCENT
-unicodeMarkToMarkChar DiaeresisMark     = U.MarkChar '\x0308' -- COMBINING DIAERESIS
-unicodeMarkToMarkChar SmoothMark        = U.MarkChar '\x0313' -- COMBINING COMMA ABOVE
-unicodeMarkToMarkChar RoughMark         = U.MarkChar '\x0314' -- COMBINING REVERSED COMMA ABOVE
-unicodeMarkToMarkChar CircumflexMark    = U.MarkChar '\x0342' -- COMBINING GREEK PERISPOMENI
-unicodeMarkToMarkChar IotaSubscriptMark = U.MarkChar '\x0345' -- COMBINING GREEK YPOGEGRAMMENI
+unicodeMarkToMarkChar U_Grave         = U.MarkChar '\x0300' -- COMBINING GRAVE ACCENT
+unicodeMarkToMarkChar U_Acute         = U.MarkChar '\x0301' -- COMBINING ACUTE ACCENT
+unicodeMarkToMarkChar U_Diaeresis     = U.MarkChar '\x0308' -- COMBINING DIAERESIS
+unicodeMarkToMarkChar U_Smooth        = U.MarkChar '\x0313' -- COMBINING COMMA ABOVE
+unicodeMarkToMarkChar U_Rough         = U.MarkChar '\x0314' -- COMBINING REVERSED COMMA ABOVE
+unicodeMarkToMarkChar U_Circumflex    = U.MarkChar '\x0342' -- COMBINING GREEK PERISPOMENI
+unicodeMarkToMarkChar U_IotaSubscript = U.MarkChar '\x0345' -- COMBINING GREEK YPOGEGRAMMENI

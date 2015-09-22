@@ -172,11 +172,6 @@ toVowelConsonant L_ψ = Right C_ψ
 
 
 
-data Accent = AcuteAccent | GraveAccent | CircumflexAccent
-data Breathing = SmoothBreathing | RoughBreathing
-data IotaSubscript = IotaSubscript
-data Diaeresis = Diaeresis
-
 {-
 
 data MarkedLetter = MarkedLetter
