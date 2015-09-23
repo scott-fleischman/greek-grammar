@@ -15,7 +15,7 @@ import qualified Text.Greek.Script.Unit as U
 
 main :: IO ()
 main = handleAll
-  >>= renderSummary . query U.getMarkSet . globalConcatSurface
+  >>= renderSummary . unitMarkLetterPairs . globalConcatSurface
 
 unitCharLetters :: [U.UnitChar] -> [(U.LetterChar, [U.UnitChar])]
 unitCharLetters = query U.getLetter
