@@ -3,11 +3,9 @@
 
 module Text.Greek.Render where
 
-import Control.Lens
 import Data.Foldable
 import Data.Set (Set)
 import Text.Greek.FileReference
-import Text.Greek.Script.Letter (Letter)
 import qualified Data.Set as S
 import qualified Data.Text.Format as T
 import qualified Data.Text.Lazy as L
@@ -55,26 +53,19 @@ instance Render Int where
 instance Render a => Render (Set a) where
   render = render . S.toAscList
 
-instance Render Letter where
-  render = render . Letter.toLetterChar
-
-instance Render Letter.Position where
-  render Letter.Last = "last"
-  render Letter.NotLast = "not last"
-
-instance Render Letter.Info where
-  render li = T.format "{} {} {}"
-    ( render . view Letter.infoCase $ li
-    , render . Letter.toLetterChar . view Letter.infoLetter $ li
-    , render . view Letter.infoPosition $ li
-    )
+instance Render Letter.IsLast where
+  render Letter.IsLast = "last"
+  render Letter.IsNotLast = "not last"
 
 instance Render Letter.Case where
   render Letter.Uppercase = "upper"
   render Letter.Lowercase = "lower"
 
-instance Render Letter.InfoFinal where
-  render info | (c, l) <- Letter.finalToPair info = T.format "{} {}" (render c, render l)
+instance Render Letter.Letter where
+  render = render . Letter.toLetterChar
+
+instance Render Letter.LetterFinal where
+  render = render . Letter.letterFinalToLetterChar
 
 instance Render Mark.AccentAll where
   render = render . Mark.accentAllToUnicodeMark

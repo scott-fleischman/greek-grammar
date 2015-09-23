@@ -18,76 +18,91 @@ data Letter
   | L_ν | L_ξ | L_ο | L_π | L_ρ | L_σ | L_τ | L_υ | L_φ | L_χ | L_ψ | L_ω
   deriving (Eq, Ord, Show)
 data Case = Lowercase | Uppercase deriving (Eq, Ord, Show)
-data Position = NotLast | Last deriving (Eq, Ord, Show)
+data IsLast = IsNotLast | IsLast deriving (Eq, Ord, Show)
 
-data Info = Info
-  { _infoCase :: Case
-  , _infoLetter :: Letter
-  , _infoPosition :: Position
-  } deriving (Eq, Ord, Show)
-makeLenses ''Info
-
-data InfoFinal
-  = InfoNotFinal Case Letter
-  | InfoFinalSigma
+data IsFinal = IsFinal | IsNotFinal deriving (Eq, Ord, Show)
+data LetterFinal
+  = LF_α | LF_β | LF_γ | LF_δ | LF_ε | LF_ζ | LF_η | LF_θ | LF_ι | LF_κ | LF_λ | LF_μ
+  | LF_ν | LF_ξ | LF_ο | LF_π | LF_ρ | LF_σ IsFinal | LF_τ | LF_υ | LF_φ | LF_χ | LF_ψ | LF_ω
   deriving (Eq, Ord, Show)
 
-upper :: Letter -> InfoFinal
-upper = InfoNotFinal Uppercase
+toCaseLetterFinal :: UnicodeLetter -> (Case, LetterFinal)
+toCaseLetterFinal U_Α = (Uppercase, LF_α)
+toCaseLetterFinal U_Β = (Uppercase, LF_β)
+toCaseLetterFinal U_Γ = (Uppercase, LF_γ)
+toCaseLetterFinal U_Δ = (Uppercase, LF_δ)
+toCaseLetterFinal U_Ε = (Uppercase, LF_ε)
+toCaseLetterFinal U_Ζ = (Uppercase, LF_ζ)
+toCaseLetterFinal U_Η = (Uppercase, LF_η)
+toCaseLetterFinal U_Θ = (Uppercase, LF_θ)
+toCaseLetterFinal U_Ι = (Uppercase, LF_ι)
+toCaseLetterFinal U_Κ = (Uppercase, LF_κ)
+toCaseLetterFinal U_Λ = (Uppercase, LF_λ)
+toCaseLetterFinal U_Μ = (Uppercase, LF_μ)
+toCaseLetterFinal U_Ν = (Uppercase, LF_ν)
+toCaseLetterFinal U_Ξ = (Uppercase, LF_ξ)
+toCaseLetterFinal U_Ο = (Uppercase, LF_ο)
+toCaseLetterFinal U_Π = (Uppercase, LF_π)
+toCaseLetterFinal U_Ρ = (Uppercase, LF_ρ)
+toCaseLetterFinal U_Σ = (Uppercase, LF_σ IsNotFinal)
+toCaseLetterFinal U_Τ = (Uppercase, LF_τ)
+toCaseLetterFinal U_Υ = (Uppercase, LF_υ)
+toCaseLetterFinal U_Φ = (Uppercase, LF_φ)
+toCaseLetterFinal U_Χ = (Uppercase, LF_χ)
+toCaseLetterFinal U_Ψ = (Uppercase, LF_ψ)
+toCaseLetterFinal U_Ω = (Uppercase, LF_ω)
+toCaseLetterFinal U_α = (Lowercase, LF_α)
+toCaseLetterFinal U_β = (Lowercase, LF_β)
+toCaseLetterFinal U_γ = (Lowercase, LF_γ)
+toCaseLetterFinal U_δ = (Lowercase, LF_δ)
+toCaseLetterFinal U_ε = (Lowercase, LF_ε)
+toCaseLetterFinal U_ζ = (Lowercase, LF_ζ)
+toCaseLetterFinal U_η = (Lowercase, LF_η)
+toCaseLetterFinal U_θ = (Lowercase, LF_θ)
+toCaseLetterFinal U_ι = (Lowercase, LF_ι)
+toCaseLetterFinal U_κ = (Lowercase, LF_κ)
+toCaseLetterFinal U_λ = (Lowercase, LF_λ)
+toCaseLetterFinal U_μ = (Lowercase, LF_μ)
+toCaseLetterFinal U_ν = (Lowercase, LF_ν)
+toCaseLetterFinal U_ξ = (Lowercase, LF_ξ)
+toCaseLetterFinal U_ο = (Lowercase, LF_ο)
+toCaseLetterFinal U_π = (Lowercase, LF_π)
+toCaseLetterFinal U_ρ = (Lowercase, LF_ρ)
+toCaseLetterFinal U_σ = (Lowercase, LF_σ IsNotFinal)
+toCaseLetterFinal U_ς = (Lowercase, LF_σ IsFinal)
+toCaseLetterFinal U_τ = (Lowercase, LF_τ)
+toCaseLetterFinal U_υ = (Lowercase, LF_υ)
+toCaseLetterFinal U_φ = (Lowercase, LF_φ)
+toCaseLetterFinal U_χ = (Lowercase, LF_χ)
+toCaseLetterFinal U_ψ = (Lowercase, LF_ψ)
+toCaseLetterFinal U_ω = (Lowercase, LF_ω)
 
-lower :: Letter -> InfoFinal
-lower = InfoNotFinal Lowercase
+letterFinalToLetter :: LetterFinal -> Letter
+letterFinalToLetter LF_α = L_α
+letterFinalToLetter LF_β = L_β
+letterFinalToLetter LF_γ = L_γ
+letterFinalToLetter LF_δ = L_δ
+letterFinalToLetter LF_ε = L_ε
+letterFinalToLetter LF_ζ = L_ζ
+letterFinalToLetter LF_η = L_η
+letterFinalToLetter LF_θ = L_θ
+letterFinalToLetter LF_ι = L_ι
+letterFinalToLetter LF_κ = L_κ
+letterFinalToLetter LF_λ = L_λ
+letterFinalToLetter LF_μ = L_μ
+letterFinalToLetter LF_ν = L_ν
+letterFinalToLetter LF_ξ = L_ξ
+letterFinalToLetter LF_ο = L_ο
+letterFinalToLetter LF_π = L_π
+letterFinalToLetter LF_ρ = L_ρ
+letterFinalToLetter (LF_σ _) = L_σ
+letterFinalToLetter LF_τ = L_τ
+letterFinalToLetter LF_υ = L_υ
+letterFinalToLetter LF_φ = L_φ
+letterFinalToLetter LF_χ = L_χ
+letterFinalToLetter LF_ψ = L_ψ
+letterFinalToLetter LF_ω = L_ω
 
-toInfoFinal :: UnicodeLetter -> InfoFinal
-toInfoFinal U_Α = upper L_α
-toInfoFinal U_Β = upper L_β
-toInfoFinal U_Γ = upper L_γ
-toInfoFinal U_Δ = upper L_δ
-toInfoFinal U_Ε = upper L_ε
-toInfoFinal U_Ζ = upper L_ζ
-toInfoFinal U_Η = upper L_η
-toInfoFinal U_Θ = upper L_θ
-toInfoFinal U_Ι = upper L_ι
-toInfoFinal U_Κ = upper L_κ
-toInfoFinal U_Λ = upper L_λ
-toInfoFinal U_Μ = upper L_μ
-toInfoFinal U_Ν = upper L_ν
-toInfoFinal U_Ξ = upper L_ξ
-toInfoFinal U_Ο = upper L_ο
-toInfoFinal U_Π = upper L_π
-toInfoFinal U_Ρ = upper L_ρ
-toInfoFinal U_Σ = upper L_σ
-toInfoFinal U_Τ = upper L_τ
-toInfoFinal U_Υ = upper L_υ
-toInfoFinal U_Φ = upper L_φ
-toInfoFinal U_Χ = upper L_χ
-toInfoFinal U_Ψ = upper L_ψ
-toInfoFinal U_Ω = upper L_ω
-toInfoFinal U_α = lower L_α
-toInfoFinal U_β = lower L_β
-toInfoFinal U_γ = lower L_γ
-toInfoFinal U_δ = lower L_δ
-toInfoFinal U_ε = lower L_ε
-toInfoFinal U_ζ = lower L_ζ
-toInfoFinal U_η = lower L_η
-toInfoFinal U_θ = lower L_θ
-toInfoFinal U_ι = lower L_ι
-toInfoFinal U_κ = lower L_κ
-toInfoFinal U_λ = lower L_λ
-toInfoFinal U_μ = lower L_μ
-toInfoFinal U_ν = lower L_ν
-toInfoFinal U_ξ = lower L_ξ
-toInfoFinal U_ο = lower L_ο
-toInfoFinal U_π = lower L_π
-toInfoFinal U_ρ = lower L_ρ
-toInfoFinal U_σ = lower L_σ
-toInfoFinal U_ς = InfoFinalSigma
-toInfoFinal U_τ = lower L_τ
-toInfoFinal U_υ = lower L_υ
-toInfoFinal U_φ = lower L_φ
-toInfoFinal U_χ = lower L_χ
-toInfoFinal U_ψ = lower L_ψ
-toInfoFinal U_ω = lower L_ω
 
 toLetterChar :: Letter -> LetterChar
 toLetterChar L_α = LetterChar 'α'
@@ -115,30 +130,29 @@ toLetterChar L_χ = LetterChar 'χ'
 toLetterChar L_ψ = LetterChar 'ψ'
 toLetterChar L_ω = LetterChar 'ω'
 
-finalToPair :: InfoFinal -> (Case, LetterChar)
-finalToPair (InfoNotFinal c l) = (c, toLetterChar l)
-finalToPair InfoFinalSigma = (Lowercase, LetterChar 'ς')
+letterFinalToLetterChar :: LetterFinal -> LetterChar
+letterFinalToLetterChar (LF_σ IsFinal) = LetterChar 'ς'
+letterFinalToLetterChar x = toLetterChar $ letterFinalToLetter x
 
 parseFinalPrim :: Show s => (s -> LineReference) -> LensLike Maybe s t a b -> (a -> Maybe b) -> Parser [s] t
 parseFinalPrim f g h = primMaybe f (g h)
 
-nonFinalLetterParser :: Show s => (s -> LineReference) -> Lens s t InfoFinal Info -> Parser [s] t
+nonFinalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal (Letter, IsLast) -> Parser [s] t
 nonFinalLetterParser f g = parseFinalPrim f g apply
   where
-    apply (InfoNotFinal c l) = Just $ Info c l NotLast
-    apply _ = Nothing
+    apply (LF_σ IsFinal) = Nothing
+    apply x = Just (letterFinalToLetter x, IsNotLast)
 
-finalLetterParser :: Show s => (s -> LineReference) -> Lens s t InfoFinal Info -> Parser [s] t
+finalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal (Letter, IsLast) -> Parser [s] t
 finalLetterParser f g = parseFinalPrim f g apply
   where
-    apply (InfoNotFinal _ l) | L_σ <- l = Nothing
-    apply (InfoNotFinal c l) = Just $ Info c l Last
-    apply InfoFinalSigma = Just $ Info Lowercase L_σ Last
+    apply (LF_σ IsNotFinal) = Nothing
+    apply x = Just (letterFinalToLetter x, IsLast)
 
-finalParser :: Show s => (s -> LineReference) -> Lens s t InfoFinal Info -> Parser [s] [t]
+finalParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal (Letter, IsLast) -> Parser [s] [t]
 finalParser f g = tryManyEnd (nonFinalLetterParser f g) (finalLetterParser f g <* eof)
 
-parseFinals :: Show s => (s -> LineReference) -> Lens s t InfoFinal Info -> [s] -> Either ParseError [t]
+parseFinals :: Show s => (s -> LineReference) -> Lens s t LetterFinal (Letter, IsLast) -> [s] -> Either ParseError [t]
 parseFinals f g = parse (finalParser f g) ""
 
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω deriving (Eq, Show, Ord)

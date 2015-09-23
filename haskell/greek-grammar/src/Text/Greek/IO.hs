@@ -12,11 +12,11 @@ import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 
-handleAll :: IO [Work [BasicWord [U.Unit Letter.Info Mark.AllPair]]]
+handleAll :: IO [Work [BasicWord [U.Unit (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]]]
 handleAll = loadAll >>= handleEither
   >>= handleListEither . workToUnitChar
   >>= handleListEither . workToUnitUnicode
-  >>= handleListEither . validateWorkFinal . workToLetterInfo
+  >>= handleListEither . parseFinalForms . workToCaseLetterFinal
   >>= handleListEither . toMarkAll
 
 workToUnitChar ::        [Work [BasicWord (T.Text, FileReference)]]
@@ -27,23 +27,23 @@ workToUnitUnicode ::        [Work [BasicWord [U.UnitChar]]]
   -> [Either U.UnicodeError (Work [BasicWord [U.UnitUnicode]])]
 workToUnitUnicode = fmap $ (workContent . traverse . basicWordSurface . traverse) U.toUnitUnicode
 
-workToLetterInfo
-  :: [Work [BasicWord [U.UnitMarkList U.UnicodeLetter U.UnicodeMark]]]
-  -> [Work [BasicWord [U.UnitMarkList Letter.InfoFinal U.UnicodeMark]]]
-workToLetterInfo = over (traverse . workContent . traverse . basicWordSurface . traverse . U.unitLetter . _1) Letter.toInfoFinal
+workToCaseLetterFinal
+  :: [Work [BasicWord [U.UnitMarkList U.UnicodeLetter            U.UnicodeMark]]]
+  -> [Work [BasicWord [U.UnitMarkList (Letter.Case, Letter.LetterFinal) U.UnicodeMark]]]
+workToCaseLetterFinal = over (traverse . workContent . traverse . basicWordSurface . traverse . U.unitLetter . _1) Letter.toCaseLetterFinal
 
-validateWorkFinal
-  ::   [Work [BasicWord [U.UnitMarkList Letter.InfoFinal U.UnicodeMark]]]
+parseFinalForms
+  ::   [Work [BasicWord [U.UnitMarkList (Letter.Case, Letter.LetterFinal)             U.UnicodeMark]]]
   -> [Either
        ParseError
-       (Work [BasicWord [U.UnitMarkList Letter.Info      U.UnicodeMark]])]
-validateWorkFinal = fmap $ (workContent . traverse . basicWordSurface) (Letter.parseFinals (^. U.unitLetter . _2 . fileCharReferenceLine) (U.unitLetter . _1))
+       (Work [BasicWord [U.UnitMarkList (Letter.Case, (Letter.Letter, Letter.IsLast)) U.UnicodeMark]])]
+parseFinalForms = fmap $ (workContent . traverse . basicWordSurface) (Letter.parseFinals (^. U.unitLetter . _2 . fileCharReferenceLine) (U.unitLetter . _1 . _2))
 
 toMarkAll
-  ::   [Work [BasicWord [U.UnitMarkList Letter.Info U.UnicodeMark]]]
+  ::   [Work [BasicWord [U.UnitMarkList (Letter.Case, (Letter.Letter, Letter.IsLast)) U.UnicodeMark]]]
   -> [Either
        Mark.Error
-       (Work [BasicWord [U.Unit         Letter.Info Mark.AllPair]])]
+       (Work [BasicWord [U.Unit         (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]])]
 toMarkAll = fmap $ (workContent . traverse . basicWordSurface . traverse . U.unitMarks) Mark.toAllPair
 
 printErrors :: (Show e, Foldable t) => t e -> IO a
