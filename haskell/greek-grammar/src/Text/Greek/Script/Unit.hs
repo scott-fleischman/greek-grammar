@@ -21,12 +21,14 @@ import qualified Data.Text as T
 newtype LetterChar = LetterChar { getLetterChar :: Char } deriving (Eq, Show, Ord)
 newtype MarkChar = MarkChar { getMarkChar :: Char } deriving (Eq, Show, Ord)
 
-type UnitChar = Unit LetterChar MarkChar
 data Unit l m = Unit
   { _unitLetter :: (l, FileCharReference)
-  , _unitMarks :: [(m, FileCharReference)]
+  , _unitMarks :: m
   } deriving (Eq, Ord, Show)
 makeLenses ''Unit
+
+type UnitMarkList l m = Unit l [(m, FileCharReference)]
+type UnitChar = UnitMarkList LetterChar MarkChar
 
 data UnitError
   = UnitErrorMultipleLines FileReference Text
@@ -37,19 +39,19 @@ data UnitError
 toUnitChar :: (Text, FileReference) -> Either UnitError [UnitChar]
 toUnitChar (t, r) = decomposeText t r >>= (over _Left UnitErrorParse . parse unitsParser "")
 
-getMarks :: Unit l m -> [m]
+getMarks :: UnitMarkList l m -> [m]
 getMarks = fmap (view _1) . view unitMarks
 
-getLetter :: Unit l m -> l
+getLetter :: UnitMarkList l m -> l
 getLetter = view (unitLetter . _1)
 
-getMarkLetterPairs :: Unit l m -> [(m, l)]
+getMarkLetterPairs :: UnitMarkList l m -> [(m, l)]
 getMarkLetterPairs (Unit (l, _) m) = fmap (flip (,) l) (fmap fst m)
 
-getLetterMarkSet :: Ord m => Unit l m -> (l, Set m)
+getLetterMarkSet :: Ord m => UnitMarkList l m -> (l, Set m)
 getLetterMarkSet (Unit (l, _) m) = (l, S.fromList . fmap fst $ m)
 
-getMarkSet :: Ord m => Unit l m -> Set m
+getMarkSet :: Ord m => UnitMarkList l m -> Set m
 getMarkSet (Unit _ m) = S.fromList . fmap fst $ m
 
 type CharPair = (Char, FileCharReference)

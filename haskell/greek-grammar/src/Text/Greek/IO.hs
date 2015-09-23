@@ -11,7 +11,7 @@ import qualified Text.Greek.Script.Letter as Letter
 import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 
-handleAll :: IO [Work [BasicWord [U.Unit Letter.Info U.UnicodeMark]]]
+handleAll :: IO [Work [BasicWord [U.UnitMarkList Letter.Info U.UnicodeMark]]]
 handleAll = loadAll >>= handleEither
   >>= handleListEither . workToUnitChar
   >>= handleListEither . workToUnitUnicode
@@ -26,15 +26,15 @@ workToUnitUnicode ::        [Work [BasicWord [U.UnitChar]]]
 workToUnitUnicode = fmap $ (workContent . traverse . basicWordSurface . traverse) U.toUnitUnicode
 
 workToLetterInfo
-  :: [Work [BasicWord [U.Unit U.UnicodeLetter U.UnicodeMark]]]
-  -> [Work [BasicWord [U.Unit Letter.InfoFinal U.UnicodeMark]]]
+  :: [Work [BasicWord [U.UnitMarkList U.UnicodeLetter U.UnicodeMark]]]
+  -> [Work [BasicWord [U.UnitMarkList Letter.InfoFinal U.UnicodeMark]]]
 workToLetterInfo = over (traverse . workContent . traverse . basicWordSurface . traverse . U.unitLetter . _1) Letter.toInfoFinal
 
 validateWorkFinal
-  ::   [Work [BasicWord [U.Unit Letter.InfoFinal U.UnicodeMark]]]
+  ::   [Work [BasicWord [U.UnitMarkList Letter.InfoFinal U.UnicodeMark]]]
   -> [Either
-       (ParseError)
-       (Work [BasicWord [U.Unit Letter.Info      U.UnicodeMark]])]
+       ParseError
+       (Work [BasicWord [U.UnitMarkList Letter.Info      U.UnicodeMark]])]
 validateWorkFinal = fmap $ (workContent . traverse . basicWordSurface) (Letter.parseFinals (^. U.unitLetter . _2 . fileCharReferenceLine) (U.unitLetter . _1))
 
 printErrors :: (Show e, Foldable t) => t e -> IO a

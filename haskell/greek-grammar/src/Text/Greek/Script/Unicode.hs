@@ -16,7 +16,7 @@ data UnicodeError
   | UnicodeErrorMark FileCharReference U.MarkChar
   deriving (Show)
 
-type UnitUnicode = U.Unit UnicodeLetter UnicodeMark
+type UnitUnicode = U.UnitMarkList UnicodeLetter UnicodeMark
 
 toUnitUnicode :: U.UnitChar -> Either UnicodeError UnitUnicode
 toUnitUnicode x = U.unitLetter toUnicodeLetter x >>= (U.unitMarks . traverse) toUnicodeMark
