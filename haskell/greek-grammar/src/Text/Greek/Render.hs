@@ -82,8 +82,8 @@ instance Render Mark.AccentAll where
 instance Render Mark.BreathingAll where
   render = render . Mark.breathingAllToUnicodeMark
 
-instance Render Mark.Syllabic where
-  render = render . Mark.syllabicToUnicodeMark
+instance Render Mark.SyllabicAll where
+  render = render . Mark.syllabicAllToUnicodeMark
 
 instance Render a => Render (Maybe a) where
   render (Just x) = render x
