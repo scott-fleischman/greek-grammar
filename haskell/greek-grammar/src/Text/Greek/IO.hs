@@ -8,14 +8,16 @@ import Text.Parsec.Error (ParseError)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Text.Greek.Script.Letter as Letter
+import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 
-handleAll :: IO [Work [BasicWord [U.UnitMarkList Letter.Info U.UnicodeMark]]]
+handleAll :: IO [Work [BasicWord [U.Unit Letter.Info Mark.AllPair]]]
 handleAll = loadAll >>= handleEither
   >>= handleListEither . workToUnitChar
   >>= handleListEither . workToUnitUnicode
   >>= handleListEither . validateWorkFinal . workToLetterInfo
+  >>= handleListEither . toMarkAll
 
 workToUnitChar ::        [Work [BasicWord (T.Text, FileReference)]]
   -> [Either U.UnitError (Work [BasicWord [U.UnitChar]])]
@@ -36,6 +38,13 @@ validateWorkFinal
        ParseError
        (Work [BasicWord [U.UnitMarkList Letter.Info      U.UnicodeMark]])]
 validateWorkFinal = fmap $ (workContent . traverse . basicWordSurface) (Letter.parseFinals (^. U.unitLetter . _2 . fileCharReferenceLine) (U.unitLetter . _1))
+
+toMarkAll
+  ::   [Work [BasicWord [U.UnitMarkList Letter.Info U.UnicodeMark]]]
+  -> [Either
+       Mark.Error
+       (Work [BasicWord [U.Unit         Letter.Info Mark.AllPair]])]
+toMarkAll = fmap $ (workContent . traverse . basicWordSurface . traverse . U.unitMarks) Mark.toAllPair
 
 printErrors :: (Show e, Foldable t) => t e -> IO a
 printErrors es = do

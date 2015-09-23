@@ -12,6 +12,7 @@ import qualified Data.Set as S
 import qualified Data.Text.Format as T
 import qualified Data.Text.Lazy as L
 import qualified Text.Greek.Script.Letter as Letter
+import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 
@@ -32,6 +33,9 @@ instance Render U.UnicodeMark where
 
 instance (Render a, Render b) => Render (a, b) where
   render (a, b) = T.format "({},{})" (render a, render b)
+
+instance (Render a, Render b, Render c) => Render (a, b, c) where
+  render (a, b, c) = T.format "({},{},{})" (render a, render b, render c)
 
 instance (Render l, Render m) => Render (U.Unit l m) where
   render (U.Unit (c, r) ms) = T.format "({},{},{})" (render c, render r, render ms)
@@ -71,3 +75,16 @@ instance Render Letter.Case where
 
 instance Render Letter.InfoFinal where
   render info | (c, l) <- Letter.finalToPair info = T.format "{} {}" (render c, render l)
+
+instance Render Mark.AccentAll where
+  render = render . Mark.accentAllToUnicodeMark
+
+instance Render Mark.BreathingAll where
+  render = render . Mark.breathingAllToUnicodeMark
+
+instance Render Mark.Syllabic where
+  render = render . Mark.syllabicToUnicodeMark
+
+instance Render a => Render (Maybe a) where
+  render (Just x) = render x
+  render Nothing = "-"

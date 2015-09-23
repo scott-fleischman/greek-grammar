@@ -11,11 +11,12 @@ import Text.Greek.Source.All
 import Text.Greek.Utility
 import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy as L
+import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Unit as U
 
 main :: IO ()
 main = handleAll
-  >>= renderSummary . unitMarkLetterPairs . globalConcatSurface
+  >>= renderSummary . query (Mark.forgetAllReference . view U.unitMarks) . globalConcatSurface
 
 unitCharLetters :: [U.UnitChar] -> [(U.LetterChar, [U.UnitChar])]
 unitCharLetters = query U.getLetter
