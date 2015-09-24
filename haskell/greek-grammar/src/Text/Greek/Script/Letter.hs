@@ -173,17 +173,15 @@ capitalizedParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parse
 capitalizedParser f g = do
   first <- uppercaseParser f g
   remaining <- many (lowercaseParser f g)
-  _ <- eof
   return (Word.IsCapitalized, first : remaining)
 
 uncapitalizedParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] (Word.IsCapitalized, [t])
 uncapitalizedParser f g = do
   result <- many1 (lowercaseParser f g)
-  _ <- eof
   return (Word.IsNotCapitalized, result)
 
 parseCase :: Show s => (s -> LineReference) -> Lens s t Case () -> [s] -> Either ParseError (Word.IsCapitalized, [t])
-parseCase f g = parse (capitalizedParser f g <|> uncapitalizedParser f g) ""
+parseCase f g = parse (uncapitalizedParser f g <|> capitalizedParser f g) ""
 
 
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω deriving (Eq, Show, Ord)

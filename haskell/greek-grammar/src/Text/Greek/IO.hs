@@ -31,30 +31,36 @@ workToUnitUnicode ::        [Work [Word.Basic [U.UnitChar]]]
 workToUnitUnicode = fmap $ (workContent . traverse . Word.basicSurface . traverse) U.toUnitUnicode
 
 workToCaseLetterFinal
-  :: [Work [Word.Basic [U.UnitMarkList U.UnicodeLetter            U.UnicodeMark]]]
+  :: [Work [Word.Basic [U.UnitMarkList U.UnicodeLetter                   U.UnicodeMark]]]
   -> [Work [Word.Basic [U.UnitMarkList (Letter.Case, Letter.LetterFinal) U.UnicodeMark]]]
 workToCaseLetterFinal = over (traverse . workContent . traverse . Word.basicSurface . traverse . U.unitLetter . _1) Letter.toCaseLetterFinal
 
-parseFinalForms
-  ::   [Work [Word.Basic [U.UnitMarkList (Letter.Case, Letter.LetterFinal)             U.UnicodeMark]]]
-  -> [Either
-       ParseError
-       (Work [Word.Basic [U.UnitMarkList (Letter.Case, (Letter.Letter, Letter.IsLast)) U.UnicodeMark]])]
+parseFinalForms ::      [Work [Word.Basic [U.UnitMarkList (Letter.Case, Letter.LetterFinal)             U.UnicodeMark]]]
+  -> [Either ParseError (Work [Word.Basic [U.UnitMarkList (Letter.Case, (Letter.Letter, Letter.IsLast)) U.UnicodeMark]])]
 parseFinalForms = fmap $ (workContent . traverse . Word.basicSurface) (Letter.parseFinals (^. U.unitLetter . _2 . fileCharReferenceLine) (U.unitLetter . _1 . _2))
 
-toMarkAll
-  ::   [Work [Word.Basic [U.UnitMarkList (Letter.Case, (Letter.Letter, Letter.IsLast)) U.UnicodeMark]]]
-  -> [Either
-       Mark.Error
-       (Work [Word.Basic [U.Unit         (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]])]
+toMarkAll ::            [Work [Word.Basic [U.UnitMarkList (Letter.Case, (Letter.Letter, Letter.IsLast)) U.UnicodeMark]]]
+  -> [Either Mark.Error (Work [Word.Basic [U.Unit         (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]])]
 toMarkAll = fmap $ (workContent . traverse . Word.basicSurface . traverse . U.unitMarks) Mark.toAllPair
 
-parseLetterCase
-  :: [Work [Word.Basic [U.Unit (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]]]
-  -> [Either
-        ParseError
-        (Work [Word.Cased [U.Unit (Letter.Letter, Letter.IsLast) Mark.AllPair]])]
-parseLetterCase = undefined
+parseLetterCase ::      [Work [Word.Basic [U.Unit (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]]]
+  -> [Either ParseError (Work [Word.Cased [U.Unit               (Letter.Letter, Letter.IsLast)  Mark.AllPair]])]
+parseLetterCase = fmap $ (workContent . traverse) parseWordLetterCase
+
+parseWordLetterCase ::  Word.Basic [U.Unit (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]
+  -> Either ParseError (Word.Cased [U.Unit               (Letter.Letter, Letter.IsLast)  Mark.AllPair])
+parseWordLetterCase w = do
+  (c, s) <- parseLetterCaseWork (w ^. Word.basicSurface)
+  return $ Word.Cased (dropUnit s) (w ^. Word.basicElision) c
+    where
+      dropUnit
+        :: [U.Unit ((), (Letter.Letter, Letter.IsLast)) Mark.AllPair]
+        -> [U.Unit      (Letter.Letter, Letter.IsLast)  Mark.AllPair]
+      dropUnit = over (traverse . U.unitLetter . _1) snd
+
+parseLetterCaseWork ::                      [U.Unit (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]
+  -> Either ParseError (Word.IsCapitalized, [U.Unit ((),          (Letter.Letter, Letter.IsLast)) Mark.AllPair])
+parseLetterCaseWork = Letter.parseCase (^. U.unitLetter . _2 . fileCharReferenceLine) (U.unitLetter . _1 . _1)
 
 printErrors :: (Show e, Foldable t) => t e -> IO a
 printErrors es = do
