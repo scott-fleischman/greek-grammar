@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Text.Greek.Source.All where
 
@@ -40,8 +41,8 @@ sblgntParagraphsToWords = fmap sblWordToWord . concatMap (toListOf SBL._ItemWord
 sblWordToWord :: SBL.Word -> Word.BasicText
 sblWordToWord (SBL.Word s e _ _) = Word.Basic s e
 
-concatSurface :: (Foldable tw, Foldable tc) => Work (tw (Word.Basic (tc a))) -> [a]
-concatSurface = concatMap (toList . view Word.basicSurface) . (view workContent)
+concatSurface :: (Foldable tw, Foldable tc) => Getter s (tc a) -> Work (tw s) -> [a]
+concatSurface l = concatMap (toList . view l) . (view workContent)
 
-globalConcatSurface :: (Foldable twork, Foldable tword, Foldable tc) => twork (Work (tword (Word.Basic (tc a)))) -> [a]
-globalConcatSurface = concatMap concatSurface
+globalConcatSurface :: (Foldable twork, Foldable tword, Foldable tc) => Getter s (tc a) -> twork (Work (tword s)) -> [a]
+globalConcatSurface = concatMap . concatSurface

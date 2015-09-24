@@ -14,12 +14,13 @@ import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 import qualified Text.Greek.Script.Word as Word
 
-handleAll :: IO [Work [Word.Basic [U.Unit (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]]]
+handleAll :: IO [Work [Word.Cased [U.Unit (Letter.Letter, Letter.IsLast) Mark.AllPair]]]
 handleAll = loadAll >>= handleEither
   >>= handleListEither . workToUnitChar
   >>= handleListEither . workToUnitUnicode
   >>= handleListEither . parseFinalForms . workToCaseLetterFinal
   >>= handleListEither . toMarkAll
+  >>= handleListEither . parseLetterCase
 
 workToUnitChar ::        [Work [Word.Basic (T.Text, FileReference)]]
   -> [Either U.UnitError (Work [Word.Basic [U.UnitChar]])]
@@ -47,6 +48,13 @@ toMarkAll
        Mark.Error
        (Work [Word.Basic [U.Unit         (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]])]
 toMarkAll = fmap $ (workContent . traverse . Word.basicSurface . traverse . U.unitMarks) Mark.toAllPair
+
+parseLetterCase
+  :: [Work [Word.Basic [U.Unit (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]]]
+  -> [Either
+        ParseError
+        (Work [Word.Cased [U.Unit (Letter.Letter, Letter.IsLast) Mark.AllPair]])]
+parseLetterCase = undefined
 
 printErrors :: (Show e, Foldable t) => t e -> IO a
 printErrors es = do

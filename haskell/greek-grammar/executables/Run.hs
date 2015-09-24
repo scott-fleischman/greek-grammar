@@ -2,6 +2,7 @@
 
 module Main where
 
+import Prelude hiding (Word)
 import Control.Lens
 import Data.List
 import Data.Set (Set)
@@ -13,10 +14,11 @@ import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy as L
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Unit as U
+import qualified Text.Greek.Script.Word as Word
 
 main :: IO ()
 main = handleAll
-  >>= renderSummary . query (Mark.forgetAllReference . view U.unitMarks) . globalConcatSurface
+  >>= renderSummary . query (Mark.forgetAllReference . view U.unitMarks) . globalConcatSurface Word.casedSurface
 
 unitCharLetters :: [U.UnitChar] -> [(U.LetterChar, [U.UnitChar])]
 unitCharLetters = query U.getLetter

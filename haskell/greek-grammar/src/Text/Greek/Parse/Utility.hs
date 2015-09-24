@@ -6,6 +6,7 @@ import Prelude hiding (getLine)
 import Control.Lens
 import Text.Greek.FileReference
 import Text.Parsec.Prim
+import Text.Parsec.Combinator
 import qualified Text.Parsec.Pos as P
 
 type Parser s t = ParsecT s () Identity t
@@ -43,3 +44,6 @@ tryManyEnd b e = tryEnd []
       tryEnd (x : xs)
     tryEnd xs = try (do { x <- e; return (x : xs) })
       <|> more xs
+
+tryManyEndEof :: (Stream s m t, Show t) => ParsecT s u m a -> ParsecT s u m a -> ParsecT s u m [a]
+tryManyEndEof b e = tryManyEnd b (e <* eof)

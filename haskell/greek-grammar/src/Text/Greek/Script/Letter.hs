@@ -12,6 +12,7 @@ import Text.Greek.Script.Unit
 import Text.Parsec.Error (ParseError)
 import Text.Parsec.Prim
 import Text.Parsec.Combinator
+import qualified Text.Greek.Script.Word as Word
 
 data Letter
   = L_α | L_β | L_γ | L_δ | L_ε | L_ζ | L_η | L_θ | L_ι | L_κ | L_λ | L_μ
@@ -134,26 +135,56 @@ letterFinalToLetterChar :: LetterFinal -> LetterChar
 letterFinalToLetterChar (LF_σ IsFinal) = LetterChar 'ς'
 letterFinalToLetterChar x = toLetterChar $ letterFinalToLetter x
 
-parseFinalPrim :: Show s => (s -> LineReference) -> LensLike Maybe s t a b -> (a -> Maybe b) -> Parser [s] t
-parseFinalPrim f g h = primMaybe f (g h)
+primLensMaybe :: Show s => (s -> LineReference) -> LensLike Maybe s t a b -> (a -> Maybe b) -> Parser [s] t
+primLensMaybe f g h = primMaybe f (g h)
 
 nonFinalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal (Letter, IsLast) -> Parser [s] t
-nonFinalLetterParser f g = parseFinalPrim f g apply
+nonFinalLetterParser f g = primLensMaybe f g apply
   where
     apply (LF_σ IsFinal) = Nothing
     apply x = Just (letterFinalToLetter x, IsNotLast)
 
 finalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal (Letter, IsLast) -> Parser [s] t
-finalLetterParser f g = parseFinalPrim f g apply
+finalLetterParser f g = primLensMaybe f g apply
   where
     apply (LF_σ IsNotFinal) = Nothing
     apply x = Just (letterFinalToLetter x, IsLast)
 
 finalParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal (Letter, IsLast) -> Parser [s] [t]
-finalParser f g = tryManyEnd (nonFinalLetterParser f g) (finalLetterParser f g <* eof)
+finalParser f g = tryManyEndEof (nonFinalLetterParser f g) (finalLetterParser f g)
 
 parseFinals :: Show s => (s -> LineReference) -> Lens s t LetterFinal (Letter, IsLast) -> [s] -> Either ParseError [t]
 parseFinals f g = parse (finalParser f g) ""
+
+
+lowercaseParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] t
+lowercaseParser f g = primLensMaybe f g apply
+  where
+    apply Lowercase = Just ()
+    apply Uppercase = Nothing
+
+uppercaseParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] t
+uppercaseParser f g = primLensMaybe f g apply
+  where
+    apply Lowercase = Nothing
+    apply Uppercase = Just ()
+
+capitalizedParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] (Word.IsCapitalized, [t])
+capitalizedParser f g = do
+  first <- uppercaseParser f g
+  remaining <- many (lowercaseParser f g)
+  _ <- eof
+  return (Word.IsCapitalized, first : remaining)
+
+uncapitalizedParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] (Word.IsCapitalized, [t])
+uncapitalizedParser f g = do
+  result <- many1 (lowercaseParser f g)
+  _ <- eof
+  return (Word.IsNotCapitalized, result)
+
+parseCase :: Show s => (s -> LineReference) -> Lens s t Case () -> [s] -> Either ParseError (Word.IsCapitalized, [t])
+parseCase f g = parse (capitalizedParser f g <|> uncapitalizedParser f g) ""
+
 
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω deriving (Eq, Show, Ord)
 data Consonant = C_β | C_γ | C_δ | C_ζ | C_θ | C_κ | C_λ | C_μ | C_ν | C_ξ | C_π | C_ρ | C_σ | C_τ | C_φ | C_χ | C_ψ deriving (Eq, Show, Ord)

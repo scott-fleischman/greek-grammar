@@ -15,3 +15,11 @@ data Basic a = Basic
 makeLenses ''Basic
 
 type BasicText = Basic (Text, FileReference)
+
+data IsCapitalized = IsCapitalized | IsNotCapitalized deriving (Eq, Ord, Show)
+data Cased a = Cased
+  { _casedSurface :: a
+  , _casedElision :: Maybe (ElisionChar, FileCharReference)
+  , _casedIsCapitalized :: IsCapitalized
+  } deriving Show
+makeLenses ''Cased
