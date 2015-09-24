@@ -45,7 +45,7 @@ instance Render LineReference where
   render (LineReference (Line l) (Column c)) = T.format "{}:{}" (l, c)
 
 instance Render a => Render [a] where
-  render = L.intercalate "," . fmap render . toList
+  render = flip L.append "\n" . L.intercalate ",\n" . fmap render . toList
 
 instance Render Int where
   render = L.pack . show
