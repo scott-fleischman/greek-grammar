@@ -189,6 +189,8 @@ parseCase f g = parse (try (capitalizedParser f g) <|> uncapitalizedParser f g) 
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω deriving (Eq, Show, Ord)
 data Consonant = C_β | C_γ | C_δ | C_ζ | C_θ | C_κ | C_λ | C_μ | C_ν | C_ξ | C_π | C_ρ | C_σ | C_τ | C_φ | C_χ | C_ψ deriving (Eq, Show, Ord)
 
+type VowelConsonant = Either Vowel Consonant
+
 toVowelConsonant :: Letter -> Either Vowel Consonant
 toVowelConsonant L_α = Left V_α
 toVowelConsonant L_ε = Left V_ε

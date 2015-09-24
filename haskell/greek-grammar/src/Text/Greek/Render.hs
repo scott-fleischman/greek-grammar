@@ -88,9 +88,6 @@ instance Render Word.IsCapitalized where
 instance Render ElisionChar where
   render = L.singleton . view getElisionChar
 
-renderElision :: Maybe (ElisionChar, FileCharReference) -> L.Text
-renderElision = render . fmap (view _1)
-
 instance Render ([(U.UnicodeMark, FileCharReference)]) where
   render = renderList . fmap (view _1)
 
@@ -102,6 +99,13 @@ instance Render a => Render (Word.Cased [a]) where
 
 instance Render a => Render (All.Work [a]) where
   render = renderList . view All.workContent
+
+instance Render Letter.VowelConsonant where
+  render (Left x) = L.pack . show $ x
+  render (Right x) = L.pack . show $ x
+
+renderElision :: Maybe (ElisionChar, FileCharReference) -> L.Text
+renderElision = render . fmap (view _1)
 
 renderList :: Render a => [a] -> L.Text
 renderList = render . fmap render
