@@ -18,7 +18,10 @@ import qualified Text.Greek.Script.Word as Word
 
 main :: IO ()
 main = handleAll
-  >>= renderSummary . query (Mark.forgetAllReference . view U.unitMarks) . globalConcatSurface Word.casedSurface
+  >>= renderAll . fmap (over workContent (take 100)) . take 1
+
+summarize :: (Foldable twork, Foldable tword, Foldable tc) => twork (Work (tword (Word.Cased (tc (U.Unit l Mark.AllPair))))) -> IO ()
+summarize = renderSummary . query (Mark.forgetAllReference . view U.unitMarks) . globalConcatSurface Word.casedSurface
 
 unitCharLetters :: [U.UnitChar] -> [(U.LetterChar, [U.UnitChar])]
 unitCharLetters = query U.getLetter
