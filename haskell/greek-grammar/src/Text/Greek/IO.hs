@@ -10,6 +10,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Text.Greek.Script.Letter as Letter
 import qualified Text.Greek.Script.Mark as Mark
+import qualified Text.Greek.Script.Syllable as Syllable
 import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 import qualified Text.Greek.Script.Word as Word
@@ -63,6 +64,11 @@ parseWordLetterCase w = do
 parseLetterCaseWork ::                      [U.Unit (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]
   -> Either ParseError (Word.IsCapitalized, [U.Unit ((),          (Letter.Letter, Letter.IsLast)) Mark.AllPair])
 parseLetterCaseWork = Letter.parseCase (^. U.unitLetter . _2 . fileCharReferenceLine) (U.unitLetter . _1 . _1)
+
+
+parseVocalicSyllable :: [Work [Word.Cased [U.Unit (Letter.VowelConsonant,     Letter.IsLast) (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]]
+  -> Either ParseError  [Work [Word.Cased [U.Unit (Syllable.VocalicConsonant, Letter.IsLast) (Mark.AccentBreathingAllPair, ()                        )]]]
+parseVocalicSyllable = undefined
 
 
 toVowelConsonant
