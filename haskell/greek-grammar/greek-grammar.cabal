@@ -71,6 +71,7 @@ library
     Text.Greek.Script.Unicode
     Text.Greek.Script.UnicodeTokenPairs
     Text.Greek.Script.Unit
+    Text.Greek.Script.Word
     Text.Greek.Source.All
     Text.Greek.Source.PerseusInventory
     Text.Greek.Source.Sblgnt
