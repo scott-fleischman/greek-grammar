@@ -42,7 +42,7 @@ tryManyEnd b e = tryEnd []
     more xs = do
       x <- b
       tryEnd (x : xs)
-    tryEnd xs = try (do { x <- e; return (x : xs) })
+    tryEnd xs = try (do { x <- e; return (reverse (x : xs)) })
       <|> more xs
 
 tryManyEndEof :: (Stream s m t, Show t) => ParsecT s u m a -> ParsecT s u m a -> ParsecT s u m [a]
