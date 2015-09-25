@@ -22,12 +22,13 @@ newtype LetterChar = LetterChar { getLetterChar :: Char } deriving (Eq, Show, Or
 newtype MarkChar = MarkChar { getMarkChar :: Char } deriving (Eq, Show, Ord)
 
 data Unit l m = Unit
-  { _unitLetter :: (l, FileCharReference)
+  { _unitItem :: l
   , _unitMarks :: m
   } deriving (Eq, Ord, Show)
 makeLenses ''Unit
 
-type UnitMarkList l m = Unit l [(m, FileCharReference)]
+type UnitLetter l m = Unit (l, FileCharReference) m
+type UnitMarkList l m = UnitLetter l [(m, FileCharReference)]
 type UnitChar = UnitMarkList LetterChar MarkChar
 
 data UnitError
@@ -43,7 +44,7 @@ getMarks :: UnitMarkList l m -> [m]
 getMarks = fmap (view _1) . view unitMarks
 
 getLetter :: UnitMarkList l m -> l
-getLetter = view (unitLetter . _1)
+getLetter = view (unitItem . _1)
 
 getMarkLetterPairs :: UnitMarkList l m -> [(m, l)]
 getMarkLetterPairs (Unit (l, _) m) = fmap (flip (,) l) (fmap fst m)

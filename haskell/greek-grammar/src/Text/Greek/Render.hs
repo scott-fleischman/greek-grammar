@@ -39,7 +39,7 @@ instance (Render a, Render b) => Render (a, b) where
 instance (Render a, Render b, Render c) => Render (a, b, c) where
   render (a, b, c) = T.format "({},{},{})" (render a, render b, render c)
 
-instance (Render l, Render m) => Render (U.Unit l m) where
+instance (Render l, Render m) => Render (U.UnitLetter l m) where
   render (U.Unit (c, r) ms) = T.format "({},{},{})" (render c, render r, render ms)
 
 instance Render FileCharReference where

@@ -15,7 +15,7 @@ import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 import qualified Text.Greek.Script.Word as Word
 
-handleAll :: IO [Work [Word.Cased [U.Unit (Letter.VowelConsonant, Letter.IsLast) (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]]
+handleAll :: IO [Work [Word.Cased [U.UnitLetter (Letter.VowelConsonant, Letter.IsLast) (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]]
 handleAll = loadAll >>= handleEither
   >>= handleListEither . workToUnitChar
   >>= handleListEither . workToUnitUnicode
@@ -35,50 +35,50 @@ workToUnitUnicode = fmap $ (workContent . traverse . Word.basicSurface . travers
 workToCaseLetterFinal
   :: [Work [Word.Basic [U.UnitMarkList U.UnicodeLetter                   U.UnicodeMark]]]
   -> [Work [Word.Basic [U.UnitMarkList (Letter.Case, Letter.LetterFinal) U.UnicodeMark]]]
-workToCaseLetterFinal = over (traverse . workContent . traverse . Word.basicSurface . traverse . U.unitLetter . _1) Letter.toCaseLetterFinal
+workToCaseLetterFinal = over (traverse . workContent . traverse . Word.basicSurface . traverse . U.unitItem . _1) Letter.toCaseLetterFinal
 
 parseFinalForms ::      [Work [Word.Basic [U.UnitMarkList (Letter.Case, Letter.LetterFinal)             U.UnicodeMark]]]
   -> [Either ParseError (Work [Word.Basic [U.UnitMarkList (Letter.Case, (Letter.Letter, Letter.IsLast)) U.UnicodeMark]])]
-parseFinalForms = fmap $ (workContent . traverse . Word.basicSurface) (Letter.parseFinals (^. U.unitLetter . _2 . fileCharReferenceLine) (U.unitLetter . _1 . _2))
+parseFinalForms = fmap $ (workContent . traverse . Word.basicSurface) (Letter.parseFinals (^. U.unitItem . _2 . fileCharReferenceLine) (U.unitItem . _1 . _2))
 
 toMarkAll ::            [Work [Word.Basic [U.UnitMarkList (Letter.Case, (Letter.Letter, Letter.IsLast)) U.UnicodeMark]]]
-  -> [Either Mark.Error (Work [Word.Basic [U.Unit         (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]])]
+  -> [Either Mark.Error (Work [Word.Basic [U.UnitLetter   (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]])]
 toMarkAll = fmap $ (workContent . traverse . Word.basicSurface . traverse . U.unitMarks) Mark.toAllPair
 
 
-parseLetterCase ::      [Work [Word.Basic [U.Unit (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]]]
-  -> [Either ParseError (Work [Word.Cased [U.Unit               (Letter.Letter, Letter.IsLast)  Mark.AllPair]])]
+parseLetterCase ::      [Work [Word.Basic [U.UnitLetter (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]]]
+  -> [Either ParseError (Work [Word.Cased [U.UnitLetter               (Letter.Letter, Letter.IsLast)  Mark.AllPair]])]
 parseLetterCase = fmap $ (workContent . traverse) parseWordLetterCase
 
-parseWordLetterCase ::  Word.Basic [U.Unit (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]
-  -> Either ParseError (Word.Cased [U.Unit               (Letter.Letter, Letter.IsLast)  Mark.AllPair])
+parseWordLetterCase ::  Word.Basic [U.UnitLetter (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]
+  -> Either ParseError (Word.Cased [U.UnitLetter               (Letter.Letter, Letter.IsLast)  Mark.AllPair])
 parseWordLetterCase w = do
   (c, s) <- parseLetterCaseWork (w ^. Word.basicSurface)
   return $ Word.Cased (dropUnit s) (w ^. Word.basicElision) c
     where
       dropUnit
-        :: [U.Unit ((), (Letter.Letter, Letter.IsLast)) m]
-        -> [U.Unit      (Letter.Letter, Letter.IsLast)  m]
-      dropUnit = over (traverse . U.unitLetter . _1) snd
+        :: [U.UnitLetter ((), (Letter.Letter, Letter.IsLast)) m]
+        -> [U.UnitLetter      (Letter.Letter, Letter.IsLast)  m]
+      dropUnit = over (traverse . U.unitItem . _1) snd
 
-parseLetterCaseWork ::                      [U.Unit (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]
-  -> Either ParseError (Word.IsCapitalized, [U.Unit ((),          (Letter.Letter, Letter.IsLast)) Mark.AllPair])
-parseLetterCaseWork = Letter.parseCase (^. U.unitLetter . _2 . fileCharReferenceLine) (U.unitLetter . _1 . _1)
+parseLetterCaseWork ::                      [U.UnitLetter (Letter.Case, (Letter.Letter, Letter.IsLast)) Mark.AllPair]
+  -> Either ParseError (Word.IsCapitalized, [U.UnitLetter ((),          (Letter.Letter, Letter.IsLast)) Mark.AllPair])
+parseLetterCaseWork = Letter.parseCase (^. U.unitItem . _2 . fileCharReferenceLine) (U.unitItem . _1 . _1)
 
 
-parseVocalicSyllable :: [Work [Word.Cased [U.Unit (Letter.VowelConsonant,     Letter.IsLast) (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]]
-  -> Either ParseError  [Work [Word.Cased [U.Unit (Syllable.VocalicConsonant, Letter.IsLast) (Mark.AccentBreathingAllPair, ()                        )]]]
+parseVocalicSyllable :: [Work [Word.Cased [U.UnitLetter (Letter.VowelConsonant,     Letter.IsLast) (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]]
+  -> Either ParseError  [Work [Word.Cased [U.UnitLetter (Syllable.VocalicConsonant, Letter.IsLast) (Mark.AccentBreathingAllPair, ()                        )]]]
 parseVocalicSyllable = undefined
 
 
 toVowelConsonant
-  :: [Work [Word.Cased [U.Unit (Letter.Letter,         Letter.IsLast) Mark.AllPair]]]
-  -> [Work [Word.Cased [U.Unit (Letter.VowelConsonant, Letter.IsLast) Mark.AllPair]]]
-toVowelConsonant = over (traverse . workContent . traverse . Word.casedSurface . traverse . U.unitLetter . _1 . _1) Letter.toVowelConsonant
+  :: [Work [Word.Cased [U.UnitLetter (Letter.Letter,         Letter.IsLast) Mark.AllPair]]]
+  -> [Work [Word.Cased [U.UnitLetter (Letter.VowelConsonant, Letter.IsLast) Mark.AllPair]]]
+toVowelConsonant = over (traverse . workContent . traverse . Word.casedSurface . traverse . U.unitItem . _1 . _1) Letter.toVowelConsonant
 
 partitionSyllabicAllPair
-  :: [Work [Word.Cased [U.Unit (Letter.VowelConsonant, Letter.IsLast) Mark.AllPair]]]
-  -> [Work [Word.Cased [U.Unit (Letter.VowelConsonant, Letter.IsLast) (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]]
+  :: [Work [Word.Cased [U.UnitLetter (Letter.VowelConsonant, Letter.IsLast) Mark.AllPair]]]
+  -> [Work [Word.Cased [U.UnitLetter (Letter.VowelConsonant, Letter.IsLast) (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]]
 partitionSyllabicAllPair = over (traverse . workContent . traverse . Word.casedSurface . traverse . U.unitMarks) Mark.partitionSyllabicAllPair
 
 
