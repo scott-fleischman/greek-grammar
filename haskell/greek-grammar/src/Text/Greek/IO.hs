@@ -17,38 +17,38 @@ import qualified Text.Greek.Script.Word as Word
 
 handleAll :: IO [Work [Word.Cased [U.UnitLetter Letter.VowelConsonant (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]]
 handleAll = loadAll >>= handleEither
-  >>= handleListEither . workToUnitChar
-  >>= handleListEither . workToUnitUnicode
-  >>= handleListEither . parseFinalForms . workToCaseLetterFinal
-  >>= handleListEither . toMarkAll
-  >>= handleListEither . parseLetterCase
+  >>= mapHandle workToUnitChar
+  >>= mapHandle workToUnitUnicode
+  >>= mapHandle parseFinalForms . workToCaseLetterFinal
+  >>= mapHandle toMarkAll
+  >>= mapHandle parseLetterCase
   >>= return . partitionSyllabicAllPair . toVowelConsonant
 
-workToUnitChar ::        [Work [Word.Basic (T.Text, FileReference)]]
-  -> [Either U.UnitError (Work [Word.Basic [U.UnitChar]])]
-workToUnitChar = fmap $ (workContent . traverse . Word.basicSurface) U.toUnitChar
+workToUnitChar ::        Work [Word.Basic (T.Text, FileReference)]
+  -> Either U.UnitError (Work [Word.Basic [U.UnitChar]])
+workToUnitChar = (workContent . traverse . Word.basicSurface) U.toUnitChar
 
-workToUnitUnicode ::        [Work [Word.Basic [U.UnitChar]]]
-  -> [Either U.UnicodeError (Work [Word.Basic [U.UnitUnicode]])]
-workToUnitUnicode = fmap $ (workContent . traverse . Word.basicSurface . traverse) U.toUnitUnicode
+workToUnitUnicode ::        Work [Word.Basic [U.UnitChar]]
+  -> Either U.UnicodeError (Work [Word.Basic [U.UnitUnicode]])
+workToUnitUnicode = (workContent . traverse . Word.basicSurface . traverse) U.toUnitUnicode
 
 workToCaseLetterFinal
   :: [Work [Word.Basic [U.UnitMarkList U.UnicodeLetter                   U.UnicodeMark]]]
   -> [Work [Word.Basic [U.UnitMarkList (Letter.Case, Letter.LetterFinal) U.UnicodeMark]]]
 workToCaseLetterFinal = over (traverse . workContent . traverse . Word.basicSurface . traverse . U.unitItem . _1) Letter.toCaseLetterFinal
 
-parseFinalForms ::      [Work [Word.Basic [U.UnitMarkList (Letter.Case, Letter.LetterFinal) U.UnicodeMark]]]
-  -> [Either ParseError (Work [Word.Basic [U.UnitMarkList (Letter.Case, Letter.Letter)      U.UnicodeMark]])]
-parseFinalForms = fmap $ (workContent . traverse . Word.basicSurface) (Letter.parseFinals (^. U.unitItem . _2 . fileCharReferenceLine) (U.unitItem . _1 . _2))
+parseFinalForms ::      Work [Word.Basic [U.UnitMarkList (Letter.Case, Letter.LetterFinal) U.UnicodeMark]]
+  -> Either ParseError (Work [Word.Basic [U.UnitMarkList (Letter.Case, Letter.Letter)      U.UnicodeMark]])
+parseFinalForms = (workContent . traverse . Word.basicSurface) (Letter.parseFinals (^. U.unitItem . _2 . fileCharReferenceLine) (U.unitItem . _1 . _2))
 
-toMarkAll ::            [Work [Word.Basic [U.UnitMarkList (Letter.Case, Letter.Letter) U.UnicodeMark]]]
-  -> [Either Mark.Error (Work [Word.Basic [U.UnitLetter   (Letter.Case, Letter.Letter) Mark.AllPair]])]
-toMarkAll = fmap $ (workContent . traverse . Word.basicSurface . traverse . U.unitMarks) Mark.toAllPair
+toMarkAll ::            Work [Word.Basic [U.UnitMarkList (Letter.Case, Letter.Letter) U.UnicodeMark]]
+  -> Either Mark.Error (Work [Word.Basic [U.UnitLetter   (Letter.Case, Letter.Letter) Mark.AllPair]])
+toMarkAll = (workContent . traverse . Word.basicSurface . traverse . U.unitMarks) Mark.toAllPair
 
 
-parseLetterCase ::      [Work [Word.Basic [U.UnitLetter (Letter.Case, Letter.Letter) Mark.AllPair]]]
-  -> [Either ParseError (Work [Word.Cased [U.UnitLetter               Letter.Letter  Mark.AllPair]])]
-parseLetterCase = fmap $ (workContent . traverse) parseWordLetterCase
+parseLetterCase ::      Work [Word.Basic [U.UnitLetter (Letter.Case, Letter.Letter) Mark.AllPair]]
+  -> Either ParseError (Work [Word.Cased [U.UnitLetter               Letter.Letter  Mark.AllPair]])
+parseLetterCase = (workContent . traverse) parseWordLetterCase
 
 parseWordLetterCase ::  Word.Basic [U.UnitLetter (Letter.Case, Letter.Letter) Mark.AllPair]
   -> Either ParseError (Word.Cased [U.UnitLetter               Letter.Letter  Mark.AllPair])
@@ -90,6 +90,9 @@ printErrors es = do
 handleEither :: (Show e, Foldable t) => Either (t e) x -> IO x
 handleEither (Left es) = printErrors es
 handleEither (Right x) = return x
+
+mapHandle :: (Show e) => (a -> Either e b) -> [a] -> IO [b]
+mapHandle f = handleListEither . fmap f
 
 handleListEither :: (Show e) => [Either e x] -> IO [x]
 handleListEither eithers = case errors of
