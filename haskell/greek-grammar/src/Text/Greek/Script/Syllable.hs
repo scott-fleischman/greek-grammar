@@ -4,9 +4,11 @@ module Text.Greek.Script.Syllable where
 
 import Control.Lens
 import Text.Greek.FileReference
+import Text.Greek.Script.Unit (Unit)
 import Text.Parsec.Error (ParseError)
 import qualified Text.Greek.Script.Letter as Letter
 import qualified Text.Greek.Script.Mark as Mark
+--import qualified Text.Greek.Script.Unit as Unit
 
 data Vocalic a b c
   = OneVowel a
@@ -20,7 +22,9 @@ type VocalicPair = VocalicSimple (Letter.Vowel, FileCharReference)
 type VocalicConsonant = Either VocalicPair (Letter.Consonant, FileCharReference)
 
 parseVocalicSyllable
-  :: Show s => Lens s t (Letter.VowelConsonant, Maybe Mark.SyllabicAllPair) (VocalicConsonant, ())
-  -> [s]
-  -> Either ParseError [t]
+  :: (Show l, Show m)
+  => Lens l l' (Letter.VowelConsonant, FileCharReference) VocalicConsonant
+  -> Lens m m' (Maybe Mark.SyllabicAllPair) ()
+  -> [Unit l m]
+  -> Either ParseError [Unit l' m']
 parseVocalicSyllable = undefined

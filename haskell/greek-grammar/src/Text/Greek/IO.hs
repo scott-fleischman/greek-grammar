@@ -66,9 +66,9 @@ parseLetterCaseWork ::                      [U.UnitLetter (Letter.Case, Letter.L
 parseLetterCaseWork = Letter.parseCase (^. U.unitItem . _2 . fileCharReferenceLine) (U.unitItem . _1 . _1)
 
 
-parseVocalicSyllable :: [Work [Word.Cased [U.UnitLetter Letter.VowelConsonant     (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]]
-  -> Either ParseError  [Work [Word.Cased [U.UnitLetter Syllable.VocalicConsonant (Mark.AccentBreathingAllPair, ()                        )]]]
-parseVocalicSyllable = undefined
+parseVocalicSyllable :: Work [Word.Cased [U.UnitLetter Letter.VowelConsonant     (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]
+  -> Either ParseError (Work [Word.Cased [U.Unit       Syllable.VocalicConsonant (Mark.AccentBreathingAllPair, ()                        )]])
+parseVocalicSyllable = (workContent . traverse . Word.casedSurface) $ Syllable.parseVocalicSyllable id _2
 
 
 toVowelConsonant
