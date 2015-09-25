@@ -42,7 +42,6 @@ isIotaSubscriptVowel v
 iotaSubscriptParser :: UnitLetterParser UnitVocalicConsonant
 iotaSubscriptParser = primUnitLetter "Iota subscript vowel" go
   where
-    go :: UnitLetter -> Maybe UnitVocalicConsonant
     go u
       | (Left v, r) <- u ^. Unit.unitItem
       , isIotaSubscriptVowel v
@@ -59,7 +58,6 @@ isTwoSoundVowel v
 diaeresisVowelParser :: UnitLetterParser UnitVocalicConsonant
 diaeresisVowelParser = primUnitLetter "Diaeresis vowel" go
   where
-    go :: UnitLetter -> Maybe UnitVocalicConsonant
     go u
       | (Left v, r) <- u ^. Unit.unitItem
       , isTwoSoundVowel v
@@ -68,19 +66,35 @@ diaeresisVowelParser = primUnitLetter "Diaeresis vowel" go
       = Just $ Unit.Unit (Left $ OneVowel (v, r)) (Mark.getAccentBreathingAllPair m)
     go _ = Nothing
 
-midTwoSoundFirstVowelParser :: UnitLetterParser UnitLetter
-midTwoSoundFirstVowelParser = undefined
+midTwoSoundFirstVowelParser :: UnitLetterParser (Letter.Vowel, FileCharReference)
+midTwoSoundFirstVowelParser = primUnitLetter "Mid two sound vowel 1" go
+  where
+    go u
+      | (Left v, r) <- u ^. Unit.unitItem
+      , m <- u ^. Unit.unitMarks
+      , (Nothing, Nothing, Nothing) <- m
+      = Just (v, r)
+    go _ = Nothing
 
-midTwoSoundSecondVowelParser :: UnitLetterParser UnitLetter
-midTwoSoundSecondVowelParser = undefined
+midTwoSoundSecondVowelParser :: UnitLetterParser ((Letter.Vowel, FileCharReference), Mark.AccentBreathingAllPair)
+midTwoSoundSecondVowelParser = primUnitLetter "Mid two sound vowel 2" go
+  where
+    go u
+      | (Left v, r) <- u ^. Unit.unitItem
+      , m <- u ^. Unit.unitMarks
+      , Nothing <- m ^. _3
+      = Just ((v, r), Mark.getAccentBreathingAllPair m)
+    go _ = Nothing
 
 midTwoSoundParser :: UnitLetterParser UnitVocalicConsonant
-midTwoSoundParser = undefined
+midTwoSoundParser = do
+  v1p <- midTwoSoundFirstVowelParser
+  (v2p, m) <- midTwoSoundSecondVowelParser
+  return $ Unit.Unit (Left $ TwoVowel (v1p, v2p)) m
 
 consonantParser :: UnitLetterParser UnitVocalicConsonant
 consonantParser = primUnitLetter "Consonant" go
   where
-    go :: UnitLetter -> Maybe UnitVocalicConsonant
     go u
       | (Right c, r) <- u ^. Unit.unitItem
       , m <- u ^. Unit.unitMarks
@@ -91,16 +105,22 @@ consonantParser = primUnitLetter "Consonant" go
 singleVowelParser :: UnitLetterParser UnitVocalicConsonant
 singleVowelParser = primUnitLetter "Single vowel" go
   where
-    go :: UnitLetter -> Maybe UnitVocalicConsonant
     go u
       | (Left v, r) <- u ^. Unit.unitItem
+      , False <- isTwoSoundVowel v
       , m <- u ^. Unit.unitMarks
       , Nothing <- m ^. _3
       = Just $ Unit.Unit (Left $ OneVowel (v, r)) (Mark.getAccentBreathingAllPair m)
     go _ = Nothing
 
 vocalicConsonantParser :: UnitLetterParser UnitVocalicConsonant
-vocalicConsonantParser = consonantParser <|> iotaSubscriptParser <|> diaeresisVowelParser <|> singleVowelParser
+vocalicConsonantParser
+  =   consonantParser
+  <|> iotaSubscriptParser
+  <|> diaeresisVowelParser
+  <|> try midTwoSoundParser
+  <|> singleVowelParser
+  <?> "VocalicConsonant"
 
 parseVocalicSyllable :: [UnitLetter] -> Either ParseError [UnitVocalicConsonant]
-parseVocalicSyllable = parse (many1 vocalicConsonantParser) ""
+parseVocalicSyllable = parse (many1 vocalicConsonantParser <* eof) ""
