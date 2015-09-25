@@ -58,14 +58,14 @@ getMarkSet (Unit _ m) = S.fromList . fmap fst $ m
 type CharPair = (Char, FileCharReference)
 type CharPairParser = ParsecT [(Char, FileCharReference)] () Identity
 
-satisfy :: (Char -> Bool) -> CharPairParser CharPair
-satisfy f = primBool (^. _2 . fileCharReferenceLine) (f . view _1)
+satisfy :: String -> (Char -> Bool) -> CharPairParser CharPair
+satisfy p f = primBool p (^. _2 . fileCharReferenceLine) (f . view _1)
 
 markParser :: CharPairParser (MarkChar, FileCharReference)
-markParser = over _1 MarkChar <$> satisfy isMark
+markParser = over _1 MarkChar <$> satisfy "Mark" isMark
 
 letterParser :: CharPairParser (LetterChar, FileCharReference)
-letterParser = over _1 LetterChar <$> satisfy isLetter
+letterParser = over _1 LetterChar <$> satisfy "Letter" isLetter
 
 unitParser :: CharPairParser UnitChar
 unitParser = Unit <$> letterParser <*> many markParser

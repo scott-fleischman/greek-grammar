@@ -28,7 +28,7 @@ type AttributeParser = ParsecT [XmlAttribute] () Identity
 type CharParser a = forall s u m. Stream s m Char => ParsecT s u m a
 
 parseEvent :: Stream s m Event => (Event -> Maybe a) -> ParsecT s u m a
-parseEvent = primMaybe (^. _1 . fileReferenceBegin)
+parseEvent = primMaybe "Event" (^. _1 . fileReferenceBegin)
 
 parseAttribute :: Stream s m XmlAttribute => (XmlAttribute -> Maybe a) -> ParsecT s u m a
 parseAttribute = tokenPrim show (const . const)

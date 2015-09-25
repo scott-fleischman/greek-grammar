@@ -13,6 +13,7 @@ import qualified Data.Text.Format as T
 import qualified Data.Text.Lazy as L
 import qualified Text.Greek.Script.Letter as Letter
 import qualified Text.Greek.Script.Mark as Mark
+import qualified Text.Greek.Script.Syllable as Syllable
 import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 import qualified Text.Greek.Script.Word as Word
@@ -39,8 +40,8 @@ instance (Render a, Render b) => Render (a, b) where
 instance (Render a, Render b, Render c) => Render (a, b, c) where
   render (a, b, c) = T.format "({},{},{})" (render a, render b, render c)
 
-instance (Render l, Render m) => Render (U.UnitLetter l m) where
-  render (U.Unit (c, r) ms) = T.format "({},{},{})" (render c, render r, render ms)
+instance (Render l, Render m) => Render (U.Unit l m) where
+  render (U.Unit l ms) = T.format "({},{})" (render l, render ms)
 
 instance Render FileCharReference where
   render (FileCharReference p l) = T.format "{}:{}" (T.Shown p, render l)
@@ -96,9 +97,24 @@ instance Render a => Render (Word.Cased [a]) where
 instance Render a => Render (All.Work [a]) where
   render = renderList . view All.workContent
 
+instance Render Letter.Consonant where
+  render = render . Letter.consonantToLetter
+
+instance Render Letter.Vowel where
+  render = render . Letter.vowelToLetter
+
 instance Render Letter.VowelConsonant where
-  render (Left x) = L.pack . show $ x
-  render (Right x) = L.pack . show $ x
+  render (Left x) = render x
+  render (Right x) = render x
+
+instance Render Syllable.VocalicConsonant where
+  render (Left x) = render x
+  render (Right x) = render x
+
+instance Render Syllable.VocalicPair where
+  render (Syllable.OneVowel v)            = T.format "V {}" (T.Only . render $ view _1 v)
+  render (Syllable.IotaSubscriptVowel v)  = T.format "I {}" (T.Only . render $ view _1 v)
+  render (Syllable.TwoVowel (v1, v2))     = T.format "D {}" (T.Only . render $ (view _1 v1, view _1 v2))
 
 renderElision :: Maybe (ElisionChar, FileCharReference) -> L.Text
 renderElision = render . fmap (view _1)

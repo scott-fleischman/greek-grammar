@@ -21,17 +21,17 @@ embedParser p2 v = do
     Left x -> fail $ show x
     Right x -> return x
 
-primMaybe :: (Show t, Stream s m t) => (t -> LineReference) -> (t -> Maybe a) -> ParsecT s u m a
-primMaybe f = tokenPrim show (updateEventPos f)
+primMaybe :: (Show t, Stream s m t) => String -> (t -> LineReference) -> (t -> Maybe a) -> ParsecT s u m a
+primMaybe p f = tokenPrim (\x -> p ++ " " ++ show x) (updateEventPos f)
 
-primBool :: (Show t, Stream s m t) => (t -> LineReference) -> (t -> Bool) -> ParsecT s u m t
-primBool f g = primMaybe f go
+primBool :: (Show t, Stream s m t) => String -> (t -> LineReference) -> (t -> Bool) -> ParsecT s u m t
+primBool p f g = primMaybe p f go
   where
     go t | g t = Just t
     go _ = Nothing
 
-primLensMaybe :: Show s => (s -> LineReference) -> LensLike Maybe s t a b -> (a -> Maybe b) -> Parser [s] t
-primLensMaybe f g h = primMaybe f (g h)
+primLensMaybe :: Show s => String -> (s -> LineReference) -> LensLike Maybe s t a b -> (a -> Maybe b) -> Parser [s] t
+primLensMaybe p f g h = primMaybe p f (g h)
 
 updateEventPos :: (t -> LineReference) -> P.SourcePos -> t -> s -> P.SourcePos
 updateEventPos f p r _ = flip P.setSourceColumn column . flip P.setSourceLine line $ p

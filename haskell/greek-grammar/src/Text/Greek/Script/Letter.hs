@@ -135,13 +135,13 @@ letterFinalToLetterChar (LF_σ IsFinal) = LetterChar 'ς'
 letterFinalToLetterChar x = toLetterChar $ letterFinalToLetter x
 
 nonFinalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] t
-nonFinalLetterParser f g = primLensMaybe f g apply
+nonFinalLetterParser f g = primLensMaybe "Non-final letter" f g apply
   where
     apply (LF_σ IsFinal) = Nothing
     apply x = Just (letterFinalToLetter x)
 
 finalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] t
-finalLetterParser f g = primLensMaybe f g apply
+finalLetterParser f g = primLensMaybe "Final letter" f g apply
   where
     apply (LF_σ IsNotFinal) = Nothing
     apply x = Just (letterFinalToLetter x)
@@ -154,13 +154,13 @@ parseFinals f g = parse (finalParser f g) ""
 
 
 lowercaseParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] t
-lowercaseParser f g = primLensMaybe f g apply
+lowercaseParser f g = primLensMaybe "Lowercase" f g apply
   where
     apply Lowercase = Just ()
     apply Uppercase = Nothing
 
 uppercaseParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] t
-uppercaseParser f g = primLensMaybe f g apply
+uppercaseParser f g = primLensMaybe "Uppercase" f g apply
   where
     apply Lowercase = Nothing
     apply Uppercase = Just ()
@@ -213,7 +213,33 @@ toVowelConsonant L_φ = Right C_φ
 toVowelConsonant L_χ = Right C_χ
 toVowelConsonant L_ψ = Right C_ψ
 
+vowelToLetter :: Vowel -> Letter
+vowelToLetter V_α = L_α
+vowelToLetter V_ε = L_ε
+vowelToLetter V_η = L_η
+vowelToLetter V_ι = L_ι
+vowelToLetter V_ο = L_ο
+vowelToLetter V_υ = L_υ
+vowelToLetter V_ω = L_ω
 
+consonantToLetter :: Consonant -> Letter
+consonantToLetter C_β = L_β
+consonantToLetter C_γ = L_γ
+consonantToLetter C_δ = L_δ
+consonantToLetter C_ζ = L_ζ
+consonantToLetter C_θ = L_θ
+consonantToLetter C_κ = L_κ
+consonantToLetter C_λ = L_λ
+consonantToLetter C_μ = L_μ
+consonantToLetter C_ν = L_ν
+consonantToLetter C_ξ = L_ξ
+consonantToLetter C_π = L_π
+consonantToLetter C_ρ = L_ρ
+consonantToLetter C_σ = L_σ
+consonantToLetter C_τ = L_τ
+consonantToLetter C_φ = L_φ
+consonantToLetter C_χ = L_χ
+consonantToLetter C_ψ = L_ψ
 
 {-
 

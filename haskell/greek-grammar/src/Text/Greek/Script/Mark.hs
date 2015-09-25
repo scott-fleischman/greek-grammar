@@ -10,8 +10,6 @@ type AccentAllPair = (AccentAll, FileCharReference)
 data BreathingAll = SmoothAll | RoughAll deriving (Eq, Ord, Show)
 type BreathingAllPair = (BreathingAll, FileCharReference)
 
-data IotaSubscript = IotaSubscript deriving (Eq, Ord, Show)
-data Diaeresis = Diaeresis deriving (Eq, Ord, Show)
 data SyllabicAll = IotaSubscriptAll | DiaeresisAll deriving (Eq, Ord, Show)
 type SyllabicAllPair = (SyllabicAll, FileCharReference)
 
