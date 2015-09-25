@@ -30,6 +30,9 @@ primBool f g = primMaybe f go
     go t | g t = Just t
     go _ = Nothing
 
+primLensMaybe :: Show s => (s -> LineReference) -> LensLike Maybe s t a b -> (a -> Maybe b) -> Parser [s] t
+primLensMaybe f g h = primMaybe f (g h)
+
 updateEventPos :: (t -> LineReference) -> P.SourcePos -> t -> s -> P.SourcePos
 updateEventPos f p r _ = flip P.setSourceColumn column . flip P.setSourceLine line $ p
   where

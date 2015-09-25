@@ -70,5 +70,5 @@ breathingAllToUnicodeMark RoughAll  = U_Rough
 type AccentBreathingAll = (Maybe AccentAll, Maybe BreathingAll)
 type AccentBreathingAllPair = (Maybe AccentAllPair, Maybe BreathingAllPair)
 
-partitionSyllabicAllPair :: AllPair -> (AccentBreathingAllPair, Maybe SyllabicAllPair)
-partitionSyllabicAllPair (a, b, s) = ((a, b), s)
+getAccentBreathingAllPair :: AllPair -> AccentBreathingAllPair
+getAccentBreathingAllPair (a, b, _) = (a, b)

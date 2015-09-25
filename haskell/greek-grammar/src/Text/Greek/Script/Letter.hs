@@ -134,9 +134,6 @@ letterFinalToLetterChar :: LetterFinal -> LetterChar
 letterFinalToLetterChar (LF_σ IsFinal) = LetterChar 'ς'
 letterFinalToLetterChar x = toLetterChar $ letterFinalToLetter x
 
-primLensMaybe :: Show s => (s -> LineReference) -> LensLike Maybe s t a b -> (a -> Maybe b) -> Parser [s] t
-primLensMaybe f g h = primMaybe f (g h)
-
 nonFinalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] t
 nonFinalLetterParser f g = primLensMaybe f g apply
   where

@@ -15,14 +15,14 @@ import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 import qualified Text.Greek.Script.Word as Word
 
-handleAll :: IO [Work [Word.Cased [U.UnitLetter Letter.VowelConsonant (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]]
+handleAll :: IO [Work [Word.Cased [U.UnitLetter Letter.VowelConsonant Mark.AllPair]]]
 handleAll = loadAll >>= handleEither
   >>= mapHandle workToUnitChar
   >>= mapHandle workToUnitUnicode
   >>= mapHandle parseFinalForms . workToCaseLetterFinal
   >>= mapHandle toMarkAll
   >>= mapHandle parseLetterCase
-  >>= return . partitionSyllabicAllPair . toVowelConsonant
+  >>= return . toVowelConsonant
 
 workToUnitChar ::        Work [Word.Basic (T.Text, FileReference)]
   -> Either U.UnitError (Work [Word.Basic [U.UnitChar]])
@@ -66,20 +66,15 @@ parseLetterCaseWork ::                      [U.UnitLetter (Letter.Case, Letter.L
 parseLetterCaseWork = Letter.parseCase (^. U.unitItem . _2 . fileCharReferenceLine) (U.unitItem . _1 . _1)
 
 
-parseVocalicSyllable :: Work [Word.Cased [U.UnitLetter Letter.VowelConsonant     (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]
-  -> Either ParseError (Work [Word.Cased [U.Unit       Syllable.VocalicConsonant (Mark.AccentBreathingAllPair, ()                        )]])
-parseVocalicSyllable = (workContent . traverse . Word.casedSurface) $ Syllable.parseVocalicSyllable id _2
+parseVocalicSyllable :: Work [Word.Cased [U.UnitLetter Letter.VowelConsonant     Mark.AllPair]]
+  -> Either ParseError (Work [Word.Cased [U.Unit       Syllable.VocalicConsonant Mark.AccentBreathingAllPair]])
+parseVocalicSyllable = (workContent . traverse . Word.casedSurface) Syllable.parseVocalicSyllable
 
 
 toVowelConsonant
   :: [Work [Word.Cased [U.UnitLetter Letter.Letter         Mark.AllPair]]]
   -> [Work [Word.Cased [U.UnitLetter Letter.VowelConsonant Mark.AllPair]]]
 toVowelConsonant = over (traverse . workContent . traverse . Word.casedSurface . traverse . U.unitItem . _1) Letter.toVowelConsonant
-
-partitionSyllabicAllPair
-  :: [Work [Word.Cased [U.UnitLetter Letter.VowelConsonant Mark.AllPair]]]
-  -> [Work [Word.Cased [U.UnitLetter Letter.VowelConsonant (Mark.AccentBreathingAllPair, Maybe Mark.SyllabicAllPair)]]]
-partitionSyllabicAllPair = over (traverse . workContent . traverse . Word.casedSurface . traverse . U.unitMarks) Mark.partitionSyllabicAllPair
 
 
 printErrors :: (Show e, Foldable t) => t e -> IO a
