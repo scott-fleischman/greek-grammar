@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Main where
@@ -14,27 +15,36 @@ import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy as L
 import qualified Text.Greek.Script.Letter as Letter
 import qualified Text.Greek.Script.Mark as Mark
-import qualified Text.Greek.Script.Unit as U
+import qualified Text.Greek.Script.Unit as Unit
 import qualified Text.Greek.Script.Word as Word
 
 main :: IO ()
 main = handleAll
-  >>= renderSummary . concatQuery (Letter.clusterVowelConsonant . fmap (^. U.unitItem . _1)) . fmap (concatSurface Word.casedSurface)
+  >>= renderSummary . query fst . concat . fmap (\(xs, y) -> fmap (\x -> (x, y)) xs) . fmap (cool . view Word.casedSurface) . concat . fmap (view workContent)
+    where
+      cool ws =
+          ( groupEithers $ fmap getPair ws
+          , snd . Unit._unitItem $ ws !! 0
+          )
+        where
+          getPair w = over _Right (\x -> (x, reference)) . over _Left (\x -> (x, reference)) $ w ^. Unit.unitItem . _1
+            where
+              reference = over _Just fst $ w ^. Unit.unitMarks . _3
 
 renderSome :: Render a => [Work [Word.Cased [a]]] -> IO ()
 renderSome = renderAll . fmap (over workContent (take 100)) . take 1 . drop 2
 
-unitCharLetters :: [U.UnitChar] -> [(U.LetterChar, [U.UnitChar])]
-unitCharLetters = query U.getLetter
+unitCharLetters :: [Unit.UnitChar] -> [(Unit.LetterChar, [Unit.UnitChar])]
+unitCharLetters = query Unit.getLetter
 
-unitCharMarks :: [U.UnitChar] -> [(U.MarkChar, [U.UnitChar])]
-unitCharMarks = concatQuery U.getMarks
+unitCharMarks :: [Unit.UnitChar] -> [(Unit.MarkChar, [Unit.UnitChar])]
+unitCharMarks = concatQuery Unit.getMarks
 
-unitMarkLetterPairs :: (Ord l, Ord m) => [U.UnitMarkList l m] -> [((m, l), [U.UnitMarkList l m])]
-unitMarkLetterPairs = concatQuery (U.getMarkLetterPairs)
+unitMarkLetterPairs :: (Ord l, Ord m) => [Unit.UnitMarkList l m] -> [((m, l), [Unit.UnitMarkList l m])]
+unitMarkLetterPairs = concatQuery (Unit.getMarkLetterPairs)
 
-unitLetterMarkSets :: (Ord l, Ord m) => [U.UnitMarkList l m] -> [((l, Set m), [U.UnitMarkList l m])]
-unitLetterMarkSets = query U.getLetterMarkSet
+unitLetterMarkSets :: (Ord l, Ord m) => [Unit.UnitMarkList l m] -> [((l, Set m), [Unit.UnitMarkList l m])]
+unitLetterMarkSets = query Unit.getLetterMarkSet
 
 renderSummary :: (Render b, Ord b, Foldable t) => [(b, t a)] -> IO ()
 renderSummary = renderAll . fmap (over _2 length) . sortOn fst

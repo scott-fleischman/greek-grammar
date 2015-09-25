@@ -22,6 +22,9 @@ import qualified Text.Greek.Source.All as All
 class Render a where
   render :: a -> L.Text
 
+instance Render L.Text where
+  render = id
+
 instance Render U.LetterChar where
   render = L.singleton . U.getLetterChar
 
@@ -112,13 +115,29 @@ instance Render Syllable.VocalicPair where
   render (Syllable.TwoVowel (v1, v2))     = T.format "D {}" (T.Only . render $ (view _1 v1, view _1 v2))
 
 instance Render Letter.VowelCluster where
-  render = renderListSpaced
+  render = renderListConcat
 
 instance Render Letter.ConsonantCluster where
-  render = renderListSpaced
+  render = renderListConcat
 
 instance Render Letter.VowelConsonantCluster where
   render = renderEitherIgnore
+
+renderMaybeEmpty :: Render a => Maybe a -> L.Text
+renderMaybeEmpty (Just a) = render a
+renderMaybeEmpty Nothing = ""
+
+instance Render [(Letter.Vowel, Maybe Mark.SyllabicAll)] where
+  render = renderListConcat . fmap (\(x, y) -> L.concat [render x, renderMaybeEmpty y])
+
+instance Render [(Letter.Consonant, Maybe Mark.SyllabicAll)] where
+  render = renderListConcat . fmap (\(x, y) -> L.concat [render x, renderMaybeEmpty y])
+
+instance Render (Either [(Letter.Vowel, Maybe Mark.SyllabicAll)] [(Letter.Consonant, Maybe Mark.SyllabicAll)]) where
+  render = renderEitherIgnore
+
+instance Render [Either [(Letter.Vowel, Maybe Mark.SyllabicAll)] [(Letter.Consonant, Maybe Mark.SyllabicAll)]] where
+  render = renderListConcat
 
 renderEitherIgnore :: (Render a, Render b) => Either a b -> L.Text
 renderEitherIgnore (Left x) = render x
@@ -127,8 +146,11 @@ renderEitherIgnore (Right x) = render x
 renderElision :: Maybe (ElisionChar, FileCharReference) -> L.Text
 renderElision = render . fmap (view _1)
 
-renderListSpaced :: Render a => [a] -> L.Text
-renderListSpaced = L.intercalate " " . fmap render
+renderListConcat :: Render a => [a] -> L.Text
+renderListConcat = L.concat . fmap render
+
+renderListIntercalate :: Render a => L.Text -> [a] -> L.Text
+renderListIntercalate s = L.intercalate s . fmap render
 
 renderListLines :: Render a => [a] -> L.Text
 renderListLines = L.concat . fmap (flip L.append "\n") . fmap render

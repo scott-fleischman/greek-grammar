@@ -134,3 +134,12 @@ extractSum (Right b, Right c) = Right (b, c)
 extractProduct :: (a * b) + (a * c) -> a * (b + c)
 extractProduct (Left (a, b))  = (a, Left b)
 extractProduct (Right (a, c)) = (a, Right c)
+
+groupEithers :: [a + b] -> [[a] + [b]]
+groupEithers = foldr go []
+  where
+    go :: Either a b -> [Either [a] [b]] -> [Either [a] [b]]
+    go (Left a) ((Left as) : xs) = (Left (a : as)) : xs
+    go (Left a) xs = (Left [a]) : xs
+    go (Right b) ((Right bs) : xs) = (Right (b : bs)) : xs
+    go (Right b) xs = (Right [b]) : xs
