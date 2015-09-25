@@ -19,7 +19,6 @@ data Letter
   | L_ν | L_ξ | L_ο | L_π | L_ρ | L_σ | L_τ | L_υ | L_φ | L_χ | L_ψ | L_ω
   deriving (Eq, Ord, Show)
 data Case = Lowercase | Uppercase deriving (Eq, Ord, Show)
-data IsLast = IsNotLast | IsLast deriving (Eq, Ord, Show)
 
 data IsFinal = IsFinal | IsNotFinal deriving (Eq, Ord, Show)
 data LetterFinal
@@ -138,22 +137,22 @@ letterFinalToLetterChar x = toLetterChar $ letterFinalToLetter x
 primLensMaybe :: Show s => (s -> LineReference) -> LensLike Maybe s t a b -> (a -> Maybe b) -> Parser [s] t
 primLensMaybe f g h = primMaybe f (g h)
 
-nonFinalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal (Letter, IsLast) -> Parser [s] t
+nonFinalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] t
 nonFinalLetterParser f g = primLensMaybe f g apply
   where
     apply (LF_σ IsFinal) = Nothing
-    apply x = Just (letterFinalToLetter x, IsNotLast)
+    apply x = Just (letterFinalToLetter x)
 
-finalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal (Letter, IsLast) -> Parser [s] t
+finalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] t
 finalLetterParser f g = primLensMaybe f g apply
   where
     apply (LF_σ IsNotFinal) = Nothing
-    apply x = Just (letterFinalToLetter x, IsLast)
+    apply x = Just (letterFinalToLetter x)
 
-finalParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal (Letter, IsLast) -> Parser [s] [t]
+finalParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] [t]
 finalParser f g = tryManyEndEof (nonFinalLetterParser f g) (finalLetterParser f g)
 
-parseFinals :: Show s => (s -> LineReference) -> Lens s t LetterFinal (Letter, IsLast) -> [s] -> Either ParseError [t]
+parseFinals :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> [s] -> Either ParseError [t]
 parseFinals f g = parse (finalParser f g) ""
 
 

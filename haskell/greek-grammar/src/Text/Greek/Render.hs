@@ -54,10 +54,6 @@ instance Render [L.Text] where
 instance Render Int where
   render = L.pack . show
 
-instance Render Letter.IsLast where
-  render Letter.IsLast = "last"
-  render Letter.IsNotLast = "not last"
-
 instance Render Letter.Case where
   render Letter.Uppercase = "upper"
   render Letter.Lowercase = "lower"
