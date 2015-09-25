@@ -241,6 +241,22 @@ consonantToLetter C_φ = L_φ
 consonantToLetter C_χ = L_χ
 consonantToLetter C_ψ = L_ψ
 
+type VowelCluster = [Vowel]
+type ConsonantCluster = [Consonant]
+type VowelConsonantCluster = Either VowelCluster ConsonantCluster
+
+clusterVowelConsonant :: [VowelConsonant] -> [VowelConsonantCluster]
+clusterVowelConsonant = groupEithers
+
+groupEithers :: [Either a b] -> [Either [a] [b]]
+groupEithers = foldr go []
+  where
+    go :: Either a b -> [Either [a] [b]] -> [Either [a] [b]]
+    go (Left a) ((Left as) : xs) = (Left (a : as)) : xs
+    go (Left a) xs = (Left [a]) : xs
+    go (Right b) ((Right bs) : xs) = (Right (b : bs)) : xs
+    go (Right b) xs = (Right [b]) : xs
+
 {-
 
 data MarkedLetter = MarkedLetter

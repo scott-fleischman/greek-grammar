@@ -49,9 +49,6 @@ instance Render FileCharReference where
 instance Render LineReference where
   render (LineReference (Line l) (Column c)) = T.format "{}:{}" (l, c)
 
-instance Render [L.Text] where
-  render = L.concat . fmap (flip L.append "\n")
-
 instance Render Int where
   render = L.pack . show
 
@@ -86,16 +83,16 @@ instance Render ElisionChar where
   render = L.singleton . view getElisionChar
 
 instance Render ([(U.UnicodeMark, FileCharReference)]) where
-  render = renderList . fmap (view _1)
+  render = renderListLines . fmap (view _1)
 
 instance Render a => Render (Word.Basic [a]) where
-  render (Word.Basic surface elision) = T.format "Word {}\n{}" (renderElision elision, renderList surface)
+  render (Word.Basic surface elision) = T.format "Word {}\n{}" (renderElision elision, renderListLines surface)
 
 instance Render a => Render (Word.Cased [a]) where
-  render (Word.Cased surface elision cap) = T.format "Word {} {}\n{}" (renderElision elision, render cap, renderList surface)
+  render (Word.Cased surface elision cap) = T.format "Word {} {}\n{}" (renderElision elision, render cap, renderListLines surface)
 
 instance Render a => Render (All.Work [a]) where
-  render = renderList . view All.workContent
+  render = renderListLines . view All.workContent
 
 instance Render Letter.Consonant where
   render = render . Letter.consonantToLetter
@@ -104,26 +101,40 @@ instance Render Letter.Vowel where
   render = render . Letter.vowelToLetter
 
 instance Render Letter.VowelConsonant where
-  render (Left x) = render x
-  render (Right x) = render x
+  render = renderEitherIgnore
 
 instance Render Syllable.VocalicConsonant where
-  render (Left x) = render x
-  render (Right x) = render x
+  render = renderEitherIgnore
 
 instance Render Syllable.VocalicPair where
   render (Syllable.OneVowel v)            = T.format "V {}" (T.Only . render $ view _1 v)
   render (Syllable.IotaSubscriptVowel v)  = T.format "I {}" (T.Only . render $ view _1 v)
   render (Syllable.TwoVowel (v1, v2))     = T.format "D {}" (T.Only . render $ (view _1 v1, view _1 v2))
 
+instance Render Letter.VowelCluster where
+  render = renderListSpaced
+
+instance Render Letter.ConsonantCluster where
+  render = renderListSpaced
+
+instance Render Letter.VowelConsonantCluster where
+  render = renderEitherIgnore
+
+renderEitherIgnore :: (Render a, Render b) => Either a b -> L.Text
+renderEitherIgnore (Left x) = render x
+renderEitherIgnore (Right x) = render x
+
 renderElision :: Maybe (ElisionChar, FileCharReference) -> L.Text
 renderElision = render . fmap (view _1)
 
-renderList :: Render a => [a] -> L.Text
-renderList = render . fmap render
+renderListSpaced :: Render a => [a] -> L.Text
+renderListSpaced = L.intercalate " " . fmap render
 
-renderReverseList :: Render a => [a] -> L.Text
-renderReverseList = render . fmap render . reverse
+renderListLines :: Render a => [a] -> L.Text
+renderListLines = L.concat . fmap (flip L.append "\n") . fmap render
 
-renderSet :: Render a => Set a -> L.Text
-renderSet = renderList . S.toAscList
+renderReverseListLines :: Render a => [a] -> L.Text
+renderReverseListLines = renderListLines . reverse
+
+renderSetLines :: Render a => Set a -> L.Text
+renderSetLines = renderListLines . S.toAscList

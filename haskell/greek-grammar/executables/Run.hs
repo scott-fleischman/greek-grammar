@@ -12,16 +12,17 @@ import Text.Greek.Source.All
 import Text.Greek.Utility
 import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy as L
+import qualified Text.Greek.Script.Letter as Letter
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Unit as U
 import qualified Text.Greek.Script.Word as Word
 
 main :: IO ()
 main = handleAll
-  >>= renderAll . fmap (over workContent (take 100)) . take 1 . drop 2
+  >>= renderSummary . concatQuery (Letter.clusterVowelConsonant . fmap (^. U.unitItem . _1)) . fmap (concatSurface Word.casedSurface)
 
-summarize :: (Foldable twork, Foldable tword, Foldable tc) => twork (Work (tword (Word.Cased (tc (U.Unit l Mark.AllPair))))) -> IO ()
-summarize = renderSummary . query (Mark.forgetAllReference . view U.unitMarks) . globalConcatSurface Word.casedSurface
+renderSome :: Render a => [Work [Word.Cased [a]]] -> IO ()
+renderSome = renderAll . fmap (over workContent (take 100)) . take 1 . drop 2
 
 unitCharLetters :: [U.UnitChar] -> [(U.LetterChar, [U.UnitChar])]
 unitCharLetters = query U.getLetter

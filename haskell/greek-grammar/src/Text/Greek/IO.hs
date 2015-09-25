@@ -15,14 +15,14 @@ import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 import qualified Text.Greek.Script.Word as Word
 
-handleAll :: IO [Work [Word.Cased [U.Unit Syllable.VocalicConsonant Mark.AccentBreathingAllPair]]]
+handleAll :: IO [Work [Word.Cased [U.UnitLetter Letter.VowelConsonant Mark.AllPair]]]
 handleAll = loadAll >>= handleEither
   >>= mapHandle workToUnitChar
   >>= mapHandle workToUnitUnicode
   >>= mapHandle parseFinalForms . workToCaseLetterFinal
   >>= mapHandle toMarkAll
   >>= mapHandle parseLetterCase
-  >>= mapHandle parseVocalicSyllable . toVowelConsonant
+  >>= return . toVowelConsonant
 
 workToUnitChar ::        Work [Word.Basic (T.Text, FileReference)]
   -> Either U.UnitError (Work [Word.Basic [U.UnitChar]])
