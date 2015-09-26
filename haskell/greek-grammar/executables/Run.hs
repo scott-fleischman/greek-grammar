@@ -20,10 +20,10 @@ import qualified Text.Greek.Script.Word as Word
 
 main :: IO ()
 main = handleAll
-  >>= renderSummary . query fst . concat . fmap (\(xs, y) -> fmap (\x -> (x, y)) xs) . fmap (cool . view Word.casedSurface) . concat . fmap (view workContent)
+  >>= renderSummary . query fst . concat . fmap (\(xs, y) -> fmap (\x -> (x, y)) xs) . fmap (clusters . view Word.casedSurface) . concat . fmap (view workContent)
     where
-      cool ws =
-          ( groupEithers $ fmap getPair ws
+      clusters ws =
+          ( drop 1 . groupEithers $ fmap getPair ws
           , snd . Unit._unitItem $ ws !! 0
           )
         where

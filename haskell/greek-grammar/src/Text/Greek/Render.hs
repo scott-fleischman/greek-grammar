@@ -139,6 +139,9 @@ instance Render (Either [(Letter.Vowel, Maybe Mark.SyllabicAll)] [(Letter.Conson
 instance Render [Either [(Letter.Vowel, Maybe Mark.SyllabicAll)] [(Letter.Consonant, Maybe Mark.SyllabicAll)]] where
   render = renderListConcat
 
+instance Render [(Either [(Letter.Vowel, Maybe Mark.SyllabicAll)] [(Letter.Consonant, Maybe Mark.SyllabicAll)], FileCharReference)] where
+  render = renderListLines
+
 renderEitherIgnore :: (Render a, Render b) => Either a b -> L.Text
 renderEitherIgnore (Left x) = render x
 renderEitherIgnore (Right x) = render x
