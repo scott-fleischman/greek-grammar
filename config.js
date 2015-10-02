@@ -9,6 +9,7 @@ System.config({
 
   map: {
     "bootstrap": "github:twbs/bootstrap@3.3.5",
+    "css": "github:systemjs/plugin-css@0.1.18",
     "jquery": "github:components/jquery@2.1.4",
     "lodash": "npm:lodash@3.10.1",
     "traceur": "github:jmcriffey/bower-traceur@0.0.91",
