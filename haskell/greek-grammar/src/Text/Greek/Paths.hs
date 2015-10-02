@@ -37,3 +37,6 @@ perseusGreekPath = perseusFolderPath </> "canonical-greekLit"
 
 perseusInventoryXmlPath :: FilePath
 perseusInventoryXmlPath = perseusCatalogPath </> "perseus" </> "perseuscts.xml"
+
+pagesData :: FilePath
+pagesData = "../pages/data"

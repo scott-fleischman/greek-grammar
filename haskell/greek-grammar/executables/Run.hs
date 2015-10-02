@@ -17,9 +17,13 @@ import qualified Text.Greek.Script.Letter as Letter
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Unit as Unit
 import qualified Text.Greek.Script.Word as Word
+import qualified Text.Greek.Json as Json
 
 main :: IO ()
-main = handleAll
+main = Json.go
+
+commandLine :: IO ()
+commandLine = handleAll
   >>= renderSummary . query fst . concat . fmap (\(xs, y) -> fmap (\x -> (x, y)) xs) . fmap (clusters . view Word.casedSurface) . concat . fmap (view workContent)
     where
       clusters ws =

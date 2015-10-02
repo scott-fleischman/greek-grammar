@@ -26,7 +26,9 @@ library
     xml-lens >=0.1,
     template-haskell >=2.10,
     parsec >=3.1,
-    syb >= 0.4.4
+    syb >=0.4.4,
+    bytestring >=0.10,
+    aeson >=0.8
   exposed-modules:
     Data.Text.Format.Strict
     Data.Unicode.Decompose
@@ -38,6 +40,7 @@ library
     Text.Greek.FileReference
     Text.Greek.Grammar
     Text.Greek.IO
+    Text.Greek.Json
     Text.Greek.Morphology.Noun
     Text.Greek.Mounce.Adjective
     Text.Greek.Mounce.Euphony
