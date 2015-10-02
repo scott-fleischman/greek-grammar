@@ -1,4 +1,5 @@
-jspm_packages/
+!jspm_packages
+jspm_packages/*
+!jspm_packages/system.js
+!jspm_packages/system.js.map
 node_modules/
-build.js
-build.js.map
