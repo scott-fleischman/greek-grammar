@@ -6,4 +6,4 @@ packages:
   extra-dep: true
 - 'haskell/greek-grammar'
 extra-deps:
-resolver: lts-3.4
+resolver: lts-3.7
