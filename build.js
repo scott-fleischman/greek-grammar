@@ -12076,9 +12076,9 @@ System.register("lib/render.js", ["npm:lodash@3.10.1", "github:components/jquery
     });
   }
   function render() {
-    var result = queryString.parse(window.location.search);
-    console.log(result);
-    $.getJSON('data/work.json', renderGroup);
+    var query = queryString.parse(window.location.search);
+    var dataName = query.d || 'work';
+    $.getJSON(("data/" + dataName + ".json"), renderGroup);
   }
   $__export("render", render);
   return {
