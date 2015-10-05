@@ -13,6 +13,7 @@ System.config({
     "css": "github:systemjs/plugin-css@0.1.18",
     "jquery": "github:components/jquery@2.1.4",
     "lodash": "npm:lodash@3.10.1",
+    "query-string": "npm:query-string@2.4.2",
     "traceur": "github:jmcriffey/bower-traceur@0.0.91",
     "traceur-runtime": "github:jmcriffey/bower-traceur-runtime@0.0.91",
     "github:jspm/nodelibs-assert@0.1.0": {
@@ -114,6 +115,9 @@ System.config({
     },
     "npm:punycode@1.3.2": {
       "process": "github:jspm/nodelibs-process@0.1.1"
+    },
+    "npm:query-string@2.4.2": {
+      "strict-uri-encode": "npm:strict-uri-encode@1.0.2"
     },
     "npm:readable-stream@1.1.13": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",

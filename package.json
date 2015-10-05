@@ -5,7 +5,8 @@
       "clean-css": "npm:clean-css@^3.4.5",
       "css": "github:systemjs/plugin-css@^0.1.18",
       "jquery": "github:components/jquery@^2.1.4",
-      "lodash": "npm:lodash@^3.10.1"
+      "lodash": "npm:lodash@^3.10.1",
+      "query-string": "npm:query-string@^2.4.2"
     },
     "devDependencies": {
       "traceur": "github:jmcriffey/bower-traceur@0.0.91",
