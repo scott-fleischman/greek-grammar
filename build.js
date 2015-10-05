@@ -12044,7 +12044,7 @@ System.register("lib/render.js", ["npm:lodash@3.10.1", "github:components/jquery
       $,
       queryString;
   function renderList(data) {
-    var element = $('div.main');
+    var element = $('#accordion');
     _.forEach(data.items, function(item) {
       element.append($('<p></p>').text(item.title));
     });
@@ -12078,7 +12078,9 @@ System.register("lib/render.js", ["npm:lodash@3.10.1", "github:components/jquery
   function render() {
     var query = queryString.parse(window.location.search);
     var dataName = query.d || 'work';
-    $.getJSON(("data/" + dataName + ".json"), renderGroup);
+    var commandName = query.c || 'list';
+    var command = commandName === 'group' ? renderGroup : renderList;
+    $.getJSON(("data/" + dataName + ".json"), command);
   }
   $__export("render", render);
   return {
