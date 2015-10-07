@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Text.Greek.Json where
 
@@ -13,13 +14,14 @@ import qualified Text.Greek.Script.Word as Word
 import qualified Data.ByteString.Lazy.Char8 as BL
 
 data Work = Work
-  { index :: Int
+  { work :: Int
   , title :: Text
   , words :: [Text]
   } deriving (Generic, Show)
 
 data TopLevelArray a = TopLevelArray
-  { items :: [a]
+  { name :: Text
+  , items :: [a]
   } deriving (Generic, Show)
 
 instance ToJSON Work
@@ -30,7 +32,7 @@ go = do
   result <- All.loadAll
   case result of
     Left x -> putStrLn . show $ x
-    Right works -> BL.writeFile (Path.pagesData </> "work.json") . encode . TopLevelArray . makeWorks $ works
+    Right works -> BL.writeFile (Path.pagesData </> "work.json") . encode . TopLevelArray "work" . makeWorks $ works
 
 makeWorks :: [All.WorkText] -> [Work]
 makeWorks = fmap (uncurry toWork) . zip [0..]
