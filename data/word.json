@@ -1,4 +1,5 @@
 {
+	"name": "word",
 	"properties": ["work"],
 	"target": "character",
 	"items": [
