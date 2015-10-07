@@ -1,9 +1,14 @@
 {
 	"items": [
-	{
-		"index": 1,
-		"title": "First word",
-		"words": ["abc", "def"]
-	}
+		{
+			"index": 1,
+			"title": "First word",
+			"unit": ["abc", "def"]
+		},
+		{
+			"index": 2,
+			"title": "Second word",
+			"unit": ["ghi", "jkl"]
+		}
 	]
 }
