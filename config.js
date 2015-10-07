@@ -12,8 +12,8 @@ System.config({
     "clean-css": "npm:clean-css@3.4.5",
     "css": "github:systemjs/plugin-css@0.1.18",
     "jquery": "github:components/jquery@2.1.4",
-    "lodash": "npm:lodash@3.10.1",
     "query-string": "npm:query-string@2.4.2",
+    "ramda": "npm:ramda@0.17.1",
     "traceur": "github:jmcriffey/bower-traceur@0.0.91",
     "traceur-runtime": "github:jmcriffey/bower-traceur-runtime@0.0.91",
     "github:jspm/nodelibs-assert@0.1.0": {
@@ -44,6 +44,9 @@ System.config({
     },
     "github:jspm/nodelibs-process@0.1.1": {
       "process": "npm:process@0.10.1"
+    },
+    "github:jspm/nodelibs-process@0.1.2": {
+      "process": "npm:process@0.11.2"
     },
     "github:jspm/nodelibs-stream@0.1.0": {
       "stream-browserify": "npm:stream-browserify@1.0.0"
@@ -104,20 +107,23 @@ System.config({
     "npm:inherits@2.0.1": {
       "util": "github:jspm/nodelibs-util@0.1.0"
     },
-    "npm:lodash@3.10.1": {
-      "process": "github:jspm/nodelibs-process@0.1.1"
-    },
     "npm:os-browserify@0.1.2": {
       "os": "github:jspm/nodelibs-os@0.1.0"
     },
     "npm:path-browserify@0.0.0": {
       "process": "github:jspm/nodelibs-process@0.1.1"
     },
+    "npm:process@0.11.2": {
+      "assert": "github:jspm/nodelibs-assert@0.1.0"
+    },
     "npm:punycode@1.3.2": {
       "process": "github:jspm/nodelibs-process@0.1.1"
     },
     "npm:query-string@2.4.2": {
       "strict-uri-encode": "npm:strict-uri-encode@1.0.2"
+    },
+    "npm:ramda@0.17.1": {
+      "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:readable-stream@1.1.13": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
@@ -149,7 +155,7 @@ System.config({
     },
     "npm:util@0.10.3": {
       "inherits": "npm:inherits@2.0.1",
-      "process": "github:jspm/nodelibs-process@0.1.1"
+      "process": "github:jspm/nodelibs-process@0.1.2"
     }
   }
 });
