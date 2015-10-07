@@ -1,14 +1,26 @@
 {
+	"properties": ["work"],
+	"target": "character",
 	"items": [
 		{
-			"index": 1,
+			"word": 0,
 			"title": "First word",
-			"unit": ["abc", "def"]
+			"work": 1
 		},
 		{
-			"index": 2,
+			"word": 1,
 			"title": "Second word",
-			"unit": ["ghi", "jkl"]
+			"work": 2
+		},
+		{
+			"word": 2,
+			"title": "Third word",
+			"work": 1
+		},
+		{
+			"word": 3,
+			"title": "Fourth word",
+			"work": 2
 		}
 	]
 }
