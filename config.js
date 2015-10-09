@@ -21,6 +21,7 @@ System.config({
     "core-js": "npm:core-js@1.2.1",
     "css": "github:systemjs/plugin-css@0.1.18",
     "fetch": "github:github/fetch@0.9.0",
+    "jquery": "github:components/jquery@2.1.4",
     "query-string": "npm:query-string@2.4.2",
     "ramda": "npm:ramda@0.17.1",
     "react": "npm:react@0.14.0",
