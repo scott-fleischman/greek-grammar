@@ -1,0 +1,17 @@
+{
+  "name": "stages",
+  "items": [
+    {
+      "index": 0,
+      "title": "[Work [Word.Basic [U.UnitChar]]]"
+    },
+    {
+      "index": 1,
+      "title": "[Work [Word.Basic [U.UnitUnicode]]]"
+    },
+    {
+      "index": 2,
+      "title": "[Work [Word.Basic [U.UnitMarkList U.UnicodeLetter U.UnicodeMark]]]"
+    }
+  ]
+}
