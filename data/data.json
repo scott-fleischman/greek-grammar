@@ -4,7 +4,7 @@
       "stageIndex": 0,
       "topLevelType": 0,
       "allTypes": [
-      	0,
+        0,
         1,
         2
       ],
@@ -52,32 +52,23 @@
         {
           "valueIndex": 0,
           "title": "Mark",
-          "propertyValues": [
-            {
-              "typeIndex": 2,
-              "typeValueIndex": 0
-            }
-          ]
+          "propertyValues": {
+            "2": 0
+          }
         },
         {
           "valueIndex": 1,
           "title": "Luke",
-          "propertyValues": [
-            {
-              "typeIndex": 2,
-              "typeValueIndex": 1
-            }
-          ]
+          "propertyValues": {
+            "2": 1
+          }
         },
         {
           "valueIndex": 2,
           "title": "Acts",
-          "propertyValues": [
-            {
-              "typeIndex": 2,
-              "typeValueIndex": 1
-            }
-          ]
+          "propertyValues": {
+            "2": 1
+          }
         }
       ]
     },
@@ -126,32 +117,23 @@
         {
           "valueIndex": 0,
           "title": "Mark",
-          "propertyValues": [
-            {
-              "typeIndex": 2,
-              "typeValueIndex": 0
-            }
-          ]
+          "propertyValues": {
+            "2": 0
+          }
         },
         {
           "valueIndex": 1,
           "title": "Luke",
-          "propertyValues": [
-            {
-              "typeIndex": 2,
-              "typeValueIndex": 1
-            }
-          ]
+          "propertyValues": {
+            "2": 1
+          }
         },
         {
           "valueIndex": 2,
           "title": "Acts",
-          "propertyValues": [
-            {
-              "typeIndex": 2,
-              "typeValueIndex": 1
-            }
-          ]
+          "propertyValues": {
+            "2": 1
+          }
         }
       ]
     }
