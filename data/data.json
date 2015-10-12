@@ -3,10 +3,10 @@
     {
       "stageIndex": 0,
       "topLevelType": 0,
-      "descendantTypes": [
+      "allTypes": [
+      	0,
         1,
-        2,
-        3
+        2
       ],
       "focusResultType": 0,
       "focusSourceType": 0
@@ -14,8 +14,10 @@
     {
       "stageIndex": 1,
       "topLevelType": 3,
-      "descendantTypes": [
-        4
+      "allTypes": [
+        3,
+        4,
+        2
       ],
       "focusResultType": 0,
       "focusSourceType": 0
