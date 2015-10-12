@@ -10,6 +10,15 @@
       ],
       "focusResultType": 0,
       "focusSourceType": 0
+    },
+    {
+      "stageIndex": 1,
+      "topLevelType": 3,
+      "descendantTypes": [
+        4
+      ],
+      "focusResultType": 0,
+      "focusSourceType": 0
     }
   ],
   "types": [
@@ -84,6 +93,63 @@
           "valueIndex": 1,
           "title": "Luke",
           "propertyValues": []
+        }
+      ]
+    },
+    {
+      "typeIndex": 3,
+      "title": "List Work List Word () List Unicode.Decomposed",
+      "childType": 1,
+      "propertyTypes": [],
+      "values": [
+        {
+          "valueIndex": 0,
+          "title": "List of Works",
+          "childrenValueIndexes": [
+            0,
+            1,
+            2
+          ],
+          "propertyValues": []
+        }
+      ]
+    },
+    {
+      "typeIndex": 4,
+      "title": "Work List Word () List Unicode.Decomposed",
+      "propertyTypes": [
+        2
+      ],
+      "values": [
+        {
+          "valueIndex": 0,
+          "title": "Mark",
+          "propertyValues": [
+            {
+              "typeIndex": 2,
+              "typeValueIndex": 0
+            }
+          ]
+        },
+        {
+          "valueIndex": 1,
+          "title": "Luke",
+          "propertyValues": [
+            {
+              "typeIndex": 2,
+              "typeValueIndex": 1
+            }
+          ]
+        },
+        {
+          "valueIndex": 2,
+          "title": "Acts",
+          "propertyValues": [
+            {
+              "typeIndex": 2,
+              "typeValueIndex": 1
+            }
+          ]
         }
       ]
     }
