@@ -2,39 +2,39 @@
   "stages": [
     {
       "stageIndex": 0,
-      "topLevelType": 0,
+      "topLevelType": "List Work List Word () List Unicode.Composed",
       "allTypes": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+        "List Work List Word () List Unicode.Composed",
+        "Work List Word () List Unicode.Composed",
+        "List Word () List Unicode.Composed",
+        "Word () List Unicode.Composed",
+        "()",
+        "List Unicode.Composed",
+        "Unicode.Composed",
+        "Author"
       ],
       "focusResultType": null,
-      "focusSourceType": 7
+      "focusSourceType": "Unicode.Composed"
     },
     {
       "stageIndex": 1,
-      "topLevelType": 8,
+      "topLevelType": "List Work List Word () List Unicode.Decomposed",
       "allTypes": [
-        8,
-        9,
-        2,
-        10,
-        11,
-				12,
-				13
+        "List Work List Word () List Unicode.Decomposed",
+        "Work List Word () List Unicode.Decomposed",
+        "List Word () List Unicode.Decomposed",
+        "Word () List Unicode.Decomposed",
+        "()",
+        "List Unicode.Decomposed",
+        "Unicode.Decomposed",
+        "Author"
       ],
-      "focusResultType": 13,
+      "focusResultType": "Unicode.Decomposed",
       "focusSourceType": null
     }
   ],
-  "types": [
-    {
-      "typeIndex": 0,
+  "types": {
+    "List Work List Word () List Unicode.Composed": {
       "title": "List Work List Word () List Unicode.Composed",
       "propertyTypes": [],
       "values": [
@@ -45,11 +45,10 @@
         }
       ]
     },
-    {
-      "typeIndex": 1,
+    "Work List Word () List Unicode.Composed": {
       "title": "Work List Word () List Unicode.Composed",
       "propertyTypes": [
-        2
+        "Author"
       ],
       "values": [
         {
@@ -61,27 +60,26 @@
           "valueIndex": 1,
           "title": "Mark Book",
           "propertyValues": {
-            "2": 0
+            "Author": 0
           }
         },
         {
           "valueIndex": 2,
           "title": "Luke Book",
           "propertyValues": {
-            "2": 1
+            "Author": 1
           }
         },
         {
           "valueIndex": 3,
           "title": "Acts Book",
           "propertyValues": {
-            "2": 1
+            "Author": 1
           }
         }
       ]
     },
-    {
-      "typeIndex": 2,
+    "Author": {
       "title": "Author",
       "propertyTypes": [],
       "values": [
@@ -97,8 +95,7 @@
         }
       ]
     },
-    {
-      "typeIndex": 3,
+    "List Word () List Unicode.Composed": {
       "title": "List Word () List Unicode.Composed",
       "propertyTypes": [],
       "values": [
@@ -109,8 +106,7 @@
         }
       ]
     },
-    {
-      "typeIndex": 4,
+    "Word () List Unicode.Composed": {
       "title": "Word () List Unicode.Composed",
       "propertyTypes": [],
       "values": [
@@ -121,8 +117,7 @@
         }
       ]
     },
-    {
-      "typeIndex": 5,
+    "()": {
       "title": "()",
       "propertyTypes": [],
       "values": [
@@ -133,8 +128,7 @@
         }
       ]
     },
-    {
-      "typeIndex": 6,
+    "List Unicode.Composed": {
       "title": "List Unicode.Composed",
       "propertyTypes": [],
       "values": [
@@ -145,8 +139,7 @@
         }
       ]
     },
-    {
-      "typeIndex": 7,
+    "Unicode.Composed": {
       "title": "Unicode.Composed",
       "propertyTypes": [],
       "values": [
@@ -157,8 +150,7 @@
         }
       ]
     },
-    {
-      "typeIndex": 8,
+    "List Work List Word () List Unicode.Decomposed": {
       "title": "List Work List Word () List Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
@@ -169,38 +161,36 @@
         }
       ]
     },
-    {
-      "typeIndex": 9,
+    "Work List Word () List Unicode.Decomposed": {
       "title": "Work List Word () List Unicode.Decomposed",
       "propertyTypes": [
-        2
+        "Author"
       ],
       "values": [
         {
           "valueIndex": 0,
           "title": "Mark",
           "propertyValues": {
-            "2": 0
+            "Author": 0
           }
         },
         {
           "valueIndex": 1,
           "title": "Luke",
           "propertyValues": {
-            "2": 1
+            "Author": 1
           }
         },
         {
           "valueIndex": 2,
           "title": "Acts",
           "propertyValues": {
-            "2": 1
+            "Author": 1
           }
         }
       ]
     },
-    {
-      "typeIndex": 10,
+    "List Word () List Unicode.Decomposed": {
       "title": "List Word () List Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
@@ -211,8 +201,7 @@
         }
       ]
     },
-    {
-      "typeIndex": 11,
+    "Word () List Unicode.Decomposed": {
       "title": "Word () List Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
@@ -223,8 +212,7 @@
         }
       ]
     },
-    {
-      "typeIndex": 12,
+    "List Unicode.Decomposed": {
       "title": "List Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
@@ -235,8 +223,7 @@
         }
       ]
     },
-    {
-      "typeIndex": 13,
+    "Unicode.Decomposed": {
       "title": "Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
@@ -247,5 +234,5 @@
         }
       ]
     }
-  ]
+  }
 }
