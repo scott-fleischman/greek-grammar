@@ -54,21 +54,26 @@
       "values": [
         {
           "valueIndex": 0,
-          "title": "Mark",
+          "title": "Matthew Book",
+          "propertyValues": {}
+        },
+        {
+          "valueIndex": 1,
+          "title": "Mark Book",
           "propertyValues": {
             "2": 0
           }
         },
         {
-          "valueIndex": 1,
-          "title": "Luke",
+          "valueIndex": 2,
+          "title": "Luke Book",
           "propertyValues": {
             "2": 1
           }
         },
         {
-          "valueIndex": 2,
-          "title": "Acts",
+          "valueIndex": 3,
+          "title": "Acts Book",
           "propertyValues": {
             "2": 1
           }
@@ -82,12 +87,12 @@
       "values": [
         {
           "valueIndex": 0,
-          "title": "Mark",
+          "title": "Mark Author",
           "propertyValues": []
         },
         {
           "valueIndex": 1,
-          "title": "Luke",
+          "title": "Luke Author",
           "propertyValues": []
         }
       ]
