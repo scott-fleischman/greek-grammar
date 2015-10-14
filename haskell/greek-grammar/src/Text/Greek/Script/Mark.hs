@@ -2,7 +2,7 @@ module Text.Greek.Script.Mark where
 
 import Control.Lens
 import Text.Greek.FileReference
-import Text.Greek.Script.Unicode
+import qualified Text.Greek.Script.Concrete as Concrete
 
 data AccentAll = AcuteAll | GraveAll | CircumflexAll deriving (Eq, Ord, Show)
 type AccentAllPair = (AccentAll, FileCharReference)
@@ -25,10 +25,10 @@ data Error
   | ErrorDoubleSyllabic SyllabicAllPair SyllabicAllPair
   deriving Show
 
-toAllPair :: [(UnicodeMark, FileCharReference)] -> Either Error AllPair
+toAllPair :: [(Concrete.Mark, FileCharReference)] -> Either Error AllPair
 toAllPair = foldr go $ Right (Nothing, Nothing, Nothing)
   where
-    go :: (UnicodeMark, FileCharReference) -> Either Error AllPair -> Either Error AllPair
+    go :: (Concrete.Mark, FileCharReference) -> Either Error AllPair -> Either Error AllPair
     go m b = b >>= combineAll m
 
 combineAccentAll :: AccentAllPair -> AllPair -> Either Error AllPair
@@ -43,27 +43,27 @@ combineSyllabicAll :: SyllabicAllPair -> AllPair -> Either Error AllPair
 combineSyllabicAll x (_, _, Just x') = Left $ ErrorDoubleSyllabic x' x
 combineSyllabicAll x a = Right $ set _3 (Just x) a
 
-combineAll :: (UnicodeMark, FileCharReference) -> AllPair -> Either Error AllPair
-combineAll (U_Acute, r)         = combineAccentAll    (AcuteAll, r)
-combineAll (U_Grave, r)         = combineAccentAll    (GraveAll, r)
-combineAll (U_Circumflex, r)    = combineAccentAll    (CircumflexAll, r)
-combineAll (U_Smooth, r)        = combineBreathingAll (SmoothAll, r)
-combineAll (U_Rough, r)         = combineBreathingAll (RoughAll, r)
-combineAll (U_IotaSubscript, r) = combineSyllabicAll  (IotaSubscriptAll, r)
-combineAll (U_Diaeresis, r)     = combineSyllabicAll  (DiaeresisAll, r)
+combineAll :: (Concrete.Mark, FileCharReference) -> AllPair -> Either Error AllPair
+combineAll (Concrete.Acute, r)         = combineAccentAll    (AcuteAll, r)
+combineAll (Concrete.Grave, r)         = combineAccentAll    (GraveAll, r)
+combineAll (Concrete.Circumflex, r)    = combineAccentAll    (CircumflexAll, r)
+combineAll (Concrete.Smooth, r)        = combineBreathingAll (SmoothAll, r)
+combineAll (Concrete.Rough, r)         = combineBreathingAll (RoughAll, r)
+combineAll (Concrete.IotaSubscript, r) = combineSyllabicAll  (IotaSubscriptAll, r)
+combineAll (Concrete.Diaeresis, r)     = combineSyllabicAll  (DiaeresisAll, r)
 
-accentAllToUnicodeMark :: AccentAll -> UnicodeMark
-accentAllToUnicodeMark AcuteAll      = U_Acute
-accentAllToUnicodeMark GraveAll      = U_Grave
-accentAllToUnicodeMark CircumflexAll = U_Circumflex
+accentAllToConcreteMark :: AccentAll -> Concrete.Mark
+accentAllToConcreteMark AcuteAll      = Concrete.Acute
+accentAllToConcreteMark GraveAll      = Concrete.Grave
+accentAllToConcreteMark CircumflexAll = Concrete.Circumflex
 
-syllabicAllToUnicodeMark :: SyllabicAll -> UnicodeMark
-syllabicAllToUnicodeMark DiaeresisAll     = U_Diaeresis
-syllabicAllToUnicodeMark IotaSubscriptAll = U_IotaSubscript
+syllabicAllToConcreteMark :: SyllabicAll -> Concrete.Mark
+syllabicAllToConcreteMark DiaeresisAll     = Concrete.Diaeresis
+syllabicAllToConcreteMark IotaSubscriptAll = Concrete.IotaSubscript
 
-breathingAllToUnicodeMark :: BreathingAll -> UnicodeMark
-breathingAllToUnicodeMark SmoothAll = U_Smooth
-breathingAllToUnicodeMark RoughAll  = U_Rough
+breathingAllToConcreteMark :: BreathingAll -> Concrete.Mark
+breathingAllToConcreteMark SmoothAll = Concrete.Smooth
+breathingAllToConcreteMark RoughAll  = Concrete.Rough
 
 type AccentBreathingAll = (Maybe AccentAll, Maybe BreathingAll)
 type AccentBreathingAllPair = (Maybe AccentAllPair, Maybe BreathingAllPair)

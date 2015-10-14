@@ -66,12 +66,12 @@ library
     Text.Greek.Render
     Text.Greek.Script
     Text.Greek.Script.Abstract
+    Text.Greek.Script.Concrete
     Text.Greek.Script.Elision
     Text.Greek.Script.Mark
     Text.Greek.Script.Sound
     Text.Greek.Script.Syllable
     Text.Greek.Script.Token
-    Text.Greek.Script.Unicode
     Text.Greek.Script.UnicodeTokenPairs
     Text.Greek.Script.Unit
     Text.Greek.Script.Word

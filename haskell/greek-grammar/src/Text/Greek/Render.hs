@@ -12,9 +12,9 @@ import qualified Data.Set as S
 import qualified Data.Text.Format as T
 import qualified Data.Text.Lazy as L
 import qualified Text.Greek.Script.Abstract as Abstract
+import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Syllable as Syllable
-import qualified Text.Greek.Script.Unicode as U
 import qualified Text.Greek.Script.Unit as U
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Source.All as All
@@ -31,11 +31,11 @@ instance Render U.LetterChar where
 instance Render U.MarkChar where
   render = T.format "\x25CC{}" . T.Only . U.getMarkChar
 
-instance Render U.UnicodeLetter where
-  render = render . U.unicodeLetterToLetterChar
+instance Render Concrete.Letter where
+  render = render . Concrete.letterToLetterChar
 
-instance Render U.UnicodeMark where
-  render = render . U.unicodeMarkToMarkChar
+instance Render Concrete.Mark where
+  render = render . Concrete.markToMarkChar
 
 instance (Render a, Render b) => Render (a, b) where
   render (a, b) = T.format "({},{})" (render a, render b)
@@ -66,13 +66,13 @@ instance Render Abstract.LetterFinal where
   render = render . Abstract.letterFinalToLetterChar
 
 instance Render Mark.AccentAll where
-  render = render . Mark.accentAllToUnicodeMark
+  render = render . Mark.accentAllToConcreteMark
 
 instance Render Mark.BreathingAll where
-  render = render . Mark.breathingAllToUnicodeMark
+  render = render . Mark.breathingAllToConcreteMark
 
 instance Render Mark.SyllabicAll where
-  render = render . Mark.syllabicAllToUnicodeMark
+  render = render . Mark.syllabicAllToConcreteMark
 
 instance Render a => Render (Maybe a) where
   render (Just x) = render x
@@ -85,7 +85,7 @@ instance Render Word.IsCapitalized where
 instance Render ElisionChar where
   render = L.singleton . view getElisionChar
 
-instance Render ([(U.UnicodeMark, FileCharReference)]) where
+instance Render ([(Concrete.Mark, FileCharReference)]) where
   render = renderListLines . fmap (view _1)
 
 instance Render a => Render (Word.Basic [a]) where
