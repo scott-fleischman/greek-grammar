@@ -13,8 +13,6 @@ import Text.Greek.Source.All
 import Text.Greek.Utility
 import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy as L
-import qualified Text.Greek.Script.Letter as Letter
-import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Unit as Unit
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Json as Json

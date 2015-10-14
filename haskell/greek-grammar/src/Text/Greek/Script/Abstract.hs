@@ -2,7 +2,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Text.Greek.Script.Letter where
+module Text.Greek.Script.Abstract where
 
 import Control.Lens
 import Text.Greek.FileReference

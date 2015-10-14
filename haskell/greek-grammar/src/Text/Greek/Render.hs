@@ -11,7 +11,7 @@ import Text.Greek.FileReference
 import qualified Data.Set as S
 import qualified Data.Text.Format as T
 import qualified Data.Text.Lazy as L
-import qualified Text.Greek.Script.Letter as Letter
+import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Syllable as Syllable
 import qualified Text.Greek.Script.Unicode as U
@@ -55,15 +55,15 @@ instance Render LineReference where
 instance Render Int where
   render = L.pack . show
 
-instance Render Letter.Case where
-  render Letter.Uppercase = "upper"
-  render Letter.Lowercase = "lower"
+instance Render Abstract.Case where
+  render Abstract.Uppercase = "upper"
+  render Abstract.Lowercase = "lower"
 
-instance Render Letter.Letter where
-  render = render . Letter.toLetterChar
+instance Render Abstract.Letter where
+  render = render . Abstract.toLetterChar
 
-instance Render Letter.LetterFinal where
-  render = render . Letter.letterFinalToLetterChar
+instance Render Abstract.LetterFinal where
+  render = render . Abstract.letterFinalToLetterChar
 
 instance Render Mark.AccentAll where
   render = render . Mark.accentAllToUnicodeMark
@@ -97,13 +97,13 @@ instance Render a => Render (Word.Cased [a]) where
 instance Render a => Render (All.Work [a]) where
   render = renderListLines . view All.workContent
 
-instance Render Letter.Consonant where
-  render = render . Letter.consonantToLetter
+instance Render Abstract.Consonant where
+  render = render . Abstract.consonantToLetter
 
-instance Render Letter.Vowel where
-  render = render . Letter.vowelToLetter
+instance Render Abstract.Vowel where
+  render = render . Abstract.vowelToLetter
 
-instance Render Letter.VowelConsonant where
+instance Render Abstract.VowelConsonant where
   render = renderEitherIgnore
 
 instance Render Syllable.VocalicConsonant where
@@ -114,32 +114,32 @@ instance Render Syllable.VocalicPair where
   render (Syllable.IotaSubscriptVowel v)  = T.format "I {}" (T.Only . render $ view _1 v)
   render (Syllable.TwoVowel (v1, v2))     = T.format "D {}" (T.Only . render $ (view _1 v1, view _1 v2))
 
-instance Render Letter.VowelCluster where
+instance Render Abstract.VowelCluster where
   render = renderListConcat
 
-instance Render Letter.ConsonantCluster where
+instance Render Abstract.ConsonantCluster where
   render = renderListConcat
 
-instance Render Letter.VowelConsonantCluster where
+instance Render Abstract.VowelConsonantCluster where
   render = renderEitherIgnore
 
 renderMaybeEmpty :: Render a => Maybe a -> L.Text
 renderMaybeEmpty (Just a) = render a
 renderMaybeEmpty Nothing = ""
 
-instance Render [(Letter.Vowel, Maybe Mark.SyllabicAll)] where
+instance Render [(Abstract.Vowel, Maybe Mark.SyllabicAll)] where
   render = renderListConcat . fmap (\(x, y) -> L.concat [render x, renderMaybeEmpty y])
 
-instance Render [(Letter.Consonant, Maybe Mark.SyllabicAll)] where
+instance Render [(Abstract.Consonant, Maybe Mark.SyllabicAll)] where
   render = renderListConcat . fmap (\(x, y) -> L.concat [render x, renderMaybeEmpty y])
 
-instance Render (Either [(Letter.Vowel, Maybe Mark.SyllabicAll)] [(Letter.Consonant, Maybe Mark.SyllabicAll)]) where
+instance Render (Either [(Abstract.Vowel, Maybe Mark.SyllabicAll)] [(Abstract.Consonant, Maybe Mark.SyllabicAll)]) where
   render = renderEitherIgnore
 
-instance Render [Either [(Letter.Vowel, Maybe Mark.SyllabicAll)] [(Letter.Consonant, Maybe Mark.SyllabicAll)]] where
+instance Render [Either [(Abstract.Vowel, Maybe Mark.SyllabicAll)] [(Abstract.Consonant, Maybe Mark.SyllabicAll)]] where
   render = renderListConcat
 
-instance Render [(Either [(Letter.Vowel, Maybe Mark.SyllabicAll)] [(Letter.Consonant, Maybe Mark.SyllabicAll)], FileCharReference)] where
+instance Render [(Either [(Abstract.Vowel, Maybe Mark.SyllabicAll)] [(Abstract.Consonant, Maybe Mark.SyllabicAll)], FileCharReference)] where
   render = renderListLines
 
 renderEitherIgnore :: (Render a, Render b) => Either a b -> L.Text

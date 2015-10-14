@@ -9,7 +9,7 @@ import Text.Greek.Script.Unit (Unit)
 import Text.Parsec.Error (ParseError)
 import Text.Parsec.Prim
 import Text.Parsec.Combinator
-import qualified Text.Greek.Script.Letter as Letter
+import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Unit as Unit
 
@@ -20,12 +20,12 @@ data Vocalic a b c
   deriving (Eq, Ord, Show)
 
 type VocalicSimple a = Vocalic a a (a, a)
-type VocalicVowel = VocalicSimple Letter.Vowel
-type VocalicPair = VocalicSimple (Letter.Vowel, FileCharReference)
+type VocalicVowel = VocalicSimple Abstract.Vowel
+type VocalicPair = VocalicSimple (Abstract.Vowel, FileCharReference)
 
-type VocalicConsonant = Either VocalicPair (Letter.Consonant, FileCharReference)
+type VocalicConsonant = Either VocalicPair (Abstract.Consonant, FileCharReference)
 
-type UnitLetter = Unit.UnitLetter Letter.VowelConsonant Mark.AllPair
+type UnitLetter = Unit.UnitLetter Abstract.VowelConsonant Mark.AllPair
 type UnitVocalicConsonant = Unit VocalicConsonant Mark.AccentBreathingAllPair
 
 type UnitLetterParser a = Parser [UnitLetter] a
@@ -33,11 +33,11 @@ type UnitLetterParser a = Parser [UnitLetter] a
 primUnitLetter :: String -> (UnitLetter -> Maybe a) -> Parser [UnitLetter] a
 primUnitLetter p = primMaybe p (^. Unit.unitItem . _2 . fileCharReferenceLine)
 
-isIotaSubscriptVowel :: Letter.Vowel -> Bool
+isIotaSubscriptVowel :: Abstract.Vowel -> Bool
 isIotaSubscriptVowel v
-  =  v == Letter.V_α
-  || v == Letter.V_η
-  || v == Letter.V_ω
+  =  v == Abstract.V_α
+  || v == Abstract.V_η
+  || v == Abstract.V_ω
 
 iotaSubscriptParser :: UnitLetterParser UnitVocalicConsonant
 iotaSubscriptParser = primUnitLetter "Iota subscript vowel" go
@@ -50,10 +50,10 @@ iotaSubscriptParser = primUnitLetter "Iota subscript vowel" go
       = Just $ Unit.Unit (Left $ IotaSubscriptVowel (v, r)) (Mark.getAccentBreathingAllPair m)
     go _ = Nothing
 
-isTwoSoundVowel :: Letter.Vowel -> Bool
+isTwoSoundVowel :: Abstract.Vowel -> Bool
 isTwoSoundVowel v
-  =  v == Letter.V_ι
-  || v == Letter.V_υ
+  =  v == Abstract.V_ι
+  || v == Abstract.V_υ
 
 diaeresisVowelParser :: UnitLetterParser UnitVocalicConsonant
 diaeresisVowelParser = primUnitLetter "Diaeresis vowel" go
@@ -66,7 +66,7 @@ diaeresisVowelParser = primUnitLetter "Diaeresis vowel" go
       = Just $ Unit.Unit (Left $ OneVowel (v, r)) (Mark.getAccentBreathingAllPair m)
     go _ = Nothing
 
-midTwoSoundFirstVowelParser :: UnitLetterParser (Letter.Vowel, FileCharReference)
+midTwoSoundFirstVowelParser :: UnitLetterParser (Abstract.Vowel, FileCharReference)
 midTwoSoundFirstVowelParser = primUnitLetter "Mid two sound vowel 1" go
   where
     go u
@@ -76,7 +76,7 @@ midTwoSoundFirstVowelParser = primUnitLetter "Mid two sound vowel 1" go
       = Just (v, r)
     go _ = Nothing
 
-midTwoSoundSecondVowelParser :: UnitLetterParser ((Letter.Vowel, FileCharReference), Mark.AccentBreathingAllPair)
+midTwoSoundSecondVowelParser :: UnitLetterParser ((Abstract.Vowel, FileCharReference), Mark.AccentBreathingAllPair)
 midTwoSoundSecondVowelParser = primUnitLetter "Mid two sound vowel 2" go
   where
     go u
