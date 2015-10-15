@@ -4,3 +4,9 @@ dist/
 .cabal-sandbox/
 cabal.sandbox.config
 .stack-work/
+
+!html/dev/jspm_packages
+html/dev/jspm_packages/*
+!html/dev/jspm_packages/system.js
+!html/dev/jspm_packages/system.js.map
+html/dev/node_modules/
