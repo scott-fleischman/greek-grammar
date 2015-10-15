@@ -1,7 +1,8 @@
 module Text.Greek.Script.Concrete where
 
 import Text.Greek.FileReference
-import qualified Text.Greek.Script.Unit as U
+import qualified Text.Greek.Script.Unit as Unit
+import qualified Text.Greek.Script.Unicode as Unicode
 
 data Letter
   = C_Α | C_Β | C_Γ | C_Δ | C_Ε | C_Ζ | C_Η | C_Θ | C_Ι | C_Κ | C_Λ | C_Μ | C_Ν | C_Ξ | C_Ο | C_Π | C_Ρ | C_Σ       | C_Τ | C_Υ | C_Φ | C_Χ | C_Ψ | C_Ω
@@ -12,20 +13,20 @@ data Mark = Acute | Grave | Circumflex | Smooth | Rough | IotaSubscript | Diaere
   deriving (Eq, Ord, Show)
 
 data Error
-  = ErrorLetter FileCharReference U.LetterChar
-  | ErrorMark FileCharReference U.MarkChar
+  = ErrorLetter FileCharReference Unicode.Letter
+  | ErrorMark FileCharReference Unicode.Mark
   deriving (Show)
 
-type Unit = U.UnitMarkList Letter Mark
+type Unit = Unit.UnitMarkList Letter Mark
 
-toUnit :: U.UnitChar -> Either Error Unit
+toUnit :: Unit.UnitChar -> Either Error Unit
 toUnit x = U.unitItem toLetter x >>= (U.unitMarks . traverse) toMark
 
-toLetter :: (U.LetterChar, FileCharReference) -> Either Error (Letter, FileCharReference)
+toLetter :: (Unicode.Letter, FileCharReference) -> Either Error (Letter, FileCharReference)
 toLetter (l, r) | Just l' <- toMaybeLetter l = Right (l', r)
 toLetter (l, r) = Left $ ErrorLetter r l
 
-toMark :: (U.MarkChar, FileCharReference) -> Either Error (Mark, FileCharReference)
+toMark :: (Unicode.Mark, FileCharReference) -> Either Error (Mark, FileCharReference)
 toMark (m, r) | Just m' <- toMaybeMark m = Right (m', r)
 toMark (m, r) = Left $ ErrorMark r m
 

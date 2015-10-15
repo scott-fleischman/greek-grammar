@@ -39,7 +39,7 @@ library
     Text.Greek.Corpus.Bible.Stats
     Text.Greek.FileReference
     Text.Greek.Grammar
-    Text.Greek.IO
+--    Text.Greek.IO
     Text.Greek.Json
     Text.Greek.Morphology.Noun
     Text.Greek.Mounce.Adjective
@@ -63,17 +63,18 @@ library
     Text.Greek.Phonology.Shorthand
     Text.Greek.Phonology.ShowText
     Text.Greek.Phonology.Vowels
-    Text.Greek.Render
+--    Text.Greek.Render
     Text.Greek.Script
-    Text.Greek.Script.Abstract
-    Text.Greek.Script.Concrete
+--    Text.Greek.Script.Abstract
+--    Text.Greek.Script.Concrete
     Text.Greek.Script.Elision
-    Text.Greek.Script.Mark
+--    Text.Greek.Script.Mark
+    Text.Greek.Script.Marked
     Text.Greek.Script.Sound
-    Text.Greek.Script.Syllable
+--    Text.Greek.Script.Syllable
     Text.Greek.Script.Token
+    Text.Greek.Script.Unicode
     Text.Greek.Script.UnicodeTokenPairs
-    Text.Greek.Script.Unit
     Text.Greek.Script.Word
     Text.Greek.Source.All
     Text.Greek.Source.PerseusInventory
