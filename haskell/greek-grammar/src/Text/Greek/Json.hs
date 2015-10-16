@@ -1,5 +1,7 @@
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Text.Greek.Json where
 
@@ -111,41 +113,43 @@ myData =
   ]
 
 go :: IO ()
-go = BL.writeFile (Path.pagesData </> "data.json") . Aeson.encode $ myData
+go = All.loadAll >>= handleResult . process . startData
 
---go = do
---  result <- fmap process All.loadAll
---  handleResult result
-
-    --Right works -> BL.writeFile (Path.pagesData </> "work.json") . encode . TopLevelArray "work" . makeWorks $ works
+startData :: Either a b -> Either a (b, Data)
+startData = over _Right (\x -> (x, Data [] []))
 
 process
-  :: Either [XmlError] [All.Work [Word.Basic (Text, FileReference)]]
-  -> Either String     [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
+  :: Either [XmlError] ([All.Work [Word.Basic (Text, FileReference)]], Data)
+  -> Either String     ([All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]], Data)
 process x
   =   showError x
-  >>= showError . toStage0
+  >>= showError . toStage0 _1
 
-handleResult :: Either String a -> IO ()
-handleResult (Left s) = putStrLn s
-handleResult (Right _) = putStrLn "success"
+appendData :: (Stageable a, Extractable a) => Either e (a, [Stage], [Type])
+appendData = undefined
+
+handleResult :: Either String (a, Data) -> IO ()
+handleResult (Left e) = putStrLn e
+handleResult (Right (_, d)) = BL.writeFile (Path.pagesData </> "data.json") . Aeson.encode $ d
 
 showError :: Show a => Either a b -> Either String b
 showError = over _Left show
 
-toStage0 ::               [All.Work [Word.Basic (Text, FileReference)]]
-  -> Either Unicode.Error [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
-toStage0 = (traverse . All.workContent . traverse . Word.basicSurface) (uncurry Unicode.splitText)
+toStage0 :: Lens s t
+    [All.Work [Word.Basic (Text, FileReference)]]
+    [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
+  -> s -> Either Unicode.Error t
+toStage0 l = (l . traverse . All.workContent . traverse . Word.basicSurface) (uncurry Unicode.splitText)
 
 
 class Extractable a where
-  extract :: Map Text Type -> a -> Map Text Type
+  extract :: a -> [Type]
 
 instance Extractable Unicode.Composed where
-  extract m (Unicode.Composed _) = m
+  extract (Unicode.Composed _) = undefined
 
---makeWorks :: [All.WorkText] -> [Work]
---makeWorks = fmap (uncurry toWork) . zip [0..]
---  where
---    toWork i (All.Work _ t ws) = Work i t (getWords ws)
---    getWords = fmap (^. Word.basicSurface . _1)
+class Stageable a where 
+  stage :: a -> Stage
+
+instance Stageable [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] where
+  stage _ = undefined
