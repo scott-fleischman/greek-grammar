@@ -9,32 +9,33 @@ import Data.Text (Text)
 import GHC.Generics
 import Text.Greek.FileReference
 import Text.Greek.Xml.Common
---import System.FilePath
+import System.FilePath
 import qualified Data.Aeson as Aeson
---import qualified Data.Map as Map
---import qualified Text.Greek.Paths as Path
+import qualified Data.Map as Map
+import qualified Text.Greek.Paths as Path
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
---import qualified Data.ByteString.Lazy.Char8 as BL
+import qualified Data.ByteString.Lazy.Char8 as BL
 --import qualified Data.Text.Lazy as Lazy
 --import qualified Data.Text.Format as Format
 
 data Data = Data
   { stages :: [Stage]
-  , types :: Map Text Type
+  , types :: [Type]
   } deriving (Generic, Show)
 
 data Stage = Stage
   { stageIndex :: Int
   , topLevelType :: Text
   , allTypes :: [Text]
-  , focusResultType :: Text
-  , focusSourceType :: Text
+  , focusResultType :: Maybe Text
+  , focusSourceType :: Maybe Text
   } deriving (Generic, Show)
 
 data Type = Type
-  { typeTitle :: Text
+  { typeName :: Text
+  , typeTitle :: Text
   , propertyTypes :: [Text]
   , values :: [Value]
   } deriving (Generic, Show)
@@ -50,10 +51,71 @@ instance Aeson.ToJSON Stage
 instance Aeson.ToJSON Type
 instance Aeson.ToJSON Value
 
+myData :: Data
+myData =
+  Data
+  [ Stage 0
+      "List Work List Word () List Unicode.Composed"
+      [ "List Work List Word () List Unicode.Composed"
+      , "Work List Word () List Unicode.Composed"
+      , "List Word () List Unicode.Composed"
+      , "Word () List Unicode.Composed"
+      , "()"
+      , "List Unicode.Composed"
+      , "Unicode.Composed"
+      , "Author"
+      ]
+      Nothing
+      (Just "Unicode.Composed")
+  ]
+  [ Type
+      "List Work List Word () List Unicode.Composed"
+      "List Work List Word () List Unicode.Composed"
+      []
+      [ Value 0 "List of Works" Map.empty ]
+  , Type
+      "Work List Word () List Unicode.Composed"
+      "Work List Word () List Unicode.Composed"
+      []
+      [ Value 0 "Matthew Book" Map.empty ]
+  , Type
+      "List Word () List Unicode.Composed"
+      "List Word () List Unicode.Composed"
+      []
+      [ Value 0 "List of Words" Map.empty ]
+  , Type
+      "Word () List Unicode.Composed"
+      "Word () List Unicode.Composed"
+      []
+      [ Value 0 "Word" Map.empty ]
+  , Type
+      "()"
+      "()"
+      []
+      [ Value 0 "Unit" Map.empty ]
+  , Type
+      "List Unicode.Composed"
+      "List Unicode.Composed"
+      []
+      [ Value 0 "List chars" Map.empty ]
+  , Type
+      "Unicode.Composed"
+      "Unicode.Composed"
+      []
+      [ Value 0 "Composed char" Map.empty ]
+  , Type
+      "Author"
+      "Author"
+      []
+      [ Value 0 "Author" Map.empty ]
+  ]
+
 go :: IO ()
-go = do
-  result <- fmap process All.loadAll
-  handleResult result
+go = BL.writeFile (Path.pagesData </> "data.json") . Aeson.encode $ myData
+
+--go = do
+--  result <- fmap process All.loadAll
+--  handleResult result
 
     --Right works -> BL.writeFile (Path.pagesData </> "work.json") . encode . TopLevelArray "work" . makeWorks $ works
 
