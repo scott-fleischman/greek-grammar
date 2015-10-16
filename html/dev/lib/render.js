@@ -22,13 +22,13 @@ const NavStages = ({stages, currentStage, getStageTitle, setStage}) => (
 );
 
 const NavTypes = ({types, focusSource, focusResult, currentType, getType, setType}) => {
-  const getTypeTitle = x => getType(x).title;
+  const getTypeTitle = x => getType(x).typeTitle;
   const getValueCount = x => getType(x).values.length;
   const LocalNavLink = ({index}) => (<NavLink item={index} getTitle={getTypeTitle} setItem={setType} count={getValueCount(index)} />);
   return (
     <li role="presentation" className="dropdown">
       <a className="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-        <b>View</b>: {getType(currentType).title} <span className="caret"></span>
+        <b>View</b>: {getTypeTitle(currentType)} <span className="caret"></span>
       </a>
       <ul className="dropdown-menu">
         { R.flatten(
@@ -73,7 +73,7 @@ const NavGroups = ({groups, currentType, currentGroup, getGroupTitle, setGroup})
 );
 
 const Nav = ({getType, getGroupTitle, stages, types, groups, currentStage, currentType, currentGroup, focusResult, focusSource, setStage, setType, setGroup}) => {
-  const getTypeTitle = typeIndex => getType(typeIndex).title
+  const getTypeTitle = typeIndex => getType(typeIndex).typeTitle;
   const getStageTitle = stageIndex => getTypeTitle(stages[stageIndex].topLevelType);
   return (
     <nav className="navbar navbar-default">
@@ -125,7 +125,7 @@ const Content = ({values, currentGroupIndex, getValueTitle, getValueCount}) => {
               </div>
               <div id={collapseId} className="panel-collapse collapse" role="tabpanel" aria-labelledby={headingId}>
                 <ul className="list-group">
-                  { R.map(x => <li key={itemKey + '.' + x.valueIndex} className="list-group-item">{x.title}</li>, item.values) }
+                  { R.map(x => <li key={itemKey + '.' + x.valueIndex} className="list-group-item">{x.valueTitle}</li>, item.values) }
                 </ul>
               </div>
             </div>);
@@ -148,7 +148,7 @@ function getGroupedContentInfo(getType, currentGroupIndex, currentTypeValues) {
   const groupByFunc = x => oneOf(x.propertyValues[currentGroupIndex], 'none');
   const groupTypeIndex = currentGroupIndex;
   const groupType = getType(groupTypeIndex);
-  const getValueTitle = x => oneOf(maybeProp('title', groupType.values[x]), noneTitle);
+  const getValueTitle = x => oneOf(maybeProp('valueTitle', groupType.values[x]), noneTitle);
   const doGroup = groupByFunc => R.compose(
     xs => R.map(x => ({ key: x, values: xs[x] }), R.keys(xs)),
     R.groupBy(groupByFunc)
@@ -163,9 +163,9 @@ function getGroupedContentInfo(getType, currentGroupIndex, currentTypeValues) {
 }
 
 function getPropertyContentInfo(getType, currentTypeIndex, currentType) {
-  const getValueTitle = x => currentType.values[x].title;
+  const getValueTitle = x => currentType.values[x].valueTitle;
   const mapProperties = R.compose(
-      R.map(([t, v]) => ({ valueIndex: v, title: getType(t).values[v].title })),
+      R.map(([t, v]) => ({ valueIndex: v, valueTitle: getType(t).values[v].valueTitle })),
       R.toPairs
     );
   const mapValues = R.map(x => ({ key: x.valueIndex, values: mapProperties(x.propertyValues) }));
@@ -204,7 +204,7 @@ export class App extends React.Component {
   }
   render() {
     const getType = x => this.props.data.types.get(x);
-    const getGroupTitle = x => R.isNil(x) ? noneTitle : getType(x).title;
+    const getGroupTitle = x => R.isNil(x) ? noneTitle : getType(x).typeTitle;
 
     const currentStageIndex = oneOf(this.state.currentStage, 0);
     const currentStage = this.props.data.stages[currentStageIndex];

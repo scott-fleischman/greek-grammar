@@ -18,7 +18,7 @@ function checkStatus(response) {
 }
 
 function mapTypes(data) {
-  const types = new Map(data.types.map(x => [x.name, x]));
+  const types = new Map(data.types.map(x => [x.typeName, x]));
   return {
     stages: data.stages,
     types: types,

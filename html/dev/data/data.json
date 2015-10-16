@@ -35,46 +35,46 @@
   ],
   "types": [
     {
-      "name": "List Work List Word () List Unicode.Composed",
-      "title": "List Work List Word () List Unicode.Composed",
+      "typeName": "List Work List Word () List Unicode.Composed",
+      "typeTitle": "List Work List Word () List Unicode.Composed",
       "propertyTypes": [],
       "values": [
         {
           "valueIndex": 0,
-          "title": "List of Works",
+          "valueTitle": "List of Works",
           "propertyValues": []
         }
       ]
     },
     {
-      "name": "Work List Word () List Unicode.Composed",
-      "title": "Work List Word () List Unicode.Composed",
+      "typeName": "Work List Word () List Unicode.Composed",
+      "typeTitle": "Work List Word () List Unicode.Composed",
       "propertyTypes": [
         "Author"
       ],
       "values": [
         {
           "valueIndex": 0,
-          "title": "Matthew Book",
+          "valueTitle": "Matthew Book",
           "propertyValues": {}
         },
         {
           "valueIndex": 1,
-          "title": "Mark Book",
+          "valueTitle": "Mark Book",
           "propertyValues": {
             "Author": 0
           }
         },
         {
           "valueIndex": 2,
-          "title": "Luke Book",
+          "valueTitle": "Luke Book",
           "propertyValues": {
             "Author": 1
           }
         },
         {
           "valueIndex": 3,
-          "title": "Acts Book",
+          "valueTitle": "Acts Book",
           "propertyValues": {
             "Author": 1
           }
@@ -82,118 +82,118 @@
       ]
     },
     {
-      "name": "Author",
-      "title": "Author",
+      "typeName": "Author",
+      "typeTitle": "Author",
       "propertyTypes": [],
       "values": [
         {
           "valueIndex": 0,
-          "title": "Mark Author",
+          "valueTitle": "Mark Author",
           "propertyValues": []
         },
         {
           "valueIndex": 1,
-          "title": "Luke Author",
+          "valueTitle": "Luke Author",
           "propertyValues": []
         }
       ]
     },
     {
-      "name": "List Word () List Unicode.Composed",
-      "title": "List Word () List Unicode.Composed",
+      "typeName": "List Word () List Unicode.Composed",
+      "typeTitle": "List Word () List Unicode.Composed",
       "propertyTypes": [],
       "values": [
         {
           "valueIndex": 0,
-          "title": "List of Words",
+          "valueTitle": "List of Words",
           "propertyValues": []
         }
       ]
     },
     {
-      "name": "Word () List Unicode.Composed",
-      "title": "Word () List Unicode.Composed",
+      "typeName": "Word () List Unicode.Composed",
+      "typeTitle": "Word () List Unicode.Composed",
       "propertyTypes": [],
       "values": [
         {
           "valueIndex": 0,
-          "title": "Word",
+          "valueTitle": "Word",
           "propertyValues": []
         }
       ]
     },
     {
-      "name": "()",
-      "title": "()",
+      "typeName": "()",
+      "typeTitle": "()",
       "propertyTypes": [],
       "values": [
         {
           "valueIndex": 0,
-          "title": "Unit",
+          "valueTitle": "Unit",
           "propertyValues": []
         }
       ]
     },
     {
-      "name": "List Unicode.Composed",
-      "title": "List Unicode.Composed",
+      "typeName": "List Unicode.Composed",
+      "typeTitle": "List Unicode.Composed",
       "propertyTypes": [],
       "values": [
         {
           "valueIndex": 0,
-          "title": "List Unicode.Composed",
+          "valueTitle": "List Unicode.Composed",
           "propertyValues": []
         }
       ]
     },
     {
-      "name": "Unicode.Composed",
-      "title": "Unicode.Composed",
+      "typeName": "Unicode.Composed",
+      "typeTitle": "Unicode.Composed",
       "propertyTypes": [],
       "values": [
         {
           "valueIndex": 0,
-          "title": "Unicode.Composed",
+          "valueTitle": "Unicode.Composed",
           "propertyValues": []
         }
       ]
     },
     {
-      "name": "List Work List Word () List Unicode.Decomposed",
-      "title": "List Work List Word () List Unicode.Decomposed",
+      "typeName": "List Work List Word () List Unicode.Decomposed",
+      "typeTitle": "List Work List Word () List Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
         {
           "valueIndex": 0,
-          "title": "List of Works",
+          "valueTitle": "List of Works",
           "propertyValues": []
         }
       ]
     },
     {
-      "name": "Work List Word () List Unicode.Decomposed",
-      "title": "Work List Word () List Unicode.Decomposed",
+      "typeName": "Work List Word () List Unicode.Decomposed",
+      "typeTitle": "Work List Word () List Unicode.Decomposed",
       "propertyTypes": [
         "Author"
       ],
       "values": [
         {
           "valueIndex": 0,
-          "title": "Mark",
+          "valueTitle": "Mark",
           "propertyValues": {
             "Author": 0
           }
         },
         {
           "valueIndex": 1,
-          "title": "Luke",
+          "valueTitle": "Luke",
           "propertyValues": {
             "Author": 1
           }
         },
         {
           "valueIndex": 2,
-          "title": "Acts",
+          "valueTitle": "Acts",
           "propertyValues": {
             "Author": 1
           }
@@ -201,49 +201,49 @@
       ]
     },
     {
-      "name": "List Word () List Unicode.Decomposed",
-      "title": "List Word () List Unicode.Decomposed",
+      "typeName": "List Word () List Unicode.Decomposed",
+      "typeTitle": "List Word () List Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
         {
           "valueIndex": 0,
-          "title": "List of Words",
+          "valueTitle": "List of Words",
           "propertyValues": []
         }
       ]
     },
     {
-      "name": "Word () List Unicode.Decomposed",
-      "title": "Word () List Unicode.Decomposed",
+      "typeName": "Word () List Unicode.Decomposed",
+      "typeTitle": "Word () List Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
         {
           "valueIndex": 0,
-          "title": "Word",
+          "valueTitle": "Word",
           "propertyValues": []
         }
       ]
     },
     {
-      "name": "List Unicode.Decomposed",
-      "title": "List Unicode.Decomposed",
+      "typeName": "List Unicode.Decomposed",
+      "typeTitle": "List Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
         {
           "valueIndex": 0,
-          "title": "List Unicode.Decomposed",
+          "valueTitle": "List Unicode.Decomposed",
           "propertyValues": []
         }
       ]
     },
     {
-      "name": "Unicode.Decomposed",
-      "title": "Unicode.Decomposed",
+      "typeName": "Unicode.Decomposed",
+      "typeTitle": "Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
         {
           "valueIndex": 0,
-          "title": "Unicode.Decomposed",
+          "valueTitle": "Unicode.Decomposed",
           "propertyValues": []
         }
       ]
