@@ -33,8 +33,9 @@
       "focusSourceType": null
     }
   ],
-  "types": {
-    "List Work List Word () List Unicode.Composed": {
+  "types": [
+    {
+      "name": "List Work List Word () List Unicode.Composed",
       "title": "List Work List Word () List Unicode.Composed",
       "propertyTypes": [],
       "values": [
@@ -45,7 +46,8 @@
         }
       ]
     },
-    "Work List Word () List Unicode.Composed": {
+    {
+      "name": "Work List Word () List Unicode.Composed",
       "title": "Work List Word () List Unicode.Composed",
       "propertyTypes": [
         "Author"
@@ -79,7 +81,8 @@
         }
       ]
     },
-    "Author": {
+    {
+      "name": "Author",
       "title": "Author",
       "propertyTypes": [],
       "values": [
@@ -95,7 +98,8 @@
         }
       ]
     },
-    "List Word () List Unicode.Composed": {
+    {
+      "name": "List Word () List Unicode.Composed",
       "title": "List Word () List Unicode.Composed",
       "propertyTypes": [],
       "values": [
@@ -106,7 +110,8 @@
         }
       ]
     },
-    "Word () List Unicode.Composed": {
+    {
+      "name": "Word () List Unicode.Composed",
       "title": "Word () List Unicode.Composed",
       "propertyTypes": [],
       "values": [
@@ -117,7 +122,8 @@
         }
       ]
     },
-    "()": {
+    {
+      "name": "()",
       "title": "()",
       "propertyTypes": [],
       "values": [
@@ -128,7 +134,8 @@
         }
       ]
     },
-    "List Unicode.Composed": {
+    {
+      "name": "List Unicode.Composed",
       "title": "List Unicode.Composed",
       "propertyTypes": [],
       "values": [
@@ -139,7 +146,8 @@
         }
       ]
     },
-    "Unicode.Composed": {
+    {
+      "name": "Unicode.Composed",
       "title": "Unicode.Composed",
       "propertyTypes": [],
       "values": [
@@ -150,7 +158,8 @@
         }
       ]
     },
-    "List Work List Word () List Unicode.Decomposed": {
+    {
+      "name": "List Work List Word () List Unicode.Decomposed",
       "title": "List Work List Word () List Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
@@ -161,7 +170,8 @@
         }
       ]
     },
-    "Work List Word () List Unicode.Decomposed": {
+    {
+      "name": "Work List Word () List Unicode.Decomposed",
       "title": "Work List Word () List Unicode.Decomposed",
       "propertyTypes": [
         "Author"
@@ -190,7 +200,8 @@
         }
       ]
     },
-    "List Word () List Unicode.Decomposed": {
+    {
+      "name": "List Word () List Unicode.Decomposed",
       "title": "List Word () List Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
@@ -201,7 +212,8 @@
         }
       ]
     },
-    "Word () List Unicode.Decomposed": {
+    {
+      "name": "Word () List Unicode.Decomposed",
       "title": "Word () List Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
@@ -212,7 +224,8 @@
         }
       ]
     },
-    "List Unicode.Decomposed": {
+    {
+      "name": "List Unicode.Decomposed",
       "title": "List Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
@@ -223,7 +236,8 @@
         }
       ]
     },
-    "Unicode.Decomposed": {
+    {
+      "name": "Unicode.Decomposed",
       "title": "Unicode.Decomposed",
       "propertyTypes": [],
       "values": [
@@ -234,5 +248,5 @@
         }
       ]
     }
-  }
+  ]
 }

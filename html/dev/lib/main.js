@@ -17,10 +17,19 @@ function checkStatus(response) {
   }
 }
 
+function mapTypes(data) {
+  const types = new Map(data.types.map(x => [x.name, x]));
+  return {
+    stages: data.stages,
+    types: types,
+  };
+}
+
 function loadData(dataName) {
   return fetch(`data/${dataName}.json`)
     .then(checkStatus)
     .then(x => x.json())
+    .then(mapTypes)
     .catch(x => console.log('Unable to load data', dataName, x));
 }
 

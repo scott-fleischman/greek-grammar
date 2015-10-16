@@ -203,7 +203,7 @@ export class App extends React.Component {
     });
   }
   render() {
-    const getType = x => this.props.data.types[x];
+    const getType = x => this.props.data.types.get(x);
     const getGroupTitle = x => R.isNil(x) ? noneTitle : getType(x).title;
 
     const currentStageIndex = oneOf(this.state.currentStage, 0);
