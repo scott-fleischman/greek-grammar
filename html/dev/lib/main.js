@@ -33,8 +33,14 @@ function loadData(dataName) {
     .catch(x => console.log('Unable to load data', dataName, x));
 }
 
-function go() {
-  // const query = queryString.parse(window.location.search);
+function processQueryObject({ d='data' }) {
+  return {
+    dataName: d,
+  };
+}
+
+function processQueryString(query) {
+  return processQueryObject(queryString.parse(query));
   // let dataName = query.view || 'work';
 
   // let process = x => x;
@@ -51,7 +57,11 @@ function go() {
 
   // const doRender = R.curry(renderGroup)(groupName, dataName);
   // const callback = R.compose(doRender, x => ({ items: process(x[dataName]), data: x }));
-  loadData(['data']).then(data => ReactDOM.render(<App data={data} />, document.getElementById('app')));
+}
+
+function go() {
+  const {dataName} = processQueryString(window.location.search);
+  loadData([dataName]).then(data => ReactDOM.render(<App data={data} />, document.getElementById('app')));
 }
 
 go();
