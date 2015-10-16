@@ -42,7 +42,7 @@
         {
           "valueIndex": 0,
           "valueTitle": "List of Works",
-          "propertyValues": []
+          "propertyValues": {}
         }
       ]
     },
@@ -89,12 +89,12 @@
         {
           "valueIndex": 0,
           "valueTitle": "Mark Author",
-          "propertyValues": []
+          "propertyValues": {}
         },
         {
           "valueIndex": 1,
           "valueTitle": "Luke Author",
-          "propertyValues": []
+          "propertyValues": {}
         }
       ]
     },
@@ -106,7 +106,7 @@
         {
           "valueIndex": 0,
           "valueTitle": "List of Words",
-          "propertyValues": []
+          "propertyValues": {}
         }
       ]
     },
@@ -118,7 +118,7 @@
         {
           "valueIndex": 0,
           "valueTitle": "Word",
-          "propertyValues": []
+          "propertyValues": {}
         }
       ]
     },
@@ -130,7 +130,7 @@
         {
           "valueIndex": 0,
           "valueTitle": "Unit",
-          "propertyValues": []
+          "propertyValues": {}
         }
       ]
     },
@@ -142,7 +142,7 @@
         {
           "valueIndex": 0,
           "valueTitle": "List Unicode.Composed",
-          "propertyValues": []
+          "propertyValues": {}
         }
       ]
     },
@@ -154,7 +154,7 @@
         {
           "valueIndex": 0,
           "valueTitle": "Unicode.Composed",
-          "propertyValues": []
+          "propertyValues": {}
         }
       ]
     },
@@ -166,7 +166,7 @@
         {
           "valueIndex": 0,
           "valueTitle": "List of Works",
-          "propertyValues": []
+          "propertyValues": {}
         }
       ]
     },
@@ -208,7 +208,7 @@
         {
           "valueIndex": 0,
           "valueTitle": "List of Words",
-          "propertyValues": []
+          "propertyValues": {}
         }
       ]
     },
@@ -220,7 +220,7 @@
         {
           "valueIndex": 0,
           "valueTitle": "Word",
-          "propertyValues": []
+          "propertyValues": {}
         }
       ]
     },
@@ -232,7 +232,7 @@
         {
           "valueIndex": 0,
           "valueTitle": "List Unicode.Decomposed",
-          "propertyValues": []
+          "propertyValues": {}
         }
       ]
     },
@@ -244,7 +244,7 @@
         {
           "valueIndex": 0,
           "valueTitle": "Unicode.Decomposed",
-          "propertyValues": []
+          "propertyValues": {}
         }
       ]
     }
