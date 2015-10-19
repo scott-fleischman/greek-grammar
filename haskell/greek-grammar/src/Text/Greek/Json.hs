@@ -6,6 +6,7 @@
 module Text.Greek.Json where
 
 import Control.Lens
+import Data.Char
 import Data.Map (Map)
 import Data.Text (Text)
 import GHC.Generics
@@ -19,8 +20,8 @@ import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
 import qualified Data.ByteString.Lazy.Char8 as BL
---import qualified Data.Text.Lazy as Lazy
---import qualified Data.Text.Format as Format
+import qualified Data.Text.Lazy as Lazy
+import qualified Data.Text.Format as Format
 
 data Data = Data
   { stages :: [Stage]
@@ -41,6 +42,12 @@ data Type = Type
   , propertyTypes :: [Text]
   , values :: [Value]
   } deriving (Generic, Show)
+
+_propertyTypes :: Applicative f => ([Text] -> f [Text]) -> Type -> f Type
+_propertyTypes f (Type a b c d) = Type <$> pure a <*> pure b <*> f c <*> pure d
+
+_values :: Applicative f => ([Value] -> f [Value]) -> Type -> f Type
+_values f (Type a b c d) = Type <$> pure a <*> pure b <*> pure c <*> f d
 
 data Value = Value
   { valueIndex :: Int
@@ -125,7 +132,7 @@ process x
   =   showError x
   >>= showError . toStage0 _1
 
-appendData :: (Stageable a, Extractable a) => Either e (a, [Stage], [Type])
+appendData :: (Stageable a, Valuable a) => Either e (a, [Stage], [Type])
 appendData = undefined
 
 handleResult :: Either String (a, Data) -> IO ()
@@ -141,12 +148,43 @@ toStage0 :: Lens s t
   -> s -> Either Unicode.Error t
 toStage0 l = (l . traverse . All.workContent . traverse . Word.basicSurface) (uncurry Unicode.splitText)
 
+data StringValue = StringValue
+  { stringValueType :: Text
+  , stringValueName :: Text
+  , stringValueProperties :: [StringValue]
+  } deriving (Eq, Ord, Show)
 
-class Extractable a where
-  extract :: a -> [Type]
+class Valuable a where
+  getStringValue :: a -> (StringValue, [StringValue])
 
-instance Extractable Unicode.Composed where
-  extract (Unicode.Composed _) = undefined
+singleValue :: Text -> Lazy.Text -> (StringValue, [StringValue])
+singleValue t v = (StringValue t (Lazy.toStrict v) [], [])
+
+instance Valuable Unicode.Composed where
+  getStringValue (Unicode.Composed c) = singleValue
+    "Unicode.Composed"
+    (Format.format "U+{} '{}'" (Format.left 4 '0' . Format.hex . ord $ c, c))
+
+instance Valuable a => Valuable ([a]) where
+  getStringValue = 
+    where
+      typeName = case uncons children of
+        Just (x : _) = stringValueType x
+        Nothing = "Unknown Type"
+      values = 
+      children = concatMap getStringValue
+
+instance Valuable FileCharReference where
+  getStringValue (FileCharReference (Path p) (LineReference (Line l) (Column c))) = singleValue
+    "Source Line/Column"
+    (Format.format "{} {}:{}" (p, l, c))
+
+instance (Valuable a, Valuable b) => Valuable (a, b) where
+  getStringValue (a, b) = [composite, stringValueA, stringValueB]
+    where
+      stringValueA@(StringValue typeA valueA _) = getStringValue a
+      stringValueB@(StringValue typeB valueB _) = getStringValue b
+      composite = singleValue (Format.format "({}, {})" (typeA, typeB)) (Format.format "({}, {})" (valueA, valueB)) []
 
 class Stageable a where 
   stage :: a -> Stage
