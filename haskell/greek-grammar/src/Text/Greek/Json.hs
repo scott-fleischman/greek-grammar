@@ -15,6 +15,7 @@ import Text.Greek.Xml.Common
 import System.FilePath
 import qualified Data.Aeson as Aeson
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 import qualified Text.Greek.Paths as Path
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Script.Unicode as Unicode
@@ -157,37 +158,70 @@ data StringValue = StringValue
 class Valuable a where
   getStringValue :: a -> (StringValue, [StringValue])
 
-singleValue :: Text -> Lazy.Text -> (StringValue, [StringValue])
-singleValue t v = (StringValue t (Lazy.toStrict v) [], [])
+singleValue :: Lazy.Text -> Lazy.Text -> [StringValue] -> (StringValue, [StringValue])
+singleValue t v cs = (StringValue (Lazy.toStrict t) (Lazy.toStrict v) [], cs)
 
 instance Valuable Unicode.Composed where
   getStringValue (Unicode.Composed c) = singleValue
     "Unicode.Composed"
     (Format.format "U+{} '{}'" (Format.left 4 '0' . Format.hex . ord $ c, c))
+    []
 
 instance Valuable a => Valuable ([a]) where
-  getStringValue = 
+  getStringValue as = composite
     where
-      typeName = case uncons children of
-        Just (x : _) = stringValueType x
-        Nothing = "Unknown Type"
-      values = 
-      children = concatMap getStringValue
+      childType = case items of
+        ((StringValue n _ _, _) : _) -> n
+        _ -> "Unknown Type"
+      items = fmap getStringValue as
+      composite = singleValue
+        (Format.format "[{}]" (Format.Only childType))
+        ""
+        (concatChildren items)
 
 instance Valuable FileCharReference where
   getStringValue (FileCharReference (Path p) (LineReference (Line l) (Column c))) = singleValue
     "Source Line/Column"
     (Format.format "{} {}:{}" (p, l, c))
+    []
+
+concatChildren :: [(a, [a])] -> [a]
+concatChildren = concatMap (\(a, as) -> a : as)
 
 instance (Valuable a, Valuable b) => Valuable (a, b) where
-  getStringValue (a, b) = [composite, stringValueA, stringValueB]
+  getStringValue (a, b) = composite
     where
-      stringValueA@(StringValue typeA valueA _) = getStringValue a
-      stringValueB@(StringValue typeB valueB _) = getStringValue b
-      composite = singleValue (Format.format "({}, {})" (typeA, typeB)) (Format.format "({}, {})" (valueA, valueB)) []
+      stringValueA@(StringValue typeA valueA _, _) = getStringValue a
+      stringValueB@(StringValue typeB valueB _, _) = getStringValue b
+      composite = singleValue
+        (Format.format "({}, {})" (typeA, typeB))
+        (Format.format "({}, {})" (valueA, valueB))
+        (concatChildren [stringValueA, stringValueB])
+
+instance Valuable a => Valuable (All.Work a) where
+  getStringValue (All.Work _ t a) = composite
+    where
+      child@((StringValue contentType _ _), _) = getStringValue a
+      composite = singleValue
+        (Format.format "All.Work {}" (Format.Only contentType))
+        (Format.format "{}" (Format.Only t))
+        (concatChildren [child])
+
+instance Valuable a => Valuable (Word.Basic a) where
+  getStringValue (Word.Basic a _) = composite
+    where
+      child@((StringValue surfaceType surfaceValue _), _) = getStringValue a
+      composite = singleValue
+        (Format.format "Word.Basic {}" (Format.Only surfaceType))
+        (Format.format "Word.Basic {}" (Format.Only surfaceValue))
+        (concatChildren [child])
 
 class Stageable a where 
   stage :: a -> Stage
 
 instance Stageable [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] where
-  stage _ = undefined
+  stage x = Stage 0 t stageTypes Nothing Nothing
+    where
+      child@(StringValue t _ _, _) = getStringValue x
+      stageValues = concatChildren [child]
+      stageTypes = Set.toList . Set.fromList . fmap stringValueType $ stageValues
