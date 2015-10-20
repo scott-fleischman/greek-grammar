@@ -14,6 +14,7 @@ import Text.Greek.FileReference
 import Text.Greek.Xml.Common
 import System.FilePath
 import qualified Data.Aeson as Aeson
+import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Text.Greek.Paths as Path
@@ -121,24 +122,24 @@ myData =
   ]
 
 go :: IO ()
-go = All.loadAll >>= handleResult . process . startData
-
-startData :: Either a b -> Either a (b, Data)
-startData = over _Right (\x -> (x, Data [] []))
+go = All.loadAll >>= handleResult dumpJson . over _Right getData . process
 
 process
-  :: Either [XmlError] ([All.Work [Word.Basic (Text, FileReference)]], Data)
-  -> Either String     ([All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]], Data)
+  :: Either [XmlError] [All.Work [Word.Basic (Text, FileReference)]]
+  -> Either String     [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
 process x
   =   showError x
-  >>= showError . toStage0 _1
+  >>= showError . toStage0 id
 
-appendData :: (Stageable a, Valuable a) => Either e (a, [Stage], [Type])
-appendData = undefined
+getData :: Stageable a => a -> Data
+getData = stage
 
-handleResult :: Either String (a, Data) -> IO ()
-handleResult (Left e) = putStrLn e
-handleResult (Right (_, d)) = BL.writeFile (Path.pagesData </> "data.json") . Aeson.encode $ d
+handleResult :: (a -> IO ()) -> Either String a -> IO ()
+handleResult _ (Left e) = putStrLn e
+handleResult f (Right a) = f a
+
+dumpJson :: Data -> IO ()
+dumpJson = BL.writeFile (Path.pagesData </> "data.json") . Aeson.encode
 
 showError :: Show a => Either a b -> Either String b
 showError = over _Left show
@@ -170,9 +171,7 @@ instance Valuable Unicode.Composed where
 instance Valuable a => Valuable ([a]) where
   getStringValue as = composite
     where
-      childType = case items of
-        ((StringValue n _ _, _) : _) -> n
-        _ -> "Unknown Type"
+      childType = getTypeName (fmap fst items)
       items = fmap getStringValue as
       composite = singleValue
         (Format.format "[{}]" (Format.Only childType))
@@ -216,12 +215,32 @@ instance Valuable a => Valuable (Word.Basic a) where
         (Format.format "Word.Basic {}" (Format.Only surfaceValue))
         (concatChildren [child])
 
-class Stageable a where 
-  stage :: a -> Stage
+class Valuable a => Stageable a where 
+  stage :: a -> Data
+
+getTypeName :: [StringValue] -> Text
+getTypeName [] = "Unknown type"
+getTypeName (x : _) = stringValueType x
+
+makeTypes :: [StringValue] -> [Type]
+makeTypes xs = fmap toType groups
+  where
+    groups = List.groupBy (\x y -> stringValueType x == stringValueType y) xs
+    toType vs = Type myTypeName myTypeName [] (makeValues vs)
+      where
+        myTypeName = getTypeName vs
+
+makeValues :: [StringValue] -> [Value]
+makeValues xs = fmap toValue ixs
+  where
+    toValue (v, i) = Value i (stringValueName v) Map.empty
+    ixs = zip xs [0..]
 
 instance Stageable [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] where
-  stage x = Stage 0 t stageTypes Nothing Nothing
+  stage x = Data [myStage] (makeTypes stageValues)
     where
+      myStage = Stage 0 t stageTypes Nothing Nothing
       child@(StringValue t _ _, _) = getStringValue x
       stageValues = concatChildren [child]
-      stageTypes = Set.toList . Set.fromList . fmap stringValueType $ stageValues
+      stageTypes = List.sort . Set.toList . Set.fromList . fmap stringValueType $ stageValues
+
