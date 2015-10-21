@@ -13,12 +13,14 @@ import Text.Greek.Xml.Parse
 import qualified Text.Greek.Source.Sblgnt as SBL
 import qualified Text.Greek.Script.Word as Word
 
-data WorkSource = Sblgnt deriving Show
+data WorkSource = Sblgnt deriving (Eq, Ord, Show)
+
+newtype WorkTitle = WorkTitle Text deriving (Eq, Ord, Show)
 
 type WorkText = Work [Word.BasicText]
 data Work a = Work
   { _workSource :: WorkSource
-  , _workTitle :: Text
+  , _workTitle :: WorkTitle
   , _workContent :: a
   } deriving Show
 makeLenses ''Work
@@ -33,7 +35,7 @@ sblgntToWorks :: SBL.Sblgnt -> [WorkText]
 sblgntToWorks (SBL.Sblgnt _ _ bs) = fmap sblgntBookToWork bs
 
 sblgntBookToWork :: SBL.Book -> WorkText
-sblgntBookToWork (SBL.Book _ t ps) = Work Sblgnt t (sblgntParagraphsToWords ps)
+sblgntBookToWork (SBL.Book _ t ps) = Work Sblgnt (WorkTitle t) (sblgntParagraphsToWords ps)
 
 sblgntParagraphsToWords :: Foldable t => t SBL.BookParagraph -> [Word.BasicText]
 sblgntParagraphsToWords = fmap sblWordToWord . concatMap (toListOf SBL._ItemWord) . concat . concatMap (toListOf SBL._BookParagraphContent)
