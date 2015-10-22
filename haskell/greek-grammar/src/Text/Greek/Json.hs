@@ -172,11 +172,22 @@ makeValueMap xs = Map.fromList indexedList
     uniqueValues = Set.toAscList . Set.fromList $ xs
     indexedList = zip uniqueValues [0..]
 
-makeStage0Types :: [Stage0] -> Either String (Stage, [Type])
-makeStage0Types ss = undefined
+makeStage0Types :: [Stage0] -> Maybe [Map Text Int]
+makeStage0Types ss = traverse makeInstanceValue ss
   where
     workSourceMap = makeValueMap $ fmap (\(x,_,_,_,_) -> x) ss
     workTitleMap  = makeValueMap $ fmap (\(_,x,_,_,_) -> x) ss
     stage0WordMap = makeValueMap $ fmap (\(_,_,x,_,_) -> x) ss
     fileCharMap   = makeValueMap $ fmap (\(_,_,_,x,_) -> x) ss
     composedMap   = makeValueMap $ fmap (\(_,_,_,_,x) -> x) ss
+    makeInstanceValue :: Stage0 -> Maybe (Map Text Int)
+    makeInstanceValue (a, b, c, d, e) = over _Just Map.fromList $ sequence
+      [ lookupValueIndex "WorkSource" workSourceMap a
+      , lookupValueIndex "WorkTitle" workTitleMap b
+      , lookupValueIndex "Stage0Word" stage0WordMap c
+      , lookupValueIndex "FileLocation" fileCharMap d
+      , lookupValueIndex "UnicodeComposed" composedMap e
+      ]
+
+lookupValueIndex :: Ord a => Text -> Map a Int -> a -> Maybe (Text, Int)
+lookupValueIndex t m v = over _Just (\x -> (t, x)) $ Map.lookup v m
