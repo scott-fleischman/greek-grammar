@@ -14,6 +14,7 @@ import Text.Greek.Xml.Common
 import System.FilePath
 import qualified Data.Aeson as Aeson
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 import qualified Text.Greek.Paths as Path
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Script.Unicode as Unicode
@@ -164,3 +165,18 @@ flattenStage0 = concatMap flattenWork
   
     getStageWord :: [(Unicode.Composed, FileCharReference)] -> Stage0Word
     getStageWord = Stage0Word . fmap fst
+
+makeValueMap :: Ord a => [a] -> Map a Int
+makeValueMap xs = Map.fromList indexedList
+  where
+    uniqueValues = Set.toAscList . Set.fromList $ xs
+    indexedList = zip uniqueValues [0..]
+
+makeStage0Types :: [Stage0] -> Either String (Stage, [Type])
+makeStage0Types ss = undefined
+  where
+    workSourceMap = makeValueMap $ fmap (\(x,_,_,_,_) -> x) ss
+    workTitleMap  = makeValueMap $ fmap (\(_,x,_,_,_) -> x) ss
+    stage0WordMap = makeValueMap $ fmap (\(_,_,x,_,_) -> x) ss
+    fileCharMap   = makeValueMap $ fmap (\(_,_,_,x,_) -> x) ss
+    composedMap   = makeValueMap $ fmap (\(_,_,_,_,x) -> x) ss
