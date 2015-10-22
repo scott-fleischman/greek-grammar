@@ -133,7 +133,10 @@ process x
   >>= showError . toStage0Hierarchy
 
 getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
-getData = undefined
+getData xs = Data [stage0Stage] stage0Types
+  where
+    flatStage0 = flattenStage0 xs
+    (stage0Stage, stage0Types) = makeStage0Types flatStage0
 
 handleResult :: (a -> IO ()) -> Either String a -> IO ()
 handleResult _ (Left e) = putStrLn e
@@ -177,14 +180,16 @@ makeValueMap xs = Map.fromList indexedList
     uniqueValues = Set.toAscList . Set.fromList $ xs
     indexedList = zip uniqueValues [0..]
 
-makeStage0Types :: [Stage0] -> [Type]
-makeStage0Types ss = stage0Types
+makeStage0Types :: [Stage0] -> (Stage, [Type])
+makeStage0Types ss = (stage0Stage, stage0Types)
   where
     workSourceMap        = makeValueMap $ fmap (\(x,_,_,_,_) -> x) ss
     workTitleMap         = makeValueMap $ fmap (\(_,x,_,_,_) -> x) ss
     stage0WordMap        = makeValueMap $ fmap (\(_,_,x,_,_) -> x) ss
     fileCharReferenceMap = makeValueMap $ fmap (\(_,_,_,x,_) -> x) ss
     unicodeComposedMap   = makeValueMap $ fmap (\(_,_,_,_,x) -> x) ss
+
+    stage0Stage = Stage 0 workTitleName (fmap typeName stage0Types) Nothing Nothing
 
     stage0Types = [workSourceType, workTitleType, stage0WordType, fileCharReferenceType, unicodeComposedType] ++ instanceTypeAsList
 
