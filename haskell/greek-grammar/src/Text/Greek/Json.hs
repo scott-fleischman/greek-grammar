@@ -63,65 +63,6 @@ instance Aeson.ToJSON Stage
 instance Aeson.ToJSON Type
 instance Aeson.ToJSON Value
 
-myData :: Data
-myData =
-  Data
-  [ Stage 0
-      "List Work List Word () List Unicode.Composed"
-      [ "List Work List Word () List Unicode.Composed"
-      , "Work List Word () List Unicode.Composed"
-      , "List Word () List Unicode.Composed"
-      , "Word () List Unicode.Composed"
-      , "()"
-      , "List Unicode.Composed"
-      , "Unicode.Composed"
-      , "Author"
-      ]
-      Nothing
-      (Just "Unicode.Composed")
-  ]
-  [ Type
-      "List Work List Word () List Unicode.Composed"
-      "List Work List Word () List Unicode.Composed"
-      []
-      [ Value 0 "List of Works" Map.empty ]
-  , Type
-      "Work List Word () List Unicode.Composed"
-      "Work List Word () List Unicode.Composed"
-      []
-      [ Value 0 "Matthew Book" Map.empty ]
-  , Type
-      "List Word () List Unicode.Composed"
-      "List Word () List Unicode.Composed"
-      []
-      [ Value 0 "List of Words" Map.empty ]
-  , Type
-      "Word () List Unicode.Composed"
-      "Word () List Unicode.Composed"
-      []
-      [ Value 0 "Word" Map.empty ]
-  , Type
-      "()"
-      "()"
-      []
-      [ Value 0 "Unit" Map.empty ]
-  , Type
-      "List Unicode.Composed"
-      "List Unicode.Composed"
-      []
-      [ Value 0 "List chars" Map.empty ]
-  , Type
-      "Unicode.Composed"
-      "Unicode.Composed"
-      []
-      [ Value 0 "Composed char" Map.empty ]
-  , Type
-      "Author"
-      "Author"
-      []
-      [ Value 0 "Author" Map.empty ]
-  ]
-
 go :: IO ()
 go = All.loadAll >>= handleResult dumpJson . over _Right getData . process
 
