@@ -13,13 +13,16 @@ import Text.Greek.FileReference
 import Text.Greek.Xml.Common
 import System.FilePath
 import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy.Char8 as BL
+import qualified Data.Char as Char
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import qualified Data.Text.Lazy as Lazy
+import qualified Data.Text.Format as Format
 import qualified Text.Greek.Paths as Path
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
-import qualified Data.ByteString.Lazy.Char8 as BL
 
 data Data = Data
   { stages :: [Stage]
@@ -172,16 +175,17 @@ makeValueMap xs = Map.fromList indexedList
     uniqueValues = Set.toAscList . Set.fromList $ xs
     indexedList = zip uniqueValues [0..]
 
-makeStage0Types :: [Stage0] -> Maybe [Map Text Int]
-makeStage0Types ss = traverse makeInstanceValue ss
+makeStage0Types :: [Stage0] -> Maybe [Value]
+makeStage0Types ss = traverse makeInstanceValue . zip [0..] $ ss
   where
     workSourceMap = makeValueMap $ fmap (\(x,_,_,_,_) -> x) ss
     workTitleMap  = makeValueMap $ fmap (\(_,x,_,_,_) -> x) ss
     stage0WordMap = makeValueMap $ fmap (\(_,_,x,_,_) -> x) ss
     fileCharMap   = makeValueMap $ fmap (\(_,_,_,x,_) -> x) ss
     composedMap   = makeValueMap $ fmap (\(_,_,_,_,x) -> x) ss
-    makeInstanceValue :: Stage0 -> Maybe (Map Text Int)
-    makeInstanceValue (a, b, c, d, e) = over _Just Map.fromList $ sequence
+
+    makeInstanceValue :: (Int, Stage0) -> Maybe Value
+    makeInstanceValue (i, (a, b, c, d, e)) = over _Just (Value i (makeInstanceTitle i e) . Map.fromList) $ sequence
       [ lookupValueIndex "WorkSource" workSourceMap a
       , lookupValueIndex "WorkTitle" workTitleMap b
       , lookupValueIndex "Stage0Word" stage0WordMap c
@@ -189,5 +193,10 @@ makeStage0Types ss = traverse makeInstanceValue ss
       , lookupValueIndex "UnicodeComposed" composedMap e
       ]
 
+    makeInstanceTitle i c = Lazy.toStrict $ Format.format "{} {}" (i, titleUnicodeComposed c)
+
 lookupValueIndex :: Ord a => Text -> Map a Int -> a -> Maybe (Text, Int)
 lookupValueIndex t m v = over _Just (\x -> (t, x)) $ Map.lookup v m
+
+titleUnicodeComposed :: Unicode.Composed -> Text
+titleUnicodeComposed (Unicode.Composed c) = Lazy.toStrict $ Format.format "U+{} {}" (Format.left 4 '0' . Format.hex . Char.ord $ c, c)
