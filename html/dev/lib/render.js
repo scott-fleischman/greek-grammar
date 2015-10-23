@@ -1,5 +1,9 @@
 import R from 'ramda';
 import React from 'react';
+import FixedDataTable from 'fixed-data-table';
+
+const Table = FixedDataTable.Table;
+const Column = FixedDataTable.Column;
 
 const NavLink = ({item, getTitle, setItem, count}) => (
   <a href="#" onClick={setItem.bind(null, item)}>{getTitle(item)} {count ? <CountBadge count={count} /> : undefined}</a>
@@ -184,7 +188,9 @@ export class App extends React.Component {
     this.state = {
       currentStage: props.stage,
       currentType: props.type,
-      currentGroup: props.group
+      currentGroup: props.group,
+      tableWidth: 300,
+      tableHeight: 300,
     };
   }
   setStage(stageIndex, event) {
@@ -202,6 +208,35 @@ export class App extends React.Component {
       currentGroup: groupIndex
     });
   }
+  componentDidMount() {
+    this._update();
+    var win = window;
+    if (win.addEventListener) {
+      win.addEventListener('resize', this._onResize, false);
+    } else if (win.attachEvent) {
+      win.attachEvent('onresize', this._onResize);
+    } else {
+      win.onresize = this._onResize;
+    }
+  }
+
+  _onResize() {
+    clearTimeout(this._updateTimer);
+    this._updateTimer = setTimeout(this._update, 16);
+  }
+
+  _update() {
+    console.log('update');
+    var win = window;
+
+    var widthOffset = win.innerWidth < 680 ? 0 : 240;
+
+    this.setState({
+      tableWidth: win.innerWidth,
+      tableHeight: win.innerHeight - 70,
+    });
+  }
+
   render() {
     const getType = x => this.props.data.types.get(x);
     const getGroupTitle = x => R.isNil(x) ? noneTitle : getType(x).typeTitle;
@@ -224,6 +259,9 @@ export class App extends React.Component {
       getPropertyContentInfo(getType, currentTypeIndex, currentType) :
       getGroupedContentInfo(getType, currentGroupIndex, currentType.values);
 
+    const myRowCount = contentInfo.values.length;
+    const myRowGetter = x => [contentInfo.getValueTitle(contentInfo.values[x].key), 'awesome!'];
+
     return (
       <div>
         <Nav
@@ -245,8 +283,29 @@ export class App extends React.Component {
           setType={this.setType.bind(this)}
           setGroup={this.setGroup.bind(this)}
         />
-
-        <Content {...contentInfo} />
+        <Table
+          rowHeight={50}
+          rowGetter={myRowGetter}
+          rowsCount={myRowCount}
+          width={this.state.tableWidth}
+          height={this.state.tableHeight}
+          overflowX={'auto'}
+          overflowY={'auto'}
+          headerHeight={50}>
+          <Column
+            label="Col 1"
+            width={200}
+            flexgrow={2}
+            dataKey={0}
+          />
+          <Column
+            label="Col 2"
+            width={200}
+            flexgrow={1}
+            dataKey={1}
+          />
+        </Table>
       </div>);
   }
 }
+//         <Content {...contentInfo} />
