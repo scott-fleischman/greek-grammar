@@ -55,7 +55,7 @@ _values f (Type a b c d) = Type <$> pure a <*> pure b <*> pure c <*> f d
 data Value = Value
   { valueIndex :: Int
   , valueTitle :: Text
-  , propertyValues :: Map Text Int
+  , propertyValues :: [Int]
   } deriving (Generic, Show)
 
 instance Aeson.ToJSON Data
@@ -143,27 +143,30 @@ makeStage0Types ss = (stage0Stage, stage0Types)
     instanceTypeAsList = fmap makeInstanceType . Foldable.toList $ maybeInstanceValues
 
     makeInstanceType :: [Value] -> Type
-    makeInstanceType = Type "Stage0Instance" "Stage0Instance" [workSourceName, workTitleName, stage0WordName, fileCharReferenceName, unicodeComposedName]
+    makeInstanceType = Type "Stage0Instance" "Stage0Instance"
+      [ workSourceName
+      , workTitleName
+      , stage0WordName
+      , fileCharReferenceName
+      , unicodeComposedName
+      ]
 
     maybeInstanceValues :: Maybe [Value]
     maybeInstanceValues = traverse makeInstanceValue . zip [0..] $ ss
 
     makeInstanceValue :: (Int, Stage0) -> Maybe Value
-    makeInstanceValue (i, (a, b, c, d, e)) = over _Just (Value i (makeInstanceTitle i e) . Map.fromList) $ sequence
-      [ lookupValueIndex workSourceName workSourceMap a
-      , lookupValueIndex workTitleName workTitleMap b
-      , lookupValueIndex stage0WordName stage0WordMap c
-      , lookupValueIndex fileCharReferenceName fileCharReferenceMap d
-      , lookupValueIndex unicodeComposedName unicodeComposedMap e
+    makeInstanceValue (i, (a, b, c, d, e)) = over _Just (Value i (makeInstanceTitle i e)) $ sequence
+      [ Map.lookup a workSourceMap
+      , Map.lookup b workTitleMap
+      , Map.lookup c stage0WordMap
+      , Map.lookup d fileCharReferenceMap
+      , Map.lookup e unicodeComposedMap
       ]
 
     makeInstanceTitle i c = Lazy.toStrict $ Format.format "{} {}" (i, titleUnicodeComposed c)
 
-lookupValueIndex :: Ord a => Text -> Map a Int -> a -> Maybe (Text, Int)
-lookupValueIndex t m v = over _Just (\x -> (t, x)) $ Map.lookup v m
-
 makeSimpleType :: Ord a => Text -> (a -> Text) -> Map a Int -> Type
-makeSimpleType t f = Type t t [] . fmap (\(x,i) -> Value i (f x) Map.empty) . Map.toList
+makeSimpleType t f = Type t t [] . fmap (\(x,i) -> Value i (f x) []) . Map.toList
 
 workSourceName :: Text
 workSourceName = "WorkSource"
