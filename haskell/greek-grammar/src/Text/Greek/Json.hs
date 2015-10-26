@@ -69,7 +69,7 @@ process x
 getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
 getData xs = Data stage0Properties stage0Instance
   where
-    flatStage0 = flattenStage0 . take 5 . drop 15 $ xs
+    flatStage0 = flattenStage0 xs
     (stage0Instance, stage0Properties) = makeStage0Instance flatStage0
 
 handleResult :: (a -> IO ()) -> Either String a -> IO ()
