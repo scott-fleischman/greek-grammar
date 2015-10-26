@@ -46,9 +46,15 @@ data Property = Property
   , propertyValues :: [Text]
   } deriving (Generic, Show)
 
+data Kind a = Kind
+  { kindName :: Text
+  , kindValue :: a
+  } deriving (Generic, Show)
+
 instance Aeson.ToJSON Index
 instance Aeson.ToJSON Instance
 instance Aeson.ToJSON Property
+instance Aeson.ToJSON a => Aeson.ToJSON (Kind a)
 
 go :: IO ()
 go = All.loadAll >>= handleResult dumpJson . over _Right getData . process
@@ -72,8 +78,8 @@ handleResult f (Right a) = f a
 
 dumpJson :: Data -> IO ()
 dumpJson (Data ps i0) = do
-  _ <- write "index.json" $ Index ps
-  _ <- write "stage0.json" i0
+  _ <- write "index.json" $ Kind "index" $ Index ps
+  _ <- write "stage0.json" $ Kind "stage0" i0
   return ()
   where
     write n = BL.writeFile (Path.pagesData </> n) . Aeson.encode

@@ -237,61 +237,43 @@ export class App extends React.Component {
   }
 
   render() {
-    const getType = x => this.props.data.types.get(x);
-    const getGroupTitle = x => R.isNil(x) ? noneTitle : getType(x).typeTitle;
+    // const getType = x => this.props.data.types.get(x);
+    // const getGroupTitle = x => R.isNil(x) ? noneTitle : getType(x).typeTitle;
 
-    const currentStageIndex = oneOf(this.state.currentStage, 0);
-    const currentStage = this.props.data.stages[currentStageIndex];
+    // const currentStageIndex = oneOf(this.state.currentStage, 0);
+    // const currentStage = this.props.data.stages[currentStageIndex];
 
-    const focusResult = currentStage.focusResultType;
-    const focusSource = currentStage.focusSourceType;
-    const stageTypes = R.filter(x => x !== focusResult && x !== focusSource, currentStage.allTypes);
-    const currentTypeIndex = this.state.currentType && R.contains(this.state.currentType, stageTypes) ?
-      this.state.currentType :
-      oneOf(focusResult, focusSource, stageTypes[0]);
-    const currentType = getType(currentTypeIndex);
+    // const focusResult = currentStage.focusResultType;
+    // const focusSource = currentStage.focusSourceType;
+    // const stageTypes = R.filter(x => x !== focusResult && x !== focusSource, currentStage.allTypes);
+    // const currentTypeIndex = this.state.currentType && R.contains(this.state.currentType, stageTypes) ?
+    //   this.state.currentType :
+    //   oneOf(focusResult, focusSource, stageTypes[0]);
+    // const currentType = getType(currentTypeIndex);
 
-    const typeGroups = R.concat([undefined], currentType.propertyTypes);
-    const currentGroupIndex = this.state.currentGroup && R.contains(this.state.currentGroup, typeGroups) ? this.state.currentGroup : undefined;
+    // const typeGroups = R.concat([undefined], currentType.propertyTypes);
+    // const currentGroupIndex = this.state.currentGroup && R.contains(this.state.currentGroup, typeGroups) ? this.state.currentGroup : undefined;
 
-    const contentInfo = R.isNil(currentGroupIndex) ?
-      getPropertyContentInfo(getType, currentTypeIndex, currentType) :
-      getGroupedContentInfo(getType, currentGroupIndex, currentType.values);
+    // const contentInfo = R.isNil(currentGroupIndex) ?
+    //   getPropertyContentInfo(getType, currentTypeIndex, currentType) :
+    //   getGroupedContentInfo(getType, currentGroupIndex, currentType.values);
 
-    const getValueTitle = (x, n) => getType(n).values[x].valueTitle;
-    const instanceType = getType('Stage0Instance');
-    const instanceValues = instanceType.values;
-    const instancePropertyTypes = instanceType.propertyTypes;
-    const columns = R.addIndex(R.map)((x, i) => (<Column label={x} width={200} flexGrow={1} dataKey={i} key={x} />), instancePropertyTypes);
-
-    const myRowCount = instanceValues.length;
+    const data = this.props.data;
+    const myRowCount = data.stage0.instanceValues.length;
     const myRowGetter = x => {
-      const propertyValueIndexes = instanceValues[x].propertyValues;
-      const zipped = R.zip(propertyValueIndexes, instancePropertyTypes);
-      return R.map(([x, n]) => getValueTitle(x, n), zipped);
+      const getPropertyName = i => data.stage0.instanceProperties[i];
+      const getPropertyValue = (n, v) => data.index.properties.get(n)[v];
+      const getTextValue = (v, i) => {
+        const name = getPropertyName(i);
+        const value = getPropertyValue(name, v);
+        return value;
+      };
+      return R.addIndex(R.map) (getTextValue) (data.stage0.instanceValues[x]);
     };
+    const columns = R.addIndex(R.map)((x, i) => (<Column label={x} width={200} flexGrow={1} dataKey={i} key={x} />), data.stage0.instanceProperties);
 
     return (
       <div>
-        <Nav
-          getType={getType}
-          getGroupTitle={getGroupTitle}
-
-          stages={this.props.data.stages}
-          types={stageTypes}
-          groups={typeGroups}
-
-          currentStage={currentStageIndex}
-          currentType={currentTypeIndex}
-          currentGroup={currentGroupIndex}
-
-          focusSource={focusSource}
-          focusResult={focusResult}
-
-          setStage={this.setStage.bind(this)}
-          setType={this.setType.bind(this)}
-          setGroup={this.setGroup.bind(this)}
-        />
         <Table
           rowHeight={50}
           rowGetter={myRowGetter}
@@ -304,4 +286,23 @@ export class App extends React.Component {
       </div>);
   }
 }
-//         <Content {...contentInfo} />
+
+        // <Nav
+        //   getType={getType}
+        //   getGroupTitle={getGroupTitle}
+
+        //   stages={this.props.data.stages}
+        //   types={stageTypes}
+        //   groups={typeGroups}
+
+        //   currentStage={currentStageIndex}
+        //   currentType={currentTypeIndex}
+        //   currentGroup={currentGroupIndex}
+
+        //   focusSource={focusSource}
+        //   focusResult={focusResult}
+
+        //   setStage={this.setStage.bind(this)}
+        //   setType={this.setType.bind(this)}
+        //   setGroup={this.setGroup.bind(this)}
+        // />
