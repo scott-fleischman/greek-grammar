@@ -226,7 +226,6 @@ export class App extends React.Component {
   }
 
   _update() {
-    console.log('update');
     var win = window;
 
     var widthOffset = win.innerWidth < 680 ? 0 : 240;
@@ -259,8 +258,18 @@ export class App extends React.Component {
       getPropertyContentInfo(getType, currentTypeIndex, currentType) :
       getGroupedContentInfo(getType, currentGroupIndex, currentType.values);
 
-    const myRowCount = contentInfo.values.length;
-    const myRowGetter = x => [contentInfo.getValueTitle(contentInfo.values[x].key), 'awesome!'];
+    const getValueTitle = (x, n) => getType(n).values[x].valueTitle;
+    const instanceType = getType('Stage0Instance');
+    const instanceValues = instanceType.values;
+    const instancePropertyTypes = instanceType.propertyTypes;
+    const columns = R.addIndex(R.map)((x, i) => (<Column label={x} width={200} flexGrow={1} dataKey={i} key={x} />), instancePropertyTypes);
+
+    const myRowCount = instanceValues.length;
+    const myRowGetter = x => {
+      const propertyValueIndexes = instanceValues[x].propertyValues;
+      const zipped = R.zip(propertyValueIndexes, instancePropertyTypes);
+      return R.map(([x, n]) => getValueTitle(x, n), zipped);
+    };
 
     return (
       <div>
@@ -289,21 +298,8 @@ export class App extends React.Component {
           rowsCount={myRowCount}
           width={this.state.tableWidth}
           height={this.state.tableHeight}
-          overflowX={'auto'}
-          overflowY={'auto'}
           headerHeight={50}>
-          <Column
-            label="Col 1"
-            width={200}
-            flexgrow={2}
-            dataKey={0}
-          />
-          <Column
-            label="Col 2"
-            width={200}
-            flexgrow={1}
-            dataKey={1}
-          />
+          {columns}
         </Table>
       </div>);
   }
