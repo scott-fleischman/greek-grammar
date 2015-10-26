@@ -5,7 +5,7 @@
 
 module Text.Greek.Json where
 
-import Control.Lens
+import Control.Lens hiding (Index)
 import Data.Map (Map)
 import Data.Text (Text)
 import GHC.Generics
@@ -27,41 +27,28 @@ import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
 
 data Data = Data
-  { stages :: [Stage]
-  , types :: [Type]
+  { properties :: [Property]
+  , instance0 :: Instance
+  }
+
+data Index = Index
+  { indexProperties :: [Property]
   } deriving (Generic, Show)
 
-data Stage = Stage
-  { stageIndex :: Int
-  , topLevelType :: Text
-  , allTypes :: [Text]
-  , focusResultType :: Maybe Text
-  , focusSourceType :: Maybe Text
+data Instance = Instance
+  { instanceName :: Text
+  , instanceProperties :: [Text]
+  , instanceValues :: [[Int]]
   } deriving (Generic, Show)
 
-data Type = Type
-  { typeName :: Text
-  , typeTitle :: Text
-  , propertyTypes :: [Text]
-  , values :: [Value]
+data Property = Property
+  { propertyName :: Text
+  , propertyValues :: [Text]
   } deriving (Generic, Show)
 
-_propertyTypes :: Applicative f => ([Text] -> f [Text]) -> Type -> f Type
-_propertyTypes f (Type a b c d) = Type <$> pure a <*> pure b <*> f c <*> pure d
-
-_values :: Applicative f => ([Value] -> f [Value]) -> Type -> f Type
-_values f (Type a b c d) = Type <$> pure a <*> pure b <*> pure c <*> f d
-
-data Value = Value
-  { valueIndex :: Int
-  , valueTitle :: Text
-  , propertyValues :: [Int]
-  } deriving (Generic, Show)
-
-instance Aeson.ToJSON Data
-instance Aeson.ToJSON Stage
-instance Aeson.ToJSON Type
-instance Aeson.ToJSON Value
+instance Aeson.ToJSON Index
+instance Aeson.ToJSON Instance
+instance Aeson.ToJSON Property
 
 go :: IO ()
 go = All.loadAll >>= handleResult dumpJson . over _Right getData . process
@@ -74,17 +61,22 @@ process x
   >>= showError . toStage0Hierarchy
 
 getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
-getData xs = Data [stage0Stage] stage0Types
+getData xs = Data stage0Properties stage0Instance
   where
     flatStage0 = flattenStage0 . take 5 . drop 15 $ xs
-    (stage0Stage, stage0Types) = makeStage0Types flatStage0
+    (stage0Instance, stage0Properties) = makeStage0Instance flatStage0
 
 handleResult :: (a -> IO ()) -> Either String a -> IO ()
 handleResult _ (Left e) = putStrLn e
 handleResult f (Right a) = f a
 
 dumpJson :: Data -> IO ()
-dumpJson = BL.writeFile (Path.pagesData </> "data.json") . Aeson.encode
+dumpJson (Data ps i0) = do
+  _ <- write "index.json" $ Index ps
+  _ <- write "stage0.json" i0
+  return ()
+  where
+    write n = BL.writeFile (Path.pagesData </> n) . Aeson.encode
 
 showError :: Show a => Either a b -> Either String b
 showError = over _Left show
@@ -121,8 +113,8 @@ makeValueMap xs = Map.fromList indexedList
     uniqueValues = Set.toAscList . Set.fromList $ xs
     indexedList = zip uniqueValues [0..]
 
-makeStage0Types :: [Stage0] -> (Stage, [Type])
-makeStage0Types ss = (stage0Stage, stage0Types)
+makeStage0Instance :: [Stage0] -> (Instance, [Property])
+makeStage0Instance ss = (stage0Instance, stage0Properties)
   where
     workSourceMap        = makeValueMap $ fmap (\(x,_,_,_,_) -> x) ss
     workTitleMap         = makeValueMap $ fmap (\(_,x,_,_,_) -> x) ss
@@ -130,32 +122,28 @@ makeStage0Types ss = (stage0Stage, stage0Types)
     fileCharReferenceMap = makeValueMap $ fmap (\(_,_,_,x,_) -> x) ss
     unicodeComposedMap   = makeValueMap $ fmap (\(_,_,_,_,x) -> x) ss
 
-    stage0Stage = Stage 0 workTitleName (fmap typeName stage0Types) Nothing Nothing
-
-    stage0Types = [workSourceType, workTitleType, stage0WordType, fileCharReferenceType, unicodeComposedType] ++ instanceTypeAsList
-
-    workSourceType = makeSimpleType workSourceName titleWorkSource workSourceMap
-    workTitleType = makeSimpleType workTitleName titleWorkTitle workTitleMap
-    stage0WordType = makeSimpleType stage0WordName titleStage0Word stage0WordMap
-    fileCharReferenceType = makeSimpleType fileCharReferenceName titleFileCharReference fileCharReferenceMap
-    unicodeComposedType = makeSimpleType unicodeComposedName titleUnicodeComposed unicodeComposedMap
-
-    instanceTypeAsList = fmap makeInstanceType . Foldable.toList $ maybeInstanceValues
-
-    makeInstanceType :: [Value] -> Type
-    makeInstanceType = Type "Stage0Instance" "Stage0Instance"
+    stage0Instance = Instance "Stage0"
       [ workSourceName
       , workTitleName
       , stage0WordName
       , fileCharReferenceName
       , unicodeComposedName
       ]
+      (concat . Foldable.toList $ maybeInstanceValues)
 
-    maybeInstanceValues :: Maybe [Value]
-    maybeInstanceValues = traverse makeInstanceValue . zip [0..] $ ss
+    stage0Properties = [workSourceProperty, workTitleProperty, stage0WordProperty, fileCharReferenceProperty, unicodeComposedProperty]
 
-    makeInstanceValue :: (Int, Stage0) -> Maybe Value
-    makeInstanceValue (i, (a, b, c, d, e)) = over _Just (Value i (makeInstanceTitle i e)) $ sequence
+    workSourceProperty = makeProperty workSourceName titleWorkSource workSourceMap
+    workTitleProperty = makeProperty workTitleName titleWorkTitle workTitleMap
+    stage0WordProperty = makeProperty stage0WordName titleStage0Word stage0WordMap
+    fileCharReferenceProperty = makeProperty fileCharReferenceName titleFileCharReference fileCharReferenceMap
+    unicodeComposedProperty = makeProperty unicodeComposedName titleUnicodeComposed unicodeComposedMap
+
+    maybeInstanceValues :: Maybe [[Int]]
+    maybeInstanceValues = traverse makeInstanceValue ss
+
+    makeInstanceValue :: Stage0 -> Maybe [Int]
+    makeInstanceValue (a, b, c, d, e) = sequence
       [ Map.lookup a workSourceMap
       , Map.lookup b workTitleMap
       , Map.lookup c stage0WordMap
@@ -163,10 +151,8 @@ makeStage0Types ss = (stage0Stage, stage0Types)
       , Map.lookup e unicodeComposedMap
       ]
 
-    makeInstanceTitle i c = Lazy.toStrict $ Format.format "{} {}" (i, titleUnicodeComposed c)
-
-makeSimpleType :: Ord a => Text -> (a -> Text) -> Map a Int -> Type
-makeSimpleType t f = Type t t [] . fmap (\(x,i) -> Value i (f x) []) . Map.toList
+makeProperty :: Ord a => Text -> (a -> Text) -> Map a Int -> Property
+makeProperty t f = Property t . fmap f . fmap fst . Map.toAscList
 
 workSourceName :: Text
 workSourceName = "WorkSource"
