@@ -14,12 +14,12 @@ System.config({
   },
 
   map: {
-    "babel": "npm:babel-core@5.8.25",
-    "babel-runtime": "npm:babel-runtime@5.8.25",
+    "babel": "npm:babel-core@5.8.29",
+    "babel-runtime": "npm:babel-runtime@5.8.29",
     "bootstrap": "github:twbs/bootstrap@3.3.5",
-    "clean-css": "npm:clean-css@3.4.5",
+    "clean-css": "npm:clean-css@3.4.6",
     "core-js": "npm:core-js@1.2.3",
-    "css": "github:systemjs/plugin-css@0.1.18",
+    "css": "github:systemjs/plugin-css@0.1.19",
     "fetch": "github:github/fetch@0.9.0",
     "fixed-data-table": "npm:fixed-data-table@0.4.7",
     "query-string": "npm:query-string@2.4.2",
@@ -83,7 +83,7 @@ System.config({
     "npm:assert@1.3.0": {
       "util": "npm:util@0.10.3"
     },
-    "npm:babel-runtime@5.8.25": {
+    "npm:babel-runtime@5.8.29": {
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:buffer@3.5.1": {
@@ -91,7 +91,7 @@ System.config({
       "ieee754": "npm:ieee754@1.1.6",
       "is-array": "npm:is-array@1.0.1"
     },
-    "npm:clean-css@3.4.5": {
+    "npm:clean-css@3.4.6": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "commander": "npm:commander@2.8.1",
       "fs": "github:jspm/nodelibs-fs@0.1.2",
