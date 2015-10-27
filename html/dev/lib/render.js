@@ -1,6 +1,7 @@
 import R from 'ramda';
 import React from 'react';
 import FixedDataTable from 'fixed-data-table';
+import { OverlayTrigger, Button, Popover } from 'react-bootstrap';
 
 const Table = FixedDataTable.Table;
 const Column = FixedDataTable.Column;
@@ -138,6 +139,24 @@ const Content = ({values, currentGroupIndex, getValueTitle, getValueCount}) => {
     </div>);
 };
 
+const Word = ({id, text, location, word, title, source}) => {
+  const popover = (
+    <Popover id={id} title="Properties">
+      <ul>
+      <li>{location}</li>
+      <li>{word}</li>
+      <li>{title}</li>
+      <li>{source}</li>
+      </ul>
+    </Popover>
+  );
+  return (
+    <OverlayTrigger trigger={['hover', 'focus']} placement="bottom" overlay={popover}>
+      <span><a href="#">{text}</a>&nbsp;</span>
+    </OverlayTrigger>
+  );
+}
+
 function oneOf(...args) {
   return R.compose(R.head, R.dropWhile(R.isNil))(args);
 }
@@ -259,33 +278,55 @@ export class App extends React.Component {
     //   getGroupedContentInfo(getType, currentGroupIndex, currentType.values);
 
     const data = this.props.data;
-    const myRowCount = data.stage0.instanceValues.length;
-    const myRowGetter = x => {
-      const getPropertyName = i => data.stage0.instanceProperties[i];
-      const getPropertyValue = (n, v) => data.index.properties.get(n)[v];
-      const getTextValue = (v, i) => {
-        const name = getPropertyName(i);
-        const value = getPropertyValue(name, v);
-        return value;
-      };
-      return R.addIndex(R.map) (getTextValue) (data.stage0.instanceValues[x]);
-    };
-    const columns = R.addIndex(R.map)((x, i) => (<Column label={x} width={200} flexGrow={1} dataKey={i} key={x} />), data.stage0.instanceProperties);
+    // const myRowCount = data.stage0.instanceValues.length;
+    // const myRowGetter = x => {
+    //   const getPropertyName = i => data.stage0.instanceProperties[i];
+    //   const getPropertyValue = (n, v) => data.index.properties.get(n)[v];
+    //   const getTextValue = (v, i) => {
+    //     const name = getPropertyName(i);
+    //     const value = getPropertyValue(name, v);
+    //     return value;
+    //   };
+    //   return R.addIndex(R.map) (getTextValue) (data.stage0.instanceValues[x]);
+    // };
+    // const columns = R.addIndex(R.map)((x, i) => (<Column label={x} width={200} flexGrow={1} dataKey={i} key={x} />), data.stage0.instanceProperties);
+
+    const myBook = R.compose(R.addIndex(R.map) ((x, i) => ({index:i, item:x})), R.filter(x => x[1] === 25)) (data.stage0.instanceValues);
+    console.log('myBook', myBook.length);
+    const myProperties = [
+      data.index.properties.get('WorkSource'),
+      data.index.properties.get('WorkTitle'),
+      data.index.properties.get('Stage0Word'),
+      data.index.properties.get('FileLocation'),
+      data.index.properties.get('UnicodeComposed')
+    ];
+    const words = R.map(x => (
+      <Word
+        key={x.index}
+        id={'word' + x.index}
+        text={myProperties[4][x.item[4]]}
+        location={myProperties[3][x.item[3]]}
+        word={myProperties[2][x.item[2]]}
+        title={myProperties[1][x.item[1]]}
+        source={myProperties[0][x.item[0]]}
+        />
+    ))(myBook);
 
     return (
       <div>
-        <Table
-          rowHeight={50}
-          rowGetter={myRowGetter}
-          rowsCount={myRowCount}
-          width={this.state.tableWidth}
-          height={this.state.tableHeight}
-          headerHeight={50}>
-          {columns}
-        </Table>
+        {words}
       </div>);
   }
 }
+        // <Table
+        //   rowHeight={50}
+        //   rowGetter={myRowGetter}
+        //   rowsCount={myRowCount}
+        //   width={this.state.tableWidth}
+        //   height={this.state.tableHeight}
+        //   headerHeight={50}>
+        //   {columns}
+        // </Table>
 
         // <Nav
         //   getType={getType}
