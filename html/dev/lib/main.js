@@ -60,12 +60,13 @@ function processIndex({indexProperties}) {
 
 function go() {
   // const {dataName} = processQueryString(window.location.search);
-  Promise.all(R.map(loadData, ['index', 'stage0']))
+  Promise.all(R.map(loadData, ['index', 'stage0', 'works']))
     .then(items => {
       const getItem = n => R.find(x => x.kindName === n, items).kindValue;
       const data = {
         index: processIndex(getItem('index')),
         stage0: getItem('stage0'),
+        works: getItem('works'),
       };
       ReactDOM.render(<App data={data} />, document.getElementById('app'));
     });

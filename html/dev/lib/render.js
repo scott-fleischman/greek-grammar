@@ -1,111 +1,111 @@
 import R from 'ramda';
 import React from 'react';
 import FixedDataTable from 'fixed-data-table';
-import { OverlayTrigger, Button, Popover } from 'react-bootstrap';
+import { OverlayTrigger, Button, Popover, Navbar, NavBrand, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
 
 const Table = FixedDataTable.Table;
 const Column = FixedDataTable.Column;
 
-const NavLink = ({item, getTitle, setItem, count}) => (
-  <a href="#" onClick={setItem.bind(null, item)}>{getTitle(item)} {count ? <CountBadge count={count} /> : undefined}</a>
-);
+// const NavLink = ({item, getTitle, setItem, count}) => (
+//   <a href="#" onClick={setItem.bind(null, item)}>{getTitle(item)} {count ? <CountBadge count={count} /> : undefined}</a>
+// );
 
-const NavStages = ({stages, currentStage, getStageTitle, setStage}) => (
-  <li role="presentation" className="dropdown">
-    <a className="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-      <b>Stage</b>: {getStageTitle(currentStage)} <span className="caret"></span>
-    </a>
-    <ul className="dropdown-menu">
-      { R.map(x => (
-        <li key={x.stageIndex}>
-          <NavLink item={x.stageIndex} getTitle={getStageTitle} setItem={setStage} />
-        </li>
-        ), stages)
-      }
-    </ul>
-  </li>
-);
+// const NavStages = ({stages, currentStage, getStageTitle, setStage}) => (
+//   <li role="presentation" className="dropdown">
+//     <a className="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+//       <b>Stage</b>: {getStageTitle(currentStage)} <span className="caret"></span>
+//     </a>
+//     <ul className="dropdown-menu">
+//       { R.map(x => (
+//         <li key={x.stageIndex}>
+//           <NavLink item={x.stageIndex} getTitle={getStageTitle} setItem={setStage} />
+//         </li>
+//         ), stages)
+//       }
+//     </ul>
+//   </li>
+// );
 
-const NavTypes = ({types, focusSource, focusResult, currentType, getType, setType}) => {
-  const getTypeTitle = x => getType(x).typeTitle;
-  const getValueCount = x => getType(x).values.length;
-  const LocalNavLink = ({index}) => (<NavLink item={index} getTitle={getTypeTitle} setItem={setType} count={getValueCount(index)} />);
-  return (
-    <li role="presentation" className="dropdown">
-      <a className="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-        <b>View</b>: {getTypeTitle(currentType)} <span className="caret"></span>
-      </a>
-      <ul className="dropdown-menu">
-        { R.flatten(
-            [ !R.isNil(focusResult) ?
-              ( [ <li key="focusResult" className="dropdown-header">Focus Result</li>
-                , <li key={focusResult}><LocalNavLink index={focusResult} /></li>
-                ]
-              ) :
-              [],
-            , !R.isNil(focusSource) && focusSource !== focusResult ?
-              ( [ <li key="focusSource" className="dropdown-header">Focus Source</li>
-                , <li key={focusSource}><LocalNavLink index={focusSource} /></li>
-                ]
-              ) :
-              [],
-            , !R.isNil(oneOf(focusResult, focusSource)) ?
-              ( [ <li key="separator" role="separator" className="divider"></li> ] ) :
-              [],
-            , R.map(x => (<li key={x}><LocalNavLink index={x} /></li>), types)
-            ]
-          )
-        }
-      </ul>
-    </li>
-  );
-};
+// const NavTypes = ({types, focusSource, focusResult, currentType, getType, setType}) => {
+//   const getTypeTitle = x => getType(x).typeTitle;
+//   const getValueCount = x => getType(x).values.length;
+//   const LocalNavLink = ({index}) => (<NavLink item={index} getTitle={getTypeTitle} setItem={setType} count={getValueCount(index)} />);
+//   return (
+//     <li role="presentation" className="dropdown">
+//       <a className="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+//         <b>View</b>: {getTypeTitle(currentType)} <span className="caret"></span>
+//       </a>
+//       <ul className="dropdown-menu">
+//         { R.flatten(
+//             [ !R.isNil(focusResult) ?
+//               ( [ <li key="focusResult" className="dropdown-header">Focus Result</li>
+//                 , <li key={focusResult}><LocalNavLink index={focusResult} /></li>
+//                 ]
+//               ) :
+//               [],
+//             , !R.isNil(focusSource) && focusSource !== focusResult ?
+//               ( [ <li key="focusSource" className="dropdown-header">Focus Source</li>
+//                 , <li key={focusSource}><LocalNavLink index={focusSource} /></li>
+//                 ]
+//               ) :
+//               [],
+//             , !R.isNil(oneOf(focusResult, focusSource)) ?
+//               ( [ <li key="separator" role="separator" className="divider"></li> ] ) :
+//               [],
+//             , R.map(x => (<li key={x}><LocalNavLink index={x} /></li>), types)
+//             ]
+//           )
+//         }
+//       </ul>
+//     </li>
+//   );
+// };
 
-const NavGroups = ({groups, currentType, currentGroup, getGroupTitle, setGroup}) => (
-  <li role="presentation" className="dropdown">
-    <a className="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-      <b>Group By</b>: {getGroupTitle(currentGroup)}  <span className="caret"></span>
-    </a>
-    <ul className="dropdown-menu">
-      { R.map(x => (
-        <li key={currentType + '.' + x}>
-          <NavLink item={x} getTitle={getGroupTitle} setItem={setGroup} />
-        </li>
-        ), groups)
-      }
-    </ul>
-  </li>
-);
+// const NavGroups = ({groups, currentType, currentGroup, getGroupTitle, setGroup}) => (
+//   <li role="presentation" className="dropdown">
+//     <a className="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+//       <b>Group By</b>: {getGroupTitle(currentGroup)}  <span className="caret"></span>
+//     </a>
+//     <ul className="dropdown-menu">
+//       { R.map(x => (
+//         <li key={currentType + '.' + x}>
+//           <NavLink item={x} getTitle={getGroupTitle} setItem={setGroup} />
+//         </li>
+//         ), groups)
+//       }
+//     </ul>
+//   </li>
+// );
 
-const Nav = ({getType, getGroupTitle, stages, types, groups, currentStage, currentType, currentGroup, focusResult, focusSource, setStage, setType, setGroup}) => {
-  const getTypeTitle = typeIndex => getType(typeIndex).typeTitle;
-  const getStageTitle = stageIndex => getTypeTitle(stages[stageIndex].topLevelType);
-  return (
-    <nav className="navbar navbar-default">
-      <ul className="nav nav-pills">
-        <NavStages
-          stages={stages}
-          currentStage={currentStage}
-          getStageTitle={getStageTitle}
-          setStage={setStage} />
+// const Nav = ({getType, getGroupTitle, stages, types, groups, currentStage, currentType, currentGroup, focusResult, focusSource, setStage, setType, setGroup}) => {
+//   const getTypeTitle = typeIndex => getType(typeIndex).typeTitle;
+//   const getStageTitle = stageIndex => getTypeTitle(stages[stageIndex].topLevelType);
+//   return (
+//     <nav className="navbar navbar-default">
+//       <ul className="nav nav-pills">
+//         <NavStages
+//           stages={stages}
+//           currentStage={currentStage}
+//           getStageTitle={getStageTitle}
+//           setStage={setStage} />
 
-        <NavTypes
-          types={types}
-          currentType={currentType}
-          focusResult={focusResult}
-          focusSource={focusSource}
-          getType={getType}
-          setType={setType} />
+//         <NavTypes
+//           types={types}
+//           currentType={currentType}
+//           focusResult={focusResult}
+//           focusSource={focusSource}
+//           getType={getType}
+//           setType={setType} />
 
-        <NavGroups
-          groups={groups}
-          currentType={currentType}
-          currentGroup={currentGroup}
-          getGroupTitle={getGroupTitle}
-          setGroup={setGroup} />
-      </ul>
-    </nav>);
-};
+//         <NavGroups
+//           groups={groups}
+//           currentType={currentType}
+//           currentGroup={currentGroup}
+//           getGroupTitle={getGroupTitle}
+//           setGroup={setGroup} />
+//       </ul>
+//     </nav>);
+// };
 
 const CountBadge = ({count}) => (<span className="badge">{count}</span>);
 
@@ -139,20 +139,16 @@ const Content = ({values, currentGroupIndex, getValueTitle, getValueCount}) => {
     </div>);
 };
 
-const Word = ({id, text, location, word, title, source}) => {
+const Word = ({id, text, wordProps}) => {
+  const popoverList = R.addIndex(R.map) ((x, i) => (<div key={i}>{x}</div>)) (wordProps);
   const popover = (
     <Popover id={id} title="Properties">
-      <ul>
-      <li>{location}</li>
-      <li>{word}</li>
-      <li>{title}</li>
-      <li>{source}</li>
-      </ul>
+      {popoverList}
     </Popover>
   );
   return (
     <OverlayTrigger trigger={['hover', 'focus']} placement="bottom" overlay={popover}>
-      <span><a href="#">{text}</a>&nbsp;</span>
+      <span><a href="#">{text}</a> </span>
     </OverlayTrigger>
   );
 }
@@ -205,6 +201,7 @@ export class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      currentWork: 23,
       currentStage: props.stage,
       currentType: props.type,
       currentGroup: props.group,
@@ -291,30 +288,31 @@ export class App extends React.Component {
     // };
     // const columns = R.addIndex(R.map)((x, i) => (<Column label={x} width={200} flexGrow={1} dataKey={i} key={x} />), data.stage0.instanceProperties);
 
-    const myBook = R.compose(R.addIndex(R.map) ((x, i) => ({index:i, item:x})), R.filter(x => x[1] === 25)) (data.stage0.instanceValues);
-    console.log('myBook', myBook.length);
-    const myProperties = [
-      data.index.properties.get('WorkSource'),
-      data.index.properties.get('WorkTitle'),
-      data.index.properties.get('Stage0Word'),
-      data.index.properties.get('FileLocation'),
-      data.index.properties.get('UnicodeComposed')
-    ];
-    const words = R.map(x => (
-      <Word
-        key={x.index}
-        id={'word' + x.index}
-        text={myProperties[4][x.item[4]]}
-        location={myProperties[3][x.item[3]]}
-        word={myProperties[2][x.item[2]]}
-        title={myProperties[1][x.item[1]]}
-        source={myProperties[0][x.item[0]]}
-        />
-    ))(myBook);
+    const myWorks = R.addIndex(R.map) ((x, i) => (<MenuItem key={i} eventKey="{i}">{x.workSource} &mdash; {x.workTitle}</MenuItem>)) (this.props.data.works);
+
+    const myWords = R.addIndex(R.map) ((x, i) => {
+      return (
+        <Word
+          key={this.state.currentWork + '.' + i}
+          id={'word.' + this.state.currentWork + '.' + i}
+          text={x.wordText}
+          wordProps={x.wordProperties}
+          />
+      );
+    }) (this.props.data.works[this.state.currentWork].workWords);
 
     return (
       <div>
-        {words}
+        <Navbar>
+          <NavBrand>Greek Grammar</NavBrand>
+          <Nav>
+            <NavDropdown eventKey={1} title="Works">
+              {myWorks}
+            </NavDropdown>
+          </Nav>
+        </Navbar>
+
+        {myWords}
       </div>);
   }
 }

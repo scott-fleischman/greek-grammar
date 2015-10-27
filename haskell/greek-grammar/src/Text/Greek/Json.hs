@@ -5,6 +5,7 @@
 
 module Text.Greek.Json where
 
+import Prelude hiding (Word)
 import Control.Lens hiding (Index)
 import Data.Map (Map)
 import Data.Text (Text)
@@ -29,32 +30,45 @@ import qualified Text.Greek.Script.Word as Word
 data Data = Data
   { properties :: [Property]
   , instance0 :: Instance
+  , works :: [Work]
   }
 
 data Index = Index
   { indexProperties :: [Property]
   } deriving (Generic, Show)
+instance Aeson.ToJSON Index
 
 data Instance = Instance
   { instanceName :: Text
   , instanceProperties :: [Text]
   , instanceValues :: [[Int]]
   } deriving (Generic, Show)
+instance Aeson.ToJSON Instance
 
 data Property = Property
   { propertyName :: Text
   , propertyValues :: [Text]
   } deriving (Generic, Show)
+instance Aeson.ToJSON Property
 
 data Kind a = Kind
   { kindName :: Text
   , kindValue :: a
   } deriving (Generic, Show)
-
-instance Aeson.ToJSON Index
-instance Aeson.ToJSON Instance
-instance Aeson.ToJSON Property
 instance Aeson.ToJSON a => Aeson.ToJSON (Kind a)
+
+data Word = Word
+  { wordText :: Text
+  , wordProperties :: [Text]
+  } deriving (Generic, Show)
+instance Aeson.ToJSON Word
+
+data Work = Work
+  { workSource :: Text
+  , workTitle :: Text
+  , workWords :: [Word]
+  } deriving (Generic, Show)
+instance Aeson.ToJSON Work
 
 go :: IO ()
 go = All.loadAll >>= handleResult dumpJson . over _Right getData . process
@@ -67,19 +81,23 @@ process x
   >>= showError . toStage0Hierarchy
 
 getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
-getData xs = Data stage0Properties stage0Instance
+getData xs = Data stage0Properties stage0Instance stage0Works
   where
     flatStage0 = flattenStage0 xs
     (stage0Instance, stage0Properties) = makeStage0Instance flatStage0
+    stage0Works = fmap makeWork xs
+    makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap makeWord c)
+    makeWord (Word.Basic s _) = Word (titleStage0Word . getStageWord $ s) []
 
 handleResult :: (a -> IO ()) -> Either String a -> IO ()
 handleResult _ (Left e) = putStrLn e
 handleResult f (Right a) = f a
 
 dumpJson :: Data -> IO ()
-dumpJson (Data ps i0) = do
+dumpJson (Data ps i0 ws) = do
   _ <- write "index.json" $ Kind "index" $ Index ps
   _ <- write "stage0.json" $ Kind "stage0" i0
+  _ <- write "works.json" $ Kind "works" ws
   return ()
   where
     write n = BL.writeFile (Path.pagesData </> n) . Aeson.encode
@@ -110,8 +128,8 @@ flattenStage0 = concatMap flattenWork
       where
         stageWord = getStageWord surface
   
-    getStageWord :: [(Unicode.Composed, FileCharReference)] -> Stage0Word
-    getStageWord = Stage0Word . fmap fst
+getStageWord :: [(Unicode.Composed, FileCharReference)] -> Stage0Word
+getStageWord = Stage0Word . fmap fst
 
 makeValueMap :: Ord a => [a] -> Map a Int
 makeValueMap xs = Map.fromList indexedList
