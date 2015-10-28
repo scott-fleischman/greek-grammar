@@ -197,33 +197,15 @@ function getPropertyContentInfo(getType, currentTypeIndex, currentType) {
   };
 }
 
-export class App extends React.Component {
+class FullSizeGrid extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentWork: 23,
-      currentStage: props.stage,
-      currentType: props.type,
-      currentGroup: props.group,
       tableWidth: 300,
       tableHeight: 300,
     };
   }
-  setStage(stageIndex, event) {
-    this.setState({
-      currentStage: stageIndex
-    });
-  }
-  setType(typeIndex, event) {
-    this.setState({
-      currentType: typeIndex
-    });
-  }
-  setGroup(groupIndex, event) {
-    this.setState({
-      currentGroup: groupIndex
-    });
-  }
+
   componentDidMount() {
     this._update();
     var win = window;
@@ -249,6 +231,36 @@ export class App extends React.Component {
     this.setState({
       tableWidth: win.innerWidth,
       tableHeight: win.innerHeight - 70,
+    });
+  }
+
+}
+
+export class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentWork: 0,
+      currentStage: props.stage,
+      currentType: props.type,
+      currentGroup: props.group,
+      tableWidth: 300,
+      tableHeight: 300,
+    };
+  }
+  setStage(stageIndex, event) {
+    this.setState({
+      currentStage: stageIndex
+    });
+  }
+  setType(typeIndex, event) {
+    this.setState({
+      currentType: typeIndex
+    });
+  }
+  setGroup(groupIndex, event) {
+    this.setState({
+      currentGroup: groupIndex
     });
   }
 
