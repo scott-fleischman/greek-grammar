@@ -27,6 +27,7 @@ System.config({
     "react": "npm:react@0.14.0",
     "react-bootstrap": "npm:react-bootstrap@0.27.3",
     "react-dom": "npm:react-dom@0.14.0",
+    "react-list": "npm:react-list@0.7.3",
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.3.0"
     },
@@ -220,6 +221,10 @@ System.config({
     },
     "npm:react-dom@0.14.0": {
       "react": "npm:react@0.14.0"
+    },
+    "npm:react-list@0.7.3": {
+      "react": "npm:react@0.14.0",
+      "react-dom": "npm:react-dom@0.14.0"
     },
     "npm:react-overlays@0.5.0": {
       "classnames": "npm:classnames@2.2.0",

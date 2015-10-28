@@ -10,7 +10,8 @@
       "ramda": "npm:ramda@^0.17.1",
       "react": "npm:react@^0.14.0",
       "react-bootstrap": "npm:react-bootstrap@^0.27.3",
-      "react-dom": "npm:react-dom@^0.14.0"
+      "react-dom": "npm:react-dom@^0.14.0",
+      "react-list": "npm:react-list@^0.7.3"
     },
     "devDependencies": {
       "babel": "npm:babel-core@^5.8.24",

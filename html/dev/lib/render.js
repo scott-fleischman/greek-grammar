@@ -2,6 +2,7 @@ import R from 'ramda';
 import React from 'react';
 import FixedDataTable from 'fixed-data-table';
 import { OverlayTrigger, Button, Popover, Navbar, NavBrand, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
+import ReactList from 'react-list';
 
 const Table = FixedDataTable.Table;
 const Column = FixedDataTable.Column;
@@ -147,9 +148,11 @@ const Word = ({id, text, wordProps}) => {
     </Popover>
   );
   return (
-    <OverlayTrigger trigger={['hover', 'focus']} placement="bottom" overlay={popover}>
-      <span><a href="#">{text}</a> </span>
-    </OverlayTrigger>
+    <div>
+      <OverlayTrigger trigger={['hover', 'focus']} placement="bottom" overlay={popover}>
+        <a href="#">{text}</a>
+      </OverlayTrigger>
+    </div>
   );
 }
 
@@ -330,13 +333,29 @@ export class App extends React.Component {
       );
     }) (this.props.data.works[this.state.currentWork].workWords);
 
+    const currentWords = R.addIndex(R.map)
+      ((x, i) => ({
+        key: this.state.currentWork + '.' + i,
+        id: 'word.' + this.state.currentWork + '.' + i,
+        text: x.wordText,
+        wordProps: x.wordProperties
+      }))
+      (this.props.data.works[this.state.currentWork].workWords);
+
+    const renderWord = (index, key) => (<Word key={key} {...currentWords[index]} />);
+
     return (
       <div>
         <OurNavbar
           currentWork={this.state.currentWork}
           works={this.props.data.works}
-          onSelect={this.onNavSelect.bind(this)} />
-        {myWords}
+          onSelect={this.onNavSelect.bind(this)}
+          />
+        <ReactList
+          itemRenderer={renderWord}
+          length={currentWords.length}
+          type='variable'
+          />
       </div>);
   }
 }
