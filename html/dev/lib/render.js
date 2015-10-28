@@ -233,14 +233,28 @@ class FullSizeGrid extends React.Component {
       tableHeight: win.innerHeight - 70,
     });
   }
-
 }
+
+const OurNavbar = ({currentWork, works, onSelect}) => {
+  const myWorks = R.addIndex(R.map) ((x, i) => (<MenuItem key={i} eventKey={i}>{x.workSource} &mdash; {x.workTitle}</MenuItem>)) (works);
+
+  return (
+    <Navbar>
+      <NavBrand>Greek Grammar</NavBrand>
+      <Nav onSelect={onSelect}>
+        <NavDropdown title={'Work: ' + works[currentWork].workTitle}>
+          {myWorks}
+        </NavDropdown>
+      </Nav>
+    </Navbar>
+  );
+};
 
 export class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentWork: 0,
+      currentWork: 23,
       currentStage: props.stage,
       currentType: props.type,
       currentGroup: props.group,
@@ -261,6 +275,11 @@ export class App extends React.Component {
   setGroup(groupIndex, event) {
     this.setState({
       currentGroup: groupIndex
+    });
+  }
+  onNavSelect(event, selectedKey) {
+    this.setState({
+      currentWork: selectedKey
     });
   }
 
@@ -300,8 +319,6 @@ export class App extends React.Component {
     // };
     // const columns = R.addIndex(R.map)((x, i) => (<Column label={x} width={200} flexGrow={1} dataKey={i} key={x} />), data.stage0.instanceProperties);
 
-    const myWorks = R.addIndex(R.map) ((x, i) => (<MenuItem key={i} eventKey="{i}">{x.workSource} &mdash; {x.workTitle}</MenuItem>)) (this.props.data.works);
-
     const myWords = R.addIndex(R.map) ((x, i) => {
       return (
         <Word
@@ -315,15 +332,10 @@ export class App extends React.Component {
 
     return (
       <div>
-        <Navbar>
-          <NavBrand>Greek Grammar</NavBrand>
-          <Nav>
-            <NavDropdown eventKey={1} title="Works">
-              {myWorks}
-            </NavDropdown>
-          </Nav>
-        </Navbar>
-
+        <OurNavbar
+          currentWork={this.state.currentWork}
+          works={this.props.data.works}
+          onSelect={this.onNavSelect.bind(this)} />
         {myWords}
       </div>);
   }
