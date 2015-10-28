@@ -22,6 +22,7 @@ import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.Lazy as Lazy
 import qualified Data.Text.Format as Format
+import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Paths as Path
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Script.Unicode as Unicode
@@ -87,7 +88,26 @@ getData xs = Data stage0Properties stage0Instance stage0Works
     (stage0Instance, stage0Properties) = makeStage0Instance flatStage0
     stage0Works = fmap makeWork xs
     makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap makeWord c)
-    makeWord (Word.Basic s _) = Word (titleStage0Word . getStageWord $ s) []
+    makeWord w@(Word.Basic s _) = Word (titleStage0Word . getStageWord $ s) (getWordProperties w)
+
+getWordProperties :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [Text]
+getWordProperties (Word.Basic s e) = concat
+  [ getElisionProperty e
+  , unicodeComposedProperty . fmap fst $ s
+  , locationProperty . fmap snd $ s
+  ]
+  where
+    locationProperty ((FileCharReference (Path p) (LineReference (Line l) (Column c))) : _) =
+      [ Lazy.toStrict $ Format.format "Line:Col {}:{}" (l, c)
+      , Text.pack p
+      ]
+    locationProperty [] = []
+
+    unicodeComposedProperty = pure . Text.intercalate ", " . fmap titleUnicodeComposed
+
+getElisionProperty :: Maybe (Elision.ElisionChar, FileCharReference) -> [Text]
+getElisionProperty (Just (Elision.ElisionChar c, r)) = [Lazy.toStrict $ Format.format "Elision: {} {}" (formatUnicodeCodePoint c, titleFileCharReference r)]
+getElisionProperty _ = []
 
 handleResult :: (a -> IO ()) -> Either String a -> IO ()
 handleResult _ (Left e) = putStrLn e
@@ -127,7 +147,7 @@ flattenStage0 = concatMap flattenWork
     flattenWord (Word.Basic surface _) = fmap (\(c, r) -> (stageWord, r, c)) surface
       where
         stageWord = getStageWord surface
-  
+
 getStageWord :: [(Unicode.Composed, FileCharReference)] -> Stage0Word
 getStageWord = Stage0Word . fmap fst
 
@@ -203,7 +223,10 @@ titleStage0Word :: Stage0Word -> Text
 titleStage0Word (Stage0Word cs) = Text.pack . fmap (\(Unicode.Composed c) -> c) $ cs
 
 titleFileCharReference :: FileCharReference -> Text
-titleFileCharReference (FileCharReference p (LineReference (Line l) (Column c))) = Lazy.toStrict $ Format.format "{}:{}:{}" (Format.Shown p, l, c)
+titleFileCharReference (FileCharReference (Path p) (LineReference (Line l) (Column c))) = Lazy.toStrict $ Format.format "{}:{}:{}" (p, l, c)
 
 titleUnicodeComposed :: Unicode.Composed -> Text
-titleUnicodeComposed (Unicode.Composed c) = Lazy.toStrict $ Format.format "U+{} {}" (Format.left 4 '0' . Format.hex . Char.ord $ c, c)
+titleUnicodeComposed (Unicode.Composed c) = Lazy.toStrict $ Format.format "{} {}" (formatUnicodeCodePoint c, c)
+
+formatUnicodeCodePoint :: Char -> Text
+formatUnicodeCodePoint c = Lazy.toStrict $ Format.format "U+{}" (Format.Only . Format.left 4 '0' . Format.hex . Char.ord $ c)
