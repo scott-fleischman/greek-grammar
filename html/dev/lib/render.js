@@ -351,11 +351,13 @@ export class App extends React.Component {
           works={this.props.data.works}
           onSelect={this.onNavSelect.bind(this)}
           />
-        <ReactList
-          itemRenderer={renderWord}
-          length={currentWords.length}
-          type='variable'
-          />
+        <div style={{margin: '0 1em 200px 1em'}}>
+          <ReactList
+            itemRenderer={renderWord}
+            length={currentWords.length}
+            type='variable'
+            />
+        </div>
       </div>);
   }
 }
