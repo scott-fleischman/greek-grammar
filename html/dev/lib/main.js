@@ -64,8 +64,8 @@ function go() {
     .then(items => {
       const getItem = n => R.find(x => x.kindName === n, items).kindValue;
       const data = {
-        index: processIndex(getItem('index')),
-        stage0: getItem('stage0'),
+        // index: processIndex(getItem('index')),
+        // stage0: getItem('stage0'),
         works: getItem('works'),
       };
       ReactDOM.render(<App data={data} />, document.getElementById('app'));

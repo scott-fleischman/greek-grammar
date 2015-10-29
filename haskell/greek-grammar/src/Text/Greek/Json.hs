@@ -61,6 +61,7 @@ instance Aeson.ToJSON a => Aeson.ToJSON (Kind a)
 data Word = Word
   { wordText :: Text
   , wordProperties :: [Text]
+  , wordParagraph :: Int
   } deriving (Generic, Show)
 instance Aeson.ToJSON Word
 
@@ -88,10 +89,10 @@ getData xs = Data stage0Properties stage0Instance stage0Works
     (stage0Instance, stage0Properties) = makeStage0Instance flatStage0
     stage0Works = fmap makeWork xs
     makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap makeWord c)
-    makeWord w@(Word.Basic s _) = Word (titleStage0Word . getStageWord $ s) (getWordProperties w)
+    makeWord w@(Word.Basic s _ p) = Word (titleStage0Word . getStageWord $ s) (getWordProperties w) p
 
 getWordProperties :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [Text]
-getWordProperties (Word.Basic s e) = concat
+getWordProperties (Word.Basic s e _) = concat
   [ getElisionProperty e
   , unicodeComposedProperty . fmap fst $ s
   , locationProperty . fmap snd $ s
@@ -144,7 +145,7 @@ flattenStage0 = concatMap flattenWork
     flattenWork (All.Work source title content) = fmap (\(w, r, c) -> (source, title, w, r, c)) $ concatMap flattenWord content
   
     flattenWord :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [(Stage0Word, FileCharReference, Unicode.Composed)]
-    flattenWord (Word.Basic surface _) = fmap (\(c, r) -> (stageWord, r, c)) surface
+    flattenWord (Word.Basic surface _ _) = fmap (\(c, r) -> (stageWord, r, c)) surface
       where
         stageWord = getStageWord surface
 

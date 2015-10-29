@@ -148,10 +148,17 @@ const Word = ({id, text, wordProps}) => {
     </Popover>
   );
   return (
-    <div>
-      <OverlayTrigger trigger={['hover', 'focus']} placement="bottom" overlay={popover}>
-        <a href="#">{text}</a>
-      </OverlayTrigger>
+    <OverlayTrigger trigger={['hover', 'focus']} placement="bottom" overlay={popover}>
+      <span><a href="#">{text}</a> </span>
+    </OverlayTrigger>
+  );
+}
+
+const WordGroup = ({id, words}) => {
+  const wordElements = R.map (x => (<Word key={x.key} {...x} />)) (words);
+  return (
+    <div style={{margin: '0 0 1em 0'}}>
+      {wordElements}
     </div>
   );
 }
@@ -322,27 +329,23 @@ export class App extends React.Component {
     // };
     // const columns = R.addIndex(R.map)((x, i) => (<Column label={x} width={200} flexGrow={1} dataKey={i} key={x} />), data.stage0.instanceProperties);
 
-    const myWords = R.addIndex(R.map) ((x, i) => {
-      return (
-        <Word
-          key={this.state.currentWork + '.' + i}
-          id={'word.' + this.state.currentWork + '.' + i}
-          text={x.wordText}
-          wordProps={x.wordProperties}
-          />
-      );
-    }) (this.props.data.works[this.state.currentWork].workWords);
-
-    const currentWords = R.addIndex(R.map)
+    const convertWords = p => (R.addIndex(R.map)
       ((x, i) => ({
-        key: this.state.currentWork + '.' + i,
-        id: 'word.' + this.state.currentWork + '.' + i,
+        key: p + '.' + i,
+        id: 'word.' + p + '.' + i,
         text: x.wordText,
         wordProps: x.wordProperties
-      }))
-      (this.props.data.works[this.state.currentWork].workWords);
+      })));
 
-    const renderWord = (index, key) => (<Word key={key} {...currentWords[index]} />);
+    const currentWordGroups = R.compose(
+      R.map(([p,ws]) => convertWords(this.state.currentWork + '.' + p)(ws)),
+      R.sortBy(x => parseInt(x[0], 10)),
+      R.toPairs,
+      R.groupBy(x => x.wordParagraph)
+    ) (this.props.data.works[this.state.currentWork].workWords);
+
+    // const renderWordGroup = (index, key) => (<WordGroup key={key} id={key} words={currentWordGroups[index]} />);
+    const renderWordGroup = (index, key) => (<WordGroup key={key} words={currentWordGroups[index]} />);
 
     return (
       <div>
@@ -353,8 +356,8 @@ export class App extends React.Component {
           />
         <div style={{margin: '0 1em 200px 1em'}}>
           <ReactList
-            itemRenderer={renderWord}
-            length={currentWords.length}
+            itemRenderer={renderWordGroup}
+            length={currentWordGroups.length}
             type='variable'
             />
         </div>

@@ -35,13 +35,15 @@ sblgntToWorks :: SBL.Sblgnt -> [WorkText]
 sblgntToWorks (SBL.Sblgnt _ _ bs) = fmap sblgntBookToWork bs
 
 sblgntBookToWork :: SBL.Book -> WorkText
-sblgntBookToWork (SBL.Book _ t ps) = Work Sblgnt (WorkTitle t) (sblgntParagraphsToWords ps)
+sblgntBookToWork (SBL.Book _ t ps) = Work Sblgnt (WorkTitle t) (concatMap (\(i, x) -> sblgntParagraphToWords i x) . addIndex $ ps)
+  where
+    addIndex = zip [0..]
 
-sblgntParagraphsToWords :: Foldable t => t SBL.BookParagraph -> [Word.BasicText]
-sblgntParagraphsToWords = fmap sblWordToWord . concatMap (toListOf SBL._ItemWord) . concat . concatMap (toListOf SBL._BookParagraphContent)
+sblgntParagraphToWords :: Int -> SBL.BookParagraph -> [Word.BasicText]
+sblgntParagraphToWords i = fmap (sblWordToWord i) . concatMap (toListOf SBL._ItemWord) . concat . toListOf SBL._BookParagraphContent
 
-sblWordToWord :: SBL.Word -> Word.BasicText
-sblWordToWord (SBL.Word s e _ _) = Word.Basic s e
+sblWordToWord :: Int -> SBL.Word -> Word.BasicText
+sblWordToWord i (SBL.Word s e _ _) = Word.Basic s e i
 
 concatSurface :: (Foldable tw, Foldable tc) => Getter s (tc a) -> Work (tw s) -> [a]
 concatSurface l = concatMap (toList . view l) . (view workContent)

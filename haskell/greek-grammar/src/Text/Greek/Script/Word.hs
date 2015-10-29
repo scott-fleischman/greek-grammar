@@ -11,6 +11,7 @@ import Text.Greek.Script.Elision
 data Basic a = Basic
   { _basicSurface :: a
   , _basicElision :: Maybe (ElisionChar, FileCharReference)
+  , _basicParagraph :: Int
   } deriving Show
 makeLenses ''Basic
 
