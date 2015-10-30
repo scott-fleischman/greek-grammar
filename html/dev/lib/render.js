@@ -142,7 +142,7 @@ const Content = ({values, currentGroupIndex, getValueTitle, getValueCount}) => {
 const Word = ({id, text, wordProps}) => {
   const popoverList = R.addIndex(R.map) ((x, i) => (<div key={i}>{x}</div>)) (wordProps);
   const popover = (
-    <Popover id={id} title="Properties">
+    <Popover id={id} title="Properties" style={{maxWidth: '100%'}}>
       {popoverList}
     </Popover>
   );
