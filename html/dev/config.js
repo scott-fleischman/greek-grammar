@@ -24,10 +24,11 @@ System.config({
     "fixed-data-table": "npm:fixed-data-table@0.4.7",
     "query-string": "npm:query-string@2.4.2",
     "ramda": "npm:ramda@0.17.1",
-    "react": "npm:react@0.14.0",
+    "react": "npm:react@0.14.1",
     "react-bootstrap": "npm:react-bootstrap@0.27.3",
-    "react-dom": "npm:react-dom@0.14.0",
+    "react-dom": "npm:react-dom@0.14.1",
     "react-list": "npm:react-list@0.7.3",
+    "react-waypoint": "npm:react-waypoint@1.0.6",
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.3.0"
     },
@@ -151,7 +152,7 @@ System.config({
     "npm:fixed-data-table@0.4.7": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
-      "react": "npm:react@0.14.0"
+      "react": "npm:react@0.14.1"
     },
     "npm:graceful-readlink@1.0.1": {
       "fs": "github:jspm/nodelibs-fs@0.1.2"
@@ -212,25 +213,25 @@ System.config({
       "keycode": "npm:keycode@2.1.0",
       "lodash-compat": "npm:lodash-compat@3.10.1",
       "process": "github:jspm/nodelibs-process@0.1.2",
-      "react": "npm:react@0.14.0",
-      "react-dom": "npm:react-dom@0.14.0",
+      "react": "npm:react@0.14.1",
+      "react-dom": "npm:react-dom@0.14.1",
       "react-overlays": "npm:react-overlays@0.5.0",
       "react-prop-types": "npm:react-prop-types@0.3.0",
       "uncontrollable": "npm:uncontrollable@3.1.3",
       "warning": "npm:warning@2.1.0"
     },
-    "npm:react-dom@0.14.0": {
-      "react": "npm:react@0.14.0"
+    "npm:react-dom@0.14.1": {
+      "react": "npm:react@0.14.1"
     },
     "npm:react-list@0.7.3": {
-      "react": "npm:react@0.14.0",
-      "react-dom": "npm:react-dom@0.14.0"
+      "react": "npm:react@0.14.1",
+      "react-dom": "npm:react-dom@0.14.1"
     },
     "npm:react-overlays@0.5.0": {
       "classnames": "npm:classnames@2.2.0",
       "dom-helpers": "npm:dom-helpers@2.4.0",
-      "react": "npm:react@0.14.0",
-      "react-dom": "npm:react-dom@0.14.0",
+      "react": "npm:react@0.14.1",
+      "react-dom": "npm:react-dom@0.14.1",
       "react-prop-types": "npm:react-prop-types@0.2.2",
       "warning": "npm:warning@2.1.0"
     },
@@ -240,7 +241,11 @@ System.config({
     "npm:react-prop-types@0.3.0": {
       "warning": "npm:warning@2.1.0"
     },
-    "npm:react@0.14.0": {
+    "npm:react-waypoint@1.0.6": {
+      "react": "npm:react@0.14.1",
+      "react-dom": "npm:react-dom@0.14.1"
+    },
+    "npm:react@0.14.1": {
       "envify": "npm:envify@3.4.0",
       "fbjs": "npm:fbjs@0.3.2",
       "process": "github:jspm/nodelibs-process@0.1.2"
@@ -283,7 +288,7 @@ System.config({
     "npm:uncontrollable@3.1.3": {
       "invariant": "npm:invariant@2.1.1",
       "process": "github:jspm/nodelibs-process@0.1.2",
-      "react": "npm:react@0.14.0"
+      "react": "npm:react@0.14.1"
     },
     "npm:url@0.10.3": {
       "assert": "github:jspm/nodelibs-assert@0.1.0",
