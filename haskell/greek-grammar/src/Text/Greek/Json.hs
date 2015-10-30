@@ -6,13 +6,14 @@
 module Text.Greek.Json where
 
 import Prelude hiding (Word)
-import Control.Lens hiding (Index)
+import Data.Aeson ((.=))
 import Data.Map (Map)
 import Data.Text (Text)
 import GHC.Generics
 import Text.Greek.FileReference
 import Text.Greek.Xml.Common
 import System.FilePath
+import qualified Control.Lens as Lens
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.Char as Char
@@ -62,8 +63,8 @@ instance Aeson.ToJSON a => Aeson.ToJSON (Kind a)
 data Word = Word
   { wordText :: Text
   , wordProperties :: [Text]
-  } deriving (Generic, Show)
-instance Aeson.ToJSON Word
+  } deriving (Show)
+instance Aeson.ToJSON Word where toJSON (Word t p) = Aeson.object ["t" .= t, "p" .= p]
 
 data WordGroup = WordGroup
   { wordGroupName :: Text
@@ -80,7 +81,7 @@ data Work = Work
 instance Aeson.ToJSON Work
 
 go :: IO ()
-go = All.loadAll >>= handleResult dumpJson . over _Right getData . process
+go = All.loadAll >>= handleResult dumpJson . Lens.over Lens._Right getData . process
 
 process
   :: Either [XmlError] [All.Work [Word.Basic (Text, FileReference)]]
@@ -136,7 +137,7 @@ dumpJson (Data ps i0 ws) = do
     write n = BL.writeFile (Path.pagesData </> n) . Aeson.encode
 
 showError :: Show a => Either a b -> Either String b
-showError = over _Left show
+showError = Lens.over Lens._Left show
 
 
 newtype Stage0Word = Stage0Word [Unicode.Composed] deriving (Eq, Ord, Show)

@@ -333,8 +333,8 @@ export class App extends React.Component {
       ((x, i) => ({
         key: p + '.' + i,
         id: 'word.' + p + '.' + i,
-        text: x.wordText,
-        wordProps: x.wordProperties
+        text: x.t,
+        wordProps: x.p
       })));
 
     const currentWork = this.props.data.works[this.state.currentWork];
