@@ -14,7 +14,7 @@ System.config({
   },
 
   map: {
-    "babel": "npm:babel-core@5.8.29",
+    "babel": "npm:babel-core@5.8.33",
     "babel-runtime": "npm:babel-runtime@5.8.29",
     "bootstrap": "github:twbs/bootstrap@3.3.5",
     "clean-css": "npm:clean-css@3.4.6",
@@ -27,7 +27,6 @@ System.config({
     "react": "npm:react@0.14.1",
     "react-bootstrap": "npm:react-bootstrap@0.27.3",
     "react-dom": "npm:react-dom@0.14.1",
-    "react-list": "npm:react-list@0.7.3",
     "react-waypoint": "npm:react-waypoint@1.0.6",
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.3.0"
@@ -163,7 +162,7 @@ System.config({
     "npm:inherits@2.0.1": {
       "util": "github:jspm/nodelibs-util@0.1.0"
     },
-    "npm:invariant@2.1.1": {
+    "npm:invariant@2.1.2": {
       "loose-envify": "npm:loose-envify@1.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
@@ -222,10 +221,6 @@ System.config({
     },
     "npm:react-dom@0.14.1": {
       "react": "npm:react@0.14.1"
-    },
-    "npm:react-list@0.7.3": {
-      "react": "npm:react@0.14.1",
-      "react-dom": "npm:react-dom@0.14.1"
     },
     "npm:react-overlays@0.5.0": {
       "classnames": "npm:classnames@2.2.0",
@@ -286,7 +281,7 @@ System.config({
       "systemjs-json": "github:systemjs/plugin-json@0.1.0"
     },
     "npm:uncontrollable@3.1.3": {
-      "invariant": "npm:invariant@2.1.1",
+      "invariant": "npm:invariant@2.1.2",
       "process": "github:jspm/nodelibs-process@0.1.2",
       "react": "npm:react@0.14.1"
     },

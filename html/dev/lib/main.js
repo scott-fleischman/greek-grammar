@@ -1,4 +1,3 @@
-import 'bootstrap';
 import 'bootstrap/css/bootstrap.css!'
 import 'fixed-data-table/dist/fixed-data-table.css!'
 

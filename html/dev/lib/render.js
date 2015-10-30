@@ -2,7 +2,6 @@ import R from 'ramda';
 import React from 'react';
 import FixedDataTable from 'fixed-data-table';
 import { OverlayTrigger, Button, Popover, Navbar, NavBrand, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
-import ReactList from 'react-list';
 
 const Table = FixedDataTable.Table;
 const Column = FixedDataTable.Column;
