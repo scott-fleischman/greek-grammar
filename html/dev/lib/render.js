@@ -337,15 +337,16 @@ export class App extends React.Component {
         wordProps: x.wordProperties
       })));
 
-    const currentWordGroups = R.compose(
-      R.map(([p,ws]) => convertWords(this.state.currentWork + '.' + p)(ws)),
-      R.sortBy(x => parseInt(x[0], 10)),
-      R.toPairs,
-      R.groupBy(x => x.wordParagraph)
-    ) (this.props.data.works[this.state.currentWork].workWords);
+    const currentWork = this.props.data.works[this.state.currentWork];
+    console.log(currentWork);
+    const currentWordGroup = currentWork.workWordGroups[0];
+    const currentWordGroupWords = currentWordGroup.wordGroupWords;
 
-    // const renderWordGroup = (index, key) => (<WordGroup key={key} id={key} words={currentWordGroups[index]} />);
-    const renderWordGroup = (index, key) => (<WordGroup key={key} words={currentWordGroups[index]} />);
+    const renderWordGroup = (groupIndex, key) => {
+      const wordInfos = R.map(x => currentWork.workWords[x]) (currentWordGroupWords[groupIndex]);
+      const words = convertWords(groupIndex) (wordInfos);
+      return (<WordGroup key={key} words={words} />);
+    };
 
     return (
       <div>
@@ -357,7 +358,7 @@ export class App extends React.Component {
         <div style={{margin: '0 1em 200px 1em'}}>
           <ReactList
             itemRenderer={renderWordGroup}
-            length={currentWordGroups.length}
+            length={currentWordGroupWords.length}
             type='variable'
             />
         </div>

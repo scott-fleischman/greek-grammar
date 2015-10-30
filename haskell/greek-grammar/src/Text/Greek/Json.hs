@@ -17,6 +17,7 @@ import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.Char as Char
 import qualified Data.Foldable as Foldable
+import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -61,14 +62,20 @@ instance Aeson.ToJSON a => Aeson.ToJSON (Kind a)
 data Word = Word
   { wordText :: Text
   , wordProperties :: [Text]
-  , wordParagraph :: Int
   } deriving (Generic, Show)
 instance Aeson.ToJSON Word
+
+data WordGroup = WordGroup
+  { wordGroupName :: Text
+  , wordGroupWords :: [[Int]]
+  } deriving (Generic, Show)
+instance Aeson.ToJSON WordGroup
 
 data Work = Work
   { workSource :: Text
   , workTitle :: Text
   , workWords :: [Word]
+  , workWordGroups :: [WordGroup]
   } deriving (Generic, Show)
 instance Aeson.ToJSON Work
 
@@ -88,8 +95,13 @@ getData xs = Data stage0Properties stage0Instance stage0Works
     flatStage0 = flattenStage0 xs
     (stage0Instance, stage0Properties) = makeStage0Instance flatStage0
     stage0Works = fmap makeWork xs
-    makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap makeWord c)
-    makeWord w@(Word.Basic s _ p) = Word (titleStage0Word . getStageWord $ s) (getWordProperties w) p
+    makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap (\(_,_,w) -> w) iws) [ps]
+      where
+        ps = paragraphs iws
+        iws = indexedWords c
+    paragraphs = WordGroup "Paragraph" . (fmap . fmap) fst . List.groupBy (\(_,p1) (_,p2) -> p1 == p2) . fmap (\(i,p,_) -> (i,p))
+    indexedWords = fmap (uncurry makeWord) . zip [0..]
+    makeWord i w@(Word.Basic s _ p) = (i, p, Word (titleStage0Word . getStageWord $ s) (getWordProperties w))
 
 getWordProperties :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [Text]
 getWordProperties (Word.Basic s e _) = concat
