@@ -338,15 +338,17 @@ export class App extends React.Component {
       })));
 
     const currentWork = this.props.data.works[this.state.currentWork];
-    console.log(currentWork);
     const currentWordGroup = currentWork.workWordGroups[0];
     const currentWordGroupWords = currentWordGroup.wordGroupWords;
 
-    const renderWordGroup = (groupIndex, key) => {
-      const wordInfos = R.map(x => currentWork.workWords[x]) (currentWordGroupWords[groupIndex]);
-      const words = convertWords(groupIndex) (wordInfos);
-      return (<WordGroup key={key} words={words} />);
-    };
+    const wordGroups = R.addIndex(R.map)
+      ((wordIndexes, groupIndex) => {
+        const groupKey = this.state.currentWork + '.' + groupIndex;
+        const wordInfos = R.map(x => currentWork.workWords[x]) (wordIndexes);
+        const words = convertWords(groupKey) (wordInfos);
+        return (<WordGroup key={groupKey} words={words} />);
+      })
+      (currentWordGroupWords);
 
     return (
       <div>
@@ -356,11 +358,7 @@ export class App extends React.Component {
           onSelect={this.onNavSelect.bind(this)}
           />
         <div style={{margin: '0 1em 200px 1em'}}>
-          <ReactList
-            itemRenderer={renderWordGroup}
-            length={currentWordGroupWords.length}
-            type='variable'
-            />
+          {wordGroups}
         </div>
       </div>);
   }
