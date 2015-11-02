@@ -77,6 +77,8 @@ data Work = Work
   , workTitle :: Text
   , workWords :: [Word]
   , workWordGroups :: [WordGroup]
+  , workWordPropertyNames :: [Text]
+  , workWordSummaryProperties :: [Int]
   } deriving (Generic, Show)
 instance Aeson.ToJSON Work
 
@@ -95,33 +97,37 @@ getData xs = Data stage0Properties stage0Instance stage0Works
   where
     flatStage0 = flattenStage0 xs
     (stage0Instance, stage0Properties) = makeStage0Instance flatStage0
+
     stage0Works = fmap makeWork xs
-    makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap (\(_,_,w) -> w) iws) [ps]
+    makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap (\(_,_,w) -> w) iws) [ps] propertyNames summaryProperties
       where
         ps = paragraphs iws
         iws = indexedWords c
+        propertyNames = ["Elision", "Unicode Composed", "Line:Column", "File"]
+        summaryProperties = [0..3]
     paragraphs = WordGroup "Paragraph" . (fmap . fmap) fst . List.groupBy (\(_,p1) (_,p2) -> p1 == p2) . fmap (\(i,p,_) -> (i,p))
     indexedWords = fmap (uncurry makeWord) . zip [0..]
     makeWord i w@(Word.Basic s _ p) = (i, p, Word (titleStage0Word . getStageWord $ s) (getWordProperties w))
 
 getWordProperties :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [Text]
-getWordProperties (Word.Basic s e _) = concat
+getWordProperties (Word.Basic s e _) =
   [ getElisionProperty e
   , unicodeComposedProperty . fmap fst $ s
-  , locationProperty . fmap snd $ s
+  , lineProperty . fmap snd $ s
+  , fileProperty . fmap snd $ s
   ]
   where
-    locationProperty ((FileCharReference (Path p) (LineReference (Line l) (Column c))) : _) =
-      [ Lazy.toStrict $ Format.format "Line:Col {}:{}" (l, c)
-      , Text.pack p
-      ]
-    locationProperty [] = []
+    lineProperty ((FileCharReference _ (LineReference (Line l) (Column c))) : _) = Lazy.toStrict $ Format.format "{}:{}" (l, c)
+    lineProperty _ = "No line"
 
-    unicodeComposedProperty = pure . Text.intercalate ", " . fmap titleUnicodeComposed
+    fileProperty ((FileCharReference (Path p) _) : _) = Text.pack p
+    fileProperty [] = "No file"
 
-getElisionProperty :: Maybe (Elision.ElisionChar, FileCharReference) -> [Text]
-getElisionProperty (Just (Elision.ElisionChar c, r)) = [Lazy.toStrict $ Format.format "Elision: {} {}" (formatUnicodeCodePoint c, titleFileCharReference r)]
-getElisionProperty _ = []
+    unicodeComposedProperty = Text.intercalate ", " . fmap titleUnicodeComposed
+
+getElisionProperty :: Maybe (Elision.ElisionChar, FileCharReference) -> Text
+getElisionProperty (Just (Elision.ElisionChar c, r)) = Lazy.toStrict $ Format.format "Elided {} {}" (formatUnicodeCodePoint c, titleFileCharReference r)
+getElisionProperty _ = "Not elided"
 
 handleResult :: (a -> IO ()) -> Either String a -> IO ()
 handleResult _ (Left e) = putStrLn e

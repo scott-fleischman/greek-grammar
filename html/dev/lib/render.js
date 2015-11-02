@@ -139,8 +139,8 @@ const Content = ({values, currentGroupIndex, getValueTitle, getValueCount}) => {
     </div>);
 };
 
-const Word = ({id, text, wordProps}) => {
-  const popoverList = R.addIndex(R.map) ((x, i) => (<div key={i}>{x}</div>)) (wordProps);
+const Word = ({id, text, wordProps, propertyNames, summaryProperties}) => {
+  const popoverList = R.map (x => (<div key={x}><strong>{propertyNames[x]}</strong>: {wordProps[x]}</div>)) (summaryProperties);
   const popover = (
     <Popover id={id} title="Properties" style={{maxWidth: '100%'}}>
       {popoverList}
@@ -328,23 +328,25 @@ export class App extends React.Component {
     // };
     // const columns = R.addIndex(R.map)((x, i) => (<Column label={x} width={200} flexGrow={1} dataKey={i} key={x} />), data.stage0.instanceProperties);
 
-    const convertWords = p => (R.addIndex(R.map)
-      ((x, i) => ({
-        key: p + '.' + i,
-        id: 'word.' + p + '.' + i,
-        text: x.t,
-        wordProps: x.p
-      })));
-
     const currentWork = this.props.data.works[this.state.currentWork];
     const currentWordGroup = currentWork.workWordGroups[0];
     const currentWordGroupWords = currentWordGroup.wordGroupWords;
+
+    const convertWords = (groupKey, propertyNames, summaryProperties) => (R.addIndex(R.map)
+      ((x, i) => ({
+        key: groupKey + '.' + i,
+        id: 'word.' + groupKey + '.' + i,
+        text: x.t,
+        wordProps: x.p,
+        propertyNames: propertyNames,
+        summaryProperties: summaryProperties,
+      })));
 
     const wordGroups = R.addIndex(R.map)
       ((wordIndexes, groupIndex) => {
         const groupKey = this.state.currentWork + '.' + groupIndex;
         const wordInfos = R.map(x => currentWork.workWords[x]) (wordIndexes);
-        const words = convertWords(groupKey) (wordInfos);
+        const words = convertWords(groupKey, currentWork.workWordPropertyNames, currentWork.workWordSummaryProperties) (wordInfos);
         return (<WordGroup key={groupKey} words={words} />);
       })
       (currentWordGroupWords);
