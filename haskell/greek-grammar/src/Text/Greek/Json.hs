@@ -18,7 +18,7 @@ import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.Char as Char
 import qualified Data.Foldable as Foldable
-import qualified Data.List as List
+--import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -31,15 +31,22 @@ import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
 
 data Data = Data
-  { properties :: [Property]
-  , instance0 :: Instance
-  , works :: [Work]
+  { index :: Index
+  --, instance0 :: Instance
+  --, works :: [Work]
   }
 
 data Index = Index
-  { indexProperties :: [Property]
+  { indexWorkInfos :: [WorkInfo]
+  , indexTypeInfos :: [TypeInfo]
   } deriving (Generic, Show)
-instance Aeson.ToJSON Index
+instance Aeson.ToJSON Index where toJSON (Index ws ts) = Aeson.object ["works" .= ws, "types" .= ts]
+
+data WorkInfo = WorkInfo Text Text Int deriving Show
+instance Aeson.ToJSON WorkInfo where toJSON (WorkInfo t s wc) = Aeson.object ["title" .= t, "source" .= s, "wordCount" .= wc]
+
+data TypeInfo = TypeInfo Text Int Int deriving Show
+instance Aeson.ToJSON TypeInfo where toJSON (TypeInfo t vc ic) = Aeson.object ["title" .= t, "valueCount" .= vc, "instanceCount" .= ic]
 
 data Instance = Instance
   { instanceName :: Text
@@ -93,21 +100,23 @@ process x
   >>= showError . toStage0Hierarchy
 
 getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
-getData xs = Data stage0Properties stage0Instance stage0Works
+getData _ = Data ourIndex
   where
-    flatStage0 = flattenStage0 xs
-    (stage0Instance, stage0Properties) = makeStage0Instance flatStage0
+    ourIndex = Index [] []
 
-    stage0Works = fmap makeWork xs
-    makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap (\(_,_,w) -> w) iws) [ps] propertyNames summaryProperties
-      where
-        ps = paragraphs iws
-        iws = indexedWords c
-        propertyNames = ["Elision", "Unicode Composed", "Line:Column", "File"]
-        summaryProperties = [0..3]
-    paragraphs = WordGroup "Paragraph" . (fmap . fmap) fst . List.groupBy (\(_,p1) (_,p2) -> p1 == p2) . fmap (\(i,p,_) -> (i,p))
-    indexedWords = fmap (uncurry makeWord) . zip [0..]
-    makeWord i w@(Word.Basic s _ p) = (i, p, Word (titleStage0Word . getStageWord $ s) (getWordProperties w))
+    --flatStage0 = flattenStage0 xs
+    --(stage0Instance, stage0Properties) = makeStage0Instance flatStage0
+
+    --stage0Works = fmap makeWork xs
+    --makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap (\(_,_,w) -> w) iws) [ps] propertyNames summaryProperties
+    --  where
+    --    ps = paragraphs iws
+    --    iws = indexedWords c
+    --    propertyNames = ["Elision", "Unicode Composed", "Line:Column", "File"]
+    --    summaryProperties = [0..3]
+    --paragraphs = WordGroup "Paragraph" . (fmap . fmap) fst . List.groupBy (\(_,p1) (_,p2) -> p1 == p2) . fmap (\(i,p,_) -> (i,p))
+    --indexedWords = fmap (uncurry makeWord) . zip [0..]
+    --makeWord i w@(Word.Basic s _ p) = (i, p, Word (titleStage0Word . getStageWord $ s) (getWordProperties w))
 
 getWordProperties :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [Text]
 getWordProperties (Word.Basic s e _) =
@@ -134,10 +143,8 @@ handleResult _ (Left e) = putStrLn e
 handleResult f (Right a) = f a
 
 dumpJson :: Data -> IO ()
-dumpJson (Data ps i0 ws) = do
-  _ <- write "index.json" $ Kind "index" $ Index ps
-  _ <- write "stage0.json" $ Kind "stage0" i0
-  _ <- write "works.json" $ Kind "works" ws
+dumpJson (Data i) = do
+  _ <- write "index.json" i
   return ()
   where
     write n = BL.writeFile (Path.pagesData </> n) . Aeson.encode
