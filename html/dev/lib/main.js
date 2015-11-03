@@ -3,7 +3,6 @@ import 'fixed-data-table/dist/fixed-data-table.css!'
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import R from 'ramda';
 import { Provider } from 'react-redux'
 import { createStore, applyMiddleware } from 'redux'
 import thunkMiddleware from 'redux-thunk'
@@ -29,17 +28,6 @@ function go() {
       <App />
     </Provider>,
     document.getElementById('app'));
-
-  // Promise.all(R.map(loadData, ['index', 'stage0', 'works']))
-  //   .then(items => {
-  //     const getItem = n => R.find(x => x.kindName === n, items).kindValue;
-  //     const data = {
-  //       // index: processIndex(getItem('index')),
-  //       // stage0: getItem('stage0'),
-  //       works: getItem('works'),
-  //     };
-  //     ReactDOM.render(<App data={data} />, document.getElementById('app'));
-  //   });
 }
 
 go();

@@ -2,8 +2,10 @@ import R from 'ramda';
 import 'fetch';
 
 export const types = R.compose(R.fromPairs, R.map(x => [x,x])) ([
-	'requestIndex',
-	'receiveIndex',
+  'requestIndex',
+  'receiveIndex',
+  'viewWorkList',
+  'viewTypeList',
 ]);
 
 function checkStatus(response) {
@@ -25,16 +27,19 @@ function loadData(dataName) {
 
 export function requestIndex() { return { type: types.requestIndex }; }
 export function receiveIndex(index) {
-	return {
-		type: types.receiveIndex,
-		index: index,
-	};
+  return {
+    type: types.receiveIndex,
+    index: index,
+  };
 }
 
 export function fetchIndex() {
-	return dispatch => {
-		dispatch(requestIndex());
-		return loadData('index')
-			.then(index => dispatch(receiveIndex(index)));
-	};
+  return dispatch => {
+    dispatch(requestIndex());
+    return loadData('index')
+      .then(index => dispatch(receiveIndex(index)));
+  };
 }
+
+export function viewWorkList() { return { type: types.viewWorkList }; }
+export function viewTypeList() { return { type: types.viewTypeList }; }
