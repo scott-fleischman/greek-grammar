@@ -11,7 +11,9 @@
       "react": "npm:react@^0.14.1",
       "react-bootstrap": "npm:react-bootstrap@^0.27.3",
       "react-dom": "npm:react-dom@^0.14.0",
-      "react-waypoint": "npm:react-waypoint@^1.0.6"
+      "react-redux": "npm:react-redux@^4.0.0",
+      "react-waypoint": "npm:react-waypoint@^1.0.6",
+      "redux": "npm:redux@^3.0.4"
     },
     "devDependencies": {
       "babel": "npm:babel-core@^5.8.24",

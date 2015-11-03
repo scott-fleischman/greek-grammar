@@ -18,7 +18,7 @@ System.config({
     "babel-runtime": "npm:babel-runtime@5.8.29",
     "bootstrap": "github:twbs/bootstrap@3.3.5",
     "clean-css": "npm:clean-css@3.4.6",
-    "core-js": "npm:core-js@1.2.3",
+    "core-js": "npm:core-js@1.2.5",
     "css": "github:systemjs/plugin-css@0.1.19",
     "fetch": "github:github/fetch@0.9.0",
     "fixed-data-table": "npm:fixed-data-table@0.4.7",
@@ -27,7 +27,9 @@ System.config({
     "react": "npm:react@0.14.1",
     "react-bootstrap": "npm:react-bootstrap@0.27.3",
     "react-dom": "npm:react-dom@0.14.1",
+    "react-redux": "npm:react-redux@4.0.0",
     "react-waypoint": "npm:react-waypoint@1.0.6",
+    "redux": "npm:redux@3.0.4",
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.3.0"
     },
@@ -119,7 +121,7 @@ System.config({
       "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
-    "npm:core-js@1.2.3": {
+    "npm:core-js@1.2.5": {
       "fs": "github:jspm/nodelibs-fs@0.1.2",
       "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
@@ -141,7 +143,7 @@ System.config({
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:fbjs@0.3.2": {
-      "core-js": "npm:core-js@1.2.3",
+      "core-js": "npm:core-js@1.2.5",
       "loose-envify": "npm:loose-envify@1.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
       "promise": "npm:promise@7.0.4",
@@ -236,6 +238,13 @@ System.config({
     "npm:react-prop-types@0.3.0": {
       "warning": "npm:warning@2.1.0"
     },
+    "npm:react-redux@4.0.0": {
+      "hoist-non-react-statics": "npm:hoist-non-react-statics@1.0.3",
+      "invariant": "npm:invariant@2.1.2",
+      "process": "github:jspm/nodelibs-process@0.1.2",
+      "react": "npm:react@0.14.1",
+      "redux": "npm:redux@3.0.4"
+    },
     "npm:react-waypoint@1.0.6": {
       "react": "npm:react@0.14.1",
       "react-dom": "npm:react-dom@0.14.1"
@@ -254,6 +263,9 @@ System.config({
       "process": "github:jspm/nodelibs-process@0.1.2",
       "stream-browserify": "npm:stream-browserify@1.0.0",
       "string_decoder": "npm:string_decoder@0.10.31"
+    },
+    "npm:redux@3.0.4": {
+      "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:source-map@0.1.31": {
       "amdefine": "npm:amdefine@1.0.0",
