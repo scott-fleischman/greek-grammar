@@ -30,6 +30,7 @@ System.config({
     "react-redux": "npm:react-redux@4.0.0",
     "react-waypoint": "npm:react-waypoint@1.0.6",
     "redux": "npm:redux@3.0.4",
+    "redux-thunk": "npm:redux-thunk@1.0.0",
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.3.0"
     },
