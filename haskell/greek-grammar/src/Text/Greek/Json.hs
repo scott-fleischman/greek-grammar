@@ -102,7 +102,7 @@ process x
 getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
 getData _ = Data ourIndex
   where
-    ourIndex = Index [] []
+    ourIndex = Index [WorkInfo "First Work" "One Source" 10, WorkInfo "Second Work" "Another Source" 20] []
 
     --flatStage0 = flattenStage0 xs
     --(stage0Instance, stage0Properties) = makeStage0Instance flatStage0
