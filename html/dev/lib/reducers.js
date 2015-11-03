@@ -1,13 +1,14 @@
+import R from 'ramda';
 import * as actions from "./actions.js"
 import { combineReducers } from 'redux'
 
-const viewState = {
-	loadingIndex: 'loadingIndex',
-	loadingWork: 'loadingWork',
-};
+export const viewState = R.compose(R.fromPairs, R.map(x => [x,x])) ([
+	'loadingIndex',
+	'workList',
+]);
 
-const requestIndex = state => ({ view: 'loading' });
-const receiveIndex = (state, index) => ({ view: 'workList', index: index });
+const requestIndex = state => ({ view: viewState.loadingIndex });
+const receiveIndex = (state, index) => ({ view: viewState.workList, index: index });
 
 export function root(state = {}, action) {
 	switch (action.type) {
