@@ -14,6 +14,7 @@
       "react-redux": "npm:react-redux@^4.0.0",
       "react-waypoint": "npm:react-waypoint@^1.0.6",
       "redux": "npm:redux@^3.0.4",
+      "redux-logger": "npm:redux-logger@^2.0.4",
       "redux-thunk": "npm:redux-thunk@^1.0.0"
     },
     "devDependencies": {
