@@ -5,6 +5,7 @@ import * as reducers from './reducers.js';
 import { WorkList } from './workList.js';
 import { Nav } from './nav.js';
 import R from 'ramda';
+import { Work } from './render.js';
 
 function getLoadingIndex() {
   return {
@@ -34,10 +35,10 @@ function getViewTypeList(types) {
   };
 }
 
-function getViewWork(workTitle, work) {
+function getViewWork(workTitle, workIndex, work) {
   return {
     navTitle: workTitle,
-    content: (<div>{work.workWords.length} words</div>),
+    content: (<Work workIndex={workIndex} work={work} />),
   };
 }
 
@@ -50,7 +51,7 @@ const App = ({ dispatch, view, index, workIndex, works, types }) => {
     case reducers.viewState.loadingWork: info = getLoadingWork(workIndex, index.works); break;
     case reducers.viewState.workList: info = getViewWorkList(index.works, viewWork); break;
     case reducers.viewState.typeList: info = getViewTypeList(index.types); break;
-    case reducers.viewState.work: info = getViewWork(index.works[workIndex].title, works.get(workIndex)); break;
+    case reducers.viewState.work: info = getViewWork(index.works[workIndex].title, workIndex, works.get(workIndex)); break;
   }
   if (!info) {
     console.log('Unknown view', view);

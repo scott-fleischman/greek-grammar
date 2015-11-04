@@ -259,6 +259,36 @@ const OurNavbar = ({currentWork, works, onSelect}) => {
   );
 };
 
+export const Work = ({work, workIndex}) => {
+  const currentWordGroup = work.workWordGroups[0];
+  const currentWordGroupWords = currentWordGroup.wordGroupWords;
+
+  const convertWords = (groupKey, propertyNames, summaryProperties) => (R.addIndex(R.map)
+    ((x, i) => ({
+      key: groupKey + '.' + i,
+      id: 'word.' + groupKey + '.' + i,
+      text: x.t,
+      wordProps: x.p,
+      propertyNames: propertyNames,
+      summaryProperties: summaryProperties,
+    })));
+
+  const wordGroups = R.addIndex(R.map)
+    ((wordIndexes, groupIndex) => {
+      const groupKey = workIndex + '.' + groupIndex;
+      const wordInfos = R.map(x => work.workWords[x]) (wordIndexes);
+      const words = convertWords(groupKey, work.workWordPropertyNames, work.workWordSummaryProperties) (wordInfos);
+      return (<WordGroup key={groupKey} words={words} />);
+    })
+    (currentWordGroupWords);
+
+  return (
+    <div style={{margin: '0 1em 200px 1em'}}>
+      {wordGroups}
+    </div>
+  );
+};
+
 export class App extends React.Component {
   constructor(props) {
     super(props);
