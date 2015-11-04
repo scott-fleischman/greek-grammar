@@ -100,9 +100,11 @@ process x
   >>= showError . toStage0Hierarchy
 
 getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
-getData _ = Data ourIndex
+getData ws = Data ourIndex
   where
-    ourIndex = Index [WorkInfo "First Work" "One Source" 10, WorkInfo "Second Work" "Another Source" 20] []
+    ourIndex = Index (fmap makeWorkInfo ws) []
+
+    makeWorkInfo (All.Work s t c) = WorkInfo (titleWorkTitle t) (titleWorkSource s) (length c)
 
     --flatStage0 = flattenStage0 xs
     --(stage0Instance, stage0Properties) = makeStage0Instance flatStage0
@@ -241,7 +243,7 @@ unicodeComposedName :: Text
 unicodeComposedName = "UnicodeComposed"
 
 titleWorkSource :: All.WorkSource -> Text
-titleWorkSource = Text.pack . show
+titleWorkSource All.Sblgnt = "SBLGNT"
 
 titleWorkTitle :: All.WorkTitle -> Text
 titleWorkTitle (All.WorkTitle t) = t

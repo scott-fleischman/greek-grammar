@@ -11,7 +11,7 @@ export const Nav = ({ title, viewWorkList, viewTypeList }) => {
       console.log('Unknown nav key', key);
   };
   return (
-    <BS.Navbar>
+    <BS.Navbar fluid>
       <BS.NavBrand>{title}</BS.NavBrand>
       <BS.Nav right onSelect={onSelect}>
         <BS.NavItem eventKey={0}>Works</BS.NavItem>

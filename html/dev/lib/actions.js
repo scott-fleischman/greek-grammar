@@ -6,6 +6,8 @@ export const types = R.compose(R.fromPairs, R.map(x => [x,x])) ([
   'receiveIndex',
   'viewWorkList',
   'viewTypeList',
+  'requestWork',
+  'receiveWork',
 ]);
 
 function checkStatus(response) {

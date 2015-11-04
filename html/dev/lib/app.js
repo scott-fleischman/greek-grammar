@@ -4,21 +4,52 @@ import * as actions from './actions.js'
 import * as reducers from './reducers.js';
 import { WorkList } from './workList.js';
 import { Nav } from './nav.js';
+import R from 'ramda';
+
+function getLoadingIndex() {
+  return {
+    navTitle: 'Loading…',
+    content: (<div></div>),
+  };
+}
+
+function getViewWorkList(works) {
+  return {
+    navTitle: `${works.length} Greek Works, ${R.compose(R.sum, R.map(x => x.wordCount))(works)} Words`,
+    content: (<WorkList works={works} />),
+  };
+}
+
+function getViewTypeList(types) {
+  return {
+    navTitle: `${types.length} Types`,
+    content: (<div></div>),
+  };
+}
 
 const App = ({ dispatch, view, index }) => {
-  const text =
-    view === reducers.viewState.loadingIndex ? 'Loading…' :
-    view === reducers.viewState.workList ? `${index.works.length} Works` :
-    view === reducers.viewState.typeList ? `${index.types.length} Types` :
-    'Unknown view';
+  let info = null;
+  switch (view) {
+    case reducers.viewState.loadingIndex: info = getLoadingIndex(); break;
+    case reducers.viewState.workList: info = getViewWorkList(index.works); break;
+    case reducers.viewState.typeList: info = getViewTypeList(index.types); break;
+  }
+  if (!info) {
+    console.log('Unknown view', view);
+    return;
+  }
+
   const viewWorkList = () => dispatch(actions.viewWorkList());
   const viewTypeList = () => dispatch(actions.viewTypeList());
   return (
-    <Nav
-      title={text}
-      viewWorkList={viewWorkList}
-      viewTypeList={viewTypeList}
-      />
+    <div>
+      <Nav
+        title={info.navTitle}
+        viewWorkList={viewWorkList}
+        viewTypeList={viewTypeList}
+        />
+      {info.content}
+    </div>
   );
 };
 

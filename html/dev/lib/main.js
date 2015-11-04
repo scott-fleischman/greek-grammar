@@ -1,5 +1,6 @@
 import 'bootstrap/css/bootstrap.css!'
 import 'fixed-data-table/dist/fixed-data-table.css!'
+import '../css/styles.css!'
 
 import React from 'react';
 import ReactDOM from 'react-dom';
