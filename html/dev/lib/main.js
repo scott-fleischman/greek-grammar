@@ -20,7 +20,7 @@ function go() {
     loggerMiddleware,
   )(createStore);
 
-  const store = createStoreWithMiddleware(reducers.root);
+  const store = createStoreWithMiddleware(reducers.root, reducers.initialState);
 
   store.dispatch(actions.fetchIndex());
 
