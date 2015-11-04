@@ -8,7 +8,7 @@ const WorkInfo = ({ title, source, wordCount, workIndex, viewWork }) => (
 		&ensp;
 		<Button bsStyle="link" className="workInfoButton" onClick={() => viewWork(workIndex)}>{title}</Button>
 		&ensp;
-		<span>{wordCount} words</span>
+		<span className="workInfoWordCount">{wordCount} words</span>
 	</div>
 );
 

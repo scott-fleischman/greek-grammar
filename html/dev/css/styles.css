@@ -2,6 +2,10 @@ span.workInfoSource {
 	font-size: 75%;
 }
 
+span.workInfoWordCount {
+	font-size: 75%;
+}
+
 div.workListContainer {
 	margin: 0 1em 0 1em;
 }
