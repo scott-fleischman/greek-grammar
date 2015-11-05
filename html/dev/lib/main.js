@@ -8,8 +8,8 @@ import { Provider } from 'react-redux'
 import { createStore, applyMiddleware } from 'redux'
 import thunkMiddleware from 'redux-thunk'
 import createLogger from 'redux-logger'
-import * as state from './state.js'
-import * as actions from './actions.js'
+import * as State from './state.js'
+import * as Action from './action.js'
 import App from './app.js';
 
 function go() {
@@ -20,9 +20,9 @@ function go() {
     loggerMiddleware,
   )(createStore);
 
-  const store = createStoreWithMiddleware(state.applyAction, state.initial);
+  const store = createStoreWithMiddleware(State.applyAction, State.initial);
 
-  store.dispatch(actions.fetchIndex());
+  store.dispatch(Action.fetchIndex());
 
   ReactDOM.render(
     <Provider store={store}>

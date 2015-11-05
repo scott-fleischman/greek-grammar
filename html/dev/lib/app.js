@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux'
-import * as actions from './actions.js'
-import * as state from './state.js';
+import * as Action from './action.js'
+import * as State from './state.js';
 import { WorkList } from './workList.js';
 import { Nav } from './nav.js';
 import R from 'ramda';
@@ -43,23 +43,23 @@ function getViewWork(workTitle, workIndex, work) {
 }
 
 const App = ({ dispatch, view, index, workIndex, works, types }) => {
-  const viewWork = x => dispatch(actions.fetchWork(x));
+  const viewWork = x => dispatch(Action.fetchWork(x));
 
   let info = null;
   switch (view) {
-    case state.view.loadingIndex: info = getLoadingIndex(); break;
-    case state.view.loadingWork: info = getLoadingWork(workIndex, index.works); break;
-    case state.view.workList: info = getViewWorkList(index.works, viewWork); break;
-    case state.view.typeList: info = getViewTypeList(index.types); break;
-    case state.view.work: info = getViewWork(index.works[workIndex].title, workIndex, works.get(workIndex)); break;
+    case State.view.loadingIndex: info = getLoadingIndex(); break;
+    case State.view.loadingWork: info = getLoadingWork(workIndex, index.works); break;
+    case State.view.workList: info = getViewWorkList(index.works, viewWork); break;
+    case State.view.typeList: info = getViewTypeList(index.types); break;
+    case State.view.work: info = getViewWork(index.works[workIndex].title, workIndex, works.get(workIndex)); break;
   }
   if (!info) {
     console.log('Unknown view', view);
     return;
   }
 
-  const viewWorkList = () => dispatch(actions.viewWorkList());
-  const viewTypeList = () => dispatch(actions.viewTypeList());
+  const viewWorkList = () => dispatch(Action.viewWorkList());
+  const viewTypeList = () => dispatch(Action.viewTypeList());
   return (
     <div>
       <Nav
