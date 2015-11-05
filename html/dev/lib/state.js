@@ -24,13 +24,14 @@ function updateMap(map, key, value) {
 }
 
 export function applyAction(state = {}, action) {
-  const keepProperties = ['index', 'works', 'types'];
-  const keep = R.pick(keepProperties, state);
+  const cacheProperties = ['index', 'works', 'types'];
+  const cache = R.pick(cacheProperties, state);
 
-  const stateUpdate = getStateUpdate(state, action);
+  const cacheUpdate = getCacheUpdate(cache, action);
+  const stateUpdate = getStateUpdate(action);
   const view = getView(action.type);
 
-  return { ...keep, ...stateUpdate, view: view };
+  return { ...cache, ...cacheUpdate, ...stateUpdate, view: view };
 }
 
 function getView(actionType) {
@@ -46,12 +47,19 @@ function getView(actionType) {
   }
 }
 
-function getStateUpdate(state, action) {
+function getStateUpdate(action) {
+  switch (action.type) {
+    case Action.types.requestWork: return { workIndex: action.workIndex };
+    case Action.types.receiveWork: return { workIndex: action.workIndex };
+    case Action.types.viewWork: return { workIndex: action.workIndex };
+    default: return {};
+  }
+}
+
+function getCacheUpdate(cache, action) {
   switch (action.type) {
     case Action.types.receiveIndex: return { index: action.index };
-    case Action.types.requestWork: return { workIndex: action.workIndex };
-    case Action.types.receiveWork: return { workIndex: action.workIndex, works: updateMap(state.works, action.workIndex, action.work) };
-    case Action.types.viewWork: return { workIndex: action.workIndex };
+    case Action.types.receiveWork: return { works: updateMap(cache.works, action.workIndex, action.work) };
     default: return {};
   }
 }
