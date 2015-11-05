@@ -147,7 +147,7 @@ const Word = ({id, text, wordProps, propertyNames, summaryProperties}) => {
     </Popover>
   );
   return (
-    <OverlayTrigger trigger={['hover', 'focus']} placement="bottom" overlay={popover}>
+    <OverlayTrigger trigger="click" rootClose placement="bottom" overlay={popover}>
       <span><a href="#">{text}</a> </span>
     </OverlayTrigger>
   );
