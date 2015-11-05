@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import * as actions from './actions.js'
-import * as reducers from './reducers.js';
+import * as state from './state.js';
 import { WorkList } from './workList.js';
 import { Nav } from './nav.js';
 import R from 'ramda';
@@ -47,11 +47,11 @@ const App = ({ dispatch, view, index, workIndex, works, types }) => {
 
   let info = null;
   switch (view) {
-    case reducers.viewState.loadingIndex: info = getLoadingIndex(); break;
-    case reducers.viewState.loadingWork: info = getLoadingWork(workIndex, index.works); break;
-    case reducers.viewState.workList: info = getViewWorkList(index.works, viewWork); break;
-    case reducers.viewState.typeList: info = getViewTypeList(index.types); break;
-    case reducers.viewState.work: info = getViewWork(index.works[workIndex].title, workIndex, works.get(workIndex)); break;
+    case state.view.loadingIndex: info = getLoadingIndex(); break;
+    case state.view.loadingWork: info = getLoadingWork(workIndex, index.works); break;
+    case state.view.workList: info = getViewWorkList(index.works, viewWork); break;
+    case state.view.typeList: info = getViewTypeList(index.types); break;
+    case state.view.work: info = getViewWork(index.works[workIndex].title, workIndex, works.get(workIndex)); break;
   }
   if (!info) {
     console.log('Unknown view', view);

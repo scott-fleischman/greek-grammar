@@ -8,7 +8,7 @@ import { Provider } from 'react-redux'
 import { createStore, applyMiddleware } from 'redux'
 import thunkMiddleware from 'redux-thunk'
 import createLogger from 'redux-logger'
-import * as reducers from './reducers.js'
+import * as state from './state.js'
 import * as actions from './actions.js'
 import App from './app.js';
 
@@ -20,7 +20,7 @@ function go() {
     loggerMiddleware,
   )(createStore);
 
-  const store = createStoreWithMiddleware(reducers.root, reducers.initialState);
+  const store = createStoreWithMiddleware(state.applyAction, state.initial);
 
   store.dispatch(actions.fetchIndex());
 
