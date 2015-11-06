@@ -30,9 +30,19 @@ import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
 
 data Data = Data
-  { index :: Index
-  , works :: [Work]
+  { dataIndex :: Index
+  , dataWorks :: [Work]
+  , dataTypes :: [Type]
   }
+
+data Type = Type
+  { typeTitle :: Text
+  , typeValues :: [Text]
+  }
+instance Aeson.ToJSON Type where toJSON (Type t vs) = Aeson.object ["title" .= t, "values" .= vs]
+
+newtype WordIndex = WordIndex Int deriving Show
+instance Aeson.ToJSON WordIndex where toJSON (WordIndex wi) = Aeson.toJSON wi
 
 data Index = Index
   { indexWorkInfos :: [WorkInfo]
@@ -45,18 +55,6 @@ instance Aeson.ToJSON WorkInfo where toJSON (WorkInfo t s wc) = Aeson.object ["t
 
 data TypeInfo = TypeInfo Text Int Int deriving Show
 instance Aeson.ToJSON TypeInfo where toJSON (TypeInfo t vc ic) = Aeson.object ["title" .= t, "valueCount" .= vc, "instanceCount" .= ic]
-
-data Property = Property
-  { propertyName :: Text
-  , propertyValues :: [Text]
-  } deriving (Generic, Show)
-instance Aeson.ToJSON Property
-
-data Kind a = Kind
-  { kindName :: Text
-  , kindValue :: a
-  } deriving (Generic, Show)
-instance Aeson.ToJSON a => Aeson.ToJSON (Kind a)
 
 data Word = Word
   { wordText :: Text
@@ -91,7 +89,7 @@ process x
   >>= showError . toStage0Hierarchy
 
 getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
-getData ws = Data ourIndex stage0Works
+getData ws = Data ourIndex stage0Works []
   where
     ourIndex = Index (fmap makeWorkInfo ws) []
 
@@ -133,7 +131,7 @@ handleResult _ (Left e) = putStrLn e
 handleResult f (Right a) = f a
 
 dumpJson :: Data -> IO ()
-dumpJson (Data i ws) = do
+dumpJson (Data i ws _) = do
   _ <- write "index.json" i
   _ <- sequence . fmap (\(wi, w) -> write ("works/work" ++ show wi ++ ".json") w) . zip ([0..] :: [Int]) $ ws
   return ()
@@ -174,9 +172,6 @@ makeValueMap xs = Map.fromList indexedList
   where
     uniqueValues = Set.toAscList . Set.fromList $ xs
     indexedList = zip uniqueValues [0..]
-
-makeProperty :: Ord a => Text -> (a -> Text) -> Map a Int -> Property
-makeProperty t f = Property t . fmap f . fmap fst . Map.toAscList
 
 workSourceName :: Text
 workSourceName = "WorkSource"
