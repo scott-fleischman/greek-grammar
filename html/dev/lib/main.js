@@ -22,7 +22,7 @@ function go() {
 
   const store = createStoreWithMiddleware(State.applyAction, State.initial);
 
-  store.dispatch(Action.fetchIndex());
+  store.dispatch(Action.fetchViewWorkList());
 
   window.onhashchange = () => onHashChange(window.location.hash);
 

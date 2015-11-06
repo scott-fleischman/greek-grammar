@@ -49,7 +49,9 @@ export const getVisual = action => {
 
 const getData = (data, action) => {
   switch (action.type) {
+    case Action.types.requestIndex: return { ...data, index: { loading: true } };
     case Action.types.receiveIndex: return { ...data, index: action.index };
+    case Action.types.requestWork: return { ...data, works: updateMap(data.works, action.workIndex, { loading: true }) };
     case Action.types.receiveWork: return { ...data, works: updateMap(data.works, action.workIndex, action.work) };
     default: return data;
   }

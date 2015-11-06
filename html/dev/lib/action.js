@@ -37,34 +37,37 @@ function receiveIndex(index) {
   };
 }
 
-function dispatchFetch(data, onRequest, onResponse) {
-  return dispatch => {
-    dispatch(onRequest());
-    return loadData(data)
-      .then(x => dispatch(onResponse(x)));
-  };
+function dispatchFetchData(dispatch, dataName, onRequest, onResponse) {
+  dispatch(onRequest());
+  return loadData(dataName)
+    .then(x => dispatch(onResponse(x)));
 }
 
-export function fetchIndex() {
-  return (dispatch, getState) => {
-    return getState().index ? Promise.resolve() : dispatchFetch('index', () => requestIndex(), x => receiveIndex(x)) (dispatch);
-  }
+function fetchIndex(dispatch, getState) {
+  if (getState().data.index)
+    return Promise.resolve();
+
+  return dispatchFetchData(dispatch, 'index', () => requestIndex(), x => receiveIndex(x));
 }
 
 export function viewWorkList() { return { type: types.viewWorkList }; }
 export function viewTypeList() { return { type: types.viewTypeList }; }
+export function viewWork(workIndex) { return { type: types.viewWork, workIndex: workIndex }; }
+
+export const fetchViewWorkList = () => (dispatch, getState) => fetchIndex(dispatch, getState).then(() => dispatch(viewWorkList()));
+export const fetchViewTypeList = () => (dispatch, getState) => fetchIndex(dispatch, getState).then(() => dispatch(viewTypeList()));
 
 function requestWork(workIndex) { return { type: types.requestWork, workIndex: workIndex }; }
 function receiveWork(workIndex, work) { return { type: types.receiveWork, workIndex: workIndex, work: work }; }
-export function viewWork(workIndex) { return { type: types.viewWork, workIndex: workIndex }; }
+function fetchWork(dispatch, getState, workIndex) {
+  if (State.hasWork(getState(), workIndex))
+    return Promise.resolve();
 
-export function fetchViewWork(workIndex) {
-  return (dispatch, getState) => {
-    const dispatchViewWork = () => dispatch(viewWork(workIndex));
-    if (State.hasWork(getState(), workIndex))
-      return dispatchViewWork;
-
-    return dispatchFetch(`works/work${workIndex}`, () => requestWork(workIndex), x => receiveWork(workIndex, x)) (dispatch)
-      .then(dispatchViewWork);
-  };
+  return dispatchFetchData(dispatch, `works/work${workIndex}`, () => requestWork(workIndex), x => receiveWork(workIndex, x));
 }
+
+export const fetchViewWork = workIndex => (dispatch, getState) =>
+  Promise.all([
+    fetchIndex(dispatch, getState),
+    fetchWork(dispatch, getState, workIndex)
+  ]).then(() => dispatch(viewWork(workIndex)));

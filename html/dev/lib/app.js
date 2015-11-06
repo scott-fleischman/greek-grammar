@@ -16,20 +16,24 @@ function getUrl(action) {
 
 export function onHashChange(newHash) {
   const visual = QueryString.parse(newHash);
-  const action = State.getActionForPersistedState(visual);
-  console.log('visual', visual, 'action', action);
+  const action = State.getActionForVisual(visual);
+  console.log('onHashChange', 'visual', visual, 'action', action);
 }
+
+const loadingText = 'Loading…';
+const loadingItemText = item => `Loading ${item} …`
 
 function getLoadingIndex() {
   return {
-    navTitle: 'Loading…',
+    navTitle: loadingText,
     content: (<div></div>),
   };
 }
 
 function getLoadingWork(workIndex, works) {
+  const text = works ? loadingItemText(works[workIndex].title) : loadingText;
   return {
-    navTitle: `Loading work ${works[workIndex].title} …`,
+    navTitle: text,
     content: (<div></div>),
   };
 }
