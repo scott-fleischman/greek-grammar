@@ -38,10 +38,10 @@ function getLoadingWork(workIndex, works) {
   };
 }
 
-function getViewWorkList(works, viewWork, getViewWorkUrl) {
+function getViewWorkList(works, getWorkUrl) {
   return {
     navTitle: `${works.length} Greek Works, ${R.compose(R.sum, R.map(x => x.wordCount))(works)} Words`,
-    content: (<WorkList works={works} viewWork={viewWork} getViewWorkUrl={getViewWorkUrl} />),
+    content: (<WorkList works={works} getWorkUrl={getWorkUrl} />),
   };
 }
 
@@ -66,7 +66,7 @@ const App = ({ dispatch, visual, data }) => {
   switch (visual.view) {
     case State.view.loadingIndex: info = getLoadingIndex(); break;
     case State.view.loadingWork: info = getLoadingWork(visual.workIndex, data.index.works); break;
-    case State.view.workList: info = getViewWorkList(data.index.works, viewWork, R.compose(getUrl, Action.viewWork)); break;
+    case State.view.workList: info = getViewWorkList(data.index.works, R.compose(getUrl, Action.viewWork)); break;
     case State.view.typeList: info = getViewTypeList(data.index.types); break;
     case State.view.work: info = getViewWork(data.index.works[visual.workIndex].title, visual.workIndex, data.works.get(visual.workIndex)); break;
   }
@@ -75,14 +75,13 @@ const App = ({ dispatch, visual, data }) => {
     return;
   }
 
-  const viewWorkList = () => dispatch(Action.viewWorkList());
-  const viewTypeList = () => dispatch(Action.viewTypeList());
+  console.log('action.viewWorkList URL', getUrl(Action.viewWorkList()));
   return (
     <div>
       <Nav
         title={info.navTitle}
-        viewWorkList={viewWorkList}
-        viewTypeList={viewTypeList}
+        workListUrl={getUrl(Action.viewWorkList())}
+        typeListUrl={getUrl(Action.viewTypeList())}
         />
       {info.content}
     </div>
