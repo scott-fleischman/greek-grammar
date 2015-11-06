@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import * as Action from './action.js'
 import * as State from './state.js';
 import { WorkList } from './workList.js';
+import { TypeList } from './typeList.js';
 import { Nav } from './nav.js';
 import R from 'ramda';
 import { Work } from './render.js';
@@ -48,10 +49,10 @@ function getViewWorkList(works, getWorkUrl) {
   };
 }
 
-function getViewTypeList(types) {
+function getViewTypeList(types, getTypeUrl) {
   return {
     navTitle: `${types.length} Types`,
-    content: (<div></div>),
+    content: (<TypeList types={types} getTypeUrl={getTypeUrl} />),
   };
 }
 
@@ -59,6 +60,13 @@ function getViewWork(workTitle, workIndex, work) {
   return {
     navTitle: workTitle,
     content: (<Work workIndex={workIndex} work={work} />),
+  };
+}
+
+function getViewType() {
+  return {
+    navTitle: 'Type',
+    content: (<div></div>),
   };
 }
 
@@ -70,8 +78,9 @@ const App = ({ dispatch, visual, data }) => {
     case State.view.loadingIndex: info = getLoadingIndex(); break;
     case State.view.loadingWork: info = getLoadingWork(visual.workIndex, data.index.works); break;
     case State.view.workList: info = getViewWorkList(data.index.works, R.compose(getUrl, Action.viewWork)); break;
-    case State.view.typeList: info = getViewTypeList(data.index.types); break;
+    case State.view.typeList: info = getViewTypeList(data.index.types, R.compose(getUrl, Action.viewType)); break;
     case State.view.work: info = getViewWork(data.index.works[visual.workIndex].title, visual.workIndex, data.works.get(visual.workIndex)); break;
+    case State.view.type: info = getViewType(); break;
   }
   if (!info) {
     console.log('Unknown view', visual.view);

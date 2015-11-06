@@ -1,7 +1,7 @@
 import React from 'react';
 import R from 'ramda';
 
-const WorkInfo = ({ title, source, wordCount, workIndex, workUrl }) => (
+const WorkInfo = ({ title, source, wordCount, workUrl }) => (
   <div>
     <span className="workInfoSource">{source}</span>
     &ensp;
@@ -12,7 +12,7 @@ const WorkInfo = ({ title, source, wordCount, workIndex, workUrl }) => (
 );
 
 export const WorkList = ({ works, getWorkUrl }) => (
-  <div className="workListContainer">
-    {R.addIndex(R.map) ((x, i) => (<WorkInfo key={i} workIndex={i} {...x} workUrl={getWorkUrl(i)} />)) (works)}
+  <div className="listContainer">
+    {R.addIndex(R.map) ((x, i) => (<WorkInfo key={i} {...x} workUrl={getWorkUrl(i)} />)) (works)}
   </div>
 );

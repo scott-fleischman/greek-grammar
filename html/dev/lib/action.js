@@ -10,6 +10,7 @@ export const types = R.compose(R.fromPairs, R.map(x => [x,x])) ([
   'requestWork',
   'receiveWork',
   'viewWork',
+  'viewType',
 ]);
 
 function checkStatus(response) {
@@ -52,13 +53,14 @@ function fetchIndex(dispatch, getState) {
 
 export function viewWorkList() { return { type: types.viewWorkList }; }
 export function viewTypeList() { return { type: types.viewTypeList }; }
-export function viewWork(workIndex) { return { type: types.viewWork, workIndex: workIndex }; }
+export function viewWork(workIndex) { return { type: types.viewWork, workIndex }; }
+export function viewType(typeIndex) { return { type: types.viewType, typeIndex }; }
 
 export const fetchViewWorkList = () => (dispatch, getState) => fetchIndex(dispatch, getState).then(() => dispatch(viewWorkList()));
 export const fetchViewTypeList = () => (dispatch, getState) => fetchIndex(dispatch, getState).then(() => dispatch(viewTypeList()));
 
-function requestWork(workIndex) { return { type: types.requestWork, workIndex: workIndex }; }
-function receiveWork(workIndex, work) { return { type: types.receiveWork, workIndex: workIndex, work: work }; }
+function requestWork(workIndex) { return { type: types.requestWork, workIndex }; }
+function receiveWork(workIndex, work) { return { type: types.receiveWork, workIndex, work }; }
 function fetchWork(dispatch, getState, workIndex) {
   if (State.hasWork(getState(), workIndex))
     return Promise.resolve();
@@ -71,3 +73,5 @@ export const fetchViewWork = workIndex => (dispatch, getState) =>
     fetchIndex(dispatch, getState),
     fetchWork(dispatch, getState, workIndex)
   ]).then(() => dispatch(viewWork(workIndex)));
+
+export const fetchViewType = typeIndex => (dispatch, getState) => Promise.resolve();

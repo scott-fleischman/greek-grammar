@@ -7,6 +7,7 @@ export const view = R.compose(R.fromPairs, R.map(x => [x,x])) ([
   'workList',
   'typeList',
   'work',
+  'type',
 ]);
 
 export const initial = {
@@ -43,6 +44,7 @@ export const getVisual = action => {
     case Action.types.requestWork: return { view: view.loadingWork, workIndex: action.workIndex };
     case Action.types.receiveWork: return { view: view.loadingWork, workIndex: action.workIndex };
     case Action.types.viewWork: return { view: view.work, workIndex: action.workIndex };
+    case Action.types.viewType: return { view: view.type, typeIndex: action.typeIndex };
     default: return {};
   }
 };
@@ -64,6 +66,8 @@ export const getActionForVisual = visual => {
     return Action.fetchViewTypeList();
   if (visual.view === view.work && !R.isNil(visual.workIndex))
     return Action.fetchViewWork(visual.workIndex);
+  if (visual.view === view.type && !R.isNil(visual.typeIndex))
+    return Action.fetchViewType(visual.typeIndex);
   else
     return undefined;
 }

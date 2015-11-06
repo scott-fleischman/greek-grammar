@@ -89,11 +89,14 @@ process x
   >>= showError . toStage0Hierarchy
 
 getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
-getData ws = Data ourIndex stage0Works []
+getData ws = Data ourIndex stage0Works ourTypes
   where
-    ourIndex = Index (fmap makeWorkInfo ws) []
+    ourIndex = Index (fmap makeWorkInfo ws) (fmap makeTypeInfo ourTypes)
+
+    ourTypes = [Type "Simple Type" ["Value1", "Value2"]]
 
     makeWorkInfo (All.Work s t c) = WorkInfo (titleWorkTitle t) (titleWorkSource s) (length c)
+    makeTypeInfo (Type t vs) = TypeInfo t (length vs) 0
 
     stage0Works = fmap makeWork ws
     makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap (\(_,_,w) -> w) iws) [ps] propertyNames summaryProperties
@@ -131,12 +134,14 @@ handleResult _ (Left e) = putStrLn e
 handleResult f (Right a) = f a
 
 dumpJson :: Data -> IO ()
-dumpJson (Data i ws _) = do
+dumpJson (Data i ws ts) = do
   _ <- write "index.json" i
-  _ <- sequence . fmap (\(wi, w) -> write ("works/work" ++ show wi ++ ".json") w) . zip ([0..] :: [Int]) $ ws
+  _ <- writeAll "works/work" ws
+  _ <- writeAll "values/type" ts
   return ()
   where
     write n = BL.writeFile (Path.pagesData </> n) . Aeson.encode
+    writeAll n = sequence . fmap (\(xi, x) -> write (n ++ show xi ++ ".json") x) . zip ([0..] :: [Int])
 
 showError :: Show a => Either a b -> Either String b
 showError = Lens.over Lens._Left show
