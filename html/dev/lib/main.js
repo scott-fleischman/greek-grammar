@@ -22,7 +22,9 @@ function go() {
 
   const store = createStoreWithMiddleware(State.applyAction, State.initial);
 
-  window.onhashchange = () => onHashChange(store.dispatch)(window.location.hash);
+  const ourOnHashChange = () => onHashChange(store.dispatch) (x => window.location.hash = x) (window.location.hash);
+  window.onhashchange = ourOnHashChange;
+  ourOnHashChange();
 
   ReactDOM.render(
     <Provider store={store}>

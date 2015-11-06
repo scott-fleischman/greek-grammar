@@ -2,7 +2,6 @@ import React from 'react';
 import * as BS from 'react-bootstrap';
 
 export const Nav = ({ title, workListUrl, typeListUrl }) => {
-  console.log(workListUrl, typeListUrl);
   return (
     <BS.Navbar fluid>
       <BS.NavBrand>{title}</BS.NavBrand>

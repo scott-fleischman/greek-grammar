@@ -58,4 +58,12 @@ const getData = (data, action) => {
 };
 
 export const getActionForVisual = visual => {
+  if (visual.view === view.workList)
+    return Action.fetchViewWorkList();
+  if (visual.view === view.typeList)
+    return Action.fetchViewTypeList();
+  if (visual.view === view.work && !R.isNil(visual.workIndex))
+    return Action.fetchViewWork(visual.workIndex);
+  else
+    return undefined;
 }

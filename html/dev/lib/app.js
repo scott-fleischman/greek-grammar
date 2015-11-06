@@ -14,10 +14,13 @@ function getUrl(action) {
   return `#${queryString}`;
 }
 
-export const onHashChange = dispatch => newHash => {
+export const onHashChange = dispatch => resetHash => newHash => {
   const visual = QueryString.parse(newHash);
   const action = State.getActionForVisual(visual);
-  dispatch(action);
+  if (!R.isNil(action))
+    dispatch(action);
+  else
+    resetHash(getUrl(Action.viewWorkList()));
 }
 
 const loadingText = 'Loading…';
@@ -75,7 +78,6 @@ const App = ({ dispatch, visual, data }) => {
     return (<div>Internal error</div>);
   }
 
-  console.log('action.viewWorkList URL', getUrl(Action.viewWorkList()));
   return (
     <div>
       <Nav
