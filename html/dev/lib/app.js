@@ -14,10 +14,10 @@ function getUrl(action) {
   return `#${queryString}`;
 }
 
-export function onHashChange(newHash) {
+export const onHashChange = dispatch => newHash => {
   const visual = QueryString.parse(newHash);
   const action = State.getActionForVisual(visual);
-  console.log('onHashChange', 'visual', visual, 'action', action);
+  dispatch(action);
 }
 
 const loadingText = 'Loading…';
@@ -72,7 +72,7 @@ const App = ({ dispatch, visual, data }) => {
   }
   if (!info) {
     console.log('Unknown view', visual.view);
-    return;
+    return (<div>Internal error</div>);
   }
 
   console.log('action.viewWorkList URL', getUrl(Action.viewWorkList()));
