@@ -17,7 +17,6 @@ import qualified Control.Lens as Lens
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.Char as Char
-import qualified Data.Foldable as Foldable
 import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -32,7 +31,6 @@ import qualified Text.Greek.Script.Word as Word
 
 data Data = Data
   { index :: Index
-  --, instance0 :: Instance
   , works :: [Work]
   }
 
@@ -47,13 +45,6 @@ instance Aeson.ToJSON WorkInfo where toJSON (WorkInfo t s wc) = Aeson.object ["t
 
 data TypeInfo = TypeInfo Text Int Int deriving Show
 instance Aeson.ToJSON TypeInfo where toJSON (TypeInfo t vc ic) = Aeson.object ["title" .= t, "valueCount" .= vc, "instanceCount" .= ic]
-
-data Instance = Instance
-  { instanceName :: Text
-  , instanceProperties :: [Text]
-  , instanceValues :: [[Int]]
-  } deriving (Generic, Show)
-instance Aeson.ToJSON Instance
 
 data Property = Property
   { propertyName :: Text
@@ -105,9 +96,6 @@ getData ws = Data ourIndex stage0Works
     ourIndex = Index (fmap makeWorkInfo ws) []
 
     makeWorkInfo (All.Work s t c) = WorkInfo (titleWorkTitle t) (titleWorkSource s) (length c)
-
-    --flatStage0 = flattenStage0 xs
-    --(stage0Instance, stage0Properties) = makeStage0Instance flatStage0
 
     stage0Works = fmap makeWork ws
     makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap (\(_,_,w) -> w) iws) [ps] propertyNames summaryProperties
@@ -186,44 +174,6 @@ makeValueMap xs = Map.fromList indexedList
   where
     uniqueValues = Set.toAscList . Set.fromList $ xs
     indexedList = zip uniqueValues [0..]
-
-makeStage0Instance :: [Stage0] -> (Instance, [Property])
-makeStage0Instance ss = (stage0Instance, stage0Properties)
-  where
-    workSourceMap        = makeValueMap $ fmap (\(x,_,_,_,_) -> x) ss
-    workTitleMap         = makeValueMap $ fmap (\(_,x,_,_,_) -> x) ss
-    stage0WordMap        = makeValueMap $ fmap (\(_,_,x,_,_) -> x) ss
-    fileCharReferenceMap = makeValueMap $ fmap (\(_,_,_,x,_) -> x) ss
-    unicodeComposedMap   = makeValueMap $ fmap (\(_,_,_,_,x) -> x) ss
-
-    stage0Instance = Instance "Stage0"
-      [ workSourceName
-      , workTitleName
-      , stage0WordName
-      , fileCharReferenceName
-      , unicodeComposedName
-      ]
-      (concat . Foldable.toList $ maybeInstanceValues)
-
-    stage0Properties = [workSourceProperty, workTitleProperty, stage0WordProperty, fileCharReferenceProperty, unicodeComposedProperty]
-
-    workSourceProperty = makeProperty workSourceName titleWorkSource workSourceMap
-    workTitleProperty = makeProperty workTitleName titleWorkTitle workTitleMap
-    stage0WordProperty = makeProperty stage0WordName titleStage0Word stage0WordMap
-    fileCharReferenceProperty = makeProperty fileCharReferenceName titleFileCharReference fileCharReferenceMap
-    unicodeComposedProperty = makeProperty unicodeComposedName titleUnicodeComposed unicodeComposedMap
-
-    maybeInstanceValues :: Maybe [[Int]]
-    maybeInstanceValues = traverse makeInstanceValue ss
-
-    makeInstanceValue :: Stage0 -> Maybe [Int]
-    makeInstanceValue (a, b, c, d, e) = sequence
-      [ Map.lookup a workSourceMap
-      , Map.lookup b workTitleMap
-      , Map.lookup c stage0WordMap
-      , Map.lookup d fileCharReferenceMap
-      , Map.lookup e unicodeComposedMap
-      ]
 
 makeProperty :: Ord a => Text -> (a -> Text) -> Map a Int -> Property
 makeProperty t f = Property t . fmap f . fmap fst . Map.toAscList
