@@ -10,7 +10,7 @@ import thunkMiddleware from 'redux-thunk'
 import createLogger from 'redux-logger'
 import * as State from './state.js'
 import * as Action from './action.js'
-import App from './app.js';
+import App, { onHashChange } from './app.js';
 
 function go() {
   const loggerMiddleware = createLogger();
@@ -23,6 +23,8 @@ function go() {
   const store = createStoreWithMiddleware(State.applyAction, State.initial);
 
   store.dispatch(Action.fetchIndex());
+
+  window.onhashchange = () => onHashChange(window.location.hash);
 
   ReactDOM.render(
     <Provider store={store}>

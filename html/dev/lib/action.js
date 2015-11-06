@@ -54,7 +54,7 @@ export function viewTypeList() { return { type: types.viewTypeList }; }
 
 function requestWork(workIndex) { return { type: types.requestWork, workIndex: workIndex }; }
 function receiveWork(workIndex, work) { return { type: types.receiveWork, workIndex: workIndex, work: work }; }
-function viewWork(workIndex) { return { type: types.viewWork, workIndex: workIndex }; }
+export function viewWork(workIndex) { return { type: types.viewWork, workIndex: workIndex }; }
 
 export function fetchWork(workIndex) {
   return (dispatch, getState) => {

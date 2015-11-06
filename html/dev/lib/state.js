@@ -34,7 +34,7 @@ export function applyAction(state = {}, action) {
   return { ...cache, ...cacheUpdate, ...stateUpdate, view: view };
 }
 
-function getView(actionType) {
+const getView = actionType => {
   switch (actionType) {
     case Action.types.requestIndex: return view.loadingIndex;
     case Action.types.receiveIndex: return view.workList;
@@ -45,27 +45,32 @@ function getView(actionType) {
     case Action.types.viewWork: return view.work;
     default: return undefined;
   }
-}
+};
 
-function getStateUpdate(action) {
+const getStateUpdate = action => {
   switch (action.type) {
     case Action.types.requestWork: return { workIndex: action.workIndex };
     case Action.types.receiveWork: return { workIndex: action.workIndex };
     case Action.types.viewWork: return { workIndex: action.workIndex };
     default: return {};
   }
-}
+};
 
-function getCacheUpdate(cache, action) {
+const getCacheUpdate = (cache, action) => {
   switch (action.type) {
     case Action.types.receiveIndex: return { index: action.index };
     case Action.types.receiveWork: return { works: updateMap(cache.works, action.workIndex, action.work) };
     default: return {};
   }
-}
+};
 
 const persistProperties = ['view', 'workIndex'];
 
-function persistAction(action) {
-  return R.compose(R.mergeAll, R.map(R.pick(persistProperties)))([state, action]);
+export function getPersistedState(action) {
+  const apply = f => f(action);
+  const go = R.compose(R.pick(persistProperties), R.mergeAll, R.map(apply));
+  return go([getView, getStateUpdate]);
+}
+
+export function getActionForPersistedState(persistedState) {
 }

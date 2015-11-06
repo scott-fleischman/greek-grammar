@@ -6,6 +6,19 @@ import { WorkList } from './workList.js';
 import { Nav } from './nav.js';
 import R from 'ramda';
 import { Work } from './render.js';
+import QueryString from 'query-string';
+
+function getUrl(action) {
+  const persistedState = State.getPersistedState(action);
+  const queryString = QueryString.stringify(persistedState);
+  return `#${queryString}`;
+}
+
+export function onHashChange(newHash) {
+  const parsed = QueryString.parse(newHash);
+  const persistedState = State.getActionForPersistedState(parsed);
+  console.log('parsed', parsed, 'persistedState', persistedState);
+}
 
 function getLoadingIndex() {
   return {
@@ -21,10 +34,10 @@ function getLoadingWork(workIndex, works) {
   };
 }
 
-function getViewWorkList(works, viewWork) {
+function getViewWorkList(works, viewWork, getViewWorkUrl) {
   return {
     navTitle: `${works.length} Greek Works, ${R.compose(R.sum, R.map(x => x.wordCount))(works)} Words`,
-    content: (<WorkList works={works} viewWork={viewWork} />),
+    content: (<WorkList works={works} viewWork={viewWork} getViewWorkUrl={getViewWorkUrl} />),
   };
 }
 
@@ -49,7 +62,7 @@ const App = ({ dispatch, view, index, workIndex, works, types }) => {
   switch (view) {
     case State.view.loadingIndex: info = getLoadingIndex(); break;
     case State.view.loadingWork: info = getLoadingWork(workIndex, index.works); break;
-    case State.view.workList: info = getViewWorkList(index.works, viewWork); break;
+    case State.view.workList: info = getViewWorkList(index.works, viewWork, R.compose(getUrl, Action.viewWork)); break;
     case State.view.typeList: info = getViewTypeList(index.types); break;
     case State.view.work: info = getViewWork(index.works[workIndex].title, workIndex, works.get(workIndex)); break;
   }
