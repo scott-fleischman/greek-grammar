@@ -9,15 +9,15 @@ import { Work } from './render.js';
 import QueryString from 'query-string';
 
 function getUrl(action) {
-  const persistedState = State.getPersistedState(action);
-  const queryString = QueryString.stringify(persistedState);
+  const visual = State.getVisual(action);
+  const queryString = QueryString.stringify(visual);
   return `#${queryString}`;
 }
 
 export function onHashChange(newHash) {
-  const parsed = QueryString.parse(newHash);
-  const persistedState = State.getActionForPersistedState(parsed);
-  console.log('parsed', parsed, 'persistedState', persistedState);
+  const visual = QueryString.parse(newHash);
+  const action = State.getActionForPersistedState(visual);
+  console.log('visual', visual, 'action', action);
 }
 
 function getLoadingIndex() {
@@ -55,19 +55,19 @@ function getViewWork(workTitle, workIndex, work) {
   };
 }
 
-const App = ({ dispatch, view, index, workIndex, works, types }) => {
+const App = ({ dispatch, visual, data }) => {
   const viewWork = x => dispatch(Action.fetchWork(x));
 
   let info = null;
-  switch (view) {
+  switch (visual.view) {
     case State.view.loadingIndex: info = getLoadingIndex(); break;
-    case State.view.loadingWork: info = getLoadingWork(workIndex, index.works); break;
-    case State.view.workList: info = getViewWorkList(index.works, viewWork, R.compose(getUrl, Action.viewWork)); break;
-    case State.view.typeList: info = getViewTypeList(index.types); break;
-    case State.view.work: info = getViewWork(index.works[workIndex].title, workIndex, works.get(workIndex)); break;
+    case State.view.loadingWork: info = getLoadingWork(visual.workIndex, data.index.works); break;
+    case State.view.workList: info = getViewWorkList(data.index.works, viewWork, R.compose(getUrl, Action.viewWork)); break;
+    case State.view.typeList: info = getViewTypeList(data.index.types); break;
+    case State.view.work: info = getViewWork(data.index.works[visual.workIndex].title, visual.workIndex, data.works.get(visual.workIndex)); break;
   }
   if (!info) {
-    console.log('Unknown view', view);
+    console.log('Unknown view', visual.view);
     return;
   }
 
@@ -87,11 +87,8 @@ const App = ({ dispatch, view, index, workIndex, works, types }) => {
 
 function select(state) {
   return {
-    view: state.view,
-    index: state.index,
-    workIndex: state.workIndex,
-    works: state.works,
-    types: state.types,
+    visual: state.visual,
+    data: state.data,
   };
 }
 

@@ -10,12 +10,16 @@ export const view = R.compose(R.fromPairs, R.map(x => [x,x])) ([
 ]);
 
 export const initial = {
-  view: view.loadingIndex,
-  works: new Map(),
-  types: new Map(),
+  visual: {
+    view: view.loadingIndex,
+  },
+  data: {
+    works: new Map(),
+    types: new Map(),
+  },
 };
 
-export function hasWork(state, workIndex) { return state.works.has(workIndex); }
+export function hasWork(state, workIndex) { return state.data.works.has(workIndex); }
 
 function updateMap(map, key, value) {
   const newMap = new Map(map);
@@ -24,53 +28,32 @@ function updateMap(map, key, value) {
 }
 
 export function applyAction(state = {}, action) {
-  const cacheProperties = ['index', 'works', 'types'];
-  const cache = R.pick(cacheProperties, state);
+  const data = getData(state.data, action);
+  const visual = getVisual(action);
 
-  const cacheUpdate = getCacheUpdate(cache, action);
-  const stateUpdate = getStateUpdate(action);
-  const view = getView(action.type);
-
-  return { ...cache, ...cacheUpdate, ...stateUpdate, view: view };
+  return { data, visual };
 }
 
-const getView = actionType => {
-  switch (actionType) {
-    case Action.types.requestIndex: return view.loadingIndex;
-    case Action.types.receiveIndex: return view.workList;
-    case Action.types.viewWorkList: return view.workList;
-    case Action.types.viewTypeList: return view.typeList;
-    case Action.types.requestWork: return view.loadingWork;
-    case Action.types.receiveWork: return view.loadingWork;
-    case Action.types.viewWork: return view.work;
-    default: return undefined;
-  }
-};
-
-const getStateUpdate = action => {
+export const getVisual = action => {
   switch (action.type) {
-    case Action.types.requestWork: return { workIndex: action.workIndex };
-    case Action.types.receiveWork: return { workIndex: action.workIndex };
-    case Action.types.viewWork: return { workIndex: action.workIndex };
+    case Action.types.requestIndex: return { view: view.loadingIndex };
+    case Action.types.receiveIndex: return { view: view.workList };
+    case Action.types.viewWorkList: return { view: view.workList };
+    case Action.types.viewTypeList: return { view: view.typeList };
+    case Action.types.requestWork: return { view: view.loadingWork, workIndex: action.workIndex };
+    case Action.types.receiveWork: return { view: view.loadingWork, workIndex: action.workIndex };
+    case Action.types.viewWork: return { view: view.work, workIndex: action.workIndex };
     default: return {};
   }
 };
 
-const getCacheUpdate = (cache, action) => {
+const getData = (data, action) => {
   switch (action.type) {
-    case Action.types.receiveIndex: return { index: action.index };
-    case Action.types.receiveWork: return { works: updateMap(cache.works, action.workIndex, action.work) };
-    default: return {};
+    case Action.types.receiveIndex: return { ...data, index: action.index };
+    case Action.types.receiveWork: return { ...data, works: updateMap(data.works, action.workIndex, action.work) };
+    default: return data;
   }
 };
 
-const persistProperties = ['view', 'workIndex'];
-
-export function getPersistedState(action) {
-  const apply = f => f(action);
-  const go = R.compose(R.pick(persistProperties), R.mergeAll, R.map(apply));
-  return go([getView, getStateUpdate]);
-}
-
-export function getActionForPersistedState(persistedState) {
+export const getActionForVisual = visual => {
 }

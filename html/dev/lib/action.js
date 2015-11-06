@@ -1,6 +1,6 @@
 import R from 'ramda';
 import 'fetch';
-import * as state from './state.js';
+import * as State from './state.js';
 
 export const types = R.compose(R.fromPairs, R.map(x => [x,x])) ([
   'requestIndex',
@@ -46,7 +46,9 @@ function dispatchFetch(data, onRequest, onResponse) {
 }
 
 export function fetchIndex() {
-  return dispatchFetch('index', () => requestIndex(), x => receiveIndex(x));
+  return (dispatch, getState) => {
+    return getState().index ? Promise.resolve() : dispatchFetch('index', () => requestIndex(), x => receiveIndex(x)) (dispatch);
+  }
 }
 
 export function viewWorkList() { return { type: types.viewWorkList }; }
@@ -58,7 +60,7 @@ export function viewWork(workIndex) { return { type: types.viewWork, workIndex: 
 
 export function fetchWork(workIndex) {
   return (dispatch, getState) => {
-    let initialPromise = state.hasWork(getState(), workIndex) ? Promise.resolve() :
+    const initialPromise = State.hasWork(getState(), workIndex) ? Promise.resolve() :
       dispatchFetch(`works/work${workIndex}`, () => requestWork(workIndex), x => receiveWork(workIndex, x)) (dispatch);
     return initialPromise.then(() => dispatch(viewWork(workIndex)));
   };
