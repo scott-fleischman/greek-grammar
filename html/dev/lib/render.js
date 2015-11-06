@@ -148,7 +148,7 @@ const Word = ({id, text, wordProps, propertyNames, summaryProperties}) => {
   );
   return (
     <OverlayTrigger trigger="click" rootClose placement="bottom" overlay={popover}>
-      <span><a href="#">{text}</a> </span>
+      <span><a href="javascript:">{text}</a> </span>
     </OverlayTrigger>
   );
 }
