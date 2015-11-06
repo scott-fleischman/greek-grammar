@@ -10,6 +10,10 @@ span.typeInfoCounts {
   font-size: 75%;
 }
 
+span.valueInfoCount {
+  font-size: 75%;
+}
+
 div.listContainer {
   margin: 0 1em 0 1em;
 }

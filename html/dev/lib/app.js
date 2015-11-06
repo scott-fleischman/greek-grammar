@@ -4,6 +4,7 @@ import * as Action from './action.js'
 import * as State from './state.js';
 import { WorkList } from './workList.js';
 import { TypeList } from './typeList.js';
+import { ValueList } from './valueList.js';
 import { Nav } from './nav.js';
 import R from 'ramda';
 import { Work } from './render.js';
@@ -42,6 +43,13 @@ function getLoadingWork(workIndex, works) {
   };
 }
 
+function getLoadingValues() {
+  return {
+    navTitle: loadingText,
+    content: (<div></div>),
+  };
+}
+
 function getViewWorkList(works, getWorkUrl) {
   return {
     navTitle: `${works.length} Greek Works, ${R.compose(R.sum, R.map(x => x.wordCount))(works)} Words`,
@@ -63,10 +71,10 @@ function getViewWork(workTitle, workIndex, work) {
   };
 }
 
-function getViewType() {
+function getViewValueList(values, typeTitle, typeIndex, getValueUrl) {
   return {
-    navTitle: 'Type',
-    content: (<div></div>),
+    navTitle: `${typeTitle}, ${values.length} Values`,
+    content: (<ValueList values={values} typeIndex={typeIndex} getValueUrl={getValueUrl} />),
   };
 }
 
@@ -77,14 +85,15 @@ const App = ({ dispatch, visual, data }) => {
   switch (visual.view) {
     case State.view.loadingIndex: info = getLoadingIndex(); break;
     case State.view.loadingWork: info = getLoadingWork(visual.workIndex, data.index.works); break;
+    case State.view.loadingValues: info = getLoadingValues(); break;
     case State.view.workList: info = getViewWorkList(data.index.works, R.compose(getUrl, Action.viewWork)); break;
-    case State.view.typeList: info = getViewTypeList(data.index.types, R.compose(getUrl, Action.viewType)); break;
+    case State.view.typeList: info = getViewTypeList(data.index.types, R.compose(getUrl, Action.viewValueList)); break;
     case State.view.work: info = getViewWork(data.index.works[visual.workIndex].title, visual.workIndex, data.works.get(visual.workIndex)); break;
-    case State.view.type: info = getViewType(); break;
+    case State.view.valueList: info = getViewValueList(data.types.get(visual.typeIndex).values, data.index.types[visual.typeIndex].title, visual.typeIndex, () => '#'); break;
   }
   if (!info) {
-    console.log('Unknown view', visual.view);
-    return (<div>Internal error</div>);
+    console.log('Unknown view', visual);
+    return (<div style={{margin:'1em'}}>Whoopsie! Something went wrong.</div>);
   }
 
   return (

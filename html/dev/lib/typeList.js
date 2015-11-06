@@ -5,7 +5,7 @@ const TypeInfo = ({ title, valueCount, instanceCount, url }) => (
   <div>
     <a href={url}>{title}</a>
     &ensp;
-    <span className="typeInfoCounts">{valueCount} words, {instanceCount} instances</span>
+    <span className="typeInfoCounts">{valueCount} values, {instanceCount} instances</span>
   </div>
 );
 

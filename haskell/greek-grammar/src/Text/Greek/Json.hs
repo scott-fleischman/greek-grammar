@@ -11,17 +11,18 @@ import Data.Map (Map)
 import Data.Text (Text)
 import GHC.Generics
 import Text.Greek.FileReference
-import Text.Greek.Xml.Common
+--import Text.Greek.Xml.Common
 import System.FilePath
 import qualified Control.Lens as Lens
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.Char as Char
-import qualified Data.List as List
+--import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.Lazy as Lazy
+import qualified Data.Text.Lazy.Builder as Lazy
 import qualified Data.Text.Format as Format
 import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Paths as Path
@@ -41,9 +42,6 @@ data Type = Type
   }
 instance Aeson.ToJSON Type where toJSON (Type t vs) = Aeson.object ["title" .= t, "values" .= vs]
 
-newtype WordIndex = WordIndex Int deriving Show
-instance Aeson.ToJSON WordIndex where toJSON (WordIndex wi) = Aeson.toJSON wi
-
 data Index = Index
   { indexWorkInfos :: [WorkInfo]
   , indexTypeInfos :: [TypeInfo]
@@ -57,57 +55,102 @@ data TypeInfo = TypeInfo Text Int Int deriving Show
 instance Aeson.ToJSON TypeInfo where toJSON (TypeInfo t vc ic) = Aeson.object ["title" .= t, "valueCount" .= vc, "instanceCount" .= ic]
 
 data Word = Word
-  { wordText :: Text
-  , wordProperties :: [Text]
+  { wordText :: WordText
+  , wordValues :: [ValueIndex]
   } deriving (Show)
-instance Aeson.ToJSON Word where toJSON (Word t p) = Aeson.object ["t" .= t, "p" .= p]
+instance Aeson.ToJSON Word where toJSON (Word t vs) = Aeson.object ["t" .= t, "v" .= vs]
+
+newtype WordIndex = WordIndex Int deriving (Eq, Ord, Show)
+instance Aeson.ToJSON WordIndex where toJSON (WordIndex i) = Aeson.toJSON i
+
+newtype TypeIndex = TypeIndex Int deriving (Eq, Ord, Show)
+instance Aeson.ToJSON TypeIndex where toJSON (TypeIndex i) = Aeson.toJSON i
+
+newtype ValueIndex = ValueIndex Int deriving (Eq, Ord, Show)
+instance Aeson.ToJSON ValueIndex where toJSON (ValueIndex i) = Aeson.toJSON i
 
 data WordGroup = WordGroup
-  { wordGroupName :: Text
-  , wordGroupWords :: [[Int]]
+  { wordGroupTitle :: Text
+  , wordGroupWords :: [[WordIndex]]
   } deriving (Generic, Show)
-instance Aeson.ToJSON WordGroup
+instance Aeson.ToJSON WordGroup where toJSON (WordGroup t ws) = Aeson.object ["title" .= t, "words" .= ws]
 
 data Work = Work
   { workSource :: Text
   , workTitle :: Text
   , workWords :: [Word]
   , workWordGroups :: [WordGroup]
-  , workWordPropertyNames :: [Text]
-  , workWordSummaryProperties :: [Int]
+  , workWordTypes :: [TypeIndex]
+  , workWordSummary :: [Int]
   } deriving (Generic, Show)
-instance Aeson.ToJSON Work
+instance Aeson.ToJSON Work where
+  toJSON (Work s t ws wgs ts sm) = Aeson.object
+    [ "source" .= s
+    , "title" .= t
+    , "words" .= ws
+    , "wordGroups" .= wgs
+    , "wordTypes" .= ts
+    , "wordSummary" .= sm
+    ]
 
 go :: IO ()
-go = All.loadAll >>= handleResult dumpJson . Lens.over Lens._Right getData . process
+go = All.loadAll >>= handleResult dumpJson . Lens.over Lens._Right getData' . showError
 
-process
-  :: Either [XmlError] [All.Work [Word.Basic (Text, FileReference)]]
-  -> Either String     [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
-process x
-  =   showError x
-  >>= showError . toStage0Hierarchy
+--process
+--  :: Either [XmlError] [All.Work [Word.Basic (Text, FileReference)]]
+--  -> Either String     [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
+--process x
+--  =   showError x
+--  >>= showError . toStage0Hierarchy
 
-getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
-getData ws = Data ourIndex stage0Works ourTypes
+makeValueMap :: Ord a => [a] -> Map a ValueIndex
+makeValueMap
+  = Map.fromList
+  . Lens.over (Lens.each . Lens._2) ValueIndex
+  . flip zip [0..]
+  . Set.toAscList
+  . Set.fromList
+
+newtype WordText = WordText { getWordText :: Text } deriving (Eq, Ord, Show)
+instance Aeson.ToJSON WordText where toJSON (WordText t) = Aeson.toJSON t
+
+makeType :: Text -> (a -> Text) -> [a] -> Type
+makeType t f = Type t . fmap f
+
+getData' :: [All.Work [Word.Basic (Text, FileReference)]] -> Data
+getData' ws = Data ourIndex [] ourTypes
   where
-    ourIndex = Index (fmap makeWorkInfo ws) (fmap makeTypeInfo ourTypes)
+    ourIndex = Index [] (fmap makeTypeInfo ourTypes)
+    ourTypes = [wordTextType]
 
-    ourTypes = [Type "Simple Type" ["Value1", "Value2"]]
+    wordTextType = makeType "Source Text" getWordText (Map.keys wordTextMap)
+    wordTextMap = makeValueMap (workWordTexts ws)
+    wordTexts = fmap (WordText . fst . Word._basicSurface)
+    workWordTexts = concatMap (wordTexts . All._workContent)
 
-    makeWorkInfo (All.Work s t c) = WorkInfo (titleWorkTitle t) (titleWorkSource s) (length c)
     makeTypeInfo (Type t vs) = TypeInfo t (length vs) 0
 
-    stage0Works = fmap makeWork ws
-    makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap (\(_,_,w) -> w) iws) [ps] propertyNames summaryProperties
-      where
-        ps = paragraphs iws
-        iws = indexedWords c
-        propertyNames = ["Elision", "Unicode Composed", "Line:Column", "File"]
-        summaryProperties = [0..3]
-    paragraphs = WordGroup "Paragraph" . (fmap . fmap) fst . List.groupBy (\(_,p1) (_,p2) -> p1 == p2) . fmap (\(i,p,_) -> (i,p))
-    indexedWords = fmap (uncurry makeWord) . zip [0..]
-    makeWord i w@(Word.Basic s _ p) = (i, p, Word (titleStage0Word . getStageWord $ s) (getWordProperties w))
+
+--getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
+--getData ws = Data ourIndex stage0Works ourTypes
+--  where
+--    ourIndex = Index (fmap makeWorkInfo ws) (fmap makeTypeInfo ourTypes)
+
+--    ourTypes = [Type "Simple Type" ["Value1", "Value2"]]
+
+--    makeWorkInfo (All.Work s t c) = WorkInfo (titleWorkTitle t) (titleWorkSource s) (length c)
+--    makeTypeInfo (Type t vs) = TypeInfo t (length vs) 0
+
+--    stage0Works = fmap makeWork ws
+--    makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap (\(_,_,w) -> w) iws) [ps] propertyNames summaryProperties
+--      where
+--        ps = paragraphs iws
+--        iws = indexedWords c
+--        propertyNames = ["Elision", "Unicode Composed", "Line:Column", "File"]
+--        summaryProperties = [0..3]
+--    paragraphs = WordGroup "Paragraph" . (fmap . fmap) fst . List.groupBy (\(_,p1) (_,p2) -> p1 == p2) . fmap (\(i,p,_) -> (i,p))
+--    indexedWords = fmap (uncurry makeWord) . zip [0..]
+--    makeWord i w@(Word.Basic s _ p) = (i, p, Word (titleStage0Word . getStageWord $ s) (getWordProperties w))
 
 getWordProperties :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [Text]
 getWordProperties (Word.Basic s e _) =
@@ -172,12 +215,6 @@ flattenStage0 = concatMap flattenWork
 getStageWord :: [(Unicode.Composed, FileCharReference)] -> Stage0Word
 getStageWord = Stage0Word . fmap fst
 
-makeValueMap :: Ord a => [a] -> Map a Int
-makeValueMap xs = Map.fromList indexedList
-  where
-    uniqueValues = Set.toAscList . Set.fromList $ xs
-    indexedList = zip uniqueValues [0..]
-
 workSourceName :: Text
 workSourceName = "WorkSource"
 
@@ -209,4 +246,4 @@ titleUnicodeComposed :: Unicode.Composed -> Text
 titleUnicodeComposed (Unicode.Composed c) = Lazy.toStrict $ Format.format "{} {}" (formatUnicodeCodePoint c, c)
 
 formatUnicodeCodePoint :: Char -> Text
-formatUnicodeCodePoint c = Lazy.toStrict $ Format.format "U+{}" (Format.Only . Format.left 4 '0' . Format.hex . Char.ord $ c)
+formatUnicodeCodePoint c = Lazy.toStrict $ Format.format "U+{}" (Format.Only . Lazy.toUpper . Lazy.toLazyText . Format.left 4 '0' . Format.hex . Char.ord $ c)

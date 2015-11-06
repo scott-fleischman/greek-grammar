@@ -10,7 +10,9 @@ export const types = R.compose(R.fromPairs, R.map(x => [x,x])) ([
   'requestWork',
   'receiveWork',
   'viewWork',
-  'viewType',
+  'viewValueList',
+  'requestValues',
+  'receiveValues',
 ]);
 
 function checkStatus(response) {
@@ -54,7 +56,7 @@ function fetchIndex(dispatch, getState) {
 export function viewWorkList() { return { type: types.viewWorkList }; }
 export function viewTypeList() { return { type: types.viewTypeList }; }
 export function viewWork(workIndex) { return { type: types.viewWork, workIndex }; }
-export function viewType(typeIndex) { return { type: types.viewType, typeIndex }; }
+export function viewValueList(typeIndex) { return { type: types.viewValueList, typeIndex }; }
 
 export const fetchViewWorkList = () => (dispatch, getState) => fetchIndex(dispatch, getState).then(() => dispatch(viewWorkList()));
 export const fetchViewTypeList = () => (dispatch, getState) => fetchIndex(dispatch, getState).then(() => dispatch(viewTypeList()));
@@ -68,10 +70,21 @@ function fetchWork(dispatch, getState, workIndex) {
   return dispatchFetchData(dispatch, `works/work${workIndex}`, () => requestWork(workIndex), x => receiveWork(workIndex, x));
 }
 
-export const fetchViewWork = workIndex => (dispatch, getState) =>
-  Promise.all([
-    fetchIndex(dispatch, getState),
-    fetchWork(dispatch, getState, workIndex)
-  ]).then(() => dispatch(viewWork(workIndex)));
+function requestValues(typeIndex) { return { type: types.requestValues, typeIndex }; }
+function receiveValues(typeIndex, typeValues) { return { type: types.receiveValues, typeIndex, typeValues }; }
+function fetchValues(dispatch, getState, typeIndex) {
+  if (State.hasValues(getState(), typeIndex))
+    return Promise.resolve();
 
-export const fetchViewType = typeIndex => (dispatch, getState) => Promise.resolve();
+  return dispatchFetchData(dispatch, `values/type${typeIndex}`, () => requestValues(typeIndex), x => receiveValues(typeIndex, x));
+}
+
+export const fetchViewWork = workIndex => (dispatch, getState) =>
+  fetchIndex(dispatch, getState)
+  .then(() => fetchWork(dispatch, getState, workIndex))
+  .then(() => dispatch(viewWork(workIndex)));
+
+export const fetchViewValueList = typeIndex => (dispatch, getState) =>
+  fetchIndex(dispatch, getState)
+  .then(() => fetchValues(dispatch, getState, typeIndex))
+  .then(() => dispatch(viewValueList(typeIndex)));

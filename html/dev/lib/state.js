@@ -7,7 +7,8 @@ export const view = R.compose(R.fromPairs, R.map(x => [x,x])) ([
   'workList',
   'typeList',
   'work',
-  'type',
+  'valueList',
+  'loadingValues',
 ]);
 
 export const initial = {
@@ -21,6 +22,7 @@ export const initial = {
 };
 
 export function hasWork(state, workIndex) { return state.data.works.has(workIndex); }
+export function hasValues(state, typeIndex) { return state.data.types.has(typeIndex); }
 
 function updateMap(map, key, value) {
   const newMap = new Map(map);
@@ -44,8 +46,10 @@ export const getVisual = action => {
     case Action.types.requestWork: return { view: view.loadingWork, workIndex: action.workIndex };
     case Action.types.receiveWork: return { view: view.loadingWork, workIndex: action.workIndex };
     case Action.types.viewWork: return { view: view.work, workIndex: action.workIndex };
-    case Action.types.viewType: return { view: view.type, typeIndex: action.typeIndex };
-    default: return {};
+    case Action.types.viewValueList: return { view: view.valueList, typeIndex: action.typeIndex };
+    case Action.types.requestValues: return { view: view.loadingValues, typeIndex: action.typeIndex };
+    case Action.types.receiveValues: return { view: view.loadingValues, typeIndex: action.typeIndex };
+    default: console.log('Unknown action', action); return {};
   }
 };
 
@@ -55,6 +59,8 @@ const getData = (data, action) => {
     case Action.types.receiveIndex: return { ...data, index: action.index };
     case Action.types.requestWork: return { ...data, works: updateMap(data.works, action.workIndex, { loading: true }) };
     case Action.types.receiveWork: return { ...data, works: updateMap(data.works, action.workIndex, action.work) };
+    case Action.types.requestValues: return { ...data, types: updateMap(data.types, action.typeIndex, { loading: true }) };
+    case Action.types.receiveValues: return { ...data, types: updateMap(data.types, action.typeIndex, action.typeValues) };
     default: return data;
   }
 };
@@ -66,8 +72,8 @@ export const getActionForVisual = visual => {
     return Action.fetchViewTypeList();
   if (visual.view === view.work && !R.isNil(visual.workIndex))
     return Action.fetchViewWork(visual.workIndex);
-  if (visual.view === view.type && !R.isNil(visual.typeIndex))
-    return Action.fetchViewType(visual.typeIndex);
+  if (visual.view === view.valueList && !R.isNil(visual.typeIndex))
+    return Action.fetchViewValueList(visual.typeIndex);
   else
     return undefined;
 }
