@@ -58,10 +58,13 @@ function requestWork(workIndex) { return { type: types.requestWork, workIndex: w
 function receiveWork(workIndex, work) { return { type: types.receiveWork, workIndex: workIndex, work: work }; }
 export function viewWork(workIndex) { return { type: types.viewWork, workIndex: workIndex }; }
 
-export function fetchWork(workIndex) {
+export function fetchViewWork(workIndex) {
   return (dispatch, getState) => {
-    const initialPromise = State.hasWork(getState(), workIndex) ? Promise.resolve() :
-      dispatchFetch(`works/work${workIndex}`, () => requestWork(workIndex), x => receiveWork(workIndex, x)) (dispatch);
-    return initialPromise.then(() => dispatch(viewWork(workIndex)));
+    const dispatchViewWork = () => dispatch(viewWork(workIndex));
+    if (State.hasWork(getState(), workIndex))
+      return dispatchViewWork;
+
+    return dispatchFetch(`works/work${workIndex}`, () => requestWork(workIndex), x => receiveWork(workIndex, x)) (dispatch)
+      .then(dispatchViewWork);
   };
 }

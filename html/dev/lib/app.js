@@ -56,7 +56,7 @@ function getViewWork(workTitle, workIndex, work) {
 }
 
 const App = ({ dispatch, visual, data }) => {
-  const viewWork = x => dispatch(Action.fetchWork(x));
+  const viewWork = x => dispatch(Action.fetchViewWork(x));
 
   let info = null;
   switch (visual.view) {
