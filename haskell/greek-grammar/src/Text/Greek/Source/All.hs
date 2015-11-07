@@ -12,16 +12,20 @@ import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Source.Sblgnt as SBL
 import qualified Text.Greek.Source.Work as Work
 
-loadAll :: IO (Either [XmlError] [Work.WorkText])
-loadAll = loadSblgnt
+loadAll :: IO (Either [XmlError] [Work.Indexed [Word.BasicText]])
+loadAll = do
+  sblgntResult <- loadSblgnt
+  return $ do
+    sblgntWords <- sblgntResult
+    return $ Work.indexBasic sblgntWords
 
-loadSblgnt :: IO (Either [XmlError] [Work.WorkText])
+loadSblgnt :: IO (Either [XmlError] [Work.Basic [Word.BasicText]])
 loadSblgnt = (fmap . fmap) sblgntToWorks $ readParseEvents SBL.sblgntParser sblgntXmlPath
 
-sblgntToWorks :: SBL.Sblgnt -> [Work.WorkText]
+sblgntToWorks :: SBL.Sblgnt -> [Work.Basic [Word.BasicText]]
 sblgntToWorks (SBL.Sblgnt _ _ bs) = fmap sblgntBookToWork bs
 
-sblgntBookToWork :: SBL.Book -> Work.WorkText
+sblgntBookToWork :: SBL.Book -> Work.Basic [Word.BasicText]
 sblgntBookToWork (SBL.Book _ t ps) = Work.Work info (concatMap (\(i, x) -> sblgntParagraphToWords i x) . addIndex $ ps)
   where
     info = (Work.SourceSblgnt, (Work.Title t))
