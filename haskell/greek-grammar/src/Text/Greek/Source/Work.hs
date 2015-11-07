@@ -7,12 +7,12 @@ import qualified Control.Lens as Lens
 import qualified Text.Greek.Script.Word as Word
 
 data Source = SourceSblgnt deriving (Eq, Ord, Show)
-
 newtype Title = Title Text deriving (Eq, Ord, Show)
+newtype Index = Index { getIndex :: Int } deriving (Eq, Ord, Show)
 
-data SourceTitle = SourceTitle Source Title deriving (Eq, Ord, Show)
+type Basic = Work (Source, Title)
+type Indexed = Work (Source, Title, Index)
 
-type Basic = Work SourceTitle
 type WorkText = Basic [Word.BasicText]
 data Work i c = Work
   { _workInfo :: i

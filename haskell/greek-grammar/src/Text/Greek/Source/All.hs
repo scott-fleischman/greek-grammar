@@ -22,9 +22,9 @@ sblgntToWorks :: SBL.Sblgnt -> [Work.WorkText]
 sblgntToWorks (SBL.Sblgnt _ _ bs) = fmap sblgntBookToWork bs
 
 sblgntBookToWork :: SBL.Book -> Work.WorkText
-sblgntBookToWork (SBL.Book _ t ps) = Work.Work sourceTitle (concatMap (\(i, x) -> sblgntParagraphToWords i x) . addIndex $ ps)
+sblgntBookToWork (SBL.Book _ t ps) = Work.Work info (concatMap (\(i, x) -> sblgntParagraphToWords i x) . addIndex $ ps)
   where
-    sourceTitle = Work.SourceTitle Work.SourceSblgnt (Work.Title t)
+    info = (Work.SourceSblgnt, (Work.Title t))
     addIndex = zip [0..]
 
 sblgntParagraphToWords :: Int -> SBL.BookParagraph -> [Word.BasicText]

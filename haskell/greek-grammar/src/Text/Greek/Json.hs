@@ -195,7 +195,7 @@ flattenStage0
 flattenStage0 = concatMap flattenWork
   where
     flattenWork :: Work.Basic [Word.Basic [(Unicode.Composed, FileCharReference)]] -> [Stage0]
-    flattenWork (Work.Work (Work.SourceTitle source title) content) = fmap (\(w, r, c) -> (source, title, w, r, c)) $ concatMap flattenWord content
+    flattenWork (Work.Work (source, title) content) = fmap (\(w, r, c) -> (source, title, w, r, c)) $ concatMap flattenWord content
   
     flattenWord :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [(Stage0Word, FileCharReference, Unicode.Composed)]
     flattenWord (Word.Basic surface _ _) = fmap (\(c, r) -> (stageWord, r, c)) surface
