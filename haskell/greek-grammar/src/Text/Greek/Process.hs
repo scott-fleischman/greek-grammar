@@ -2,9 +2,12 @@
 
 module Text.Greek.Process where
 
+import Data.Map (Map)
 import Data.Text (Text)
 import Text.Greek.FileReference (FileReference)
 import qualified Control.Lens as Lens
+import qualified Data.Map as Map
+import qualified Data.Set as Set
 import qualified Text.Greek.Json as Json
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
@@ -14,13 +17,38 @@ go :: IO ()
 go = All.loadAll >>= handleResult process . showError
 
 process :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]] -> IO ()
-process = putStrLn . show . length . getWordSingleType getSourceText
+process = putStrLn . show . length . extractWordProperty getSourceText
+
+newtype ValueIndex = ValueIndex Int deriving (Eq, Ord, Show)
+data Value
+  = ValueSimple Text
+  deriving (Eq, Ord, Show)
+data Type a = Type
+  { typeInstances :: [(WordLocation, a)]
+  , typeValueMap :: Map a ValueIndex
+  , typeValues :: [Value]
+  }
+
+generateType :: forall a. Ord a => (a -> Value) -> [(WordLocation, a)] -> Type a
+generateType f is = Type is valueMap transformedValueList
+  where
+    typedValues :: [a]
+    typedValues = Lens.toListOf (Lens.each . Lens._2) is
+
+    indexedValues :: [(a, ValueIndex)]
+    indexedValues = Lens.over (traverse . Lens._2) ValueIndex . flip zip [0..] . Set.toAscList . Set.fromList $ typedValues
+
+    valueMap :: Map a ValueIndex
+    valueMap = Map.fromList indexedValues
+
+    transformedValueList :: [Value]
+    transformedValueList = fmap f . Lens.toListOf (traverse . Lens._1) $ indexedValues
 
 getSourceText :: Word.IndexedBasic (Text, FileReference) -> Text
 getSourceText = Lens.view (Word.surface . Lens._1)
 
-getWordSingleType :: forall a b c. (Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
-getWordSingleType f = concatMap getIndexedWorkProps
+extractWordProperty :: forall a b c. (Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
+extractWordProperty f = concatMap getIndexedWorkProps
   where
     getIndexedWorkProps :: Work.Indexed [Word.Indexed a b] -> [(WordLocation, c)]
     getIndexedWorkProps w = fmap (\(i, p) -> ((getWorkIndex w, i), p)) (getWorkProps w)
