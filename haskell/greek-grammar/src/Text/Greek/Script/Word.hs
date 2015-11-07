@@ -31,9 +31,9 @@ Lens.makeLensesFor
 
 type Basic = Word (Maybe (ElisionChar, FileCharReference), ParagraphIndex)
 type BasicText = Basic (Text, FileReference)
-type Indexed = Word (Maybe (ElisionChar, FileCharReference), ParagraphIndex, Index)
+type Indexed = Word (Index, (Maybe (ElisionChar, FileCharReference), ParagraphIndex))
 
 indexBasic :: [Basic s] -> [Indexed s]
 indexBasic = fmap addIndex . zip (fmap Index [0..])
   where
-    addIndex (i, Word (e, p) s) = Word (e, p, i) s
+    addIndex (i, Word (e, p) s) = Word (i, (e, p)) s

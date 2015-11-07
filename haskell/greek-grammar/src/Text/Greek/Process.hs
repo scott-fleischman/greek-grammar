@@ -24,13 +24,13 @@ getSourceTexts = concatMap getIndexedWorkProps
     getWorkProps = fmap getIndexedWordProp . Work.getContent
 
     getWorkIndex :: Work.Indexed a -> Work.Index
-    getWorkIndex = Lens.view (Work.info . Lens._3)
+    getWorkIndex = Lens.view (Work.info . Lens._1)
 
     getIndexedWordProp :: Word.Indexed (Text, FileReference) -> (Word.Index, Text)
     getIndexedWordProp w = (getWordIndex w, getWordProp w)
 
     getWordIndex :: Word.Indexed a -> Word.Index
-    getWordIndex = Lens.view (Word.info . Lens._3)
+    getWordIndex = Lens.view (Word.info . Lens._1)
 
     getWordProp :: Word.Indexed (Text, FileReference) -> Text
     getWordProp = Lens.view (Word.surface . Lens._1)
