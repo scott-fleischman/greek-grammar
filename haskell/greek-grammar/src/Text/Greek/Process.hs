@@ -11,28 +11,28 @@ import qualified Text.Greek.Script.Word as Word
 go :: IO ()
 go = All.loadAll >>= handleResult process . showError
 
-process :: [Work.Indexed [Word.Indexed (Text, FileReference)]] -> IO ()
+process :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]] -> IO ()
 process = putStrLn . show . length
 
-getSourceTexts :: [Work.Indexed [Word.Indexed (Text, FileReference)]] -> [(WordLocation, Text)]
+getSourceTexts :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]] -> [(WordLocation, Text)]
 getSourceTexts = concatMap getIndexedWorkProps
   where
-    getIndexedWorkProps :: Work.Indexed [Word.Indexed (Text, FileReference)] -> [(WordLocation, Text)]
+    getIndexedWorkProps :: Work.Indexed [Word.IndexedBasic (Text, FileReference)] -> [(WordLocation, Text)]
     getIndexedWorkProps w = fmap (\(i, p) -> ((getWorkIndex w, i), p)) (getWorkProps w)
 
-    getWorkProps :: Work.Indexed [Word.Indexed (Text, FileReference)] -> [(Word.Index, Text)]
+    getWorkProps :: Work.Indexed [Word.IndexedBasic (Text, FileReference)] -> [(Word.Index, Text)]
     getWorkProps = fmap getIndexedWordProp . Work.getContent
 
     getWorkIndex :: Work.Indexed a -> Work.Index
     getWorkIndex = Lens.view (Work.info . Lens._1)
 
-    getIndexedWordProp :: Word.Indexed (Text, FileReference) -> (Word.Index, Text)
+    getIndexedWordProp :: Word.IndexedBasic (Text, FileReference) -> (Word.Index, Text)
     getIndexedWordProp w = (getWordIndex w, getWordProp w)
 
-    getWordIndex :: Word.Indexed a -> Word.Index
+    getWordIndex :: Word.IndexedBasic a -> Word.Index
     getWordIndex = Lens.view (Word.info . Lens._1)
 
-    getWordProp :: Word.Indexed (Text, FileReference) -> Text
+    getWordProp :: Word.IndexedBasic (Text, FileReference) -> Text
     getWordProp = Lens.view (Word.surface . Lens._1)
 
 handleResult :: (a -> IO ()) -> Either String a -> IO ()

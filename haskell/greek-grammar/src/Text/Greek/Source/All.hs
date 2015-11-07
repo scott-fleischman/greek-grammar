@@ -13,7 +13,7 @@ import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Source.Sblgnt as SBL
 import qualified Text.Greek.Source.Work as Work
 
-loadAll :: IO (Either [XmlError] [Work.Indexed [Word.Indexed (Text, FileReference)]])
+loadAll :: IO (Either [XmlError] [Work.Indexed [Word.IndexedBasic (Text, FileReference)]])
 loadAll = do
   sblgntResult <- loadSblgnt
   return $ do
