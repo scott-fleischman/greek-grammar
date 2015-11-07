@@ -13,10 +13,14 @@ type Basic = Work (Source, Title)
 type Indexed = Work (Source, Title, Index)
 
 data Work i c = Work
-  { _workInfo :: i
-  , _workContent :: c
+  { getInfo :: i
+  , getContent :: c
   } deriving Show
-Lens.makeLenses ''Work
+Lens.makeLensesFor
+  [ ("getInfo", "info")
+  , ("getContent", "content")
+  ]
+  ''Work
 
 indexBasic :: [Basic c] -> [Indexed c]
 indexBasic = fmap addIndex . zip (fmap Index [0..])

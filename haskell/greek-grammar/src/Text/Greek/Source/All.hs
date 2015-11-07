@@ -38,7 +38,7 @@ sblWordToWord :: Word.ParagraphIndex -> SBL.Word -> Word.BasicText
 sblWordToWord i (SBL.Word s e _ _) = Word.Word (e, i) s
 
 concatSurface :: (Foldable tw, Foldable tc) => Getter s (tc a) -> Work.Basic (tw s) -> [a]
-concatSurface l = concatMap (toList . view l) . (view Work.workContent)
+concatSurface l = concatMap (toList . view l) . (view Work.content)
 
 globalConcatSurface :: (Foldable twork, Foldable tword, Foldable tc) => Getter s (tc a) -> twork (Work.Basic (tword s)) -> [a]
 globalConcatSurface = concatMap . concatSurface

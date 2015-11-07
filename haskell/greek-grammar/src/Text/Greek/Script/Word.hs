@@ -19,10 +19,14 @@ import qualified Control.Lens as Lens
 newtype ParagraphIndex = ParagraphIndex { getParagraphIndex :: Int } deriving (Eq, Show, Ord)
 
 data Word i s = Word
-  { _info :: i
-  , _surface :: s
+  { getInfo :: i
+  , getSurface :: s
   }
-Lens.makeLenses ''Word
+Lens.makeLensesFor
+  [ ("getInfo", "info")
+  , ("getSurface", "surface")
+  ]
+  ''Word
 
 type Basic = Word (Maybe (ElisionChar, FileCharReference), ParagraphIndex)
 type BasicText = Basic (Text, FileReference)

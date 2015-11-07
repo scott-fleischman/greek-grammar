@@ -122,8 +122,8 @@ getData' ws = Data ourIndex [] ourTypes
 
     wordTextType = makeType "Source Text" getWordText (Map.keys wordTextMap)
     wordTextMap = makeValueMap (workWordTexts ws)
-    wordTexts = fmap (WordText . fst . Word._surface)
-    workWordTexts = concatMap (wordTexts . Work._workContent)
+    wordTexts = fmap (WordText . fst . Word.getSurface)
+    workWordTexts = concatMap (wordTexts . Work.getContent)
 
     makeTypeInfo (Type t vs) = TypeInfo t (length vs) 0
 
@@ -187,7 +187,7 @@ toStage0Hierarchy
   ::  [Work.Basic [Word.Basic (Text, FileReference)]]
   -> Either Unicode.Error
       [Work.Basic [Word.Basic [(Unicode.Composed, FileCharReference)]]]
-toStage0Hierarchy = (traverse . Work.workContent . traverse . Word.surface) (uncurry Unicode.splitText)
+toStage0Hierarchy = (traverse . Work.content . traverse . Word.surface) (uncurry Unicode.splitText)
 
 flattenStage0
   :: [Work.Basic [Word.Basic [(Unicode.Composed, FileCharReference)]]]
