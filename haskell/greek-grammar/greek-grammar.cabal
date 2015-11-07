@@ -63,6 +63,7 @@ library
     Text.Greek.Phonology.Shorthand
     Text.Greek.Phonology.ShowText
     Text.Greek.Phonology.Vowels
+    Text.Greek.Process
 --    Text.Greek.Render
     Text.Greek.Script
 --    Text.Greek.Script.Abstract

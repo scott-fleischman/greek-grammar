@@ -93,9 +93,6 @@ instance Aeson.ToJSON Work where
     , "wordSummary" .= sm
     ]
 
-go :: IO ()
-go = All.loadAll >>= handleResult dumpJson . Lens.over Lens._Right getData' . showError
-
 --process
 --  :: Either [XmlError] [All.Work [Word.Basic (Text, FileReference)]]
 --  -> Either String     [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
@@ -172,10 +169,6 @@ getElisionProperty :: Maybe (Elision.ElisionChar, FileCharReference) -> Text
 getElisionProperty (Just (Elision.ElisionChar c, r)) = Lazy.toStrict $ Format.format "Elided {} {}" (formatUnicodeCodePoint c, titleFileCharReference r)
 getElisionProperty _ = "Not elided"
 
-handleResult :: (a -> IO ()) -> Either String a -> IO ()
-handleResult _ (Left e) = putStrLn e
-handleResult f (Right a) = f a
-
 dumpJson :: Data -> IO ()
 dumpJson (Data i ws ts) = do
   _ <- write "index.json" i
@@ -185,9 +178,6 @@ dumpJson (Data i ws ts) = do
   where
     write n = BL.writeFile (Path.pagesData </> n) . Aeson.encode
     writeAll n = sequence . fmap (\(xi, x) -> write (n ++ show xi ++ ".json") x) . zip ([0..] :: [Int])
-
-showError :: Show a => Either a b -> Either String b
-showError = Lens.over Lens._Left show
 
 
 newtype Stage0Word = Stage0Word [Unicode.Composed] deriving (Eq, Ord, Show)
