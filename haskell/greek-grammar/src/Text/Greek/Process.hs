@@ -12,10 +12,13 @@ go :: IO ()
 go = All.loadAll >>= handleResult process . showError
 
 process :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]] -> IO ()
-process = putStrLn . show . length
+process = putStrLn . show . length . getGenericSourceTexts getSourceText
 
-getSourceTexts :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]] -> [(WordLocation, Text)]
-getSourceTexts = concatMap getIndexedWorkProps
+getSourceText :: Word.IndexedBasic (Text, FileReference) -> Text
+getSourceText = Lens.view (Word.surface . Lens._1)
+
+getGenericSourceTexts :: (Word.IndexedBasic (Text, FileReference) -> Text) -> [Work.Indexed [Word.IndexedBasic (Text, FileReference)]] -> [(WordLocation, Text)]
+getGenericSourceTexts f = concatMap getIndexedWorkProps
   where
     getIndexedWorkProps :: Work.Indexed [Word.IndexedBasic (Text, FileReference)] -> [(WordLocation, Text)]
     getIndexedWorkProps w = fmap (\(i, p) -> ((getWorkIndex w, i), p)) (getWorkProps w)
@@ -27,13 +30,10 @@ getSourceTexts = concatMap getIndexedWorkProps
     getWorkIndex = Lens.view (Work.info . Lens._1)
 
     getIndexedWordProp :: Word.IndexedBasic (Text, FileReference) -> (Word.Index, Text)
-    getIndexedWordProp w = (getWordIndex w, getWordProp w)
+    getIndexedWordProp w = (getWordIndex w, f w)
 
     getWordIndex :: Word.IndexedBasic a -> Word.Index
     getWordIndex = Lens.view (Word.info . Lens._1)
-
-    getWordProp :: Word.IndexedBasic (Text, FileReference) -> Text
-    getWordProp = Lens.view (Word.surface . Lens._1)
 
 handleResult :: (a -> IO ()) -> Either String a -> IO ()
 handleResult _ (Left e) = putStrLn e
