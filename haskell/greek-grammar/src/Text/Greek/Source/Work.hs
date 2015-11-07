@@ -10,10 +10,12 @@ data Source = SourceSblgnt deriving (Eq, Ord, Show)
 
 newtype Title = Title Text deriving (Eq, Ord, Show)
 
-type WorkText = Work [Word.BasicText]
-data Work a = Work
-  { _workSource :: Source
-  , _workTitle :: Title
-  , _workContent :: a
+data SourceTitle = SourceTitle Source Title deriving (Eq, Ord, Show)
+
+type Basic = Work SourceTitle
+type WorkText = Basic [Word.BasicText]
+data Work i c = Work
+  { _workInfo :: i
+  , _workContent :: c
   } deriving Show
 Lens.makeLenses ''Work

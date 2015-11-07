@@ -114,7 +114,7 @@ instance Aeson.ToJSON WordText where toJSON (WordText t) = Aeson.toJSON t
 makeType :: Text -> (a -> Text) -> [a] -> Type
 makeType t f = Type t . fmap f
 
-getData' :: [Work.Work [Word.Basic (Text, FileReference)]] -> Data
+getData' :: [Work.Basic [Word.Basic (Text, FileReference)]] -> Data
 getData' ws = Data ourIndex [] ourTypes
   where
     ourIndex = Index [] (fmap makeTypeInfo ourTypes)
@@ -184,18 +184,18 @@ newtype Stage0Word = Stage0Word [Unicode.Composed] deriving (Eq, Ord, Show)
 type Stage0 = (Work.Source, Work.Title, Stage0Word, FileCharReference, Unicode.Composed)
 
 toStage0Hierarchy
-  ::  [Work.Work [Word.Basic (Text, FileReference)]]
+  ::  [Work.Basic [Word.Basic (Text, FileReference)]]
   -> Either Unicode.Error
-      [Work.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
+      [Work.Basic [Word.Basic [(Unicode.Composed, FileCharReference)]]]
 toStage0Hierarchy = (traverse . Work.workContent . traverse . Word.basicSurface) (uncurry Unicode.splitText)
 
 flattenStage0
-  :: [Work.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
+  :: [Work.Basic [Word.Basic [(Unicode.Composed, FileCharReference)]]]
   -> [Stage0]
 flattenStage0 = concatMap flattenWork
   where
-    flattenWork :: Work.Work [Word.Basic [(Unicode.Composed, FileCharReference)]] -> [Stage0]
-    flattenWork (Work.Work source title content) = fmap (\(w, r, c) -> (source, title, w, r, c)) $ concatMap flattenWord content
+    flattenWork :: Work.Basic [Word.Basic [(Unicode.Composed, FileCharReference)]] -> [Stage0]
+    flattenWork (Work.Work (Work.SourceTitle source title) content) = fmap (\(w, r, c) -> (source, title, w, r, c)) $ concatMap flattenWord content
   
     flattenWord :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [(Stage0Word, FileCharReference, Unicode.Composed)]
     flattenWord (Word.Basic surface _ _) = fmap (\(c, r) -> (stageWord, r, c)) surface

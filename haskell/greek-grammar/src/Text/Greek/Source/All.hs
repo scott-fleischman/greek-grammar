@@ -22,8 +22,9 @@ sblgntToWorks :: SBL.Sblgnt -> [Work.WorkText]
 sblgntToWorks (SBL.Sblgnt _ _ bs) = fmap sblgntBookToWork bs
 
 sblgntBookToWork :: SBL.Book -> Work.WorkText
-sblgntBookToWork (SBL.Book _ t ps) = Work.Work Work.SourceSblgnt (Work.Title t) (concatMap (\(i, x) -> sblgntParagraphToWords i x) . addIndex $ ps)
+sblgntBookToWork (SBL.Book _ t ps) = Work.Work sourceTitle (concatMap (\(i, x) -> sblgntParagraphToWords i x) . addIndex $ ps)
   where
+    sourceTitle = Work.SourceTitle Work.SourceSblgnt (Work.Title t)
     addIndex = zip [0..]
 
 sblgntParagraphToWords :: Int -> SBL.BookParagraph -> [Word.BasicText]
@@ -32,8 +33,8 @@ sblgntParagraphToWords i = fmap (sblWordToWord i) . concatMap (toListOf SBL._Ite
 sblWordToWord :: Int -> SBL.Word -> Word.BasicText
 sblWordToWord i (SBL.Word s e _ _) = Word.Basic s e i
 
-concatSurface :: (Foldable tw, Foldable tc) => Getter s (tc a) -> Work.Work (tw s) -> [a]
+concatSurface :: (Foldable tw, Foldable tc) => Getter s (tc a) -> Work.Basic (tw s) -> [a]
 concatSurface l = concatMap (toList . view l) . (view Work.workContent)
 
-globalConcatSurface :: (Foldable twork, Foldable tword, Foldable tc) => Getter s (tc a) -> twork (Work.Work (tword s)) -> [a]
+globalConcatSurface :: (Foldable twork, Foldable tword, Foldable tc) => Getter s (tc a) -> twork (Work.Basic (tword s)) -> [a]
 globalConcatSurface = concatMap . concatSurface
