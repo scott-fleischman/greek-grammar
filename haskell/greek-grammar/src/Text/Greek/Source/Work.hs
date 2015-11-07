@@ -25,4 +25,4 @@ Lens.makeLensesFor
 indexBasic :: [Basic c] -> [Indexed c]
 indexBasic = fmap addIndex . zip (fmap Index [0..])
   where
-    addIndex (i, (Work (s, t) c)) = Work (s, t, i) c
+    addIndex (i, Work (s, t) c) = Work (s, t, i) c

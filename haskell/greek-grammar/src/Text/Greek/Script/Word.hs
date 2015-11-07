@@ -17,6 +17,7 @@ import qualified Control.Lens as Lens
 --makeLenses ''Cased
 
 newtype ParagraphIndex = ParagraphIndex { getParagraphIndex :: Int } deriving (Eq, Show, Ord)
+newtype Index = Index { getIndex :: Int } deriving (Eq, Ord, Show)
 
 data Word i s = Word
   { getInfo :: i
@@ -30,3 +31,9 @@ Lens.makeLensesFor
 
 type Basic = Word (Maybe (ElisionChar, FileCharReference), ParagraphIndex)
 type BasicText = Basic (Text, FileReference)
+type Indexed = Word (Maybe (ElisionChar, FileCharReference), ParagraphIndex, Index)
+
+indexBasic :: [Basic s] -> [Indexed s]
+indexBasic = fmap addIndex . zip (fmap Index [0..])
+  where
+    addIndex (i, Word (e, p) s) = Word (e, p, i) s
