@@ -122,7 +122,7 @@ getData' ws = Data ourIndex [] ourTypes
 
     wordTextType = makeType "Source Text" getWordText (Map.keys wordTextMap)
     wordTextMap = makeValueMap (workWordTexts ws)
-    wordTexts = fmap (WordText . fst . Word._basicSurface)
+    wordTexts = fmap (WordText . fst . Word._surface)
     workWordTexts = concatMap (wordTexts . Work._workContent)
 
     makeTypeInfo (Type t vs) = TypeInfo t (length vs) 0
@@ -150,7 +150,7 @@ getData' ws = Data ourIndex [] ourTypes
 --    makeWord i w@(Word.Basic s _ p) = (i, p, Word (titleStage0Word . getStageWord $ s) (getWordProperties w))
 
 getWordProperties :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [Text]
-getWordProperties (Word.Basic s e _) =
+getWordProperties (Word.Word (e, _) s) =
   [ getElisionProperty e
   , unicodeComposedProperty . fmap fst $ s
   , lineProperty . fmap snd $ s
@@ -187,7 +187,7 @@ toStage0Hierarchy
   ::  [Work.Basic [Word.Basic (Text, FileReference)]]
   -> Either Unicode.Error
       [Work.Basic [Word.Basic [(Unicode.Composed, FileCharReference)]]]
-toStage0Hierarchy = (traverse . Work.workContent . traverse . Word.basicSurface) (uncurry Unicode.splitText)
+toStage0Hierarchy = (traverse . Work.workContent . traverse . Word.surface) (uncurry Unicode.splitText)
 
 flattenStage0
   :: [Work.Basic [Word.Basic [(Unicode.Composed, FileCharReference)]]]
@@ -198,7 +198,7 @@ flattenStage0 = concatMap flattenWork
     flattenWork (Work.Work (source, title) content) = fmap (\(w, r, c) -> (source, title, w, r, c)) $ concatMap flattenWord content
   
     flattenWord :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [(Stage0Word, FileCharReference, Unicode.Composed)]
-    flattenWord (Word.Basic surface _ _) = fmap (\(c, r) -> (stageWord, r, c)) surface
+    flattenWord (Word.Word _ surface) = fmap (\(c, r) -> (stageWord, r, c)) surface
       where
         stageWord = getStageWord surface
 
