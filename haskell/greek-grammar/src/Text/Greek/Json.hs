@@ -26,9 +26,9 @@ import qualified Data.Text.Lazy.Builder as Lazy
 import qualified Data.Text.Format as Format
 import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Paths as Path
-import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
+import qualified Text.Greek.Source.Work as Work
 
 data Data = Data
   { dataIndex :: Index
@@ -114,7 +114,7 @@ instance Aeson.ToJSON WordText where toJSON (WordText t) = Aeson.toJSON t
 makeType :: Text -> (a -> Text) -> [a] -> Type
 makeType t f = Type t . fmap f
 
-getData' :: [All.Work [Word.Basic (Text, FileReference)]] -> Data
+getData' :: [Work.Work [Word.Basic (Text, FileReference)]] -> Data
 getData' ws = Data ourIndex [] ourTypes
   where
     ourIndex = Index [] (fmap makeTypeInfo ourTypes)
@@ -123,7 +123,7 @@ getData' ws = Data ourIndex [] ourTypes
     wordTextType = makeType "Source Text" getWordText (Map.keys wordTextMap)
     wordTextMap = makeValueMap (workWordTexts ws)
     wordTexts = fmap (WordText . fst . Word._basicSurface)
-    workWordTexts = concatMap (wordTexts . All._workContent)
+    workWordTexts = concatMap (wordTexts . Work._workContent)
 
     makeTypeInfo (Type t vs) = TypeInfo t (length vs) 0
 
@@ -181,21 +181,21 @@ dumpJson (Data i ws ts) = do
 
 
 newtype Stage0Word = Stage0Word [Unicode.Composed] deriving (Eq, Ord, Show)
-type Stage0 = (All.WorkSource, All.WorkTitle, Stage0Word, FileCharReference, Unicode.Composed)
+type Stage0 = (Work.Source, Work.Title, Stage0Word, FileCharReference, Unicode.Composed)
 
 toStage0Hierarchy
-  ::  [All.Work [Word.Basic (Text, FileReference)]]
+  ::  [Work.Work [Word.Basic (Text, FileReference)]]
   -> Either Unicode.Error
-      [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
-toStage0Hierarchy = (traverse . All.workContent . traverse . Word.basicSurface) (uncurry Unicode.splitText)
+      [Work.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
+toStage0Hierarchy = (traverse . Work.workContent . traverse . Word.basicSurface) (uncurry Unicode.splitText)
 
 flattenStage0
-  :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
+  :: [Work.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
   -> [Stage0]
 flattenStage0 = concatMap flattenWork
   where
-    flattenWork :: All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]] -> [Stage0]
-    flattenWork (All.Work source title content) = fmap (\(w, r, c) -> (source, title, w, r, c)) $ concatMap flattenWord content
+    flattenWork :: Work.Work [Word.Basic [(Unicode.Composed, FileCharReference)]] -> [Stage0]
+    flattenWork (Work.Work source title content) = fmap (\(w, r, c) -> (source, title, w, r, c)) $ concatMap flattenWord content
   
     flattenWord :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [(Stage0Word, FileCharReference, Unicode.Composed)]
     flattenWord (Word.Basic surface _ _) = fmap (\(c, r) -> (stageWord, r, c)) surface
@@ -220,11 +220,11 @@ fileCharReferenceName = "FileLocation"
 unicodeComposedName :: Text
 unicodeComposedName = "UnicodeComposed"
 
-titleWorkSource :: All.WorkSource -> Text
-titleWorkSource All.Sblgnt = "SBLGNT"
+titleWorkSource :: Work.Source -> Text
+titleWorkSource Work.SourceSblgnt = "SBLGNT"
 
-titleWorkTitle :: All.WorkTitle -> Text
-titleWorkTitle (All.WorkTitle t) = t
+titleWorkTitle :: Work.Title -> Text
+titleWorkTitle (Work.Title t) = t
 
 titleStage0Word :: Stage0Word -> Text
 titleStage0Word (Stage0Word cs) = Text.pack . fmap (\(Unicode.Composed c) -> c) $ cs

@@ -81,6 +81,7 @@ library
     Text.Greek.Source.PerseusInventory
     Text.Greek.Source.Sblgnt
     Text.Greek.Source.SblgntApp
+    Text.Greek.Source.Work
     Text.Greek.Sublist
     Text.Greek.Utility
     Text.Greek.Xml.Common
