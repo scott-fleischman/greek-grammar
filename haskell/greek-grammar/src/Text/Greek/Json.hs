@@ -294,3 +294,9 @@ formatUnicodeChar c = Text.singleton c
 
 formatUnicodeCodePoint :: Char -> Text
 formatUnicodeCodePoint c = Lazy.toStrict $ Format.format "U+{}" (Format.Only . Lazy.toUpper . Lazy.toLazyText . Format.left 4 '0' . Format.hex . Char.ord $ c)
+
+formatList :: (a -> Text) -> [a] -> Text
+formatList f xs = Lazy.toStrict $ Format.format "[{}]" (Format.Only . Text.intercalate ", " . fmap f $ xs)
+
+formatFunction :: (a -> Text) -> (b -> Text) -> (a, b) -> Text
+formatFunction f g (a, b) = Lazy.toStrict $ Format.format "{} → {}" (f a, g b)

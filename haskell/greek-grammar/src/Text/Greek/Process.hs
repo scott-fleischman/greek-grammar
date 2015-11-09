@@ -28,6 +28,7 @@ process sourceWords = do
     storedTypes =
       [ storeType wordType
       , storeType composedType
+      , storeType decomposeFunctionType
       , storeType decomposedType
       ]
 
@@ -54,7 +55,11 @@ process sourceWords = do
       . flattenWords Word.getSurface
       $ decomposedWords
 
-    --decomposeFunctionType = generateType "Unicode Composed → Decomposed" (ValueSimple . Json.titleUnicodeDetail . Unicode.decomposed) . concatSurface . concatSurface . flattenWords snd $ decomposedWords
+    decomposeFunctionType = generateType "Unicode Composed → Decomposed"
+      (ValueSimple . Json.formatFunction (Json.titleUnicodeDetail . Unicode.composed) (Json.formatList (Json.titleUnicodeDetail . Unicode.decomposed)))
+      . concatSurface
+      . flattenWords Word.getSurface
+      $ decomposedWords
 
 type WordLocation = (Work.Index, Word.Index)
 newtype ValueIndex = ValueIndex { getValueIndex :: Int } deriving (Eq, Ord, Show)
