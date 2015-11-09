@@ -29,6 +29,9 @@ data Error
 decompose :: [(Composed, FileCharReference)] -> [(Decomposed, FileCharReference)]
 decompose cs = over (traverse . _1) Decomposed . concatMap (_1 id) . over (traverse . _1) (decomposeChar . composed) $ cs
 
+toComposed :: Text -> [Composed]
+toComposed = fmap Composed . Text.unpack
+
 splitText :: Text -> FileReference -> Either Error [(Composed, FileCharReference)]
 splitText t r = ensureConsistent t r & _Right . each . _1 %~ Composed
 

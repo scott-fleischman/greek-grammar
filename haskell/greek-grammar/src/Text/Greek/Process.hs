@@ -12,24 +12,30 @@ import qualified Text.Greek.Json as Json
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
 import qualified Text.Greek.Script.Word as Word
+import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Utility as Utility
 
 go :: IO ()
 go = All.loadAll >>= handleResult process . showError
 
 process :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]] -> IO ()
-process ws = do
+process sourceWords = do
   dumpData (Json.Data ourIndex [] storedTypes)
   where
     ourIndex = Json.Index workInfos typeInfos
     typeInfos = fmap Json.makeTypeInfo storedTypes
     workInfos = []
-    storedTypes = [storeType wordType]
+    storedTypes = [storeType wordType, storeType composedType]
 
-    wordType = generateType "Source Word" ValueSimple . extractWordProperty getSourceText $ ws
+    wordType = generateType "Source Word" ValueSimple . extractWordProperty getSourceText $ sourceWords
 
     getSourceText :: Word.IndexedBasic (Text, FileReference) -> Text
     getSourceText = Lens.view (Word.surface . Lens._1)
+
+    composedWords :: [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]]
+    composedWords = Lens.over (traverse . Work.content . traverse . Word.surface) (Unicode.toComposed . fst) $ sourceWords
+
+    composedType = generateType "Unicode Composed" (ValueSimple . Json.titleUnicodeComposed) . extractSurfaceProperty id $ composedWords
 
 type WordLocation = (Work.Index, Word.Index)
 newtype ValueIndex = ValueIndex { getValueIndex :: Int } deriving (Eq, Ord, Show)
@@ -66,6 +72,15 @@ generateType t f is = Type t is valueMap typedValueInstances
 
     valueMap :: Map a ValueIndex
     valueMap = Map.fromList indexedValues
+
+extractSurfaceProperty :: forall a b c. (b -> c) -> [Work.Indexed [Word.Indexed a [b]]] -> [(WordLocation, c)]
+extractSurfaceProperty f ss = Lens.over (traverse . Lens._2) f concatSurface
+  where
+    concatSurface :: [(WordLocation, b)]
+    concatSurface = concatMap (\(l, xs) -> fmap (\x -> (l, x)) xs) listSurface
+
+    listSurface :: [(WordLocation, [b])]
+    listSurface = extractWordProperty Word.getSurface ss
 
 extractWordProperty :: forall a b c. (Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
 extractWordProperty f = concatMap getIndexedWorkProps
