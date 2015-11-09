@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Text.Greek.Process where
 
@@ -7,6 +8,7 @@ import Data.Text (Text)
 import Text.Greek.FileReference (FileReference)
 import qualified Control.Lens as Lens
 import qualified Data.Map as Map
+import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 import qualified Text.Greek.Json as Json
 import qualified Text.Greek.Source.All as All
@@ -17,21 +19,36 @@ go :: IO ()
 go = All.loadAll >>= handleResult process . showError
 
 process :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]] -> IO ()
-process = putStrLn . show . length . extractWordProperty getSourceText
+process ws = dumpData (Json.Data ourIndex [] types)
+  where
+    ourIndex = Json.Index workInfos typeInfos
+    typeInfos = fmap Json.makeTypeInfo types
+    workInfos = []
+    types :: [Json.Type]
+    types = Maybe.maybeToList . store . generateType "Source Text" ValueSimple . extractWordProperty getSourceText $ ws
 
 type WordLocation = (Work.Index, Word.Index)
-newtype ValueIndex = ValueIndex Int deriving (Eq, Ord, Show)
+newtype ValueIndex = ValueIndex { getValueIndex :: Int } deriving (Eq, Ord, Show)
 data Value
   = ValueSimple Text
   deriving (Eq, Ord, Show)
 data Type a = Type
-  { typeInstances :: [(WordLocation, a)]
+  { typeTitle :: Text
+  , typeInstances :: [(WordLocation, a)]
   , typeValueMap :: Map a ValueIndex
   , typeValues :: [Value]
   }
 
-generateType :: forall a. Ord a => (a -> Value) -> [(WordLocation, a)] -> Type a
-generateType f is = Type is valueMap transformedValueList
+store :: Ord a => Type a -> Maybe Json.Type
+store (Type t is vm vs) = Json.Type <$> pure t <*> pure (fmap storeValue vs) <*> traverse (storeInstance vm) is
+  where
+    storeInstance m ((wki, wdi), x) = Json.Instance <$> pure wki <*> pure wdi <*> (Lens.over Lens._Just getValueIndex . Map.lookup x $ m)
+
+storeValue :: Value -> Json.Value
+storeValue (ValueSimple t) = Json.Value t
+
+generateType :: forall a. Ord a => Text -> (a -> Value) -> [(WordLocation, a)] -> Type a
+generateType t f is = Type t is valueMap transformedValueList
   where
     typedValues :: [a]
     typedValues = Lens.toListOf (Lens.each . Lens._2) is

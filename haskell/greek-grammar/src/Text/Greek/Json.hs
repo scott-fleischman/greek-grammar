@@ -38,7 +38,7 @@ data Data = Data
 
 data Type = Type
   { typeTitle :: Text
-  , typeValues :: [Text]
+  , typeValues :: [Value]
   , typeInstances :: [Instance]
   }
 instance Aeson.ToJSON Type where toJSON (Type t vs is) = Aeson.object ["title" .= t, "values" .= vs, "instances" .= is]
@@ -138,7 +138,8 @@ instance Aeson.ToJSON WordText where toJSON (WordText t) = Aeson.toJSON t
 --    wordTexts = fmap (WordText . fst . Word.getSurface)
 --    workWordTexts = concatMap (wordTexts . Work.getContent)
 
---    makeTypeInfo (Type t vs) = TypeInfo t (length vs) 0
+makeTypeInfo :: Type -> TypeInfo
+makeTypeInfo (Type t vs is) = TypeInfo t (length vs) (length is)
 
 
 --getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
