@@ -29,6 +29,9 @@ data Error
 decompose :: [(Composed, FileCharReference)] -> [(Decomposed, FileCharReference)]
 decompose cs = over (traverse . _1) Decomposed . concatMap (_1 id) . over (traverse . _1) (decomposeChar . composed) $ cs
 
+decompose' :: Composed -> [Decomposed]
+decompose' = fmap Decomposed . decomposeChar . composed
+
 toComposed :: Text -> [Composed]
 toComposed = fmap Composed . Text.unpack
 

@@ -212,7 +212,7 @@ getWordProperties (Word.Word (e, _) s) =
     fileProperty ((FileCharReference (Path p) _) : _) = Text.pack p
     fileProperty [] = "No file"
 
-    unicodeComposedProperty = Text.intercalate ", " . fmap titleUnicodeComposed
+    unicodeComposedProperty = Text.intercalate ", " . fmap (titleUnicodeDetail . Unicode.composed)
 
 getElisionProperty :: Maybe (Elision.ElisionChar, FileCharReference) -> Text
 getElisionProperty (Just (Elision.ElisionChar c, r)) = Lazy.toStrict $ Format.format "Elided {} {}" (formatUnicodeCodePoint c, titleFileCharReference r)
@@ -285,8 +285,12 @@ titleFileReference :: FileReference -> Text
 titleFileReference (FileReference (Path p) (LineReference (Line bl) (Column bc)) (LineReference (Line el) (Column ec))) =
   Lazy.toStrict $ Format.format "{} {}:{}–{}:{}" (p, bl, bc, el, ec)
 
-titleUnicodeComposed :: Unicode.Composed -> Text
-titleUnicodeComposed (Unicode.Composed c) = Lazy.toStrict $ Format.format "{} {}" (formatUnicodeCodePoint c, c)
+titleUnicodeDetail :: Char -> Text
+titleUnicodeDetail c = Lazy.toStrict $ Format.format "{} {}" (formatUnicodeCodePoint c, formatUnicodeChar c)
+
+formatUnicodeChar :: Char -> Text
+formatUnicodeChar c | Char.isMark c = Lazy.toStrict . Format.format "\x25CC{}" . Format.Only $ c
+formatUnicodeChar c = Text.singleton c
 
 formatUnicodeCodePoint :: Char -> Text
 formatUnicodeCodePoint c = Lazy.toStrict $ Format.format "U+{}" (Format.Only . Lazy.toUpper . Lazy.toLazyText . Format.left 4 '0' . Format.hex . Char.ord $ c)
