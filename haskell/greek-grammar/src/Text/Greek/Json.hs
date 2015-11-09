@@ -57,11 +57,48 @@ instance Aeson.ToJSON Instance where toJSON (Instance wk wd) = Aeson.toJSON [Wor
 data Index = Index
   { indexWorkInfos :: [WorkInfo]
   , indexTypeInfos :: [TypeInfo]
-  } deriving (Generic, Show)
+  }
 instance Aeson.ToJSON Index where toJSON (Index ws ts) = Aeson.object ["works" .= ws, "types" .= ts]
 
-data WorkInfo = WorkInfo Text Text Int deriving Show
-instance Aeson.ToJSON WorkInfo where toJSON (WorkInfo t s wc) = Aeson.object ["title" .= t, "source" .= s, "wordCount" .= wc]
+newtype WorkSource = WorkSource Work.Source
+instance Aeson.ToJSON WorkSource
+  where
+    toJSON (WorkSource Work.SourceSblgnt) = Aeson.toJSON ("SBL Greek New Testament" :: Text)
+
+data WorkInfo = WorkInfo
+  { workInfoTitle :: Work.Title
+  , workInfoSource :: WorkSource
+  , workWordContexts :: [WordContext]
+  , workWordInfoTypes :: [TypeIndex]
+  , workWordInfos :: [WordInfo]
+  }
+instance Aeson.ToJSON WorkInfo where
+  toJSON (WorkInfo (Work.Title t) s wc ts wi) = Aeson.object
+    [ "title" .= t
+    , "source" .= s
+    , "wordContexts" .= wc
+    , "wordTypes" .= ts
+    , "wordInfos" .= wi
+    ]
+
+newtype WordContext = WordContext [Word.Index]
+instance Aeson.ToJSON WordContext where toJSON (WordContext is) = Aeson.toJSON . fmap Word.getIndex $ is 
+
+newtype WordContextIndex = WordContextIndex Int deriving (Eq, Ord, Show)
+instance Aeson.ToJSON WordContextIndex where toJSON (WordContextIndex i) = Aeson.toJSON i
+
+data WordInfo = WordInfo
+  { wordInfoValues :: [ValueIndex]
+  , wordInfoContext :: WordContextIndex
+  , wordInfoFile :: FileReference
+  }
+instance Aeson.ToJSON WordInfo
+  where
+    toJSON (WordInfo t c f) = Aeson.object
+      [ "t" .= t
+      , "c" .= c
+      , "f" .= titleFileReference f
+      ]
 
 data TypeInfo = TypeInfo Text Int Int deriving Show
 instance Aeson.ToJSON TypeInfo where toJSON (TypeInfo t vc ic) = Aeson.object ["title" .= t, "valueCount" .= vc, "instanceCount" .= ic]
@@ -243,6 +280,10 @@ titleStage0Word (Stage0Word cs) = Text.pack . fmap (\(Unicode.Composed c) -> c) 
 
 titleFileCharReference :: FileCharReference -> Text
 titleFileCharReference (FileCharReference (Path p) (LineReference (Line l) (Column c))) = Lazy.toStrict $ Format.format "{}:{}:{}" (p, l, c)
+
+titleFileReference :: FileReference -> Text
+titleFileReference (FileReference (Path p) (LineReference (Line bl) (Column bc)) (LineReference (Line el) (Column ec))) =
+  Lazy.toStrict $ Format.format "{} {}:{}–{}:{}" (p, bl, bc, el, ec)
 
 titleUnicodeComposed :: Unicode.Composed -> Text
 titleUnicodeComposed (Unicode.Composed c) = Lazy.toStrict $ Format.format "{} {}" (formatUnicodeCodePoint c, c)

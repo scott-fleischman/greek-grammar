@@ -15,9 +15,10 @@ newtype Column = Column { _getColumn :: Int } deriving (Eq, Ord, Num)
 instance Show Column where show (Column c) = "Column " ++ show c
 makeLenses ''Column
 
-newtype Path = Path { getPath :: FilePath } deriving (Eq, Ord)
+newtype Path = Path { _getPath :: FilePath } deriving (Eq, Ord)
 instance IsString Path where fromString = Path
 instance Show Path where show (Path p) = show p
+makeLenses ''Path
 
 data LineReference = LineReference
   { _lineReferenceLine :: Line
