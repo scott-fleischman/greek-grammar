@@ -39,8 +39,21 @@ data Data = Data
 data Type = Type
   { typeTitle :: Text
   , typeValues :: [Text]
+  , typeInstances :: [Instance]
   }
-instance Aeson.ToJSON Type where toJSON (Type t vs) = Aeson.object ["title" .= t, "values" .= vs]
+instance Aeson.ToJSON Type where toJSON (Type t vs is) = Aeson.object ["title" .= t, "values" .= vs, "instances" .= is]
+
+data Value = Value
+  { valueText :: Text
+  }
+instance Aeson.ToJSON Value where toJSON (Value t) = Aeson.toJSON t
+
+data Instance = Instance
+  { instanceWorkIndex :: Work.Index
+  , instanceWordIndex :: Word.Index
+  , instanceValueIndex :: Int
+  }
+instance Aeson.ToJSON Instance where toJSON (Instance wk wd v) = Aeson.toJSON [Work.getIndex wk, Word.getIndex wd, v]
 
 data Index = Index
   { indexWorkInfos :: [WorkInfo]
@@ -111,21 +124,21 @@ makeValueMap
 newtype WordText = WordText { getWordText :: Text } deriving (Eq, Ord, Show)
 instance Aeson.ToJSON WordText where toJSON (WordText t) = Aeson.toJSON t
 
-makeType :: Text -> (a -> Text) -> [a] -> Type
-makeType t f = Type t . fmap f
+--makeType :: Text -> (a -> Text) -> [a] -> Type
+--makeType t f = Type t . fmap f
 
-getData' :: [Work.Basic [Word.Basic (Text, FileReference)]] -> Data
-getData' ws = Data ourIndex [] ourTypes
-  where
-    ourIndex = Index [] (fmap makeTypeInfo ourTypes)
-    ourTypes = [wordTextType]
+--getData' :: [Work.Basic [Word.Basic (Text, FileReference)]] -> Data
+--getData' ws = Data ourIndex [] ourTypes
+--  where
+--    ourIndex = Index [] (fmap makeTypeInfo ourTypes)
+--    ourTypes = [wordTextType]
 
-    wordTextType = makeType "Source Text" getWordText (Map.keys wordTextMap)
-    wordTextMap = makeValueMap (workWordTexts ws)
-    wordTexts = fmap (WordText . fst . Word.getSurface)
-    workWordTexts = concatMap (wordTexts . Work.getContent)
+--    wordTextType = makeType "Source Text" getWordText (Map.keys wordTextMap)
+--    wordTextMap = makeValueMap (workWordTexts ws)
+--    wordTexts = fmap (WordText . fst . Word.getSurface)
+--    workWordTexts = concatMap (wordTexts . Work.getContent)
 
-    makeTypeInfo (Type t vs) = TypeInfo t (length vs) 0
+--    makeTypeInfo (Type t vs) = TypeInfo t (length vs) 0
 
 
 --getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data

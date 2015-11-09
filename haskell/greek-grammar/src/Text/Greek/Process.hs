@@ -19,6 +19,7 @@ go = All.loadAll >>= handleResult process . showError
 process :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]] -> IO ()
 process = putStrLn . show . length . extractWordProperty getSourceText
 
+type WordLocation = (Work.Index, Word.Index)
 newtype ValueIndex = ValueIndex Int deriving (Eq, Ord, Show)
 data Value
   = ValueSimple Text
@@ -74,5 +75,3 @@ showError = Lens.over Lens._Left show
 
 dumpData :: Json.Data -> IO ()
 dumpData = Json.dumpJson
-
-type WordLocation = (Work.Index, Word.Index)
