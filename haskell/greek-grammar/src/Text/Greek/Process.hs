@@ -18,14 +18,18 @@ go :: IO ()
 go = All.loadAll >>= handleResult process . showError
 
 process :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]] -> IO ()
-process ws = dumpData (Json.Data ourIndex [] types)
+process ws = do
+  dumpData (Json.Data ourIndex [] storedTypes)
   where
     ourIndex = Json.Index workInfos typeInfos
-    typeInfos = fmap Json.makeTypeInfo types
+    typeInfos = fmap Json.makeTypeInfo storedTypes
     workInfos = []
+    storedTypes = [storeType wordType]
 
-    types :: [Json.Type]
-    types = pure . store . generateType "Source Text" ValueSimple . extractWordProperty getSourceText $ ws
+    wordType = generateType "Source Word" ValueSimple . extractWordProperty getSourceText $ ws
+
+    getSourceText :: Word.IndexedBasic (Text, FileReference) -> Text
+    getSourceText = Lens.view (Word.surface . Lens._1)
 
 type WordLocation = (Work.Index, Word.Index)
 newtype ValueIndex = ValueIndex { getValueIndex :: Int } deriving (Eq, Ord, Show)
@@ -39,8 +43,8 @@ data Type a = Type
   , typeValueInstances :: [(Value, [WordLocation])]
   }
 
-store :: Ord a => Type a -> Json.Type
-store (Type t _ _ vs) = Json.Type t (fmap storeValue vs)
+storeType :: Ord a => Type a -> Json.Type
+storeType (Type t _ _ vs) = Json.Type t (fmap storeValue vs)
   where
     storeValue :: (Value, [WordLocation]) -> Json.Value
     storeValue ((ValueSimple vt), ls) = Json.Value vt (fmap locationToInstance ls)
@@ -62,9 +66,6 @@ generateType t f is = Type t is valueMap typedValueInstances
 
     valueMap :: Map a ValueIndex
     valueMap = Map.fromList indexedValues
-
-getSourceText :: Word.IndexedBasic (Text, FileReference) -> Text
-getSourceText = Lens.view (Word.surface . Lens._1)
 
 extractWordProperty :: forall a b c. (Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
 extractWordProperty f = concatMap getIndexedWorkProps
