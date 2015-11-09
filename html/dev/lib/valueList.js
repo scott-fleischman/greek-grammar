@@ -11,6 +11,13 @@ const ValueInfo = ({ title, instanceCount, url }) => (
 
 export const ValueList = ({ values, typeIndex, getValueUrl }) => (
   <div className="listContainer">
-    {R.addIndex(R.map) ((x, i) => (<ValueInfo key={i} title={x} instanceCount={0} url={getValueUrl(typeIndex, i)} />)) (values)}
+    {R.addIndex(R.map) ((x, i) => (
+      <ValueInfo
+        key={typeIndex + '.' + i}
+        title={x.t}
+        instanceCount={x.i.length}
+        url={getValueUrl(typeIndex, i)}
+      />
+    )) (values)}
   </div>
 );

@@ -8,12 +8,11 @@ import Data.Text (Text)
 import Text.Greek.FileReference (FileReference)
 import qualified Control.Lens as Lens
 import qualified Data.Map as Map
-import qualified Data.Maybe as Maybe
-import qualified Data.Set as Set
 import qualified Text.Greek.Json as Json
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
 import qualified Text.Greek.Script.Word as Word
+import qualified Text.Greek.Utility as Utility
 
 go :: IO ()
 go = All.loadAll >>= handleResult process . showError
@@ -24,8 +23,9 @@ process ws = dumpData (Json.Data ourIndex [] types)
     ourIndex = Json.Index workInfos typeInfos
     typeInfos = fmap Json.makeTypeInfo types
     workInfos = []
+
     types :: [Json.Type]
-    types = Maybe.maybeToList . store . generateType "Source Text" ValueSimple . extractWordProperty getSourceText $ ws
+    types = pure . store . generateType "Source Text" ValueSimple . extractWordProperty getSourceText $ ws
 
 type WordLocation = (Work.Index, Word.Index)
 newtype ValueIndex = ValueIndex { getValueIndex :: Int } deriving (Eq, Ord, Show)
@@ -36,31 +36,32 @@ data Type a = Type
   { typeTitle :: Text
   , typeInstances :: [(WordLocation, a)]
   , typeValueMap :: Map a ValueIndex
-  , typeValues :: [Value]
+  , typeValueInstances :: [(Value, [WordLocation])]
   }
 
-store :: Ord a => Type a -> Maybe Json.Type
-store (Type t is vm vs) = Json.Type <$> pure t <*> pure (fmap storeValue vs) <*> traverse (storeInstance vm) is
+store :: Ord a => Type a -> Json.Type
+store (Type t _ _ vs) = Json.Type t (fmap storeValue vs)
   where
-    storeInstance m ((wki, wdi), x) = Json.Instance <$> pure wki <*> pure wdi <*> (Lens.over Lens._Just getValueIndex . Map.lookup x $ m)
+    storeValue :: (Value, [WordLocation]) -> Json.Value
+    storeValue ((ValueSimple vt), ls) = Json.Value vt (fmap locationToInstance ls)
 
-storeValue :: Value -> Json.Value
-storeValue (ValueSimple t) = Json.Value t
+    locationToInstance :: WordLocation -> Json.Instance
+    locationToInstance = uncurry Json.Instance
 
 generateType :: forall a. Ord a => Text -> (a -> Value) -> [(WordLocation, a)] -> Type a
-generateType t f is = Type t is valueMap transformedValueList
+generateType t f is = Type t is valueMap typedValueInstances
   where
-    typedValues :: [a]
-    typedValues = Lens.toListOf (Lens.each . Lens._2) is
+    valueInstances :: [(a, [WordLocation])]
+    valueInstances = Lens.over (traverse . Lens._2 . traverse) fst . Map.assocs . Utility.mapGroupBy snd $ is
+
+    typedValueInstances :: [(Value, [WordLocation])]
+    typedValueInstances = Lens.over (traverse . Lens._1) f valueInstances
 
     indexedValues :: [(a, ValueIndex)]
-    indexedValues = Lens.over (traverse . Lens._2) ValueIndex . flip zip [0..] . Set.toAscList . Set.fromList $ typedValues
+    indexedValues = Lens.over (traverse . Lens._2) ValueIndex . flip zip [0..] . fmap fst $ valueInstances
 
     valueMap :: Map a ValueIndex
     valueMap = Map.fromList indexedValues
-
-    transformedValueList :: [Value]
-    transformedValueList = fmap f . Lens.toListOf (traverse . Lens._1) $ indexedValues
 
 getSourceText :: Word.IndexedBasic (Text, FileReference) -> Text
 getSourceText = Lens.view (Word.surface . Lens._1)

@@ -39,21 +39,20 @@ data Data = Data
 data Type = Type
   { typeTitle :: Text
   , typeValues :: [Value]
-  , typeInstances :: [Instance]
   }
-instance Aeson.ToJSON Type where toJSON (Type t vs is) = Aeson.object ["title" .= t, "values" .= vs, "instances" .= is]
+instance Aeson.ToJSON Type where toJSON (Type t vs) = Aeson.object ["title" .= t, "values" .= vs]
 
 data Value = Value
   { valueText :: Text
+  , valueInstances :: [Instance]
   }
-instance Aeson.ToJSON Value where toJSON (Value t) = Aeson.toJSON t
+instance Aeson.ToJSON Value where toJSON (Value t is) = Aeson.object ["t" .= t, "i" .= is]
 
 data Instance = Instance
   { instanceWorkIndex :: Work.Index
   , instanceWordIndex :: Word.Index
-  , instanceValueIndex :: Int
   }
-instance Aeson.ToJSON Instance where toJSON (Instance wk wd v) = Aeson.toJSON [Work.getIndex wk, Word.getIndex wd, v]
+instance Aeson.ToJSON Instance where toJSON (Instance wk wd) = Aeson.toJSON [Work.getIndex wk, Word.getIndex wd]
 
 data Index = Index
   { indexWorkInfos :: [WorkInfo]
@@ -139,8 +138,7 @@ instance Aeson.ToJSON WordText where toJSON (WordText t) = Aeson.toJSON t
 --    workWordTexts = concatMap (wordTexts . Work.getContent)
 
 makeTypeInfo :: Type -> TypeInfo
-makeTypeInfo (Type t vs is) = TypeInfo t (length vs) (length is)
-
+makeTypeInfo (Type t vs) = TypeInfo t (length vs) (sum $ fmap (length . valueInstances) $ vs)
 
 --getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
 --getData ws = Data ourIndex stage0Works ourTypes
