@@ -31,7 +31,7 @@ data FileReference = FileReference
   { _fileReferencePath :: Path
   , _fileReferenceBegin :: LineReference
   , _fileReferenceEnd :: LineReference
-  }
+  } deriving (Eq, Ord)
 instance Show FileReference where show (FileReference p b e) = "FileReference " ++ show p ++ " (" ++ show b ++ ") (" ++ show e ++ ")"
 makeLenses ''FileReference
 

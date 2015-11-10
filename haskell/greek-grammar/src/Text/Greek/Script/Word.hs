@@ -3,6 +3,7 @@
 module Text.Greek.Script.Word where
 
 import Prelude hiding (Word)
+import Data.Text (Text)
 import Text.Greek.FileReference
 import Text.Greek.Script.Elision
 import qualified Control.Lens as Lens
@@ -27,6 +28,12 @@ Lens.makeLensesFor
   , ("getSurface", "surface")
   ]
   ''Word
+
+newtype Source = Source { getSource :: Text } deriving (Eq, Ord, Show)
+data SourceInfo = SourceInfo
+  { getSourceInfoWord :: Source
+  , getSourceInfoFile :: FileReference
+  } deriving (Eq, Ord, Show)
 
 type Basic = (Maybe (ElisionChar, FileCharReference), ParagraphIndex)
 type Indexed a = Word (Index, a)

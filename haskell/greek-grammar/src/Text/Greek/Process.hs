@@ -26,7 +26,7 @@ go = do
 process :: ExceptT String IO ()
 process = do
   sourceWords <- handleIOError All.loadAll
-  let wordType = generateType "Source Word" ValueSimple . flattenWords (fst . Word.getSurface) $ sourceWords
+  let wordType = generateType "Source Word" ValueSimple . flattenWords (Word.getSource . Word.getSourceInfoWord . Word.getSurface) $ sourceWords
   let composedWords = toComposedWords sourceWords
   let decomposedWordPairs = toDecomposedWordPairs composedWords
   let decomposedWords = toDecomposedWords decomposedWordPairs
@@ -57,9 +57,9 @@ toWorkInfo :: Type Text -> Work.Indexed [Word.Indexed Word.Basic (Text, FileRefe
 toWorkInfo = undefined
 
 toComposedWords
-  :: WordSurfaceBasic (Text, FileReference)
+  :: WordSurfaceBasic Word.SourceInfo
   -> WordSurfaceBasic [Unicode.Composed]
-toComposedWords = Lens.over wordSurfaceLens (Unicode.toComposed . fst)
+toComposedWords = Lens.over wordSurfaceLens (Unicode.toComposed . Word.getSource . Word.getSourceInfoWord)
 
 toComposedType :: WordSurfaceBasic [Unicode.Composed] -> Type Unicode.Composed
 toComposedType = generateType "Unicode Composed" (ValueSimple . Json.titleUnicodeDetail . Unicode.composed)
