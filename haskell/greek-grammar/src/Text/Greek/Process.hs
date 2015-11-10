@@ -24,7 +24,7 @@ go = do
 process :: ExceptT String IO ()
 process = do
   sourceWords <- handleIOError All.loadAll
-  let wordType = generateType "Source Word" ValueSimple . flattenWords getSourceText $ sourceWords
+  let wordType = generateType "Source Word" ValueSimple . flattenWords (fst . Word.getSurface) $ sourceWords
   let composedWords = toComposedWords sourceWords
   let decomposedWordPairs = toDecomposedWordPairs composedWords
   let
@@ -37,34 +37,36 @@ process = do
   let workInfos = []
   let ourIndex = Json.Index workInfos . fmap Json.makeTypeInfo $ storedTypes
   liftIO $ dumpData (Json.Data ourIndex [] storedTypes)
-  where
-    getSourceText :: Word.IndexedBasic (Text, FileReference) -> Text
-    getSourceText = Lens.view (Word.surface . Lens._1)
 
-    toComposedWords
-      :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]]
-      -> [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]]
-    toComposedWords = Lens.over (traverse . Work.content . traverse . Word.surface) (Unicode.toComposed . fst)
+toComposedWords
+  :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]]
+  -> [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]]
+toComposedWords = Lens.over (traverse . Work.content . traverse . Word.surface) (Unicode.toComposed . fst)
 
-    toComposedType = generateType "Unicode Composed" (ValueSimple . Json.titleUnicodeDetail . Unicode.composed)
-      . concatSurface
-      . flattenWords Word.getSurface
+toComposedType :: [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]] -> Type Unicode.Composed
+toComposedType = generateType "Unicode Composed" (ValueSimple . Json.titleUnicodeDetail . Unicode.composed)
+  . concatSurface
+  . flattenWords Word.getSurface
 
-    toDecomposedWordPairs
-      :: [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]]
-      -> [Work.Indexed [Word.IndexedBasic [(Unicode.Composed, [Unicode.Decomposed])]]]
-    toDecomposedWordPairs = Lens.over (traverse . Work.content . traverse . Word.surface . traverse) (\x -> (x, Unicode.decompose' x))
+toDecomposedWordPairs
+  :: [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]]
+  -> [Work.Indexed [Word.IndexedBasic [(Unicode.Composed, [Unicode.Decomposed])]]]
+toDecomposedWordPairs = Lens.over (traverse . Work.content . traverse . Word.surface . traverse) (\x -> (x, Unicode.decompose' x))
 
-    toDecomposedType = generateType "Unicode Decomposed" (ValueSimple . Json.titleUnicodeDetail . Unicode.decomposed)
-      . concatSurface
-      . Lens.over (traverse . Lens._2) snd
-      . concatSurface
-      . flattenWords Word.getSurface
+toDecomposedType :: [Work.Indexed [Word.IndexedBasic [(Unicode.Composed, [Unicode.Decomposed])]]] -> Type Unicode.Decomposed
+toDecomposedType = generateType "Unicode Decomposed" (ValueSimple . Json.titleUnicodeDetail . Unicode.decomposed)
+  . concatSurface
+  . Lens.over (traverse . Lens._2) snd
+  . concatSurface
+  . flattenWords Word.getSurface
 
-    toDecomposedFunctionType = generateType "Unicode Composed → [Unicode Decomposed]"
-      (ValueSimple . Json.formatFunction (Json.titleUnicodeDetail . Unicode.composed) (Json.formatList (Json.titleUnicodeDetail . Unicode.decomposed)))
-      . concatSurface
-      . flattenWords Word.getSurface
+toDecomposedFunctionType
+  :: [Work.Indexed [Word.IndexedBasic [(Unicode.Composed, [Unicode.Decomposed])]]]
+  -> Type (Unicode.Composed, [Unicode.Decomposed])
+toDecomposedFunctionType = generateType "Unicode Composed → [Unicode Decomposed]"
+  (ValueSimple . Json.formatFunction (Json.titleUnicodeDetail . Unicode.composed) (Json.formatList (Json.titleUnicodeDetail . Unicode.decomposed)))
+  . concatSurface
+  . flattenWords Word.getSurface
 
 type WordLocation = (Work.Index, Word.Index)
 newtype ValueIndex = ValueIndex { getValueIndex :: Int } deriving (Eq, Ord, Show)
@@ -104,15 +106,6 @@ generateType t f is = Type t is valueMap typedValueInstances
 
 concatSurface :: [(a, [b])] -> [(a, b)]
 concatSurface = concatMap (\(x, ys) -> fmap (\y -> (x, y)) ys)
-
---extractSurfaceProperty :: forall a b c. (b -> c) -> [Work.Indexed [Word.Indexed a [b]]] -> [(WordLocation, c)]
---extractSurfaceProperty f ss = Lens.over (traverse . Lens._2) f concatSurface
---  where
---    concatSurface :: [(WordLocation, b)]
---    concatSurface = concatMap (\(l, xs) -> fmap (\x -> (l, x)) xs) listSurface
-
---    listSurface :: [(WordLocation, [b])]
---    listSurface = flattenWords Word.getSurface ss
 
 flattenWords :: forall a b c. (Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
 flattenWords f = concatMap getIndexedWorkProps
