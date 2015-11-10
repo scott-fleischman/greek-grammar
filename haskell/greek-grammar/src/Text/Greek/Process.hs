@@ -3,6 +3,7 @@
 
 module Text.Greek.Process where
 
+import Control.Monad.Except
 import Data.Map (Map)
 import Data.Text (Text)
 import Text.Greek.FileReference (FileReference)
@@ -16,50 +17,54 @@ import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Utility as Utility
 
 go :: IO ()
-go = All.loadAll >>= handleResult process . showError
+go = do
+  result <- runExceptT process
+  handleResult result
 
-process :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]] -> IO ()
-process sourceWords = do
-  dumpData (Json.Data ourIndex [] storedTypes)
-  where
-    ourIndex = Json.Index workInfos typeInfos
-    typeInfos = fmap Json.makeTypeInfo storedTypes
-    workInfos = []
+process :: ExceptT String IO ()
+process = do
+  sourceWords <- handleIOError All.loadAll
+  let wordType = generateType "Source Word" ValueSimple . flattenWords getSourceText $ sourceWords
+  let composedWords = toComposedWords sourceWords
+  let decomposedWordPairs = toDecomposedWordPairs composedWords
+  let
     storedTypes =
       [ storeType wordType
-      , storeType composedType
-      , storeType decomposeFunctionType
-      , storeType decomposedType
+      , storeType (toComposedType composedWords)
+      , storeType (toDecomposedFunctionType decomposedWordPairs)
+      , storeType (toDecomposedType decomposedWordPairs)
       ]
-
-    wordType = generateType "Source Word" ValueSimple . flattenWords getSourceText $ sourceWords
-
+  let workInfos = []
+  let ourIndex = Json.Index workInfos . fmap Json.makeTypeInfo $ storedTypes
+  liftIO $ dumpData (Json.Data ourIndex [] storedTypes)
+  where
     getSourceText :: Word.IndexedBasic (Text, FileReference) -> Text
     getSourceText = Lens.view (Word.surface . Lens._1)
 
-    composedWords :: [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]]
-    composedWords = Lens.over (traverse . Work.content . traverse . Word.surface) (Unicode.toComposed . fst) $ sourceWords
+    toComposedWords
+      :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]]
+      -> [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]]
+    toComposedWords = Lens.over (traverse . Work.content . traverse . Word.surface) (Unicode.toComposed . fst)
 
-    composedType = generateType "Unicode Composed" (ValueSimple . Json.titleUnicodeDetail . Unicode.composed)
+    toComposedType = generateType "Unicode Composed" (ValueSimple . Json.titleUnicodeDetail . Unicode.composed)
       . concatSurface
       . flattenWords Word.getSurface
-      $ composedWords
 
-    decomposedWords :: [Work.Indexed [Word.IndexedBasic [(Unicode.Composed, [Unicode.Decomposed])]]]
-    decomposedWords = Lens.over (traverse . Work.content . traverse . Word.surface . traverse) (\x -> (x, Unicode.decompose' x)) $ composedWords
+    toDecomposedWordPairs
+      :: [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]]
+      -> [Work.Indexed [Word.IndexedBasic [(Unicode.Composed, [Unicode.Decomposed])]]]
+    toDecomposedWordPairs = Lens.over (traverse . Work.content . traverse . Word.surface . traverse) (\x -> (x, Unicode.decompose' x))
 
-    decomposedType = generateType "Unicode Decomposed" (ValueSimple . Json.titleUnicodeDetail . Unicode.decomposed)
+    toDecomposedType = generateType "Unicode Decomposed" (ValueSimple . Json.titleUnicodeDetail . Unicode.decomposed)
       . concatSurface
       . Lens.over (traverse . Lens._2) snd
       . concatSurface
       . flattenWords Word.getSurface
-      $ decomposedWords
 
-    decomposeFunctionType = generateType "Unicode Composed → Decomposed"
+    toDecomposedFunctionType = generateType "Unicode Composed → [Unicode Decomposed]"
       (ValueSimple . Json.formatFunction (Json.titleUnicodeDetail . Unicode.composed) (Json.formatList (Json.titleUnicodeDetail . Unicode.decomposed)))
       . concatSurface
       . flattenWords Word.getSurface
-      $ decomposedWords
 
 type WordLocation = (Work.Index, Word.Index)
 newtype ValueIndex = ValueIndex { getValueIndex :: Int } deriving (Eq, Ord, Show)
@@ -127,9 +132,16 @@ flattenWords f = concatMap getIndexedWorkProps
     getWordIndex :: Word.Indexed a b -> Word.Index
     getWordIndex = Lens.view (Word.info . Lens._1)
 
-handleResult :: (a -> IO ()) -> Either String a -> IO ()
-handleResult _ (Left e) = putStrLn e
-handleResult f (Right a) = f a
+handleResult :: Either String () -> IO ()
+handleResult (Left e) = putStrLn e
+handleResult (Right ()) = putStrLn "Complete"
+
+handleIOError :: Show a => IO (Either a b) -> ExceptT String IO b
+handleIOError x = liftIO x >>= handleError
+
+handleError :: Show a => Either a b -> ExceptT String IO b
+handleError (Left x) = throwError . show $ x
+handleError (Right x) = return x
 
 showError :: Show a => Either a b -> Either String b
 showError = Lens.over Lens._Left show
