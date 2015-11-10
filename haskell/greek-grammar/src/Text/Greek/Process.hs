@@ -40,6 +40,8 @@ process = do
       , storeType (toDecomposedType decomposedWords)
       , storeType (toMarkedLetterFunctionType markedLetterPairs)
       , storeType (toMarkedLetterType markedLetters)
+      , storeType (toUnicodeLetterType markedLetters)
+      , storeType (toUnicodeMarkType markedLetters)
       ]
   let workInfos = []
   let ourIndex = Json.Index workInfos . fmap Json.makeTypeInfo $ storedTypes
@@ -98,6 +100,18 @@ toMarkedLetters = Lens.over (wordSurfaceLens . traverse) snd
 toMarkedLetterType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Type (Marked.Unit Unicode.Letter [Unicode.Mark])
 toMarkedLetterType = generateType "Unicode Marked Letter"
   (ValueSimple . titleMarkedLetter)
+  . flattenSurface Word.getSurface
+
+toUnicodeLetterType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Type Unicode.Letter
+toUnicodeLetterType = generateType "Unicode Letter"
+  (ValueSimple . Json.titleUnicodeDetail . Unicode.getLetter)
+  . Lens.over (traverse . Lens._2) Marked._item
+  . flattenSurface Word.getSurface
+
+toUnicodeMarkType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Type Unicode.Mark
+toUnicodeMarkType = generateType "Unicode Mark"
+  (ValueSimple . Json.titleUnicodeDetail . Unicode.getMark)
+  . concatMap (\(l, m) -> fmap (\x -> (l, x)) (Marked._marks m))
   . flattenSurface Word.getSurface
 
 titleMarkedLetter :: Marked.Unit Unicode.Letter [Unicode.Mark] -> Text
