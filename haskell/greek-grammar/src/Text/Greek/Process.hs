@@ -26,6 +26,8 @@ go = do
 process :: ExceptT String IO ()
 process = do
   sourceWords <- handleIOError All.loadAll
+  _ <- liftIO $ putStrLn "Processing"
+
   let wordType = generateType "Source Word" ValueSimple . flattenWords (Word.getSource . Word.getSourceInfoWord . Word.getSurface) $ sourceWords
   let workInfos = getWorkInfos wordType sourceWords
   let composedWords = toComposedWords sourceWords

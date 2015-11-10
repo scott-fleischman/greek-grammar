@@ -13,6 +13,7 @@ import qualified Text.Greek.Source.Work as Work
 
 loadAll :: IO (Either [XmlError] [Work.Indexed [Word.Indexed Word.Basic Word.SourceInfo]])
 loadAll = do
+  _ <- putStrLn "Loading SBLGNT"
   sblgntResult <- loadSblgnt
   return $ do
     sblgntWorks <- sblgntResult
