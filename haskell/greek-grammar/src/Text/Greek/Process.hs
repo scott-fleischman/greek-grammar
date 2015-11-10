@@ -9,9 +9,11 @@ import Data.Text (Text)
 import Text.Greek.FileReference (FileReference)
 import qualified Control.Lens as Lens
 import qualified Data.Map as Map
+import qualified Data.Text as Text
 import qualified Text.Greek.Json as Json
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
+import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Utility as Utility
@@ -28,12 +30,14 @@ process = do
   let composedWords = toComposedWords sourceWords
   let decomposedWordPairs = toDecomposedWordPairs composedWords
   let decomposedWords = toDecomposedWords decomposedWordPairs
+  markedLetters <- handleError $ toMarkedLetters decomposedWords
   let
     storedTypes =
       [ storeType wordType
       , storeType (toComposedType composedWords)
       , storeType (toDecomposedFunctionType decomposedWordPairs)
       , storeType (toDecomposedType decomposedWords)
+      , storeType (toMarkedLetterType markedLetters)
       ]
   let workInfos = []
   let ourIndex = Json.Index workInfos . fmap Json.makeTypeInfo $ storedTypes
@@ -42,7 +46,7 @@ process = do
 toComposedWords
   :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]]
   -> [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]]
-toComposedWords = Lens.over (traverse . Work.content . traverse . Word.surface) (Unicode.toComposed . fst)
+toComposedWords = Lens.over wordSurfaceLens (Unicode.toComposed . fst)
 
 toComposedType :: [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]] -> Type Unicode.Composed
 toComposedType = generateType "Unicode Composed" (ValueSimple . Json.titleUnicodeDetail . Unicode.composed)
@@ -51,7 +55,7 @@ toComposedType = generateType "Unicode Composed" (ValueSimple . Json.titleUnicod
 toDecomposedWordPairs
   :: [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]]
   -> [Work.Indexed [Word.IndexedBasic [(Unicode.Composed, [Unicode.Decomposed])]]]
-toDecomposedWordPairs = Lens.over (traverse . Work.content . traverse . Word.surface . traverse) (\x -> (x, Unicode.decompose' x))
+toDecomposedWordPairs = Lens.over (wordSurfaceLens . traverse) (\x -> (x, Unicode.decompose' x))
 
 toDecomposedFunctionType
   :: [Work.Indexed [Word.IndexedBasic [(Unicode.Composed, [Unicode.Decomposed])]]]
@@ -63,11 +67,35 @@ toDecomposedFunctionType = generateType "Unicode Composed → [Unicode Decompose
 toDecomposedWords
   :: [Work.Indexed [Word.IndexedBasic [(Unicode.Composed, [Unicode.Decomposed])]]]
   -> [Work.Indexed [Word.IndexedBasic [Unicode.Decomposed]]]
-toDecomposedWords = Lens.over (traverse . Work.content . traverse . Word.surface) (concatMap snd)
+toDecomposedWords = Lens.over wordSurfaceLens (concatMap snd)
 
 toDecomposedType :: [Work.Indexed [Word.IndexedBasic [Unicode.Decomposed]]] -> Type Unicode.Decomposed
 toDecomposedType = generateType "Unicode Decomposed" (ValueSimple . Json.titleUnicodeDetail . Unicode.decomposed)
   . flattenSurface Word.getSurface
+
+toMarkedLetters
+  :: [Work.Indexed [Word.IndexedBasic [Unicode.Decomposed]]]
+  -> Either Unicode.Error [Work.Indexed [Word.IndexedBasic [Marked.Unit Unicode.Letter [Unicode.Mark]]]]
+toMarkedLetters = wordSurfaceLens Unicode.parseMarkedLetters
+
+toMarkedLetterType :: [Work.Indexed [Word.IndexedBasic [Marked.Unit Unicode.Letter [Unicode.Mark]]]] -> Type (Marked.Unit Unicode.Letter [Unicode.Mark])
+toMarkedLetterType = generateType "Unicode Marked Letter"
+  (ValueSimple . titleMarkedLetter)
+  . flattenSurface Word.getSurface
+
+titleMarkedLetter :: Marked.Unit Unicode.Letter [Unicode.Mark] -> Text
+titleMarkedLetter (Marked.Unit l ms) = Text.concat
+  [ Json.titleUnicodeDetail . Unicode.getLetter $ l
+  , " ["
+  , Text.intercalate ", " (fmap (Json.titleUnicodeDetail . Unicode.getMark) ms)
+  , "]"
+  ]
+
+wordSurfaceLens :: Applicative f =>
+  (a -> f b)
+  -> [Work.Indexed [Word.IndexedBasic a]]
+  -> f [Work.Indexed [Word.IndexedBasic b]]
+wordSurfaceLens = traverse . Work.content . traverse . Word.surface
 
 type WordLocation = (Work.Index, Word.Index)
 newtype ValueIndex = ValueIndex { getValueIndex :: Int } deriving (Eq, Ord, Show)

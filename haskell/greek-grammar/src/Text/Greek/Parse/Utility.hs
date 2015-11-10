@@ -24,6 +24,15 @@ embedParser p2 v = do
 primMaybe :: (Show t, Stream s m t) => String -> (t -> LineReference) -> (t -> Maybe a) -> ParsecT s u m a
 primMaybe p f = tokenPrim (\x -> p ++ " " ++ show x) (updateEventPos f)
 
+primMaybe' :: (Show t, Stream s m t) => String -> (t -> Maybe a) -> ParsecT s u m a
+primMaybe' p = tokenPrim (\x -> p ++ " " ++ show x) (\a _ _ -> a)
+
+primBool' :: (Show t, Stream s m t) => String -> (t -> Bool) -> ParsecT s u m t
+primBool' p f = primMaybe' p go
+  where
+    go t | f t = Just t
+    go _ = Nothing
+
 primBool :: (Show t, Stream s m t) => String -> (t -> LineReference) -> (t -> Bool) -> ParsecT s u m t
 primBool p f g = primMaybe p f go
   where

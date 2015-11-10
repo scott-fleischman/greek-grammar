@@ -17,8 +17,8 @@ import qualified Text.Greek.Script.Marked as Marked
 
 newtype Composed = Composed { composed :: Char } deriving (Eq, Ord, Show)
 newtype Decomposed = Decomposed { decomposed :: Char } deriving (Eq, Ord, Show)
-newtype Letter = Letter Char deriving (Eq, Ord, Show)
-newtype Mark = Mark Char deriving (Eq, Ord, Show)
+newtype Letter = Letter { getLetter :: Char } deriving (Eq, Ord, Show)
+newtype Mark = Mark { getMark :: Char } deriving (Eq, Ord, Show)
 
 data Error
   = ErrorMultipleLines FileReference Text
@@ -54,24 +54,22 @@ ensureLengthMatches t (Column c1) (Column c2) | Text.length t == c2 - c1 = Just 
 ensureLengthMatches _ _ _ = Nothing
 
 
-type MarkedLetter = Marked.MarkList FileCharReference Letter Mark
-
-parseMarkedLetters :: [(Decomposed, FileCharReference)] -> Either Error [MarkedLetter]
+parseMarkedLetters :: [Decomposed] -> Either Error [Marked.Unit Letter [Mark]]
 parseMarkedLetters = over _Left ErrorParse . parse markedLettersParser ""
 
-type DecomposedParser = ParsecT [(Decomposed, FileCharReference)] () Identity
+type DecomposedParser = ParsecT [Decomposed] () Identity
 
-satisfy :: String -> (Char -> Bool) -> DecomposedParser (Decomposed, FileCharReference)
-satisfy p f = primBool p (^. _2 . fileCharReferenceLine) (f . decomposed . view _1)
+satisfy :: String -> (Char -> Bool) -> DecomposedParser Decomposed
+satisfy p f = primBool' p (f . decomposed)
 
-markParser :: DecomposedParser (Mark, FileCharReference)
-markParser = over _1 (Mark . decomposed) <$> satisfy "Mark" Char.isMark
+markParser :: DecomposedParser Mark
+markParser = (Mark . decomposed) <$> satisfy "Mark" Char.isMark
 
-letterParser :: DecomposedParser (Letter, FileCharReference)
-letterParser = over _1 (Letter . decomposed) <$> satisfy "Letter" Char.isLetter
+letterParser :: DecomposedParser Letter
+letterParser = (Letter . decomposed) <$> satisfy "Letter" Char.isLetter
 
-markedLetterParser :: DecomposedParser MarkedLetter
+markedLetterParser :: DecomposedParser (Marked.Unit Letter [Mark])
 markedLetterParser = Marked.Unit <$> letterParser <*> many markParser
 
-markedLettersParser :: DecomposedParser [MarkedLetter]
+markedLettersParser :: DecomposedParser [Marked.Unit Letter [Mark]]
 markedLettersParser = many1 markedLetterParser <* eof
