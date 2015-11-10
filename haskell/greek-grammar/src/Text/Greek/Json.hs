@@ -24,8 +24,9 @@ import qualified Data.Text as Text
 import qualified Data.Text.Lazy as Lazy
 import qualified Data.Text.Lazy.Builder as Lazy
 import qualified Data.Text.Format as Format
+import qualified System.Directory as Directory
 import qualified Text.Greek.Script.Elision as Elision
-import qualified Text.Greek.Paths as Path
+import qualified Text.Greek.Paths as Paths
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Source.Work as Work
@@ -220,12 +221,16 @@ getElisionProperty _ = "Not elided"
 
 dumpJson :: Data -> IO ()
 dumpJson (Data i ws ts) = do
+  _ <- Directory.createDirectoryIfMissing True Paths.pagesData
+  _ <- Directory.createDirectoryIfMissing True (Paths.pagesData </> "works")
+  _ <- Directory.createDirectoryIfMissing True (Paths.pagesData </> "types")
+
   _ <- write "index.json" i
   _ <- writeAll "works/work" ws
-  _ <- writeAll "values/type" ts
+  _ <- writeAll "types/type" ts
   return ()
   where
-    write n = BL.writeFile (Path.pagesData </> n) . Aeson.encode
+    write n = BL.writeFile (Paths.pagesData </> n) . Aeson.encode
     writeAll n = sequence . fmap (\(xi, x) -> write (n ++ show xi ++ ".json") x) . zip ([0..] :: [Int])
 
 

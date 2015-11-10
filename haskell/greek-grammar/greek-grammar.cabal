@@ -28,7 +28,8 @@ library
     parsec >=3.1,
     syb >=0.4.4,
     bytestring >=0.10,
-    aeson >=0.8
+    aeson >=0.8,
+    directory >=1.2.2
   exposed-modules:
     Data.Text.Format.Strict
     Data.Unicode.Decompose

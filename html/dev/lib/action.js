@@ -76,7 +76,7 @@ function fetchValues(dispatch, getState, typeIndex) {
   if (State.hasValues(getState(), typeIndex))
     return Promise.resolve();
 
-  return dispatchFetchData(dispatch, `values/type${typeIndex}`, () => requestValues(typeIndex), x => receiveValues(typeIndex, x));
+  return dispatchFetchData(dispatch, `types/type${typeIndex}`, () => requestValues(typeIndex), x => receiveValues(typeIndex, x));
 }
 
 export const fetchViewWork = workIndex => (dispatch, getState) =>
