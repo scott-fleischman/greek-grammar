@@ -5,6 +5,7 @@ import * as State from './state.js';
 import { WorkList } from './workList.js';
 import { TypeList } from './typeList.js';
 import { ValueList } from './valueList.js';
+import { InstanceList } from './instanceList.js';
 import { Nav } from './nav.js';
 import R from 'ramda';
 import { Work } from './render.js';
@@ -43,9 +44,10 @@ function getLoadingWork(workIndex, works) {
   };
 }
 
-function getLoadingValues() {
+function getLoadingType(typeIndex, types) {
+  const text = types ? loadingItemText(types[typeIndex].title) : loadingText;
   return {
-    navTitle: loadingText,
+    navTitle: text,
     content: (<div></div>),
   };
 }
@@ -71,10 +73,24 @@ function getViewWork(workTitle, workIndex, work) {
   };
 }
 
-function getViewValueList(values, typeTitle, typeIndex, getValueUrl) {
+function getViewValueList(values, typeTitle, typeIndex, getInstanceListUrl) {
   return {
     navTitle: `${typeTitle}, ${values.length} Values`,
-    content: (<ValueList values={values} typeIndex={typeIndex} getValueUrl={getValueUrl} />),
+    content: (<ValueList values={values} typeIndex={typeIndex} getInstanceListUrl={getInstanceListUrl} />),
+  };
+}
+
+function getViewInstanceList(words, instances, typeIndex, valueIndex, typeTitle, valueTitle, getWordDetailUrl) {
+  return {
+    navTitle: `${typeTitle}, ${valueTitle}, ${instances.length} Instances`,
+    content: (
+      <InstanceList
+        words={words}
+        typeIndex={typeIndex}
+        valueIndex={valueIndex}
+        instances={instances}
+        getWordDetailUrl={getWordDetailUrl}
+      />),
   };
 }
 
@@ -85,11 +101,29 @@ const App = ({ dispatch, visual, data }) => {
   switch (visual.view) {
     case State.view.loadingIndex: info = getLoadingIndex(); break;
     case State.view.loadingWork: info = getLoadingWork(visual.workIndex, data.index.works); break;
-    case State.view.loadingValues: info = getLoadingValues(); break;
+    case State.view.loadingType: info = getLoadingType(); break;
     case State.view.workList: info = getViewWorkList(data.index.works, R.compose(getUrl, Action.viewWork)); break;
     case State.view.typeList: info = getViewTypeList(data.index.types, R.compose(getUrl, Action.viewValueList)); break;
     case State.view.work: info = getViewWork(data.index.works[visual.workIndex].title, visual.workIndex, data.works.get(visual.workIndex)); break;
-    case State.view.valueList: info = getViewValueList(data.index.types[visual.typeIndex].values, data.index.types[visual.typeIndex].title, visual.typeIndex, () => '#'); break;
+    case State.view.valueList:
+      info = getViewValueList(
+        data.index.types[visual.typeIndex].values,
+        data.index.types[visual.typeIndex].title,
+        visual.typeIndex,
+        R.compose(getUrl, x => Action.viewInstanceList(visual.typeIndex, x)));
+      break;
+    case State.view.instanceList:
+      console.log('typeIndex', visual.typeIndex, 'valueIndex', visual.valueIndex);
+
+      info = getViewInstanceList(
+        [],
+        data.types.get(visual.typeIndex).values[visual.valueIndex].i,
+        visual.typeIndex,
+        visual.valueIndex,
+        data.index.types[visual.typeIndex].title,
+        data.index.types[visual.typeIndex].values[visual.valueIndex].title,
+        () => '#');
+      break;
   }
   if (!info) {
     console.log('Unknown view', visual);

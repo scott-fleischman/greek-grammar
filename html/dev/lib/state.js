@@ -4,11 +4,12 @@ import * as Action from "./action.js"
 export const view = R.compose(R.fromPairs, R.map(x => [x,x])) ([
   'loadingIndex',
   'loadingWork',
+  'loadingType',
   'workList',
   'typeList',
-  'work',
   'valueList',
-  'loadingValues',
+  'instanceList',
+  'work',
 ]);
 
 export const initial = {
@@ -47,8 +48,9 @@ export const getVisual = action => {
     case Action.types.receiveWork: return { view: view.loadingWork, workIndex: action.workIndex };
     case Action.types.viewWork: return { view: view.work, workIndex: action.workIndex };
     case Action.types.viewValueList: return { view: view.valueList, typeIndex: action.typeIndex };
-    case Action.types.requestValues: return { view: view.loadingValues, typeIndex: action.typeIndex };
-    case Action.types.receiveValues: return { view: view.loadingValues, typeIndex: action.typeIndex };
+    case Action.types.requestType: return { view: view.loadingType, typeIndex: action.typeIndex };
+    case Action.types.receiveType: return { view: view.loadingType, typeIndex: action.typeIndex };
+    case Action.types.viewInstanceList: return { view: view.instanceList, typeIndex: action.typeIndex, valueIndex: action.valueIndex };
     default: console.log('Unknown action', action); return {};
   }
 };
@@ -59,8 +61,8 @@ const getData = (data, action) => {
     case Action.types.receiveIndex: return { ...data, index: action.index };
     case Action.types.requestWork: return { ...data, works: updateMap(data.works, action.workIndex, { loading: true }) };
     case Action.types.receiveWork: return { ...data, works: updateMap(data.works, action.workIndex, action.work) };
-    case Action.types.requestValues: return { ...data, types: updateMap(data.types, action.typeIndex, { loading: true }) };
-    case Action.types.receiveValues: return { ...data, types: updateMap(data.types, action.typeIndex, action.typeValues) };
+    case Action.types.requestType: return { ...data, types: updateMap(data.types, action.typeIndex, { loading: true }) };
+    case Action.types.receiveType: return { ...data, types: updateMap(data.types, action.typeIndex, action.typeData) };
     default: return data;
   }
 };
@@ -74,6 +76,8 @@ export const getActionForVisual = visual => {
     return Action.fetchViewWork(visual.workIndex);
   if (visual.view === view.valueList && !R.isNil(visual.typeIndex))
     return Action.fetchViewValueList(visual.typeIndex);
+  if (visual.view === view.instanceList && !R.isNil(visual.typeIndex) && !R.isNil(visual.valueIndex))
+    return Action.fetchViewInstanceList(visual.typeIndex, visual.valueIndex);
   else
     return undefined;
 }

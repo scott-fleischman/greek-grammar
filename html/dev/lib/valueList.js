@@ -9,14 +9,14 @@ const ValueInfo = ({ title, instanceCount, url }) => (
   </div>
 );
 
-export const ValueList = ({ values, typeIndex, getValueUrl }) => (
+export const ValueList = ({ values, typeIndex, getInstanceListUrl }) => (
   <div className="listContainer">
     {R.addIndex(R.map) ((x, i) => (
       <ValueInfo
         key={typeIndex + '.' + i}
         title={x.t}
         instanceCount={x.i}
-        url={getValueUrl(typeIndex, i)}
+        url={getInstanceListUrl(i)}
       />
     )) (values)}
   </div>
