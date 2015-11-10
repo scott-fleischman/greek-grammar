@@ -3,6 +3,7 @@
 
 module Text.Greek.Process where
 
+import Prelude hiding (words)
 import Control.Monad.Except
 import Data.Map (Map)
 import Data.Text (Text)
@@ -46,8 +47,10 @@ process = do
       , storeType (toUnicodeLetterType markedLetters)
       , storeType (toUnicodeMarkType markedLetters)
       ]
+  let instanceMap = Json.makeInstanceMap storedTypes
+  let ourWorks = getWorks instanceMap sourceWords
   let ourIndex = Json.Index workInfos . fmap Json.makeTypeInfo $ storedTypes
-  liftIO $ dumpData (Json.Data ourIndex [] storedTypes)
+  liftIO $ dumpData (Json.Data ourIndex ourWorks storedTypes)
 
 type WordSurface a b = [Work.Indexed [Word.Indexed a b]]
 type WordSurfaceBasic a = WordSurface Word.Basic a
@@ -67,6 +70,15 @@ toWorkInfo wordType (Work.Work (_, s, t) ws) = Json.WorkInfo t (Json.WorkSource 
       where
         contextIndex = Json.WordContextIndex 0
         wordTypeValues = fmap (Json.ValueIndex . getValueIndex) . Maybe.maybeToList $ lookupValueIndex wordType x
+
+getWorks :: Map WordLocation [(Json.TypeIndex, Json.ValueIndex)] -> [Work.Indexed [Word.Indexed a b]] -> [Json.Work]
+getWorks m works = workInfos
+  where
+    workInfos = fmap getWorkInfo works
+    getWorkInfo (Work.Work (workIndex, workSource, workTitle) workWords) =
+      Json.Work (Json.WorkSource workSource) workTitle (getWords workIndex workWords) [] []
+    getWords workIndex = fmap (getWord workIndex)
+    getWord workIndex (Word.Word (i, _) _) = Json.Word . concat . Maybe.maybeToList . Map.lookup (workIndex, i) $ m
 
 toComposedWords
   :: WordSurfaceBasic Word.SourceInfo

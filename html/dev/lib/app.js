@@ -2,13 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux'
 import * as Action from './action.js'
 import * as State from './state.js';
+import { Work } from './work.js';
 import { WorkList } from './workList.js';
 import { TypeList } from './typeList.js';
 import { ValueList } from './valueList.js';
 import { InstanceList } from './instanceList.js';
 import { Nav } from './nav.js';
 import R from 'ramda';
-import { Work } from './render.js';
 import QueryString from 'query-string';
 
 function getUrl(action) {
@@ -66,10 +66,10 @@ function getViewTypeList(types, getTypeUrl) {
   };
 }
 
-function getViewWork(workTitle, workIndex, work) {
+function getViewWork(workTitle, workIndex, work, getValue) {
   return {
     navTitle: workTitle,
-    content: (<Work workIndex={workIndex} work={work} />),
+    content: (<Work workIndex={workIndex} work={work} getValue={getValue} />),
   };
 }
 
@@ -105,7 +105,13 @@ const App = ({ dispatch, visual, data }) => {
     case State.view.loadingType: info = getLoadingType(); break;
     case State.view.workList: info = getViewWorkList(data.index.works, R.compose(getUrl, Action.viewWork)); break;
     case State.view.typeList: info = getViewTypeList(data.index.types, R.compose(getUrl, Action.viewValueList)); break;
-    case State.view.work: info = getViewWork(data.index.works[visual.workIndex].title, visual.workIndex, data.works.get(visual.workIndex)); break;
+    case State.view.work:
+      info = getViewWork(
+        data.index.works[visual.workIndex].title,
+        visual.workIndex,
+        data.works.get(visual.workIndex),
+        (typeIndex, valueIndex) => data.index.types[typeIndex].values[valueIndex].t);
+      break;
     case State.view.valueList:
       info = getViewValueList(
         data.index.types[visual.typeIndex].values,
@@ -121,7 +127,7 @@ const App = ({ dispatch, visual, data }) => {
         visual.typeIndex,
         visual.valueIndex,
         data.index.types[visual.typeIndex].title,
-        data.index.types[visual.typeIndex].values[visual.valueIndex].title,
+        data.index.types[visual.typeIndex].values[visual.valueIndex].t,
         () => '#');
       break;
   }

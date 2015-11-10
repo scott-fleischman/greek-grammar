@@ -1,8 +1,4 @@
-span.workInfoSource {
-  font-size: 75%;
-}
-
-span.workInfoWordCount {
+span.workListInfo {
   font-size: 75%;
 }
 
@@ -20,4 +16,12 @@ span.instanceInfo {
 
 div.listContainer {
   margin: 0 1em 0 1em;
+}
+
+div.workContainer {
+  margin: 0 1em 200px 1em;
+}
+
+div.wordGroup {
+  margin: 0 0 1em 0;
 }

@@ -3,11 +3,9 @@ import R from 'ramda';
 
 const WorkInfo = ({ title, source, wordInfos, workUrl }) => (
   <div>
-    <span className="workInfoSource">{source}</span>
-    &ensp;
     <a href={workUrl}>{title}</a>
     &ensp;
-    <span className="workInfoWordCount">{wordInfos.length} words</span>
+    <span className="workListInfo">&mdash; {source} &mdash; {wordInfos.length} words</span>
   </div>
 );
 

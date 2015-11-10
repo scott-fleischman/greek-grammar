@@ -5,14 +5,14 @@ import * as State from './state.js';
 export const types = R.compose(R.fromPairs, R.map(x => [x,x])) ([
   'requestIndex',
   'receiveIndex',
-  'viewWorkList',
-  'viewTypeList',
   'requestWork',
   'receiveWork',
-  'viewWork',
-  'viewValueList',
   'requestType',
   'receiveType',
+  'viewWorkList',
+  'viewTypeList',
+  'viewWork',
+  'viewValueList',
   'viewInstanceList',
 ]);
 

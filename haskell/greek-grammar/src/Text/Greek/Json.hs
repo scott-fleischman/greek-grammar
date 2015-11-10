@@ -1,5 +1,4 @@
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleInstances #-}
 
@@ -9,7 +8,6 @@ import Prelude hiding (Word)
 import Data.Aeson ((.=))
 import Data.Map (Map)
 import Data.Text (Text)
-import GHC.Generics
 import Text.Greek.FileReference
 --import Text.Greek.Xml.Common
 import System.FilePath
@@ -30,6 +28,7 @@ import qualified Text.Greek.Paths as Paths
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Source.Work as Work
+import qualified Text.Greek.Utility as Utility
 
 data Data = Data
   { dataIndex :: Index
@@ -54,6 +53,26 @@ data Instance = Instance
   , instanceWordIndex :: Word.Index
   }
 instance Aeson.ToJSON Instance where toJSON (Instance wk wd) = Aeson.toJSON [Work.getIndex wk, Word.getIndex wd]
+
+makeInstanceMap :: [Type] -> Map (Work.Index, Word.Index) [(TypeIndex, ValueIndex)]
+makeInstanceMap = (fmap . fmap) fst . Utility.mapGroupBy snd . flattenInstances
+
+flattenInstances :: [Type] -> [((TypeIndex, ValueIndex), (Work.Index, Word.Index))]
+flattenInstances = typeLeaf
+  where
+    index :: (Int -> a) -> [b] -> [(a, b)]
+    index f = Lens.over (traverse . Lens._1) f . zip [0..]
+
+    instancePair (Instance k d) = (k, d)
+
+    instanceLeaf :: TypeIndex -> ValueIndex -> [Instance] -> [((TypeIndex, ValueIndex), (Work.Index, Word.Index))]
+    instanceLeaf ti vi = fmap (\i -> ((ti, vi), instancePair i))
+
+    valueLeaf :: TypeIndex -> [Value] -> [((TypeIndex, ValueIndex), (Work.Index, Word.Index))]
+    valueLeaf ti = concatMap (\(vi, Value _ is) -> instanceLeaf ti vi is) . index ValueIndex
+
+    typeLeaf :: [Type] -> [((TypeIndex, ValueIndex), (Work.Index, Word.Index))]
+    typeLeaf = concatMap (\(ti, Type _ vs) -> valueLeaf ti vs) . index TypeIndex
 
 data Index = Index
   { indexWorkInfos :: [WorkInfo]
@@ -114,10 +133,9 @@ data ValueInfo = ValueInfo
 instance Aeson.ToJSON ValueInfo where toJSON (ValueInfo t ic) = Aeson.object ["t" .= t, "i" .= ic]
 
 data Word = Word
-  { wordText :: WordText
-  , wordValues :: [ValueIndex]
-  } deriving (Show)
-instance Aeson.ToJSON Word where toJSON (Word t vs) = Aeson.object ["t" .= t, "v" .= vs]
+  { wordValues :: [(TypeIndex, ValueIndex)]
+  }
+instance Aeson.ToJSON Word where toJSON (Word vs) = Aeson.toJSON . fmap (\(TypeIndex a, ValueIndex b) -> [a, b]) $ vs
 
 newtype WordIndex = WordIndex Int deriving (Eq, Ord, Show)
 instance Aeson.ToJSON WordIndex where toJSON (WordIndex i) = Aeson.toJSON i
@@ -131,24 +149,22 @@ instance Aeson.ToJSON ValueIndex where toJSON (ValueIndex i) = Aeson.toJSON i
 data WordGroup = WordGroup
   { wordGroupTitle :: Text
   , wordGroupWords :: [[WordIndex]]
-  } deriving (Generic, Show)
+  }
 instance Aeson.ToJSON WordGroup where toJSON (WordGroup t ws) = Aeson.object ["title" .= t, "words" .= ws]
 
 data Work = Work
-  { workSource :: Text
-  , workTitle :: Text
+  { workSource :: WorkSource
+  , workTitle :: Work.Title
   , workWords :: [Word]
   , workWordGroups :: [WordGroup]
-  , workWordTypes :: [TypeIndex]
-  , workWordSummary :: [Int]
-  } deriving (Generic, Show)
+  , workWordSummary :: [TypeIndex]
+  }
 instance Aeson.ToJSON Work where
-  toJSON (Work s t ws wgs ts sm) = Aeson.object
+  toJSON (Work s (Work.Title t) ws wgs sm) = Aeson.object
     [ "source" .= s
     , "title" .= t
     , "words" .= ws
     , "wordGroups" .= wgs
-    , "wordTypes" .= ts
     , "wordSummary" .= sm
     ]
 
