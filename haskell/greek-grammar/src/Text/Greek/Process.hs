@@ -30,13 +30,15 @@ process = do
   let composedWords = toComposedWords sourceWords
   let decomposedWordPairs = toDecomposedWordPairs composedWords
   let decomposedWords = toDecomposedWords decomposedWordPairs
-  markedLetters <- handleError $ toMarkedLetters decomposedWords
+  markedLetterPairs <- handleError $ toMarkedLetterPairs decomposedWords
+  let markedLetters = toMarkedLetters markedLetterPairs
   let
     storedTypes =
       [ storeType wordType
       , storeType (toComposedType composedWords)
       , storeType (toDecomposedFunctionType decomposedWordPairs)
       , storeType (toDecomposedType decomposedWords)
+      , storeType (toMarkedLetterFunctionType markedLetterPairs)
       , storeType (toMarkedLetterType markedLetters)
       ]
   let workInfos = []
@@ -76,10 +78,22 @@ toDecomposedType :: [Work.Indexed [Word.Indexed Word.Basic [Unicode.Decomposed]]
 toDecomposedType = generateType "Unicode Decomposed" (ValueSimple . Json.titleUnicodeDetail . Unicode.decomposed)
   . flattenSurface Word.getSurface
 
-toMarkedLetters
+toMarkedLetterPairs
   :: WordSurfaceBasic [Unicode.Decomposed]
-  -> Either Unicode.Error (WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]])
-toMarkedLetters = wordSurfaceLens Unicode.parseMarkedLetters
+  -> Either Unicode.Error (WordSurfaceBasic [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])])
+toMarkedLetterPairs = wordSurfaceLens Unicode.parseMarkedLetters
+
+toMarkedLetterFunctionType
+  :: WordSurfaceBasic [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])]
+  -> Type ([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])
+toMarkedLetterFunctionType = generateType "[Unicode Decomposed] → Unicode Letter, [Unicode Mark]"
+  (ValueSimple . Json.formatFunction (Json.formatList (Json.titleUnicodeDetail . Unicode.decomposed)) titleMarkedLetter)
+  . flattenSurface Word.getSurface
+
+toMarkedLetters
+  :: WordSurfaceBasic [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])]
+  -> WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]]
+toMarkedLetters = Lens.over (wordSurfaceLens . traverse) snd
 
 toMarkedLetterType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Type (Marked.Unit Unicode.Letter [Unicode.Mark])
 toMarkedLetterType = generateType "Unicode Marked Letter"
@@ -89,7 +103,7 @@ toMarkedLetterType = generateType "Unicode Marked Letter"
 titleMarkedLetter :: Marked.Unit Unicode.Letter [Unicode.Mark] -> Text
 titleMarkedLetter (Marked.Unit l ms) = Text.concat
   [ Json.titleUnicodeDetail . Unicode.getLetter $ l
-  , " ["
+  , ", ["
   , Text.intercalate ", " (fmap (Json.titleUnicodeDetail . Unicode.getMark) ms)
   , "]"
   ]

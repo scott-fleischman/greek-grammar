@@ -54,7 +54,7 @@ ensureLengthMatches t (Column c1) (Column c2) | Text.length t == c2 - c1 = Just 
 ensureLengthMatches _ _ _ = Nothing
 
 
-parseMarkedLetters :: [Decomposed] -> Either Error [Marked.Unit Letter [Mark]]
+parseMarkedLetters :: [Decomposed] -> Either Error [([Decomposed], Marked.Unit Letter [Mark])]
 parseMarkedLetters = over _Left ErrorParse . parse markedLettersParser ""
 
 type DecomposedParser = ParsecT [Decomposed] () Identity
@@ -62,14 +62,19 @@ type DecomposedParser = ParsecT [Decomposed] () Identity
 satisfy :: String -> (Char -> Bool) -> DecomposedParser Decomposed
 satisfy p f = primBool' p (f . decomposed)
 
-markParser :: DecomposedParser Mark
-markParser = (Mark . decomposed) <$> satisfy "Mark" Char.isMark
+markParser :: DecomposedParser (Decomposed, Mark)
+markParser = (\x@(Decomposed c) -> (x, Mark c)) <$> satisfy "Mark" Char.isMark
 
-letterParser :: DecomposedParser Letter
-letterParser = (Letter . decomposed) <$> satisfy "Letter" Char.isLetter
+letterParser :: DecomposedParser (Decomposed, Letter)
+letterParser = (\x@(Decomposed c) -> (x, Letter c)) <$> satisfy "Letter" Char.isLetter
 
-markedLetterParser :: DecomposedParser (Marked.Unit Letter [Mark])
-markedLetterParser = Marked.Unit <$> letterParser <*> many markParser
+markedLetterParser :: DecomposedParser ([Decomposed], Marked.Unit Letter [Mark])
+markedLetterParser = do
+  (decomposedLetter, simpleLetter) <- letterParser
+  compositeMarks <- many markParser
+  let decomposedMarks = fmap fst compositeMarks
+  let simpleMarks = fmap snd compositeMarks
+  return (decomposedLetter : decomposedMarks, Marked.Unit simpleLetter simpleMarks)
 
-markedLettersParser :: DecomposedParser [Marked.Unit Letter [Mark]]
+markedLettersParser :: DecomposedParser [([Decomposed], Marked.Unit Letter [Mark])]
 markedLettersParser = many1 markedLetterParser <* eof
