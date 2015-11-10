@@ -6,9 +6,9 @@ module Text.Greek.Process where
 import Control.Monad.Except
 import Data.Map (Map)
 import Data.Text (Text)
-import Text.Greek.FileReference (FileReference)
 import qualified Control.Lens as Lens
 import qualified Data.Map as Map
+--import qualified Data.Maybe as Maybe
 import qualified Data.Text as Text
 import qualified Text.Greek.Json as Json
 import qualified Text.Greek.Source.All as All
@@ -27,6 +27,7 @@ process :: ExceptT String IO ()
 process = do
   sourceWords <- handleIOError All.loadAll
   let wordType = generateType "Source Word" ValueSimple . flattenWords (Word.getSource . Word.getSourceInfoWord . Word.getSurface) $ sourceWords
+  let workInfos = getWorkInfos wordType sourceWords
   let composedWords = toComposedWords sourceWords
   let decomposedWordPairs = toDecomposedWordPairs composedWords
   let decomposedWords = toDecomposedWords decomposedWordPairs
@@ -43,18 +44,21 @@ process = do
       , storeType (toUnicodeLetterType markedLetters)
       , storeType (toUnicodeMarkType markedLetters)
       ]
-  let workInfos = []
   let ourIndex = Json.Index workInfos . fmap Json.makeTypeInfo $ storedTypes
   liftIO $ dumpData (Json.Data ourIndex [] storedTypes)
 
 type WordSurface a b = [Work.Indexed [Word.Indexed a b]]
 type WordSurfaceBasic a = WordSurface Word.Basic a
 
-getWorkInfos :: Type Text -> WordSurfaceBasic (Text, FileReference) -> [Json.WorkInfo]
+getWorkInfos :: Type Text -> WordSurfaceBasic Word.SourceInfo -> [Json.WorkInfo]
 getWorkInfos wordType = fmap (toWorkInfo wordType)
 
-toWorkInfo :: Type Text -> Work.Indexed [Word.Indexed Word.Basic (Text, FileReference)] -> Json.WorkInfo
-toWorkInfo = undefined
+toWorkInfo :: Type Text -> Work.Indexed [Word.Indexed Word.Basic Word.SourceInfo] -> Json.WorkInfo
+toWorkInfo _ (Work.Work (_, s, t) _) = Json.WorkInfo t (Json.WorkSource s) contexts typeIndexes wordInfos
+  where
+    contexts = []
+    typeIndexes = [Json.TypeIndex 0]
+    wordInfos = []
 
 toComposedWords
   :: WordSurfaceBasic Word.SourceInfo

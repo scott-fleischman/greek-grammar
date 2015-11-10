@@ -237,8 +237,13 @@ dumpJson (Data i ws ts) = do
   _ <- Directory.createDirectoryIfMissing True (Paths.pagesData </> "works")
   _ <- Directory.createDirectoryIfMissing True (Paths.pagesData </> "types")
 
+  _ <- putStrLn "Writing index"
   _ <- write "index.json" i
+
+  _ <- putStrLn "Writing works"
   _ <- writeAll "works/work" ws
+
+  _ <- putStrLn "Writing types"
   _ <- writeAll "types/type" ts
   return ()
   where

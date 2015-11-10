@@ -1,13 +1,13 @@
 import React from 'react';
 import R from 'ramda';
 
-const WorkInfo = ({ title, source, wordCount, workUrl }) => (
+const WorkInfo = ({ title, source, wordInfos, workUrl }) => (
   <div>
     <span className="workInfoSource">{source}</span>
     &ensp;
     <a href={workUrl}>{title}</a>
     &ensp;
-    <span className="workInfoWordCount">{wordCount} words</span>
+    <span className="workInfoWordCount">{wordInfos.length} words</span>
   </div>
 );
 

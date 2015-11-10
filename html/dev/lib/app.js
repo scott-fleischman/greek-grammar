@@ -54,7 +54,7 @@ function getLoadingType(typeIndex, types) {
 
 function getViewWorkList(works, getWorkUrl) {
   return {
-    navTitle: `${works.length} Greek Works, ${R.compose(R.sum, R.map(x => x.wordCount))(works)} Words`,
+    navTitle: `${works.length} Greek Works, ${R.compose(R.sum, R.map(x => x.wordInfos.length))(works)} Words`,
     content: (<WorkList works={works} getWorkUrl={getWorkUrl} />),
   };
 }
