@@ -5,7 +5,7 @@ import { OverlayTrigger, Button, Popover } from 'react-bootstrap';
 const Word = ({ word, keyBase, wordIndex, getValue }) => {
   // const popoverList = R.map (x => (<div key={x}><strong>{propertyNames[x]}</strong>: {wordProps[x]}</div>)) (summaryProperties);
   const popover = (
-    <Popover id={'wordProperties.' + keyBase + wordIndex} title="Properties" style={{maxWidth: '100%'}}>
+    <Popover id={'wordProperties.' + keyBase + '.' + wordIndex} title="Properties" style={{maxWidth: '100%'}}>
       <div>Insert properties here</div>
     </Popover>
   );
@@ -27,7 +27,7 @@ const Word = ({ word, keyBase, wordIndex, getValue }) => {
 
 export const Work = ({ work, workIndex, getValue }) => {
   const firstWord = work.words[0];
-  const keyBase = workIndex + '.';
+  const keyBase = workIndex;
   const words = R.addIndex(R.map)
     ((w, i) => (<div key={keyBase + '.' + i}><Word word={w} keyBase={keyBase} wordIndex={i} getValue={getValue} /></div>))
     (work.words);
