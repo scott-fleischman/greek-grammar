@@ -8,7 +8,7 @@ import Data.Map (Map)
 import Data.Text (Text)
 import qualified Control.Lens as Lens
 import qualified Data.Map as Map
---import qualified Data.Maybe as Maybe
+import qualified Data.Maybe as Maybe
 import qualified Data.Text as Text
 import qualified Text.Greek.Json as Json
 import qualified Text.Greek.Source.All as All
@@ -54,11 +54,17 @@ getWorkInfos :: Type Text -> WordSurfaceBasic Word.SourceInfo -> [Json.WorkInfo]
 getWorkInfos wordType = fmap (toWorkInfo wordType)
 
 toWorkInfo :: Type Text -> Work.Indexed [Word.Indexed Word.Basic Word.SourceInfo] -> Json.WorkInfo
-toWorkInfo _ (Work.Work (_, s, t) _) = Json.WorkInfo t (Json.WorkSource s) contexts typeIndexes wordInfos
+toWorkInfo wordType (Work.Work (_, s, t) ws) = Json.WorkInfo t (Json.WorkSource s) contexts typeIndexes wordInfos
   where
     contexts = []
     typeIndexes = [Json.TypeIndex 0]
-    wordInfos = []
+    wordInfos = fmap toSourceWord ws
+
+    toSourceWord :: Word.Indexed Word.Basic Word.SourceInfo -> Json.WordInfo
+    toSourceWord (Word.Word _ (Word.SourceInfo (Word.Source x) f)) = Json.WordInfo wordTypeValues contextIndex f
+      where
+        contextIndex = Json.WordContextIndex 0
+        wordTypeValues = fmap (Json.ValueIndex . getValueIndex) . Maybe.maybeToList $ lookupValueIndex wordType x
 
 toComposedWords
   :: WordSurfaceBasic Word.SourceInfo
@@ -149,6 +155,9 @@ data Type a = Type
   , typeValueMap :: Map a ValueIndex
   , typeValueInstances :: [(Value, [WordLocation])]
   }
+
+lookupValueIndex :: Ord a => Type a -> a -> Maybe ValueIndex
+lookupValueIndex t = flip Map.lookup (typeValueMap t)
 
 storeType :: Ord a => Type a -> Json.Type
 storeType (Type t _ _ vs) = Json.Type t (fmap storeValue vs)

@@ -80,12 +80,13 @@ function getViewValueList(values, typeTitle, typeIndex, getInstanceListUrl) {
   };
 }
 
-function getViewInstanceList(words, instances, typeIndex, valueIndex, typeTitle, valueTitle, getWordDetailUrl) {
+function getViewInstanceList(getWorkInfo, getTypeInfo, instances, typeIndex, valueIndex, typeTitle, valueTitle, getWordDetailUrl) {
   return {
     navTitle: `${typeTitle}, ${valueTitle}, ${instances.length} Instances`,
     content: (
       <InstanceList
-        words={words}
+        getWorkInfo={getWorkInfo}
+        getTypeInfo={getTypeInfo}
         typeIndex={typeIndex}
         valueIndex={valueIndex}
         instances={instances}
@@ -113,10 +114,9 @@ const App = ({ dispatch, visual, data }) => {
         R.compose(getUrl, x => Action.viewInstanceList(visual.typeIndex, x)));
       break;
     case State.view.instanceList:
-      console.log('typeIndex', visual.typeIndex, 'valueIndex', visual.valueIndex);
-
       info = getViewInstanceList(
-        [],
+        workIndex => data.index.works[workIndex],
+        typeIndex => data.index.types[typeIndex],
         data.types.get(visual.typeIndex).values[visual.valueIndex].i,
         visual.typeIndex,
         visual.valueIndex,
