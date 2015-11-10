@@ -101,8 +101,17 @@ instance Aeson.ToJSON WordInfo
       , "f" .= titleFileReference f
       ]
 
-data TypeInfo = TypeInfo Text Int Int deriving Show
-instance Aeson.ToJSON TypeInfo where toJSON (TypeInfo t vc ic) = Aeson.object ["title" .= t, "valueCount" .= vc, "instanceCount" .= ic]
+data TypeInfo = TypeInfo
+  { typeInfoTitle :: Text
+  , typeInfoValueInfos :: [ValueInfo]
+  }
+instance Aeson.ToJSON TypeInfo where toJSON (TypeInfo t vs) = Aeson.object ["title" .= t, "values" .= vs]
+
+data ValueInfo = ValueInfo
+  { valueInfoTitle :: Text
+  , valueInfoInstanceCount :: Int
+  }
+instance Aeson.ToJSON ValueInfo where toJSON (ValueInfo t ic) = Aeson.object ["t" .= t, "i" .= ic]
 
 data Word = Word
   { wordText :: WordText
@@ -176,7 +185,10 @@ instance Aeson.ToJSON WordText where toJSON (WordText t) = Aeson.toJSON t
 --    workWordTexts = concatMap (wordTexts . Work.getContent)
 
 makeTypeInfo :: Type -> TypeInfo
-makeTypeInfo (Type t vs) = TypeInfo t (length vs) (sum $ fmap (length . valueInstances) $ vs)
+makeTypeInfo (Type t vs) = TypeInfo t (fmap makeValueInfo vs)
+
+makeValueInfo :: Value -> ValueInfo
+makeValueInfo (Value t is) = ValueInfo t (length is)
 
 --getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
 --getData ws = Data ourIndex stage0Works ourTypes

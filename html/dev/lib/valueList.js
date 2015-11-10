@@ -15,7 +15,7 @@ export const ValueList = ({ values, typeIndex, getValueUrl }) => (
       <ValueInfo
         key={typeIndex + '.' + i}
         title={x.t}
-        instanceCount={x.i.length}
+        instanceCount={x.i}
         url={getValueUrl(typeIndex, i)}
       />
     )) (values)}

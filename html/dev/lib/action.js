@@ -86,5 +86,4 @@ export const fetchViewWork = workIndex => (dispatch, getState) =>
 
 export const fetchViewValueList = typeIndex => (dispatch, getState) =>
   fetchIndex(dispatch, getState)
-  .then(() => fetchValues(dispatch, getState, typeIndex))
   .then(() => dispatch(viewValueList(typeIndex)));

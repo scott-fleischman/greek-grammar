@@ -89,7 +89,7 @@ const App = ({ dispatch, visual, data }) => {
     case State.view.workList: info = getViewWorkList(data.index.works, R.compose(getUrl, Action.viewWork)); break;
     case State.view.typeList: info = getViewTypeList(data.index.types, R.compose(getUrl, Action.viewValueList)); break;
     case State.view.work: info = getViewWork(data.index.works[visual.workIndex].title, visual.workIndex, data.works.get(visual.workIndex)); break;
-    case State.view.valueList: info = getViewValueList(data.types.get(visual.typeIndex).values, data.index.types[visual.typeIndex].title, visual.typeIndex, () => '#'); break;
+    case State.view.valueList: info = getViewValueList(data.index.types[visual.typeIndex].values, data.index.types[visual.typeIndex].title, visual.typeIndex, () => '#'); break;
   }
   if (!info) {
     console.log('Unknown view', visual);

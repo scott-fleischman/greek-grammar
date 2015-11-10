@@ -1,11 +1,11 @@
 import React from 'react';
 import R from 'ramda';
 
-const TypeInfo = ({ title, valueCount, instanceCount, url }) => (
+const TypeInfo = ({ title, values, url }) => (
   <div>
     <a href={url}>{title}</a>
     &ensp;
-    <span className="typeInfoCounts">{valueCount} values, {instanceCount} instances</span>
+    <span className="typeInfoCounts">{values.length} values, {R.compose(R.sum, R.map(x => x.i))(values)} instances</span>
   </div>
 );
 
