@@ -43,42 +43,45 @@ process = do
   let ourIndex = Json.Index workInfos . fmap Json.makeTypeInfo $ storedTypes
   liftIO $ dumpData (Json.Data ourIndex [] storedTypes)
 
+type WordSurface a b = [Work.Indexed [Word.Indexed a b]]
+type WordSurfaceBasic a = WordSurface Word.Basic a
+
 toComposedWords
-  :: [Work.Indexed [Word.IndexedBasic (Text, FileReference)]]
-  -> [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]]
+  :: WordSurfaceBasic (Text, FileReference)
+  -> WordSurfaceBasic [Unicode.Composed]
 toComposedWords = Lens.over wordSurfaceLens (Unicode.toComposed . fst)
 
-toComposedType :: [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]] -> Type Unicode.Composed
+toComposedType :: [Work.Indexed [Word.Indexed Word.Basic [Unicode.Composed]]] -> Type Unicode.Composed
 toComposedType = generateType "Unicode Composed" (ValueSimple . Json.titleUnicodeDetail . Unicode.composed)
   . flattenSurface Word.getSurface
 
 toDecomposedWordPairs
-  :: [Work.Indexed [Word.IndexedBasic [Unicode.Composed]]]
-  -> [Work.Indexed [Word.IndexedBasic [(Unicode.Composed, [Unicode.Decomposed])]]]
+  :: WordSurfaceBasic [Unicode.Composed]
+  -> WordSurfaceBasic [(Unicode.Composed, [Unicode.Decomposed])]
 toDecomposedWordPairs = Lens.over (wordSurfaceLens . traverse) (\x -> (x, Unicode.decompose' x))
 
 toDecomposedFunctionType
-  :: [Work.Indexed [Word.IndexedBasic [(Unicode.Composed, [Unicode.Decomposed])]]]
+  :: WordSurfaceBasic [(Unicode.Composed, [Unicode.Decomposed])]
   -> Type (Unicode.Composed, [Unicode.Decomposed])
 toDecomposedFunctionType = generateType "Unicode Composed → [Unicode Decomposed]"
   (ValueSimple . Json.formatFunction (Json.titleUnicodeDetail . Unicode.composed) (Json.formatList (Json.titleUnicodeDetail . Unicode.decomposed)))
   . flattenSurface Word.getSurface
 
 toDecomposedWords
-  :: [Work.Indexed [Word.IndexedBasic [(Unicode.Composed, [Unicode.Decomposed])]]]
-  -> [Work.Indexed [Word.IndexedBasic [Unicode.Decomposed]]]
+  :: WordSurfaceBasic [(Unicode.Composed, [Unicode.Decomposed])]
+  -> WordSurfaceBasic [Unicode.Decomposed]
 toDecomposedWords = Lens.over wordSurfaceLens (concatMap snd)
 
-toDecomposedType :: [Work.Indexed [Word.IndexedBasic [Unicode.Decomposed]]] -> Type Unicode.Decomposed
+toDecomposedType :: [Work.Indexed [Word.Indexed Word.Basic [Unicode.Decomposed]]] -> Type Unicode.Decomposed
 toDecomposedType = generateType "Unicode Decomposed" (ValueSimple . Json.titleUnicodeDetail . Unicode.decomposed)
   . flattenSurface Word.getSurface
 
 toMarkedLetters
-  :: [Work.Indexed [Word.IndexedBasic [Unicode.Decomposed]]]
-  -> Either Unicode.Error [Work.Indexed [Word.IndexedBasic [Marked.Unit Unicode.Letter [Unicode.Mark]]]]
+  :: WordSurfaceBasic [Unicode.Decomposed]
+  -> Either Unicode.Error (WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]])
 toMarkedLetters = wordSurfaceLens Unicode.parseMarkedLetters
 
-toMarkedLetterType :: [Work.Indexed [Word.IndexedBasic [Marked.Unit Unicode.Letter [Unicode.Mark]]]] -> Type (Marked.Unit Unicode.Letter [Unicode.Mark])
+toMarkedLetterType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Type (Marked.Unit Unicode.Letter [Unicode.Mark])
 toMarkedLetterType = generateType "Unicode Marked Letter"
   (ValueSimple . titleMarkedLetter)
   . flattenSurface Word.getSurface
@@ -93,8 +96,8 @@ titleMarkedLetter (Marked.Unit l ms) = Text.concat
 
 wordSurfaceLens :: Applicative f =>
   (a -> f b)
-  -> [Work.Indexed [Word.IndexedBasic a]]
-  -> f [Work.Indexed [Word.IndexedBasic b]]
+  -> [Work.Indexed [Word.Indexed Word.Basic a]]
+  -> f [Work.Indexed [Word.Indexed Word.Basic b]]
 wordSurfaceLens = traverse . Work.content . traverse . Word.surface
 
 type WordLocation = (Work.Index, Word.Index)

@@ -3,7 +3,6 @@
 module Text.Greek.Script.Word where
 
 import Prelude hiding (Word)
-import Data.Text (Text)
 import Text.Greek.FileReference
 import Text.Greek.Script.Elision
 import qualified Control.Lens as Lens
@@ -29,12 +28,10 @@ Lens.makeLensesFor
   ]
   ''Word
 
-type Basic = Word (Maybe (ElisionChar, FileCharReference), ParagraphIndex)
-type BasicText = Basic (Text, FileReference)
+type Basic = (Maybe (ElisionChar, FileCharReference), ParagraphIndex)
 type Indexed a = Word (Index, a)
-type IndexedBasic = Indexed (Maybe (ElisionChar, FileCharReference), ParagraphIndex)
 
-indexBasic :: [Basic s] -> [IndexedBasic s]
+indexBasic :: [Word Basic s] -> [Indexed Basic s]
 indexBasic = fmap addIndex . zip (fmap Index [0..])
   where
     addIndex (i, Word (e, p) s) = Word (i, (e, p)) s

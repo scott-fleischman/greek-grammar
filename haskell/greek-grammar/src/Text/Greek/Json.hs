@@ -198,7 +198,7 @@ makeTypeInfo (Type t vs) = TypeInfo t (length vs) (sum $ fmap (length . valueIns
 --    indexedWords = fmap (uncurry makeWord) . zip [0..]
 --    makeWord i w@(Word.Basic s _ p) = (i, p, Word (titleStage0Word . getStageWord $ s) (getWordProperties w))
 
-getWordProperties :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [Text]
+getWordProperties :: Word.Word Word.Basic [(Unicode.Composed, FileCharReference)] -> [Text]
 getWordProperties (Word.Word (e, _) s) =
   [ getElisionProperty e
   , unicodeComposedProperty . fmap fst $ s
@@ -233,20 +233,20 @@ newtype Stage0Word = Stage0Word [Unicode.Composed] deriving (Eq, Ord, Show)
 type Stage0 = (Work.Source, Work.Title, Stage0Word, FileCharReference, Unicode.Composed)
 
 toStage0Hierarchy
-  ::  [Work.Basic [Word.Basic (Text, FileReference)]]
+  ::  [Work.Basic [Word.Word Word.Basic (Text, FileReference)]]
   -> Either Unicode.Error
-      [Work.Basic [Word.Basic [(Unicode.Composed, FileCharReference)]]]
+      [Work.Basic [Word.Word Word.Basic [(Unicode.Composed, FileCharReference)]]]
 toStage0Hierarchy = (traverse . Work.content . traverse . Word.surface) (uncurry Unicode.splitText)
 
 flattenStage0
-  :: [Work.Basic [Word.Basic [(Unicode.Composed, FileCharReference)]]]
+  :: [Work.Basic [Word.Word Word.Basic [(Unicode.Composed, FileCharReference)]]]
   -> [Stage0]
 flattenStage0 = concatMap flattenWork
   where
-    flattenWork :: Work.Basic [Word.Basic [(Unicode.Composed, FileCharReference)]] -> [Stage0]
+    flattenWork :: Work.Basic [Word.Word Word.Basic [(Unicode.Composed, FileCharReference)]] -> [Stage0]
     flattenWork (Work.Work (source, title) content) = fmap (\(w, r, c) -> (source, title, w, r, c)) $ concatMap flattenWord content
   
-    flattenWord :: Word.Basic [(Unicode.Composed, FileCharReference)] -> [(Stage0Word, FileCharReference, Unicode.Composed)]
+    flattenWord :: Word.Word Word.Basic [(Unicode.Composed, FileCharReference)] -> [(Stage0Word, FileCharReference, Unicode.Composed)]
     flattenWord (Word.Word _ surface) = fmap (\(c, r) -> (stageWord, r, c)) surface
       where
         stageWord = getStageWord surface
