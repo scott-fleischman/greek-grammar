@@ -50,12 +50,18 @@ process = do
 type WordSurface a b = [Work.Indexed [Word.Indexed a b]]
 type WordSurfaceBasic a = WordSurface Word.Basic a
 
+getWorkInfos :: Type Text -> WordSurfaceBasic (Text, FileReference) -> [Json.WorkInfo]
+getWorkInfos wordType = fmap (toWorkInfo wordType)
+
+toWorkInfo :: Type Text -> Work.Indexed [Word.Indexed Word.Basic (Text, FileReference)] -> Json.WorkInfo
+toWorkInfo = undefined
+
 toComposedWords
   :: WordSurfaceBasic (Text, FileReference)
   -> WordSurfaceBasic [Unicode.Composed]
 toComposedWords = Lens.over wordSurfaceLens (Unicode.toComposed . fst)
 
-toComposedType :: [Work.Indexed [Word.Indexed Word.Basic [Unicode.Composed]]] -> Type Unicode.Composed
+toComposedType :: WordSurfaceBasic [Unicode.Composed] -> Type Unicode.Composed
 toComposedType = generateType "Unicode Composed" (ValueSimple . Json.titleUnicodeDetail . Unicode.composed)
   . flattenSurface Word.getSurface
 
