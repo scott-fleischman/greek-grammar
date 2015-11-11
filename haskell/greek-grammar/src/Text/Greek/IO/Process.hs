@@ -10,8 +10,9 @@ import Data.Text (Text)
 import qualified Control.Lens as Lens
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
-import qualified Data.Text as Text
+import qualified Data.Text.Lazy as Lazy
 import qualified Text.Greek.IO.Json as Json
+import qualified Text.Greek.IO.Render as Render
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
 import qualified Text.Greek.Script.Marked as Marked
@@ -90,8 +91,11 @@ toComposedWords
   -> WordSurfaceBasic [Unicode.Composed]
 toComposedWords = Lens.over wordSurfaceLens (Unicode.toComposed . Word.getSource . Word.getSourceInfoWord)
 
+makeSimpleValue :: Render.Render a => a -> Value
+makeSimpleValue = ValueSimple . Lazy.toStrict . Render.render
+
 toComposedType :: WordSurfaceBasic [Unicode.Composed] -> Type Unicode.Composed
-toComposedType = generateType "Unicode Composed" (ValueSimple . Json.titleUnicodeDetail . Unicode.composed)
+toComposedType = generateType "Unicode Composed" makeSimpleValue
   . flattenSurface Word.getSurface
 
 toDecomposedWordPairs
@@ -103,7 +107,7 @@ toDecomposedFunctionType
   :: WordSurfaceBasic [(Unicode.Composed, [Unicode.Decomposed])]
   -> Type (Unicode.Composed, [Unicode.Decomposed])
 toDecomposedFunctionType = generateType "Unicode Composed → [Unicode Decomposed]"
-  (ValueSimple . Json.formatFunction (Json.titleUnicodeDetail . Unicode.composed) (Json.formatList (Json.titleUnicodeDetail . Unicode.decomposed)))
+  makeSimpleValue
   . flattenSurface Word.getSurface
 
 toDecomposedWords
@@ -112,7 +116,7 @@ toDecomposedWords
 toDecomposedWords = Lens.over wordSurfaceLens (concatMap snd)
 
 toDecomposedType :: [Work.Indexed [Word.Indexed Word.Basic [Unicode.Decomposed]]] -> Type Unicode.Decomposed
-toDecomposedType = generateType "Unicode Decomposed" (ValueSimple . Json.titleUnicodeDetail . Unicode.decomposed)
+toDecomposedType = generateType "Unicode Decomposed" makeSimpleValue
   . flattenSurface Word.getSurface
 
 toMarkedLetterPairs
@@ -124,7 +128,7 @@ toMarkedLetterFunctionType
   :: WordSurfaceBasic [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])]
   -> Type ([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])
 toMarkedLetterFunctionType = generateType "[Unicode Decomposed] → Unicode Letter, [Unicode Mark]"
-  (ValueSimple . Json.formatFunction (Json.formatList (Json.titleUnicodeDetail . Unicode.decomposed)) titleMarkedLetter)
+  makeSimpleValue
   . flattenSurface Word.getSurface
 
 toMarkedLetters
@@ -134,28 +138,20 @@ toMarkedLetters = Lens.over (wordSurfaceLens . traverse) snd
 
 toMarkedLetterType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Type (Marked.Unit Unicode.Letter [Unicode.Mark])
 toMarkedLetterType = generateType "Unicode Marked Letter"
-  (ValueSimple . titleMarkedLetter)
+  makeSimpleValue
   . flattenSurface Word.getSurface
 
 toUnicodeLetterType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Type Unicode.Letter
 toUnicodeLetterType = generateType "Unicode Letter"
-  (ValueSimple . Json.titleUnicodeDetail . Unicode.getLetter)
+  makeSimpleValue
   . Lens.over (traverse . Lens._2) Marked._item
   . flattenSurface Word.getSurface
 
 toUnicodeMarkType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Type Unicode.Mark
 toUnicodeMarkType = generateType "Unicode Mark"
-  (ValueSimple . Json.titleUnicodeDetail . Unicode.getMark)
+  makeSimpleValue
   . concatMap (\(l, m) -> fmap (\x -> (l, x)) (Marked._marks m))
   . flattenSurface Word.getSurface
-
-titleMarkedLetter :: Marked.Unit Unicode.Letter [Unicode.Mark] -> Text
-titleMarkedLetter (Marked.Unit l ms) = Text.concat
-  [ Json.titleUnicodeDetail . Unicode.getLetter $ l
-  , ", ["
-  , Text.intercalate ", " (fmap (Json.titleUnicodeDetail . Unicode.getMark) ms)
-  , "]"
-  ]
 
 wordSurfaceLens :: Applicative f =>
   (a -> f b)

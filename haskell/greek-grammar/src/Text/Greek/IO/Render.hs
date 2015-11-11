@@ -4,8 +4,12 @@
 module Text.Greek.IO.Render where
 
 import Text.Greek.Source.FileReference
+import qualified Data.Char as Char
 import qualified Data.Text.Format as Format
 import qualified Data.Text.Lazy as Lazy
+import qualified Data.Text.Lazy.Builder as Lazy (toLazyText)
+import qualified Text.Greek.Script.Marked as Marked
+import qualified Text.Greek.Script.Unicode as Unicode
 
 --import Prelude hiding (Word)
 --import Control.Lens
@@ -15,7 +19,6 @@ import qualified Data.Text.Lazy as Lazy
 --import qualified Data.Text.Format as T
 --import qualified Text.Greek.Script.Abstract as Abstract
 --import qualified Text.Greek.Script.Concrete as Concrete
---import qualified Text.Greek.Script.Mark as Mark
 --import qualified Text.Greek.Script.Syllable as Syllable
 --import qualified Text.Greek.Script.Unit as U
 --import qualified Text.Greek.Script.Word as Word
@@ -45,6 +48,36 @@ instance Render Line where
 
 instance Render Column where
   render (Column c) = Format.format "{}" (Format.Only c)
+
+instance Render Char where
+  render c = Format.format "{} {}" (renderCodePoint c, renderRawChar c)
+
+instance Render Unicode.Composed where render = render . Unicode.composed
+instance Render Unicode.Decomposed where render = render . Unicode.decomposed
+instance Render Unicode.Letter where render = render . Unicode.getLetter
+instance Render Unicode.Mark where render = render . Unicode.getMark
+
+renderCodePoint :: Char -> Lazy.Text
+renderCodePoint = Format.format "U+{}" . Format.Only . Lazy.toUpper . Lazy.toLazyText . Format.left 4 '0' . Format.hex . Char.ord
+
+renderRawChar :: Char -> Lazy.Text
+renderRawChar c | Char.isMark c = Format.format "\x25CC{}" . Format.Only $ c
+renderRawChar c = Lazy.singleton c
+
+renderFunction :: (Render a, Render b) => (a, b) -> Lazy.Text
+renderFunction (a, b) = Format.format "{} → {}" (render a, render b)
+
+renderSingleLineList :: Render a => [a] -> Lazy.Text
+renderSingleLineList = Format.format "[{}]" . Format.Only . Lazy.intercalate ", " . fmap render
+
+instance Render [Unicode.Decomposed] where render = renderSingleLineList
+instance Render (Unicode.Composed, [Unicode.Decomposed]) where render = renderFunction
+
+instance Render [Unicode.Mark] where render = renderSingleLineList
+
+instance Render (Marked.Unit Unicode.Letter [Unicode.Mark]) where
+  render (Marked.Unit i m) = Format.format "{}, {}" (render i, render m)
+instance Render ([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark]) where render = renderFunction
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar

@@ -14,13 +14,11 @@ import System.FilePath
 import qualified Control.Lens as Lens
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BL
-import qualified Data.Char as Char
 --import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.Lazy as Lazy
-import qualified Data.Text.Lazy.Builder as Lazy
 import qualified Data.Text.Format as Format
 import qualified System.Directory as Directory
 import qualified Text.Greek.IO.Paths as Paths
@@ -118,7 +116,7 @@ instance Aeson.ToJSON WordInfo
     toJSON (WordInfo t c f) = Aeson.object
       [ "t" .= t
       , "c" .= c
-      , "f" .= titleFileReference f
+      , "f" .= Render.render f
       ]
 
 data TypeInfo = TypeInfo
@@ -239,10 +237,10 @@ getWordProperties (Word.Word (e, _) s) =
     fileProperty ((FileCharReference (Path p) _) : _) = Text.pack p
     fileProperty [] = "No file"
 
-    unicodeComposedProperty = Text.intercalate ", " . fmap (titleUnicodeDetail . Unicode.composed)
+    unicodeComposedProperty = Text.intercalate ", " . fmap (Lazy.toStrict . Render.render . Unicode.composed)
 
 getElisionProperty :: Maybe (Elision.ElisionChar, FileCharReference) -> Text
-getElisionProperty (Just (Elision.ElisionChar c, r)) = Lazy.toStrict $ Format.format "Elided {} {}" (formatUnicodeCodePoint c, titleFileCharReference r)
+getElisionProperty (Just (Elision.ElisionChar c, r)) = Lazy.toStrict $ Format.format "Elided {} {}" (Render.render c, titleFileCharReference r)
 getElisionProperty _ = "Not elided"
 
 dumpJson :: Data -> IO ()
@@ -316,19 +314,6 @@ titleStage0Word (Stage0Word cs) = Text.pack . fmap (\(Unicode.Composed c) -> c) 
 
 titleFileCharReference :: FileCharReference -> Text
 titleFileCharReference (FileCharReference (Path p) (LineReference (Line l) (Column c))) = Lazy.toStrict $ Format.format "{}:{}:{}" (p, l, c)
-
-titleFileReference :: FileReference -> Text
-titleFileReference = Lazy.toStrict . Render.render
-
-titleUnicodeDetail :: Char -> Text
-titleUnicodeDetail c = Lazy.toStrict $ Format.format "{} {}" (formatUnicodeCodePoint c, formatUnicodeChar c)
-
-formatUnicodeChar :: Char -> Text
-formatUnicodeChar c | Char.isMark c = Lazy.toStrict . Format.format "\x25CC{}" . Format.Only $ c
-formatUnicodeChar c = Text.singleton c
-
-formatUnicodeCodePoint :: Char -> Text
-formatUnicodeCodePoint c = Lazy.toStrict $ Format.format "U+{}" (Format.Only . Lazy.toUpper . Lazy.toLazyText . Format.left 4 '0' . Format.hex . Char.ord $ c)
 
 formatList :: (a -> Text) -> [a] -> Text
 formatList f xs = Lazy.toStrict $ Format.format "[{}]" (Format.Only . Text.intercalate ", " . fmap f $ xs)
