@@ -24,6 +24,7 @@ import qualified Data.Text.Lazy.Builder as Lazy
 import qualified Data.Text.Format as Format
 import qualified System.Directory as Directory
 import qualified Text.Greek.IO.Paths as Paths
+import qualified Text.Greek.IO.Render as Render
 import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
@@ -317,8 +318,7 @@ titleFileCharReference :: FileCharReference -> Text
 titleFileCharReference (FileCharReference (Path p) (LineReference (Line l) (Column c))) = Lazy.toStrict $ Format.format "{}:{}:{}" (p, l, c)
 
 titleFileReference :: FileReference -> Text
-titleFileReference (FileReference (Path p) (LineReference (Line bl) (Column bc)) (LineReference (Line el) (Column ec))) =
-  Lazy.toStrict $ Format.format "{} {}:{}–{}:{}" (p, bl, bc, el, ec)
+titleFileReference = Lazy.toStrict . Render.render
 
 titleUnicodeDetail :: Char -> Text
 titleUnicodeDetail c = Lazy.toStrict $ Format.format "{} {}" (formatUnicodeCodePoint c, formatUnicodeChar c)

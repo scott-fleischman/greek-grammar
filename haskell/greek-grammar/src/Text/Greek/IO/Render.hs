@@ -3,14 +3,16 @@
 
 module Text.Greek.IO.Render where
 
+import Text.Greek.Source.FileReference
+import qualified Data.Text.Format as Format
+import qualified Data.Text.Lazy as Lazy
+
 --import Prelude hiding (Word)
 --import Control.Lens
 --import Data.Set (Set)
 --import Text.Greek.Script.Elision
---import Text.Greek.FileReference
 --import qualified Data.Set as S
 --import qualified Data.Text.Format as T
-import qualified Data.Text.Lazy as Lazy
 --import qualified Text.Greek.Script.Abstract as Abstract
 --import qualified Text.Greek.Script.Concrete as Concrete
 --import qualified Text.Greek.Script.Mark as Mark
@@ -22,8 +24,27 @@ import qualified Data.Text.Lazy as Lazy
 class Render a where
   render :: a -> Lazy.Text
 
---instance Render L.Text where
---  render = id
+instance Render Lazy.Text where
+  render = id
+
+instance Render FileReference where
+  render (FileReference p (LineReference l1 c1) (LineReference l2 c2)) | l1 == l2 && c1 == c2 =
+    Format.format "{} {}:{}" (render p, render l1, render c1)
+  render (FileReference p (LineReference l1 c1) (LineReference l2 c2)) | l1 == l2 =
+    Format.format "{} {}:{}–{}" (render p, render l1, render c1, render c2)
+  render (FileReference p (LineReference l1 c1) (LineReference l2 c2)) =
+    Format.format "{} {}:{}–{}:{}" (render p, render l1, render c1, render l2, render c2)
+
+instance Render Path where
+  render (Path ('.' : '/' : xs)) = Lazy.pack xs
+  render (Path ('/' : xs)) = Lazy.pack xs
+  render (Path p) = Lazy.pack p
+
+instance Render Line where
+  render (Line l) = Format.format "{}" (Format.Only l)
+
+instance Render Column where
+  render (Column c) = Format.format "{}" (Format.Only c)
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar
