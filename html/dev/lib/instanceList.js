@@ -3,17 +3,15 @@ import R from 'ramda';
 
 const InstanceInfo = ({ getWorkInfo, getTypeInfo, workIndex, wordIndex, url }) => {
   const workInfo = getWorkInfo(workIndex);
-  const wordTypes = workInfo.wordTypes;
   const wordInfo = workInfo.wordInfos[wordIndex];
-  const wordValueIndexes = wordInfo.t;
+  const wordValues = wordInfo.v;
   const wordContextIndex = wordInfo.c;
-  const wordFile = wordInfo.f;
-  const wordProperties = R.addIndex(R.map) ((vi, ti) => getTypeInfo(wordTypes[ti]).values[vi].t) (wordValueIndexes);
+  const wordProperties = (R.map) (v => getTypeInfo(v[0]).values[v[1]].t) (wordValues);
   return (
     <div>
       <a href={url}>{wordProperties[0]}</a>
       &ensp;
-      <span className="instanceInfo">&mdash; {workInfo.source} &mdash; {workInfo.title} &mdash; {wordFile}</span>
+      <span className="instanceInfo">&mdash; {workInfo.source} &mdash; {workInfo.title}</span>
     </div>
   );
 };

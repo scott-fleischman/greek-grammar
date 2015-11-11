@@ -82,23 +82,22 @@ instance Aeson.ToJSON Index where toJSON (Index ws ts) = Aeson.object ["works" .
 newtype WorkSource = WorkSource Work.Source
 instance Aeson.ToJSON WorkSource
   where
-    toJSON (WorkSource Work.SourceSblgnt) = Aeson.toJSON ("SBL Greek New Testament" :: Text)
+    toJSON (WorkSource Work.SourceSblgnt) = Aeson.toJSON ("SBLGNT" :: Text)
 
 data WorkInfo = WorkInfo
   { workInfoTitle :: Work.Title
   , workInfoSource :: WorkSource
   , workWordContexts :: [WordContext]
-  , workWordInfoTypes :: [TypeIndex]
   , workWordInfos :: [WordInfo]
   }
 instance Aeson.ToJSON WorkInfo where
-  toJSON (WorkInfo (Work.Title t) s wc ts wi) = Aeson.object
+  toJSON (WorkInfo (Work.Title t) s wc wi) = Aeson.object
     [ "title" .= t
     , "source" .= s
     , "wordContexts" .= wc
-    , "wordTypes" .= ts
     , "wordInfos" .= wi
     ]
+
 
 newtype WordContext = WordContext [Word.Index]
 instance Aeson.ToJSON WordContext where toJSON (WordContext is) = Aeson.toJSON . fmap Word.getIndex $ is 
@@ -107,16 +106,14 @@ newtype WordContextIndex = WordContextIndex Int deriving (Eq, Ord, Show)
 instance Aeson.ToJSON WordContextIndex where toJSON (WordContextIndex i) = Aeson.toJSON i
 
 data WordInfo = WordInfo
-  { wordInfoValues :: [ValueIndex]
+  { wordInfoValues :: [(TypeIndex, ValueIndex)]
   , wordInfoContext :: WordContextIndex
-  , wordInfoFile :: FileReference
   }
 instance Aeson.ToJSON WordInfo
   where
-    toJSON (WordInfo t c f) = Aeson.object
-      [ "t" .= t
+    toJSON (WordInfo v c) = Aeson.object
+      [ "v" .= v
       , "c" .= c
-      , "f" .= Render.render f
       ]
 
 data TypeInfo = TypeInfo
@@ -131,10 +128,12 @@ data ValueInfo = ValueInfo
   }
 instance Aeson.ToJSON ValueInfo where toJSON (ValueInfo t ic) = Aeson.object ["t" .= t, "i" .= ic]
 
+instance Aeson.ToJSON (TypeIndex, ValueIndex) where toJSON (TypeIndex a, ValueIndex b) = Aeson.toJSON [a, b]
+
 data Word = Word
   { wordValues :: [(TypeIndex, ValueIndex)]
   }
-instance Aeson.ToJSON Word where toJSON (Word vs) = Aeson.toJSON . fmap (\(TypeIndex a, ValueIndex b) -> [a, b]) $ vs
+instance Aeson.ToJSON Word where toJSON (Word vs) = Aeson.toJSON vs
 
 newtype TypeIndex = TypeIndex Int deriving (Eq, Ord, Show)
 instance Aeson.ToJSON TypeIndex where toJSON (TypeIndex i) = Aeson.toJSON i
@@ -163,6 +162,12 @@ instance Aeson.ToJSON Work where
     , "wordGroups" .= wgs
     , "wordSummary" .= sm
     ]
+
+
+workToWorkInfo :: Set.Set TypeIndex -> Work -> WorkInfo
+workToWorkInfo ts (Work s t ws _ _) = WorkInfo t s [] (fmap (\(Word vs) -> WordInfo (filterValues vs) (WordContextIndex 0)) ws)
+  where
+    filterValues = filter (\(x, _) -> Set.member x ts)
 
 --process
 --  :: Either [XmlError] [All.Work [Word.Basic (Text, FileReference)]]

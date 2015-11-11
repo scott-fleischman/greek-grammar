@@ -10,6 +10,7 @@ import Data.Text (Text)
 import qualified Control.Lens as Lens
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
+import qualified Data.Set as Set
 import qualified Data.Text.Lazy as Lazy
 import qualified Text.Greek.IO.Json as Json
 import qualified Text.Greek.IO.Render as Render
@@ -31,7 +32,6 @@ process = do
   _ <- liftIO $ putStrLn "Processing"
 
   let wordType = generateType "Source Word" ValueSimple . flattenWords (Word.getSource . Word.getSourceInfoWord . Word.getSurface) $ sourceWords
-  let workInfos = getWorkInfos wordType sourceWords
   let composedWords = toComposedWords sourceWords
   let decomposedWordPairs = toDecomposedWordPairs composedWords
   let decomposedWords = toDecomposedWords decomposedWordPairs
@@ -50,27 +50,14 @@ process = do
       ]
   let instanceMap = Json.makeInstanceMap storedTypes
   let ourWorks = getWorks instanceMap sourceWords
-  let ourIndex = Json.Index workInfos . fmap Json.makeTypeInfo $ storedTypes
+  let workInfoTypeIndexes = Set.fromList . fmap Json.TypeIndex $ [0]
+  let ourWorkInfos = fmap (Json.workToWorkInfo workInfoTypeIndexes) ourWorks
+  let ourTypeInfos = fmap Json.makeTypeInfo storedTypes
+  let ourIndex = Json.Index ourWorkInfos ourTypeInfos
   liftIO $ dumpData (Json.Data ourIndex ourWorks storedTypes)
 
 type WordSurface a b = [Work.Indexed [Word.Indexed a b]]
 type WordSurfaceBasic a = WordSurface Word.Basic a
-
-getWorkInfos :: Type Text -> WordSurfaceBasic Word.SourceInfo -> [Json.WorkInfo]
-getWorkInfos wordType = fmap (toWorkInfo wordType)
-
-toWorkInfo :: Type Text -> Work.Indexed [Word.Indexed Word.Basic Word.SourceInfo] -> Json.WorkInfo
-toWorkInfo wordType (Work.Work (_, s, t) ws) = Json.WorkInfo t (Json.WorkSource s) contexts typeIndexes wordInfos
-  where
-    contexts = []
-    typeIndexes = [Json.TypeIndex 0]
-    wordInfos = fmap toSourceWord ws
-
-    toSourceWord :: Word.Indexed Word.Basic Word.SourceInfo -> Json.WordInfo
-    toSourceWord (Word.Word _ (Word.SourceInfo (Word.Source x) f)) = Json.WordInfo wordTypeValues contextIndex f
-      where
-        contextIndex = Json.WordContextIndex 0
-        wordTypeValues = fmap (Json.ValueIndex . getValueIndex) . Maybe.maybeToList $ lookupValueIndex wordType x
 
 getWorks :: Map WordLocation [(Json.TypeIndex, Json.ValueIndex)] -> [Work.Indexed [Word.Indexed Word.Basic a]] -> [Json.Work]
 getWorks m works = workInfos
