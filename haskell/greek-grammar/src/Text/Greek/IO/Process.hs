@@ -7,6 +7,7 @@ import Prelude hiding (words)
 import Control.Monad.Except
 import Data.Map (Map)
 import Data.Text (Text)
+import Text.Greek.Source.FileReference
 import qualified Control.Lens as Lens
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
@@ -39,6 +40,8 @@ process = do
   let
     storedTypes =
       [ makeWordPartType "Source Word" (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
+      , makeWordPartType "Source File" (pure . _fileReferencePath . Word.getSourceInfoFile . Word.getSurface) sourceWords
+      , makeWordPartType "Source File Location" (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeSurfaceType "Unicode Composed" composedWords
       , makeSurfaceType "Unicode Composed → [Unicode Decomposed]" decomposedWordPairs
       , makeSurfaceType "Unicode Decomposed" decomposedWords

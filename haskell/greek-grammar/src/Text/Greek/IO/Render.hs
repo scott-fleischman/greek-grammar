@@ -34,13 +34,13 @@ instance Render Lazy.Text where
 instance Render Word.Source where
   render = Lazy.fromStrict . Word.getSource
 
-instance Render FileReference where
-  render (FileReference p (LineReference l1 c1) (LineReference l2 c2)) | l1 == l2 && c1 == c2 =
-    Format.format "{} {}:{}" (render p, render l1, render c1)
-  render (FileReference p (LineReference l1 c1) (LineReference l2 c2)) | l1 == l2 =
-    Format.format "{} {}:{}–{}" (render p, render l1, render c1, render c2)
-  render (FileReference p (LineReference l1 c1) (LineReference l2 c2)) =
-    Format.format "{} {}:{}–{}:{}" (render p, render l1, render c1, render l2, render c2)
+instance Render (LineReference, LineReference) where
+  render (LineReference l1 c1, LineReference l2 c2) | l1 == l2 && c1 == c2 =
+    Format.format "{}:{}" (render l1, render c1)
+  render (LineReference l1 c1, LineReference l2 c2) | l1 == l2 =
+    Format.format "{}:{}–{}" (render l1, render c1, render c2)
+  render (LineReference l1 c1, LineReference l2 c2) =
+    Format.format "{}:{}–{}:{}" (render l1, render c1, render l2, render c2)
 
 instance Render Path where
   render (Path ('.' : '/' : xs)) = Lazy.pack xs
