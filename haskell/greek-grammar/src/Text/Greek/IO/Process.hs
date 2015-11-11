@@ -53,7 +53,7 @@ process = do
       ]
   let instanceMap = Json.makeInstanceMap storedTypes
   let ourWorks = getWorks instanceMap sourceWords
-  let workInfoTypeIndexes = Set.fromList . fmap Json.TypeIndex $ [0]
+  let workInfoTypeIndexes = Set.fromList . fmap Json.TypeIndex $ [0, 1, 2, 3]
   let ourWorkInfos = fmap (Json.workToWorkInfo workInfoTypeIndexes) ourWorks
   let ourTypeInfos = fmap Json.makeTypeInfo storedTypes
   let ourIndex = Json.Index ourWorkInfos ourTypeInfos
