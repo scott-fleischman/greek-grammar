@@ -42,6 +42,7 @@ process = do
       [ makeWordPartType "Source Word" (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
       , makeWordPartType "Source File" (pure . _fileReferencePath . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType "Source File Location" (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
+      , makeWordPartType "Paragraph Number" (pure . snd . snd . Word.getInfo) sourceWords
       , makeSurfaceType "Unicode Composed" composedWords
       , makeSurfaceType "Unicode Composed → [Unicode Decomposed]" decomposedWordPairs
       , makeSurfaceType "Unicode Decomposed" decomposedWords

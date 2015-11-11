@@ -53,6 +53,12 @@ instance Render Line where
 instance Render Column where
   render (Column c) = Format.format "{}" (Format.Only c)
 
+instance Render Word.ParagraphIndex where
+  render = Format.format "¶ {}" . Format.Only . renderOneBasedIndex . Word.getParagraphIndex
+
+renderOneBasedIndex :: Int -> Lazy.Text
+renderOneBasedIndex = Format.format "{}" . Format.Only . (+ 1)
+
 instance Render Char where
   render c = Format.format "{} {}" (renderCodePoint c, renderRawChar c)
 
