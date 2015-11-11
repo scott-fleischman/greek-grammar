@@ -71,14 +71,19 @@ toWorkInfo wordType (Work.Work (_, s, t) ws) = Json.WorkInfo t (Json.WorkSource 
         contextIndex = Json.WordContextIndex 0
         wordTypeValues = fmap (Json.ValueIndex . getValueIndex) . Maybe.maybeToList $ lookupValueIndex wordType x
 
-getWorks :: Map WordLocation [(Json.TypeIndex, Json.ValueIndex)] -> [Work.Indexed [Word.Indexed a b]] -> [Json.Work]
+getWorks :: Map WordLocation [(Json.TypeIndex, Json.ValueIndex)] -> [Work.Indexed [Word.Indexed Word.Basic a]] -> [Json.Work]
 getWorks m works = workInfos
   where
     workInfos = fmap getWorkInfo works
     getWorkInfo (Work.Work (workIndex, workSource, workTitle) workWords) =
-      Json.Work (Json.WorkSource workSource) workTitle (getWords workIndex workWords) [] []
+      Json.Work (Json.WorkSource workSource) workTitle (getWords workIndex workWords) (getWordGroups workWords) []
     getWords workIndex = fmap (getWord workIndex)
     getWord workIndex (Word.Word (i, _) _) = Json.Word . concat . Maybe.maybeToList . Map.lookup (workIndex, i) $ m
+
+    getWordGroups ws = [Json.WordGroup "Paragraphs" (getParagraphs ws)]
+
+    getParagraphs :: [Word.Indexed Word.Basic a] -> [[Word.Index]]
+    getParagraphs = fmap snd . Map.toAscList . (fmap . fmap) (fst . Word.getInfo) . Utility.mapGroupBy (snd . snd . Word.getInfo)
 
 toComposedWords
   :: WordSurfaceBasic Word.SourceInfo

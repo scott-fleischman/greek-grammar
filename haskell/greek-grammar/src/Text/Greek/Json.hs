@@ -137,9 +137,6 @@ data Word = Word
   }
 instance Aeson.ToJSON Word where toJSON (Word vs) = Aeson.toJSON . fmap (\(TypeIndex a, ValueIndex b) -> [a, b]) $ vs
 
-newtype WordIndex = WordIndex Int deriving (Eq, Ord, Show)
-instance Aeson.ToJSON WordIndex where toJSON (WordIndex i) = Aeson.toJSON i
-
 newtype TypeIndex = TypeIndex Int deriving (Eq, Ord, Show)
 instance Aeson.ToJSON TypeIndex where toJSON (TypeIndex i) = Aeson.toJSON i
 
@@ -148,9 +145,9 @@ instance Aeson.ToJSON ValueIndex where toJSON (ValueIndex i) = Aeson.toJSON i
 
 data WordGroup = WordGroup
   { wordGroupTitle :: Text
-  , wordGroupWords :: [[WordIndex]]
+  , wordGroupWords :: [[Word.Index]]
   }
-instance Aeson.ToJSON WordGroup where toJSON (WordGroup t ws) = Aeson.object ["title" .= t, "words" .= ws]
+instance Aeson.ToJSON WordGroup where toJSON (WordGroup t ws) = Aeson.object ["title" .= t, "words" .= (fmap . fmap) Word.getIndex ws]
 
 data Work = Work
   { workSource :: WorkSource
