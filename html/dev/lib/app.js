@@ -66,10 +66,10 @@ function getViewTypeList(types, getTypeUrl) {
   };
 }
 
-function getViewWork(workTitle, workIndex, work, getValue) {
+function getViewWork(workTitle, workIndex, work, getTypeTitle, getValueTitle) {
   return {
     navTitle: workTitle,
-    content: (<Work workIndex={workIndex} work={work} getValue={getValue} />),
+    content: (<Work workIndex={workIndex} work={work} getTypeTitle={getTypeTitle} getValueTitle={getValueTitle} />),
   };
 }
 
@@ -110,6 +110,7 @@ const App = ({ dispatch, visual, data }) => {
         data.index.works[visual.workIndex].title,
         visual.workIndex,
         data.works.get(visual.workIndex),
+        typeIndex => data.index.types[typeIndex].title,
         (typeIndex, valueIndex) => data.index.types[typeIndex].values[valueIndex].t);
       break;
     case State.view.valueList:
