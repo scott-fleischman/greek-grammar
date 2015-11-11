@@ -35,6 +35,8 @@ data SourceInfo = SourceInfo
   , getSourceInfoFile :: FileReference
   } deriving (Eq, Ord, Show)
 
+newtype LetterCount = LetterCount { getLetterCount :: Int } deriving (Eq, Show, Ord)
+
 type Basic = (Maybe (ElisionChar, FileCharReference), ParagraphIndex)
 type Indexed a = Word (Index, a)
 

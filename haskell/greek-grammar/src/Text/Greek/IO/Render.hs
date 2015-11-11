@@ -89,6 +89,9 @@ instance Render (Marked.Unit Unicode.Letter [Unicode.Mark]) where
   render (Marked.Unit i m) = Format.format "{}, {}" (render i, render m)
 instance Render ([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark]) where render = renderFunction
 
+instance Render Word.LetterCount where
+  render = Format.format "{}" . Format.Only . Word.getLetterCount
+
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar
 

@@ -50,6 +50,7 @@ process = do
       , makeSurfaceType "Unicode Marked Letter" markedLetters
       , makeSurfacePartType "Unicode Letter" (pure . Marked._item) markedLetters
       , makeSurfacePartType "Unicode Mark" Marked._marks markedLetters
+      , makeWordPartType "Letter Count" (pure . Word.LetterCount . length . Word.getSurface) markedLetters
       ]
   let instanceMap = Json.makeInstanceMap storedTypes
   let ourWorks = getWorks instanceMap sourceWords
