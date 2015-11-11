@@ -21,8 +21,10 @@ const Word = ({ word, key, getTypeTitle, getValueTitle }) => {
   );
 }
 
-const WordGroup = ({ key, words, getTypeTitle, getValueTitle }) => {
-  const wordElements = R.map (x => (<Word key={key} {...x} />)) (words);
+const WordGroup = ({ key, wordIndexes, words, getTypeTitle, getValueTitle }) => {
+  const wordElements = R.map
+    (x => (<Word key={key + '.' + x} word={words[x]} getTypeTitle={getTypeTitle} getValueTitle={getValueTitle} />))
+    (wordIndexes);
   return (
     <div className="wordGroup">
       {wordElements}
@@ -31,20 +33,12 @@ const WordGroup = ({ key, words, getTypeTitle, getValueTitle }) => {
 }
 
 export const Work = ({ work, workIndex, getTypeTitle, getValueTitle }) => {
-  const firstWord = work.words[0];
-  const words = R.addIndex(R.map)
-    ((w, i) => {
-      const key = workIndex + '.' + i;
-      return (
-        <div key={key}>
-          <Word word={w} key={key} getTypeTitle={getTypeTitle} getValueTitle={getValueTitle} />
-        </div>
-      );
-    })
-    (work.words);
+  const wordGroups = R.addIndex(R.map)
+    ((wg, i) => <WordGroup key={workIndex + '.' + i} wordIndexes={wg} words={work.words} getTypeTitle={getTypeTitle} getValueTitle={getValueTitle}  />)
+    (work.wordGroups[0].words);
   return (
     <div className="workContainer">
-      { words }
+      { wordGroups }
     </div>
   );
 };
