@@ -12,8 +12,8 @@ import Data.Text.Format.Strict (format')
 import System.FilePath
 import Text.Greek.Corpus.Bible
 import Text.Greek.Corpus.Bible.Stats
+import Text.Greek.IO.Paths
 import Text.Greek.NewTestament.SBL
-import Text.Greek.Paths
 import Text.Greek.Xml.Parse (readParseEvents)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T

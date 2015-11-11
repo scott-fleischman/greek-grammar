@@ -14,7 +14,7 @@ import Prelude hiding (Word)
 --import qualified Data.Text.IO as T
 --import qualified Data.Text.Lazy as L
 --import qualified Text.Greek.Script.Word as Word
-import qualified Text.Greek.Process as Process
+import qualified Text.Greek.IO.Process as Process
 
 main :: IO ()
 main = Process.go

@@ -6,7 +6,7 @@ module Text.Greek.Script.Marked where
 import Prelude hiding (Word, getLine)
 import Control.Lens
 import Data.Set (Set)
-import Text.Greek.FileReference
+import Text.Greek.Source.FileReference
 import qualified Data.Set as S
 
 data Unit l m = Unit

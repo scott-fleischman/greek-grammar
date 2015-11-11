@@ -5,7 +5,7 @@ module Text.Greek.Script.Unicode where
 import Control.Lens
 import Data.Text (Text)
 import Data.Unicode.DecomposeChar
-import Text.Greek.FileReference
+import Text.Greek.Source.FileReference
 import Text.Greek.Parse.Utility
 import Text.Greek.Utility
 import Text.Parsec.Combinator

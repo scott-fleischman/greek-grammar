@@ -21,10 +21,10 @@ import Test.Framework.Providers.HUnit
 import Test.HUnit
 import Text.Greek.Conversions
 import Text.Greek.Corpus.Bible
+import Text.Greek.IO.Paths
 import Text.Greek.Mounce.Morphology
 import Text.Greek.Mounce.Quote
 import Text.Greek.NewTestament.SBL
-import Text.Greek.Paths
 import Text.Greek.Phonology.Contractions
 import Text.Greek.Script
 import Text.Greek.Script.Sound

@@ -38,10 +38,12 @@ library
     Text.Greek.Conversions
     Text.Greek.Corpus.Bible
     Text.Greek.Corpus.Bible.Stats
-    Text.Greek.FileReference
     Text.Greek.Grammar
 --    Text.Greek.IO
-    Text.Greek.Json
+    Text.Greek.IO.Json
+    Text.Greek.IO.Paths
+    Text.Greek.IO.Process
+    Text.Greek.IO.Render
     Text.Greek.Morphology.Noun
     Text.Greek.Mounce.Adjective
     Text.Greek.Mounce.Euphony
@@ -56,7 +58,6 @@ library
     Text.Greek.Mounce.Verb
     Text.Greek.NewTestament.SBL
     Text.Greek.Parse.Utility
-    Text.Greek.Paths
     Text.Greek.Phonology.Consonants
     Text.Greek.Phonology.Contractions
     Text.Greek.Phonology.Euphony
@@ -64,8 +65,6 @@ library
     Text.Greek.Phonology.Shorthand
     Text.Greek.Phonology.ShowText
     Text.Greek.Phonology.Vowels
-    Text.Greek.Process
---    Text.Greek.Render
     Text.Greek.Script
 --    Text.Greek.Script.Abstract
 --    Text.Greek.Script.Concrete
@@ -79,6 +78,7 @@ library
     Text.Greek.Script.UnicodeTokenPairs
     Text.Greek.Script.Word
     Text.Greek.Source.All
+    Text.Greek.Source.FileReference
     Text.Greek.Source.PerseusInventory
     Text.Greek.Source.Sblgnt
     Text.Greek.Source.SblgntApp

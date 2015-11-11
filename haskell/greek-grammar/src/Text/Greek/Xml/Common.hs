@@ -1,6 +1,6 @@
 module Text.Greek.Xml.Common where
 
-import Text.Greek.FileReference
+import Text.Greek.Source.FileReference
 import Text.Parsec.Error (ParseError)
 import qualified Data.Conduit.Attoparsec as X
 import qualified Data.XML.Types as X

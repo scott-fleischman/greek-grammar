@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Text.Greek.FileReference where
+module Text.Greek.Source.FileReference where
 
 import Prelude hiding (getLine)
 import Control.Lens

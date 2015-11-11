@@ -4,7 +4,7 @@ module Text.Greek.Script.Word where
 
 import Prelude hiding (Word)
 import Data.Text (Text)
-import Text.Greek.FileReference
+import Text.Greek.Source.FileReference
 import Text.Greek.Script.Elision
 import qualified Control.Lens as Lens
 

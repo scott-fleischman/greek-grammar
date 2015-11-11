@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 
-module Text.Greek.Paths where
+module Text.Greek.IO.Paths where
 
 import System.FilePath
 

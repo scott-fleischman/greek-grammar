@@ -2,13 +2,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleInstances #-}
 
-module Text.Greek.Json where
+module Text.Greek.IO.Json where
 
 import Prelude hiding (Word)
 import Data.Aeson ((.=))
 import Data.Map (Map)
 import Data.Text (Text)
-import Text.Greek.FileReference
+import Text.Greek.Source.FileReference
 --import Text.Greek.Xml.Common
 import System.FilePath
 import qualified Control.Lens as Lens
@@ -23,8 +23,8 @@ import qualified Data.Text.Lazy as Lazy
 import qualified Data.Text.Lazy.Builder as Lazy
 import qualified Data.Text.Format as Format
 import qualified System.Directory as Directory
+import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.Script.Elision as Elision
-import qualified Text.Greek.Paths as Paths
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Source.Work as Work

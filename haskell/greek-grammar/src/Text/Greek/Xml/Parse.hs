@@ -10,8 +10,8 @@ import Control.Lens
 import Data.Either
 import Data.Map (Map)
 import Data.Text (Text)
-import Text.Greek.FileReference
 import Text.Greek.Parse.Utility
+import Text.Greek.Source.FileReference
 import Text.Greek.Utility
 import Text.Greek.Xml.Common
 import Text.Greek.Xml.Event

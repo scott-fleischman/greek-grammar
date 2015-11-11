@@ -4,7 +4,7 @@ module Text.Greek.Parse.Utility where
 
 import Prelude hiding (getLine)
 import Control.Lens
-import Text.Greek.FileReference
+import Text.Greek.Source.FileReference
 import Text.Parsec.Prim
 import Text.Parsec.Combinator
 import qualified Text.Parsec.Pos as P

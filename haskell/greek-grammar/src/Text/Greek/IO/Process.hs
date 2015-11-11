@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Text.Greek.Process where
+module Text.Greek.IO.Process where
 
 import Prelude hiding (words)
 import Control.Monad.Except
@@ -11,7 +11,7 @@ import qualified Control.Lens as Lens
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as Text
-import qualified Text.Greek.Json as Json
+import qualified Text.Greek.IO.Json as Json
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
 import qualified Text.Greek.Script.Marked as Marked

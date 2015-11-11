@@ -3,10 +3,10 @@
 module Text.Greek.Source.All where
 
 import Prelude hiding (Word, words)
-import Text.Greek.Paths
 import Text.Greek.Xml.Common
 import Text.Greek.Xml.Parse
 import qualified Control.Lens as Lens
+import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Source.Sblgnt as SBL
 import qualified Text.Greek.Source.Work as Work
@@ -23,7 +23,7 @@ loadAll = do
     return indexedWorksWords
 
 loadSblgnt :: IO (Either [XmlError] [Work.Basic [Word.Word Word.Basic Word.SourceInfo]])
-loadSblgnt = (fmap . fmap) sblgntToWorks $ readParseEvents SBL.sblgntParser sblgntXmlPath
+loadSblgnt = (fmap . fmap) sblgntToWorks $ readParseEvents SBL.sblgntParser Paths.sblgntXmlPath
 
 sblgntToWorks :: SBL.Sblgnt -> [Work.Basic [Word.Word Word.Basic Word.SourceInfo]]
 sblgntToWorks (SBL.Sblgnt _ _ bs) = fmap sblgntBookToWork bs

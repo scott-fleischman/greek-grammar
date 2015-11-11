@@ -11,7 +11,7 @@ import Conduit
 import Control.Lens
 import Data.Char
 import Data.Text (Text)
-import Text.Greek.FileReference
+import Text.Greek.Source.FileReference
 import Text.Greek.Utility
 import Text.Greek.Xml.Common
 import qualified Data.Conduit.Attoparsec as X
