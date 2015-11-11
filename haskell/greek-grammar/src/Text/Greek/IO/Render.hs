@@ -11,11 +11,11 @@ import qualified Data.Text.Lazy.Builder as Lazy (toLazyText)
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
+import qualified Text.Greek.Script.Elision as Elision
 
 --import Prelude hiding (Word)
 --import Control.Lens
 --import Data.Set (Set)
---import Text.Greek.Script.Elision
 --import qualified Data.Set as S
 --import qualified Data.Text.Format as T
 --import qualified Text.Greek.Script.Abstract as Abstract
@@ -97,6 +97,12 @@ renderLabeledNumber sg pl n = Format.format "{} {}" (n, if n == 1 then sg else p
 
 instance Render Word.MarkCount where
   render = renderLabeledNumber "mark" "marks" . Word.getMarkCount
+
+instance Render Elision.IsElided where
+  render Elision.Elided = "Elided"
+  render Elision.NotElided = "Not elided"
+
+instance Render Elision.ElisionChar where render = render . Elision._getElisionChar
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar

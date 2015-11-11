@@ -11,6 +11,7 @@ elisionCharacters =
   ]
 
 data Elision = Elision deriving (Eq, Ord, Show)
+data IsElided = Elided | NotElided deriving (Eq, Ord, Show)
 
 newtype ElisionChar = ElisionChar { _getElisionChar :: Char } deriving (Eq, Show, Ord)
 makeLenses ''ElisionChar

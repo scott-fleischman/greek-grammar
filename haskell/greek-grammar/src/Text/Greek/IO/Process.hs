@@ -17,6 +17,7 @@ import qualified Text.Greek.IO.Json as Json
 import qualified Text.Greek.IO.Render as Render
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
+import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Script.Unicode as Unicode
@@ -43,6 +44,8 @@ process = do
       , makeWordPartType "Source File" (pure . _fileReferencePath . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType "Source File Location" (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType "Paragraph Number" (pure . snd . snd . Word.getInfo) sourceWords
+      , makeWordPartType "Elision" (pure . getElision . fst . snd . Word.getInfo) sourceWords
+      , makeWordPartType "Unicode Elision" (getUnicodeElision . fst . snd . Word.getInfo) sourceWords
       , makeSurfaceType "Unicode Composed" composedWords
       , makeSurfaceType "Unicode Composed → [Unicode Decomposed]" decomposedWordPairs
       , makeSurfaceType "Unicode Decomposed" decomposedWords
@@ -63,6 +66,14 @@ process = do
 
 type WordSurface a b = [Work.Indexed [Word.Indexed a b]]
 type WordSurfaceBasic a = WordSurface Word.Basic a
+
+getElision :: Maybe a -> Elision.IsElided
+getElision Nothing = Elision.NotElided
+getElision _ = Elision.Elided
+
+getUnicodeElision :: Maybe (Elision.ElisionChar, a) -> [Elision.ElisionChar]
+getUnicodeElision Nothing = []
+getUnicodeElision (Just (e, _)) = [e]
 
 getWorks :: Map WordLocation [(Json.TypeIndex, Json.ValueIndex)] -> [Work.Indexed [Word.Indexed Word.Basic a]] -> [Json.Work]
 getWorks m works = workInfos
