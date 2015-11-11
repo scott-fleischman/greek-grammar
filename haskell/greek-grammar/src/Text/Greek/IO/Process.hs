@@ -39,14 +39,14 @@ process = do
   let markedLetters = toMarkedLetters markedLetterPairs
   let
     storedTypes =
-      [ storeType wordType
-      , storeType (toComposedType composedWords)
-      , storeType (toDecomposedFunctionType decomposedWordPairs)
-      , storeType (toDecomposedType decomposedWords)
-      , storeType (toMarkedLetterFunctionType markedLetterPairs)
-      , storeType (toMarkedLetterType markedLetters)
-      , storeType (toUnicodeLetterType markedLetters)
-      , storeType (toUnicodeMarkType markedLetters)
+      [ wordType
+      , toComposedType composedWords
+      , toDecomposedFunctionType decomposedWordPairs
+      , toDecomposedType decomposedWords
+      , toMarkedLetterFunctionType markedLetterPairs
+      , toMarkedLetterType markedLetters
+      , toUnicodeLetterType markedLetters
+      , toUnicodeMarkType markedLetters
       ]
   let instanceMap = Json.makeInstanceMap storedTypes
   let ourWorks = getWorks instanceMap sourceWords
@@ -81,7 +81,7 @@ toComposedWords = Lens.over wordSurfaceLens (Unicode.toComposed . Word.getSource
 makeSimpleValue :: Render.Render a => a -> Value
 makeSimpleValue = ValueSimple . Lazy.toStrict . Render.render
 
-toComposedType :: WordSurfaceBasic [Unicode.Composed] -> Type
+toComposedType :: WordSurfaceBasic [Unicode.Composed] -> Json.Type
 toComposedType = generateType "Unicode Composed" makeSimpleValue
   . flattenSurface Word.getSurface
 
@@ -92,7 +92,7 @@ toDecomposedWordPairs = Lens.over (wordSurfaceLens . traverse) (\x -> (x, Unicod
 
 toDecomposedFunctionType
   :: WordSurfaceBasic [(Unicode.Composed, [Unicode.Decomposed])]
-  -> Type
+  -> Json.Type
 toDecomposedFunctionType = generateType "Unicode Composed → [Unicode Decomposed]"
   makeSimpleValue
   . flattenSurface Word.getSurface
@@ -102,7 +102,7 @@ toDecomposedWords
   -> WordSurfaceBasic [Unicode.Decomposed]
 toDecomposedWords = Lens.over wordSurfaceLens (concatMap snd)
 
-toDecomposedType :: [Work.Indexed [Word.Indexed Word.Basic [Unicode.Decomposed]]] -> Type
+toDecomposedType :: [Work.Indexed [Word.Indexed Word.Basic [Unicode.Decomposed]]] -> Json.Type
 toDecomposedType = generateType "Unicode Decomposed" makeSimpleValue
   . flattenSurface Word.getSurface
 
@@ -113,7 +113,7 @@ toMarkedLetterPairs = wordSurfaceLens Unicode.parseMarkedLetters
 
 toMarkedLetterFunctionType
   :: WordSurfaceBasic [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])]
-  -> Type
+  -> Json.Type
 toMarkedLetterFunctionType = generateType "[Unicode Decomposed] → Unicode Letter, [Unicode Mark]"
   makeSimpleValue
   . flattenSurface Word.getSurface
@@ -123,18 +123,18 @@ toMarkedLetters
   -> WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]]
 toMarkedLetters = Lens.over (wordSurfaceLens . traverse) snd
 
-toMarkedLetterType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Type
+toMarkedLetterType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Json.Type
 toMarkedLetterType = generateType "Unicode Marked Letter"
   makeSimpleValue
   . flattenSurface Word.getSurface
 
-toUnicodeLetterType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Type
+toUnicodeLetterType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Json.Type
 toUnicodeLetterType = generateType "Unicode Letter"
   makeSimpleValue
   . Lens.over (traverse . Lens._2) Marked._item
   . flattenSurface Word.getSurface
 
-toUnicodeMarkType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Type
+toUnicodeMarkType :: WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]] -> Json.Type
 toUnicodeMarkType = generateType "Unicode Mark"
   makeSimpleValue
   . concatMap (\(l, m) -> fmap (\x -> (l, x)) (Marked._marks m))
@@ -147,32 +147,24 @@ wordSurfaceLens :: Applicative f =>
 wordSurfaceLens = traverse . Work.content . traverse . Word.surface
 
 type WordLocation = (Work.Index, Word.Index)
-newtype ValueIndex = ValueIndex { getValueIndex :: Int } deriving (Eq, Ord, Show)
 data Value
   = ValueSimple Text
   deriving (Eq, Ord, Show)
-data Type = Type
-  { typeTitle :: Text
-  , typeValueInstances :: [(Value, [WordLocation])]
-  }
 
-storeType :: Type -> Json.Type
-storeType (Type t vs) = Json.Type t (fmap storeValue vs)
-  where
-    storeValue :: (Value, [WordLocation]) -> Json.Value
-    storeValue ((ValueSimple vt), ls) = Json.Value vt (fmap locationToInstance ls)
-
-    locationToInstance :: WordLocation -> Json.Instance
-    locationToInstance = uncurry Json.Instance
-
-generateType :: forall a. Ord a => Text -> (a -> Value) -> [(WordLocation, a)] -> Type
-generateType t f is = Type t typedValueInstances
+generateType :: forall a. Ord a => Text -> (a -> Value) -> [(WordLocation, a)] -> Json.Type
+generateType t f is = Json.Type t (fmap storeValue typedValueInstances)
   where
     valueInstances :: [(a, [WordLocation])]
     valueInstances = Lens.over (traverse . Lens._2 . traverse) fst . Map.assocs . Utility.mapGroupBy snd $ is
 
     typedValueInstances :: [(Value, [WordLocation])]
     typedValueInstances = Lens.over (traverse . Lens._1) f valueInstances
+
+    storeValue :: (Value, [WordLocation]) -> Json.Value
+    storeValue ((ValueSimple vt), ls) = Json.Value vt (fmap locationToInstance ls)
+
+    locationToInstance :: WordLocation -> Json.Instance
+    locationToInstance = uncurry Json.Instance
 
 flattenSurface :: forall a b c. (Word.Indexed a b -> [c]) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
 flattenSurface f = concatSurface . flattenWords f
