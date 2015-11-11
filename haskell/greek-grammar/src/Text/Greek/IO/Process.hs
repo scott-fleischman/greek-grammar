@@ -51,10 +51,11 @@ process = do
       , makeSurfacePartType "Unicode Letter" (pure . Marked._item) markedLetters
       , makeSurfacePartType "Unicode Mark" Marked._marks markedLetters
       , makeWordPartType "Letter Count" (pure . Word.LetterCount . length . Word.getSurface) markedLetters
+      , makeWordPartType "Mark Count" (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) markedLetters
       ]
   let instanceMap = Json.makeInstanceMap storedTypes
   let ourWorks = getWorks instanceMap sourceWords
-  let workInfoTypeIndexes = Set.fromList . fmap Json.TypeIndex $ [0, 1, 2, 3]
+  let workInfoTypeIndexes = Set.fromList . fmap Json.TypeIndex $ [0, 3]
   let ourWorkInfos = fmap (Json.workToWorkInfo workInfoTypeIndexes) ourWorks
   let ourTypeInfos = fmap Json.makeTypeInfo storedTypes
   let ourIndex = Json.Index ourWorkInfos ourTypeInfos

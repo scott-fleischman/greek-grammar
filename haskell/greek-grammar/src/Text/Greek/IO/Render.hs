@@ -90,7 +90,13 @@ instance Render (Marked.Unit Unicode.Letter [Unicode.Mark]) where
 instance Render ([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark]) where render = renderFunction
 
 instance Render Word.LetterCount where
-  render = Format.format "{}" . Format.Only . Word.getLetterCount
+  render = renderLabeledNumber "letter" "letters" . Word.getLetterCount
+
+renderLabeledNumber :: Lazy.Text -> Lazy.Text -> Int -> Lazy.Text 
+renderLabeledNumber sg pl n = Format.format "{} {}" (n, if n == 1 then sg else pl)
+
+instance Render Word.MarkCount where
+  render = renderLabeledNumber "mark" "marks" . Word.getMarkCount
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar
