@@ -10,6 +10,7 @@ import qualified Data.Text.Lazy as Lazy
 import qualified Data.Text.Lazy.Builder as Lazy (toLazyText)
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Unicode as Unicode
+import qualified Text.Greek.Script.Word as Word
 
 --import Prelude hiding (Word)
 --import Control.Lens
@@ -29,6 +30,9 @@ class Render a where
 
 instance Render Lazy.Text where
   render = id
+
+instance Render Word.Source where
+  render = Lazy.fromStrict . Word.getSource
 
 instance Render FileReference where
   render (FileReference p (LineReference l1 c1) (LineReference l2 c2)) | l1 == l2 && c1 == c2 =
