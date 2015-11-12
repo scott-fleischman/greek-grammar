@@ -12,6 +12,7 @@ import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Script.Elision as Elision
+import qualified Text.Greek.Source.Work as Work
 
 --import Prelude hiding (Word)
 --import Control.Lens
@@ -30,6 +31,12 @@ class Render a where
 
 instance Render Lazy.Text where
   render = id
+
+instance Render Work.Source where
+  render Work.SourceSblgnt = "SBLGNT"
+
+instance Render Work.Title where
+  render = Lazy.fromStrict . Work.getTitle
 
 instance Render Word.Source where
   render = Lazy.fromStrict . Word.getSource

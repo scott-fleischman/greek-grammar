@@ -6,11 +6,12 @@ import Data.Text (Text)
 import qualified Control.Lens as Lens
 
 data Source = SourceSblgnt deriving (Eq, Ord, Show)
-newtype Title = Title Text deriving (Eq, Ord, Show)
+newtype Title = Title { getTitle :: Text } deriving (Eq, Ord, Show)
 newtype Index = Index { getIndex :: Int } deriving (Eq, Ord, Show)
 
 type Basic = Work (Source, Title)
-type Indexed = Work (Index, Source, Title)
+type IndexSourceTitle = (Index, Source, Title)
+type Indexed = Work IndexSourceTitle
 
 data Work i c = Work
   { getInfo :: i

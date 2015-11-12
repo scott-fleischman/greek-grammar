@@ -41,6 +41,8 @@ process = do
   let
     storedTypes =
       [ makeWordPartType "Source Word" (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
+      , makeWorkInfoType "Work Source" (Lens.view Lens._2) sourceWords
+      , makeWorkInfoType "Work Title" (Lens.view Lens._3) sourceWords
       , makeWordPartType "Source File" (pure . _fileReferencePath . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType "Source File Location" (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType "Paragraph Number" (pure . snd . snd . Word.getInfo) sourceWords
@@ -58,7 +60,7 @@ process = do
       ]
   let instanceMap = Json.makeInstanceMap storedTypes
   let ourWorks = getWorks instanceMap sourceWords
-  let workInfoTypeIndexes = Set.fromList . fmap Json.TypeIndex $ [0, 3]
+  let workInfoTypeIndexes = Set.fromList . fmap Json.TypeIndex $ [0, 1, 2, 5]
   let ourWorkInfos = fmap (Json.workToWorkInfo workInfoTypeIndexes) ourWorks
   let ourTypeInfos = fmap Json.makeTypeInfo storedTypes
   let ourIndex = Json.Index ourWorkInfos ourTypeInfos
@@ -80,7 +82,7 @@ getWorks m works = workInfos
   where
     workInfos = fmap getWorkInfo works
     getWorkInfo (Work.Work (workIndex, workSource, workTitle) workWords) =
-      Json.Work (Json.WorkSource workSource) workTitle (getWords workIndex workWords) (getWordGroups workWords) []
+      Json.Work workSource workTitle (getWords workIndex workWords) (getWordGroups workWords) []
     getWords workIndex = fmap (getWord workIndex)
     getWord workIndex (Word.Word (i, _) _) = Json.Word . concat . Maybe.maybeToList . Map.lookup (workIndex, i) $ m
 
@@ -97,8 +99,11 @@ toComposedWords = Lens.over wordSurfaceLens (Unicode.toComposed . Word.getSource
 makeSimpleValue :: Render.Render a => a -> Value
 makeSimpleValue = ValueSimple . Lazy.toStrict . Render.render
 
+makeWorkInfoType :: (Ord a, Render.Render a) => Text -> (Work.IndexSourceTitle -> a) -> [Work.Indexed [Word.Indexed b c]] -> Json.Type
+makeWorkInfoType t f = generateType t makeSimpleValue . flattenWords (\x _ -> f x)
+
 makeWordPartType :: (Ord b, Render.Render b) => Text -> (Word.Indexed t a -> [b]) -> WordSurface t a -> Json.Type
-makeWordPartType t f = generateType t makeSimpleValue . flatten . flattenWords f
+makeWordPartType t f = generateType t makeSimpleValue . flatten . flattenWords (\_ x -> f x)
   where flatten = concatMap (\(l, m) -> fmap (\x -> (l, x)) m)
 
 makeSurfaceType :: (Ord a, Render.Render a) => Text -> WordSurface t [a] -> Json.Type
@@ -155,25 +160,25 @@ generateType t f is = Json.Type t (fmap storeValue typedValueInstances)
     locationToInstance = uncurry Json.Instance
 
 flattenSurface :: forall a b c. (Word.Indexed a b -> [c]) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
-flattenSurface f = concatSurface . flattenWords f
+flattenSurface f = concatSurface . flattenWords (\_ x -> f x)
 
 concatSurface :: [(a, [b])] -> [(a, b)]
 concatSurface = concatMap (\(x, ys) -> fmap (\y -> (x, y)) ys)
 
-flattenWords :: forall a b c. (Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
+flattenWords :: forall a b c. (Work.IndexSourceTitle -> Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
 flattenWords f = concatMap getIndexedWorkProps
   where
     getIndexedWorkProps :: Work.Indexed [Word.Indexed a b] -> [(WordLocation, c)]
     getIndexedWorkProps w = fmap (\(i, p) -> ((getWorkIndex w, i), p)) (getWorkProps w)
 
     getWorkProps :: Work.Indexed [Word.Indexed a b] -> [(Word.Index, c)]
-    getWorkProps = fmap getIndexedWordProp . Work.getContent
+    getWorkProps k = fmap (getIndexedWordProp (Work.getInfo k)) . Work.getContent $ k
 
     getWorkIndex :: Work.Indexed x -> Work.Index
     getWorkIndex = Lens.view (Work.info . Lens._1)
 
-    getIndexedWordProp :: Word.Indexed a b -> (Word.Index, c)
-    getIndexedWordProp w = (getWordIndex w, f w)
+    getIndexedWordProp :: Work.IndexSourceTitle -> Word.Indexed a b -> (Word.Index, c)
+    getIndexedWordProp k d = (getWordIndex d, f k d)
 
     getWordIndex :: Word.Indexed a b -> Word.Index
     getWordIndex = Lens.view (Word.info . Lens._1)

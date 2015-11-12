@@ -79,21 +79,16 @@ data Index = Index
   }
 instance Aeson.ToJSON Index where toJSON (Index ws ts) = Aeson.object ["works" .= ws, "types" .= ts]
 
-newtype WorkSource = WorkSource Work.Source
-instance Aeson.ToJSON WorkSource
-  where
-    toJSON (WorkSource Work.SourceSblgnt) = Aeson.toJSON ("SBLGNT" :: Text)
-
 data WorkInfo = WorkInfo
   { workInfoTitle :: Work.Title
-  , workInfoSource :: WorkSource
+  , workInfoSource :: Work.Source
   , workWordContexts :: [WordContext]
   , workWordInfos :: [WordInfo]
   }
 instance Aeson.ToJSON WorkInfo where
   toJSON (WorkInfo (Work.Title t) s wc wi) = Aeson.object
     [ "title" .= t
-    , "source" .= s
+    , "source" .= Render.render s
     , "wordContexts" .= wc
     , "wordInfos" .= wi
     ]
@@ -148,7 +143,7 @@ data WordGroup = WordGroup
 instance Aeson.ToJSON WordGroup where toJSON (WordGroup t ws) = Aeson.object ["title" .= t, "words" .= (fmap . fmap) Word.getIndex ws]
 
 data Work = Work
-  { workSource :: WorkSource
+  { workSource :: Work.Source
   , workTitle :: Work.Title
   , workWords :: [Word]
   , workWordGroups :: [WordGroup]
@@ -156,7 +151,7 @@ data Work = Work
   }
 instance Aeson.ToJSON Work where
   toJSON (Work s (Work.Title t) ws wgs sm) = Aeson.object
-    [ "source" .= s
+    [ "source" .= Render.render s
     , "title" .= t
     , "words" .= ws
     , "wordGroups" .= wgs

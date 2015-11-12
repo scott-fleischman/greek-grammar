@@ -7,12 +7,11 @@ const InstanceInfo = ({ getWorkInfo, getTypeInfo, workIndex, wordIndex, url }) =
   const wordValues = wordInfo.v;
   const wordContextIndex = wordInfo.c;
   const wordProperties = (R.map) (v => getTypeInfo(v[0]).values[v[1]].t) (wordValues);
-  const wordExtraElements = R.addIndex(R.map) ((x, i) => <span key={i} className="instanceInfo"> &mdash; {x}</span>) (wordProperties.slice(1));
+  const wordInfoElements = R.addIndex(R.map) ((x, i) => <span key={i} className="instanceInfo"> &mdash; {x}</span>) (wordProperties.slice(1));
   return (
     <div>
       <a href={url}>{wordProperties[0]}</a>
-      <span className="instanceInfo"> &mdash; {workInfo.title} &mdash; {workInfo.source}</span>
-      {wordExtraElements}
+      {wordInfoElements}
     </div>
   );
 };
