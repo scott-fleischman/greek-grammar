@@ -139,13 +139,25 @@ instance Render Elision.IsElided where
 instance Render Elision.ElisionChar where render = render . Elision._getElisionChar
 
 instance Render Concrete.Letter where render = renderRawChar . Unicode.getLetter . Concrete.letterToUnicode
-instance Render Concrete.Mark where render = renderRawChar . Unicode.getMark . Concrete.markToUnicode
 instance Render [Concrete.Mark] where render = renderSingleLineList
 instance Render (Marked.Unit Concrete.Letter [Concrete.Mark]) where render = renderMarkedUnit
 instance Render (Marked.Unit Unicode.Letter [Unicode.Mark], Marked.Unit Concrete.Letter [Concrete.Mark]) where
   render = renderFunction
 instance Render (Unicode.Letter, Concrete.Letter) where render = renderFunction
 instance Render (Unicode.Mark, Concrete.Mark) where render = renderFunction
+instance Render Concrete.Mark where
+  render m = Format.format "{} {}" (renderRawChar . Unicode.getMark . Concrete.markToUnicode $ m, getName m)
+
+getName :: Concrete.Mark -> Lazy.Text
+getName Concrete.Grave = "Grave Accent"
+getName Concrete.Acute = "Acute Accent"
+getName Concrete.Diaeresis = "Diaeresis"
+getName Concrete.Smooth = "Smooth Breathing"
+getName Concrete.Rough = "Rough Breathing"
+getName Concrete.Circumflex = "Circumflex"
+getName Concrete.IotaSubscript = "Iota Subscript"
+
+
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar
