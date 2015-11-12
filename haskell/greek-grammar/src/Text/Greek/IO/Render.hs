@@ -146,7 +146,7 @@ instance Render (Marked.Unit Unicode.Letter [Unicode.Mark], Marked.Unit Concrete
 instance Render (Unicode.Letter, Concrete.Letter) where render = renderFunction
 instance Render (Unicode.Mark, Concrete.Mark) where render = renderFunction
 instance Render Concrete.Mark where
-  render m = Format.format "{} {}" (renderRawChar . Unicode.getMark . Concrete.markToUnicode $ m, getName m)
+  render m = Format.format "{} {}" (getName m, renderRawChar . Unicode.getMark . Concrete.markToUnicode $ m)
 
 getName :: Concrete.Mark -> Lazy.Text
 getName Concrete.Grave = "Grave Accent"

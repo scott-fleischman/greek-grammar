@@ -43,6 +43,7 @@ process = do
   markedUnicodeConcretePairsL <- handleMaybe "Concrete Letter" $ toMarkedConcreteLetters markedUnicodeLetters
   markedUnicodeConcretePairsLM <- handleMaybe "Concrete Mark" $ toMarkedConcreteMarks markedUnicodeConcretePairsL
   let markedUnicodeConcretePairsB = toMarkedUnicodeConcretePairs markedUnicodeConcretePairsLM
+  let markedConcreteLetters = Lens.over (wordSurfaceLens . traverse) snd markedUnicodeConcretePairsB
   let
     storedTypeDatas =
       [ makeWordPartType Type.SourceWord (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
@@ -65,9 +66,9 @@ process = do
       , makeSurfaceType (Type.Function Type.UnicodeMarkedLetter Type.ConcreteMarkedLetter) markedUnicodeConcretePairsB
       , makeSurfacePartType (Type.Function Type.UnicodeLetter Type.ConcreteLetter) (pure . Marked._item) markedUnicodeConcretePairsLM
       , makeSurfacePartType (Type.Function Type.UnicodeMark Type.ConcreteMark) Marked._marks markedUnicodeConcretePairsLM
-      --, makeSurfaceType Type.ConcreteMarkedLetter markedConcreteLetters
-      --, makeSurfacePartType Type.ConcreteLetter (pure . Marked._item) markedConcreteLetters
-      --, makeSurfacePartType Type.ConcreteMark Marked._marks markedConcreteLetters
+      , makeSurfaceType Type.ConcreteMarkedLetter markedConcreteLetters
+      , makeSurfacePartType Type.ConcreteLetter (pure . Marked._item) markedConcreteLetters
+      , makeSurfacePartType Type.ConcreteMark Marked._marks markedConcreteLetters
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let
