@@ -61,6 +61,8 @@ process = do
       , makeWordPartType Type.LetterCount (pure . Word.LetterCount . length . Word.getSurface) markedUnicodeLetters
       , makeWordPartType Type.MarkCount (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) markedUnicodeLetters
       , makeSurfaceType Type.ConcreteMarkedLetter markedConcreteLetters
+      , makeSurfacePartType Type.ConcreteLetter (pure . Marked._item) markedConcreteLetters
+      , makeSurfacePartType Type.ConcreteMark Marked._marks markedConcreteLetters
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let
