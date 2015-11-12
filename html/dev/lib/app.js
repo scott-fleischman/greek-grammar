@@ -67,18 +67,36 @@ function getViewTypeList(types, getTypeUrl) {
   };
 }
 
-function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getValueTitle) {
+function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getValueTitle, getInstanceUrl) {
   return {
     navTitle: workTitle,
-    content: (<Work workIndex={workIndex} work={work} getWordUrl={getWordUrl} getTypeTitle={getTypeTitle} getValueTitle={getValueTitle} />),
+    content: (
+      <Work
+        workIndex={workIndex}
+        work={work}
+        getWordUrl={getWordUrl}
+        getTypeTitle={getTypeTitle}
+        getValueTitle={getValueTitle}
+        getInstanceUrl={getInstanceUrl}
+      />
+    ),
   };
 }
 
-function getViewWord(workIndex, wordIndex, word, getTypeTitle, getValueTitle) {
+function getViewWord(workIndex, wordIndex, word, getTypeTitle, getValueTitle, getInstanceUrl) {
   const wordText = getValueTitle(word[0][0], word[0][1]);
   return {
     navTitle: `Word Instance: ${wordText}`,
-    content: (<Word workIndex={workIndex} wordIndex={wordIndex} word={word} getTypeTitle={getTypeTitle} getValueTitle={getValueTitle} />),
+    content: (
+      <Word
+        workIndex={workIndex}
+        wordIndex={wordIndex}
+        word={word}
+        getTypeTitle={getTypeTitle}
+        getValueTitle={getValueTitle}
+        getInstanceUrl={getInstanceUrl}
+      />
+    ),
   };
 }
 
@@ -89,7 +107,7 @@ function getViewValueList(values, typeTitle, typeIndex, getInstanceListUrl) {
   };
 }
 
-function getViewInstanceList(getWorkInfo, getTypeInfo, instances, typeIndex, valueIndex, typeTitle, valueTitle, getWordDetailUrl) {
+function getViewInstanceList(getWorkInfo, getTypeInfo, instances, typeIndex, valueIndex, typeTitle, valueTitle, getWordUrl) {
   return {
     navTitle: `${typeTitle}, ${valueTitle}, ${instances.length} Instances`,
     content: (
@@ -99,13 +117,21 @@ function getViewInstanceList(getWorkInfo, getTypeInfo, instances, typeIndex, val
         typeIndex={typeIndex}
         valueIndex={valueIndex}
         instances={instances}
-        getWordDetailUrl={getWordDetailUrl}
+        getWordUrl={getWordUrl}
       />),
   };
 }
 
 const App = ({ dispatch, visual, data }) => {
   const viewWork = x => dispatch(Action.fetchViewWork(x));
+
+  const getWorkInfo = workIndex => data.index.works[workIndex];
+  const getTypeInfo = typeIndex => data.index.types[typeIndex];
+  const getTypeTitle = typeIndex => getTypeInfo(typeIndex).title;
+  const getValueTitle = (typeIndex, valueIndex) => getTypeInfo(typeIndex).values[valueIndex].t;
+
+  const getInstanceUrl = R.compose(getUrl, Action.viewInstanceList);
+  const getWordUrl = R.compose(getUrl, Action.viewWord);
 
   let info = null;
   switch (visual.view) {
@@ -120,34 +146,36 @@ const App = ({ dispatch, visual, data }) => {
         visual.workIndex,
         data.works.get(visual.workIndex),
         R.compose(getUrl, Action.viewWord),
-        typeIndex => data.index.types[typeIndex].title,
-        (typeIndex, valueIndex) => data.index.types[typeIndex].values[valueIndex].t);
+        getTypeTitle,
+        getValueTitle,
+        getInstanceUrl);
       break;
     case State.view.word:
       info = getViewWord(
         visual.workIndex,
         visual.wordIndex,
         data.works.get(visual.workIndex).words[visual.wordIndex],
-        typeIndex => data.index.types[typeIndex].title,
-        (typeIndex, valueIndex) => data.index.types[typeIndex].values[valueIndex].t);
+        getTypeTitle,
+        getValueTitle,
+        getInstanceUrl);
       break;
     case State.view.valueList:
       info = getViewValueList(
-        data.index.types[visual.typeIndex].values,
-        data.index.types[visual.typeIndex].title,
+        getTypeInfo(visual.typeIndex).values,
+        getTypeTitle(visual.typeIndex),
         visual.typeIndex,
-        R.compose(getUrl, x => Action.viewInstanceList(visual.typeIndex, x)));
+        x => getInstanceUrl(visual.typeIndex, x));
       break;
     case State.view.instanceList:
       info = getViewInstanceList(
-        workIndex => data.index.works[workIndex],
-        typeIndex => data.index.types[typeIndex],
+        getWorkInfo,
+        getTypeInfo,
         data.types.get(visual.typeIndex).values[visual.valueIndex].i,
         visual.typeIndex,
         visual.valueIndex,
-        data.index.types[visual.typeIndex].title,
-        data.index.types[visual.typeIndex].values[visual.valueIndex].t,
-        () => '#');
+        getTypeTitle(visual.typeIndex),
+        getValueTitle(visual.typeIndex, visual.valueIndex),
+        getWordUrl);
       break;
   }
   if (!info) {
