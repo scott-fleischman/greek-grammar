@@ -8,6 +8,7 @@ import qualified Data.Char as Char
 import qualified Data.Text.Format as Format
 import qualified Data.Text.Lazy as Lazy
 import qualified Data.Text.Lazy.Builder as Lazy (toLazyText)
+import qualified Text.Greek.IO.Type as Type
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
@@ -31,6 +32,25 @@ class Render a where
 
 instance Render Lazy.Text where
   render = id
+
+instance Render Type.Name where
+  render (Type.List a) = Format.format "[{}]" . Format.Only . render $ a
+  render (Type.Function a b) = Format.format "{} → {}" (render a, render b)
+  render Type.SourceWord = "Source Word"
+  render Type.WorkSource = "Work Source"
+  render Type.WorkTitle = "Work Title"
+  render Type.SourceFile = "Source File"
+  render Type.SourceFileLocation = "Source File Location"
+  render Type.ParagraphNumber = "Paragraph Number"
+  render Type.Elision = "Elision"
+  render Type.UnicodeElision = "Unicode Elision"
+  render Type.UnicodeComposed = "Unicode Composed"
+  render Type.UnicodeDecomposed = "Unicode Decomposed"
+  render Type.UnicodeMarkedLetter = "Unicode Marked Letter"
+  render Type.UnicodeLetter = "Unicode Letter"
+  render Type.UnicodeMark = "Unicode Mark"
+  render Type.LetterCount = "Letter Count"
+  render Type.MarkCount = "Mark Count"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"

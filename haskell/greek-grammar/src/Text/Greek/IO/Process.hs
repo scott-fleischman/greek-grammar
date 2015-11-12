@@ -11,10 +11,10 @@ import Text.Greek.Source.FileReference
 import qualified Control.Lens as Lens
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
-import qualified Data.Set as Set
 import qualified Data.Text.Lazy as Lazy
 import qualified Text.Greek.IO.Json as Json
 import qualified Text.Greek.IO.Render as Render
+import qualified Text.Greek.IO.Type as Type
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
 import qualified Text.Greek.Script.Elision as Elision
@@ -39,28 +39,30 @@ process = do
   markedLetterPairs <- handleError $ toMarkedLetterPairs decomposedWords
   let markedLetters = toMarkedLetters markedLetterPairs
   let
-    storedTypes =
-      [ makeWordPartType "Source Word" (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
-      , makeWorkInfoType "Work Source" (Lens.view Lens._2) sourceWords
-      , makeWorkInfoType "Work Title" (Lens.view Lens._3) sourceWords
-      , makeWordPartType "Source File" (pure . _fileReferencePath . Word.getSourceInfoFile . Word.getSurface) sourceWords
-      , makeWordPartType "Source File Location" (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
-      , makeWordPartType "Paragraph Number" (pure . snd . snd . Word.getInfo) sourceWords
-      , makeWordPartType "Elision" (pure . getElision . fst . snd . Word.getInfo) sourceWords
-      , makeWordPartType "Unicode Elision" (getUnicodeElision . fst . snd . Word.getInfo) sourceWords
-      , makeSurfaceType "Unicode Composed" composedWords
-      , makeSurfaceType "Unicode Composed → [Unicode Decomposed]" decomposedWordPairs
-      , makeSurfaceType "Unicode Decomposed" decomposedWords
-      , makeSurfaceType "[Unicode Decomposed] → Unicode Letter, [Unicode Mark]" markedLetterPairs
-      , makeSurfaceType "Unicode Marked Letter" markedLetters
-      , makeSurfacePartType "Unicode Letter" (pure . Marked._item) markedLetters
-      , makeSurfacePartType "Unicode Mark" Marked._marks markedLetters
-      , makeWordPartType "Letter Count" (pure . Word.LetterCount . length . Word.getSurface) markedLetters
-      , makeWordPartType "Mark Count" (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) markedLetters
+    storedTypeDatas =
+      [ makeWordPartType Type.SourceWord (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
+      , makeWorkInfoType Type.WorkSource (Lens.view Lens._2) sourceWords
+      , makeWorkInfoType Type.WorkTitle (Lens.view Lens._3) sourceWords
+      , makeWordPartType Type.SourceFile (pure . _fileReferencePath . Word.getSourceInfoFile . Word.getSurface) sourceWords
+      , makeWordPartType Type.SourceFileLocation (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
+      , makeWordPartType Type.ParagraphNumber (pure . snd . snd . Word.getInfo) sourceWords
+      , makeWordPartType Type.Elision (pure . getElision . fst . snd . Word.getInfo) sourceWords
+      , makeWordPartType Type.UnicodeElision (getUnicodeElision . fst . snd . Word.getInfo) sourceWords
+      , makeSurfaceType Type.UnicodeComposed composedWords
+      , makeSurfaceType (Type.Function Type.UnicodeComposed (Type.List Type.UnicodeDecomposed)) decomposedWordPairs
+      , makeSurfaceType Type.UnicodeDecomposed decomposedWords
+      , makeSurfaceType (Type.Function (Type.List Type.UnicodeDecomposed) Type.UnicodeMarkedLetter) markedLetterPairs
+      , makeSurfaceType Type.UnicodeMarkedLetter markedLetters
+      , makeSurfacePartType Type.UnicodeLetter (pure . Marked._item) markedLetters
+      , makeSurfacePartType Type.UnicodeMark Marked._marks markedLetters
+      , makeWordPartType Type.LetterCount (pure . Word.LetterCount . length . Word.getSurface) markedLetters
+      , makeWordPartType Type.MarkCount (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) markedLetters
       ]
+  let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
+  let storedTypes = fmap typeDataJson storedTypeDatas
   let instanceMap = Json.makeInstanceMap storedTypes
   let ourWorks = getWorks instanceMap sourceWords
-  let workInfoTypeIndexes = Set.fromList . fmap Json.TypeIndex $ [0, 1, 2, 5]
+  let workInfoTypeIndexes = lookupAll typeNameMap [Type.SourceWord, Type.WorkTitle, Type.ParagraphNumber, Type.WorkSource]
   let ourWorkInfos = fmap (Json.workToWorkInfo workInfoTypeIndexes) ourWorks
   let ourTypeInfos = fmap Json.makeTypeInfo storedTypes
   let ourIndex = Json.Index ourWorkInfos ourTypeInfos
@@ -68,6 +70,9 @@ process = do
 
 type WordSurface a b = [Work.Indexed [Word.Indexed a b]]
 type WordSurfaceBasic a = WordSurface Word.Basic a
+
+lookupAll :: Ord a => Map a b -> [a] -> [b]
+lookupAll m = Maybe.catMaybes . fmap (flip Map.lookup m)
 
 getElision :: Maybe a -> Elision.IsElided
 getElision Nothing = Elision.NotElided
@@ -99,17 +104,17 @@ toComposedWords = Lens.over wordSurfaceLens (Unicode.toComposed . Word.getSource
 makeSimpleValue :: Render.Render a => a -> Value
 makeSimpleValue = ValueSimple . Lazy.toStrict . Render.render
 
-makeWorkInfoType :: (Ord a, Render.Render a) => Text -> (Work.IndexSourceTitle -> a) -> [Work.Indexed [Word.Indexed b c]] -> Json.Type
+makeWorkInfoType :: (Ord a, Render.Render a) => Type.Name -> (Work.IndexSourceTitle -> a) -> [Work.Indexed [Word.Indexed b c]] -> TypeData
 makeWorkInfoType t f = generateType t makeSimpleValue . flattenWords (\x _ -> f x)
 
-makeWordPartType :: (Ord b, Render.Render b) => Text -> (Word.Indexed t a -> [b]) -> WordSurface t a -> Json.Type
+makeWordPartType :: (Ord b, Render.Render b) => Type.Name -> (Word.Indexed t a -> [b]) -> WordSurface t a -> TypeData
 makeWordPartType t f = generateType t makeSimpleValue . flatten . flattenWords (\_ x -> f x)
   where flatten = concatMap (\(l, m) -> fmap (\x -> (l, x)) m)
 
-makeSurfaceType :: (Ord a, Render.Render a) => Text -> WordSurface t [a] -> Json.Type
+makeSurfaceType :: (Ord a, Render.Render a) => Type.Name -> WordSurface t [a] -> TypeData
 makeSurfaceType t = generateType t makeSimpleValue . flattenSurface Word.getSurface
 
-makeSurfacePartType :: (Ord b, Render.Render b) => Text -> (a -> [b]) -> WordSurface t [a] -> Json.Type
+makeSurfacePartType :: (Ord b, Render.Render b) => Type.Name -> (a -> [b]) -> WordSurface t [a] -> TypeData
 makeSurfacePartType t f = generateType t makeSimpleValue . extract . flattenSurface Word.getSurface
   where extract = concatMap (\(l, m) -> fmap (\x -> (l, x)) (f m))
 
@@ -143,9 +148,13 @@ type WordLocation = (Work.Index, Word.Index)
 data Value
   = ValueSimple Text
   deriving (Eq, Ord, Show)
+data TypeData = TypeData
+  { typeDataName :: Type.Name
+  , typeDataJson :: Json.Type
+  }
 
-generateType :: forall a. Ord a => Text -> (a -> Value) -> [(WordLocation, a)] -> Json.Type
-generateType t f is = Json.Type t (fmap storeValue typedValueInstances)
+generateType :: forall a. Ord a => Type.Name -> (a -> Value) -> [(WordLocation, a)] -> TypeData
+generateType t f is = TypeData t $ Json.Type (Lazy.toStrict . Render.render $ t) (fmap storeValue typedValueInstances)
   where
     valueInstances :: [(a, [WordLocation])]
     valueInstances = Lens.over (traverse . Lens._2 . traverse) fst . Map.assocs . Utility.mapGroupBy snd $ is

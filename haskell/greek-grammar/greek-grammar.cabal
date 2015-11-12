@@ -44,6 +44,7 @@ library
     Text.Greek.IO.Paths
     Text.Greek.IO.Process
     Text.Greek.IO.Render
+    Text.Greek.IO.Type
     Text.Greek.Morphology.Noun
     Text.Greek.Mounce.Adjective
     Text.Greek.Mounce.Euphony

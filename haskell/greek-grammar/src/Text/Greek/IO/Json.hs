@@ -14,7 +14,7 @@ import System.FilePath
 import qualified Control.Lens as Lens
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BL
---import qualified Data.List as List
+import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -159,10 +159,12 @@ instance Aeson.ToJSON Work where
     ]
 
 
-workToWorkInfo :: Set.Set TypeIndex -> Work -> WorkInfo
+workToWorkInfo :: [TypeIndex] -> Work -> WorkInfo
 workToWorkInfo ts (Work s t ws _ _) = WorkInfo t s [] (fmap (\(Word vs) -> WordInfo (filterValues vs) (WordContextIndex 0)) ws)
   where
-    filterValues = filter (\(x, _) -> Set.member x ts)
+    typeToOrder :: Map TypeIndex Int
+    typeToOrder = Map.fromList . zip ts $ [0..]
+    filterValues = List.sortOn (flip Map.lookup typeToOrder . fst) . filter (flip Map.member typeToOrder . fst)
 
 --process
 --  :: Either [XmlError] [All.Work [Word.Basic (Text, FileReference)]]
