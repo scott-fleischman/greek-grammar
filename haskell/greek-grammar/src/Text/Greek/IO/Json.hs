@@ -86,8 +86,8 @@ data WorkInfo = WorkInfo
   , workWordInfos :: [WordInfo]
   }
 instance Aeson.ToJSON WorkInfo where
-  toJSON (WorkInfo (Work.Title t) s wc wi) = Aeson.object
-    [ "title" .= t
+  toJSON (WorkInfo t s wc wi) = Aeson.object
+    [ "title" .= Render.render t
     , "source" .= Render.render s
     , "wordContexts" .= wc
     , "wordInfos" .= wi
@@ -150,9 +150,9 @@ data Work = Work
   , workWordSummary :: [TypeIndex]
   }
 instance Aeson.ToJSON Work where
-  toJSON (Work s (Work.Title t) ws wgs sm) = Aeson.object
+  toJSON (Work s t ws wgs sm) = Aeson.object
     [ "source" .= Render.render s
-    , "title" .= t
+    , "title" .= Render.render t
     , "words" .= ws
     , "wordGroups" .= wgs
     , "wordSummary" .= sm

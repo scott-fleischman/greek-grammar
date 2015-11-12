@@ -59,10 +59,24 @@ process = do
       , makeWordPartType Type.MarkCount (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) markedLetters
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
+  let
+    workInfoTypeIndexes = lookupAll typeNameMap
+      [ Type.SourceWord
+      , Type.WorkTitle
+      , Type.ParagraphNumber
+      , Type.WorkSource
+      ]
+  let
+    summaryTypeIndexes = lookupAll typeNameMap
+      [ Type.SourceWord
+      , Type.LetterCount
+      , Type.MarkCount
+      , Type.Elision
+      , Type.ParagraphNumber
+      ]
   let storedTypes = fmap typeDataJson storedTypeDatas
   let instanceMap = Json.makeInstanceMap storedTypes
-  let ourWorks = getWorks instanceMap sourceWords
-  let workInfoTypeIndexes = lookupAll typeNameMap [Type.SourceWord, Type.WorkTitle, Type.ParagraphNumber, Type.WorkSource]
+  let ourWorks = getWorks summaryTypeIndexes instanceMap sourceWords
   let ourWorkInfos = fmap (Json.workToWorkInfo workInfoTypeIndexes) ourWorks
   let ourTypeInfos = fmap Json.makeTypeInfo storedTypes
   let ourIndex = Json.Index ourWorkInfos ourTypeInfos
@@ -82,12 +96,12 @@ getUnicodeElision :: Maybe (Elision.ElisionChar, a) -> [Elision.ElisionChar]
 getUnicodeElision Nothing = []
 getUnicodeElision (Just (e, _)) = [e]
 
-getWorks :: Map WordLocation [(Json.TypeIndex, Json.ValueIndex)] -> [Work.Indexed [Word.Indexed Word.Basic a]] -> [Json.Work]
-getWorks m works = workInfos
+getWorks :: [Json.TypeIndex] -> Map WordLocation [(Json.TypeIndex, Json.ValueIndex)] -> [Work.Indexed [Word.Indexed Word.Basic a]] -> [Json.Work]
+getWorks summaryTypes m works = workInfos
   where
     workInfos = fmap getWorkInfo works
     getWorkInfo (Work.Work (workIndex, workSource, workTitle) workWords) =
-      Json.Work workSource workTitle (getWords workIndex workWords) (getWordGroups workWords) []
+      Json.Work workSource workTitle (getWords workIndex workWords) (getWordGroups workWords) summaryTypes
     getWords workIndex = fmap (getWord workIndex)
     getWord workIndex (Word.Word (i, _) _) = Json.Word . concat . Maybe.maybeToList . Map.lookup (workIndex, i) $ m
 
