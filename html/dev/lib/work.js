@@ -1,8 +1,9 @@
 import React from 'react';
 import R from 'ramda';
 import { OverlayTrigger, Button, Popover } from 'react-bootstrap';
+import { Property } from './property.js';
 
-const Word = ({ word, key, wordSummary, url, getTypeTitle, getValueTitle, getInstanceUrl }) => {
+const Word = ({ word, key, wordSummary, url, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl }) => {
   const getTypeIndex = x => x[0];
   const getValueIndex = x => x[1];
   const getPropertyTitle = x => getTypeTitle(getTypeIndex(x));
@@ -11,11 +12,13 @@ const Word = ({ word, key, wordSummary, url, getTypeTitle, getValueTitle, getIns
 
   const popoverList = R.addIndex(R.map)
     ((x, i) => (
-      <div key={i}>
-        <strong>{getPropertyTitle(x)}</strong>
-        <span>: </span>
-        <a href={getInstanceUrl(getTypeIndex(x), getValueIndex(x))}>{getPropertyValue(x)}</a>
-      </div>
+      <Property
+        key={i}
+        name={getPropertyTitle(x)}
+        value={getPropertyValue(x)}
+        nameUrl={getValueListUrl(getTypeIndex(x))}
+        valueUrl={getInstanceListUrl(getTypeIndex(x), getValueIndex(x))}
+      />
     ))
     (summaryProperties);
   const popover = (
@@ -26,12 +29,12 @@ const Word = ({ word, key, wordSummary, url, getTypeTitle, getValueTitle, getIns
   );
   return (
     <OverlayTrigger trigger="click" rootClose placement="bottom" overlay={popover}>
-      <span><a href="javascript:">{getPropertyValue(word[0])}</a> </span>
+      <span><a className="workWord" href="javascript:">{getPropertyValue(word[0])}</a> </span>
     </OverlayTrigger>
   );
 }
 
-const WordGroup = ({ key, wordIndexes, words, workIndex, wordSummary, getWordUrl, getTypeTitle, getValueTitle, getInstanceUrl }) => {
+const WordGroup = ({ key, wordIndexes, words, workIndex, wordSummary, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl }) => {
   const wordElements = R.map
     (x => (
       <Word
@@ -41,7 +44,8 @@ const WordGroup = ({ key, wordIndexes, words, workIndex, wordSummary, getWordUrl
         url={getWordUrl(workIndex, x)}
         getTypeTitle={getTypeTitle}
         getValueTitle={getValueTitle}
-        getInstanceUrl={getInstanceUrl}
+        getValueListUrl={getValueListUrl}
+        getInstanceListUrl={getInstanceListUrl}
       />))
     (wordIndexes);
   return (
@@ -51,7 +55,7 @@ const WordGroup = ({ key, wordIndexes, words, workIndex, wordSummary, getWordUrl
   );
 }
 
-export const Work = ({ work, workIndex, getWordUrl, getTypeTitle, getValueTitle, getInstanceUrl }) => {
+export const Work = ({ work, workIndex, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl }) => {
   const wordSummary = new Map(R.addIndex(R.map) ((x, i) => [x, i]) (work.wordSummary));
   const wordGroups = R.addIndex(R.map)
     ((wg, i) => (
@@ -63,8 +67,9 @@ export const Work = ({ work, workIndex, getWordUrl, getTypeTitle, getValueTitle,
         wordSummary={wordSummary}
         getWordUrl={getWordUrl}
         getTypeTitle={getTypeTitle}
-        getValueTitle={getValueTitle} 
-        getInstanceUrl={getInstanceUrl}
+        getValueTitle={getValueTitle}
+        getValueListUrl={getValueListUrl}
+        getInstanceListUrl={getInstanceListUrl}
       />))
     (work.wordGroups[0].words);
   return (

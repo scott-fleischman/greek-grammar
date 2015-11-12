@@ -29,3 +29,19 @@ div.wordContainer {
 div.wordGroup {
   margin: 0 0 1em 0;
 }
+
+a.propertyName {
+  font-weight: bold;
+  color: #4b4b4b;
+}
+
+a.propertyValue {
+  color: #4b4b4b;
+}
+
+span.propertySeparator {
+}
+
+a.workWord {
+  color: #4b4b4b;
+}

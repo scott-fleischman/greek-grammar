@@ -16,7 +16,7 @@ export const ValueList = ({ values, typeIndex, getInstanceListUrl }) => (
         key={typeIndex + '.' + i}
         title={x.t}
         instanceCount={x.i}
-        url={getInstanceListUrl(i)}
+        url={getInstanceListUrl(typeIndex, i)}
       />
     )) (values)}
   </div>

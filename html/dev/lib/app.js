@@ -67,7 +67,7 @@ function getViewTypeList(types, getTypeUrl) {
   };
 }
 
-function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getValueTitle, getInstanceUrl) {
+function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl) {
   return {
     navTitle: workTitle,
     content: (
@@ -77,13 +77,14 @@ function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getVa
         getWordUrl={getWordUrl}
         getTypeTitle={getTypeTitle}
         getValueTitle={getValueTitle}
-        getInstanceUrl={getInstanceUrl}
+        getValueListUrl={getValueListUrl}
+        getInstanceListUrl={getInstanceListUrl}
       />
     ),
   };
 }
 
-function getViewWord(workIndex, wordIndex, word, getTypeTitle, getValueTitle, getInstanceUrl) {
+function getViewWord(workIndex, wordIndex, word, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl) {
   const wordText = getValueTitle(word[0][0], word[0][1]);
   return {
     navTitle: `Word Instance: ${wordText}`,
@@ -94,7 +95,8 @@ function getViewWord(workIndex, wordIndex, word, getTypeTitle, getValueTitle, ge
         word={word}
         getTypeTitle={getTypeTitle}
         getValueTitle={getValueTitle}
-        getInstanceUrl={getInstanceUrl}
+        getValueListUrl={getValueListUrl}
+        getInstanceListUrl={getInstanceListUrl}
       />
     ),
   };
@@ -130,7 +132,8 @@ const App = ({ dispatch, visual, data }) => {
   const getTypeTitle = typeIndex => getTypeInfo(typeIndex).title;
   const getValueTitle = (typeIndex, valueIndex) => getTypeInfo(typeIndex).values[valueIndex].t;
 
-  const getInstanceUrl = R.compose(getUrl, Action.viewInstanceList);
+  const getInstanceListUrl = R.compose(getUrl, Action.viewInstanceList);
+  const getValueListUrl = R.compose(getUrl, Action.viewValueList);
   const getWordUrl = R.compose(getUrl, Action.viewWord);
 
   let info = null;
@@ -148,7 +151,8 @@ const App = ({ dispatch, visual, data }) => {
         R.compose(getUrl, Action.viewWord),
         getTypeTitle,
         getValueTitle,
-        getInstanceUrl);
+        getValueListUrl,
+        getInstanceListUrl);
       break;
     case State.view.word:
       info = getViewWord(
@@ -157,14 +161,15 @@ const App = ({ dispatch, visual, data }) => {
         data.works.get(visual.workIndex).words[visual.wordIndex],
         getTypeTitle,
         getValueTitle,
-        getInstanceUrl);
+        getValueListUrl,
+        getInstanceListUrl);
       break;
     case State.view.valueList:
       info = getViewValueList(
         getTypeInfo(visual.typeIndex).values,
         getTypeTitle(visual.typeIndex),
         visual.typeIndex,
-        x => getInstanceUrl(visual.typeIndex, x));
+        getInstanceListUrl);
       break;
     case State.view.instanceList:
       info = getViewInstanceList(
