@@ -10,6 +10,7 @@ export const view = R.compose(R.fromPairs, R.map(x => [x,x])) ([
   'valueList',
   'instanceList',
   'work',
+  'word',
 ]);
 
 export const initial = {
@@ -47,6 +48,7 @@ export const getVisual = action => {
     case Action.types.requestWork: return { view: view.loadingWork, workIndex: action.workIndex };
     case Action.types.receiveWork: return { view: view.loadingWork, workIndex: action.workIndex };
     case Action.types.viewWork: return { view: view.work, workIndex: action.workIndex };
+    case Action.types.viewWord: return { view: view.word, workIndex: action.workIndex, wordIndex: action.wordIndex };
     case Action.types.viewValueList: return { view: view.valueList, typeIndex: action.typeIndex };
     case Action.types.requestType: return { view: view.loadingType, typeIndex: action.typeIndex };
     case Action.types.receiveType: return { view: view.loadingType, typeIndex: action.typeIndex };
@@ -74,6 +76,8 @@ export const getActionForVisual = visual => {
     return Action.fetchViewTypeList();
   if (visual.view === view.work && !R.isNil(visual.workIndex))
     return Action.fetchViewWork(visual.workIndex);
+  if (visual.view === view.word && !R.isNil(visual.workIndex) && !R.isNil(visual.wordIndex))
+    return Action.fetchViewWord(visual.workIndex, visual.wordIndex);
   if (visual.view === view.valueList && !R.isNil(visual.typeIndex))
     return Action.fetchViewValueList(visual.typeIndex);
   if (visual.view === view.instanceList && !R.isNil(visual.typeIndex) && !R.isNil(visual.valueIndex))

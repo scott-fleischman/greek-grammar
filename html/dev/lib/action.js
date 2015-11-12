@@ -14,6 +14,7 @@ export const types = R.compose(R.fromPairs, R.map(x => [x,x])) ([
   'viewWork',
   'viewValueList',
   'viewInstanceList',
+  'viewWord',
 ]);
 
 function checkStatus(response) {
@@ -57,6 +58,7 @@ function fetchIndex(dispatch, getState) {
 export function viewWorkList() { return { type: types.viewWorkList }; }
 export function viewTypeList() { return { type: types.viewTypeList }; }
 export function viewWork(workIndex) { return { type: types.viewWork, workIndex }; }
+export function viewWord(workIndex, wordIndex) { return { type: types.viewWord, workIndex, wordIndex }; }
 export function viewValueList(typeIndex) { return { type: types.viewValueList, typeIndex }; }
 export function viewInstanceList(typeIndex, valueIndex) { return { type: types.viewInstanceList, typeIndex, valueIndex }; }
 
@@ -85,6 +87,11 @@ export const fetchViewWork = workIndex => (dispatch, getState) =>
   fetchIndex(dispatch, getState)
   .then(() => fetchWork(dispatch, getState, workIndex))
   .then(() => dispatch(viewWork(workIndex)));
+
+export const fetchViewWord = (workIndex, wordIndex) => (dispatch, getState) =>
+  fetchIndex(dispatch, getState)
+  .then(() => fetchWork(dispatch, getState, workIndex))
+  .then(() => dispatch(viewWord(workIndex, wordIndex)));
 
 export const fetchViewValueList = typeIndex => (dispatch, getState) =>
   fetchIndex(dispatch, getState)

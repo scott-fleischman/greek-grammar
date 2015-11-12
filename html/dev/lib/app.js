@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import * as Action from './action.js'
 import * as State from './state.js';
 import { Work } from './work.js';
+import { Word } from './word.js';
 import { WorkList } from './workList.js';
 import { TypeList } from './typeList.js';
 import { ValueList } from './valueList.js';
@@ -66,10 +67,18 @@ function getViewTypeList(types, getTypeUrl) {
   };
 }
 
-function getViewWork(workTitle, workIndex, work, getTypeTitle, getValueTitle) {
+function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getValueTitle) {
   return {
     navTitle: workTitle,
-    content: (<Work workIndex={workIndex} work={work} getTypeTitle={getTypeTitle} getValueTitle={getValueTitle} />),
+    content: (<Work workIndex={workIndex} work={work} getWordUrl={getWordUrl} getTypeTitle={getTypeTitle} getValueTitle={getValueTitle} />),
+  };
+}
+
+function getViewWord(workIndex, wordIndex, word, getTypeTitle, getValueTitle) {
+  const wordText = getValueTitle(word[0][0], word[0][1]);
+  return {
+    navTitle: `Word Instance: ${wordText}`,
+    content: (<Word workIndex={workIndex} wordIndex={wordIndex} word={word} getTypeTitle={getTypeTitle} getValueTitle={getValueTitle} />),
   };
 }
 
@@ -110,6 +119,15 @@ const App = ({ dispatch, visual, data }) => {
         data.index.works[visual.workIndex].title,
         visual.workIndex,
         data.works.get(visual.workIndex),
+        R.compose(getUrl, Action.viewWord),
+        typeIndex => data.index.types[typeIndex].title,
+        (typeIndex, valueIndex) => data.index.types[typeIndex].values[valueIndex].t);
+      break;
+    case State.view.word:
+      info = getViewWord(
+        visual.workIndex,
+        visual.wordIndex,
+        data.works.get(visual.workIndex).words[visual.wordIndex],
         typeIndex => data.index.types[typeIndex].title,
         (typeIndex, valueIndex) => data.index.types[typeIndex].values[valueIndex].t);
       break;
