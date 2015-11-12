@@ -53,6 +53,7 @@ export const getVisual = action => {
     case Action.types.requestType: return { view: view.loadingType, typeIndex: action.typeIndex };
     case Action.types.receiveType: return { view: view.loadingType, typeIndex: action.typeIndex };
     case Action.types.viewInstanceList: return { view: view.instanceList, typeIndex: action.typeIndex, valueIndex: action.valueIndex };
+    case '@@redux/INIT': return {};
     default: console.log('Unknown action', action); return {};
   }
 };

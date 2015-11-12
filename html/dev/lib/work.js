@@ -20,7 +20,7 @@ const Word = ({ word, key, wordSummary, url, getTypeTitle, getValueTitle, getIns
     (summaryProperties);
   const popover = (
     <Popover id={'wordProperties.' + key} title="Properties" style={{maxWidth: '100%'}}>
-      <div><a href={url}>Details</a></div>
+      <div><a href={url}>View Details</a></div>
       {popoverList}
     </Popover>
   );
