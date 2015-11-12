@@ -144,6 +144,8 @@ instance Render [Concrete.Mark] where render = renderSingleLineList
 instance Render (Marked.Unit Concrete.Letter [Concrete.Mark]) where render = renderMarkedUnit
 instance Render (Marked.Unit Unicode.Letter [Unicode.Mark], Marked.Unit Concrete.Letter [Concrete.Mark]) where
   render = renderFunction
+instance Render (Unicode.Letter, Concrete.Letter) where render = renderFunction
+instance Render (Unicode.Mark, Concrete.Mark) where render = renderFunction
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar
