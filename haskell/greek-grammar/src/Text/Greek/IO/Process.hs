@@ -1,5 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Text.Greek.IO.Process where
 
@@ -24,8 +25,8 @@ import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Utility as Utility
 
-go :: IO ()
-go = do
+runProcess :: IO ()
+runProcess = do
   result <- runExceptT process
   handleResult result
 
@@ -39,8 +40,9 @@ process = do
   let decomposedWords = toDecomposedWords decomposedWordPairs
   markedLetterPairs <- handleError $ toMarkedLetterPairs decomposedWords
   let markedUnicodeLetters = toMarkedUnicodeLetters markedLetterPairs
-  markedConcreteLetterUnicodeMark <- handleMaybe "Concrete Letter" $ toMarkedConcreteLetters markedUnicodeLetters
-  markedConcreteLetters <- handleMaybe "Concrete Mark" $ toMarkedConcreteMarks markedConcreteLetterUnicodeMark
+  markedUnicodeConcretePairsL <- handleMaybe "Concrete Letter" $ toMarkedConcreteLetters markedUnicodeLetters
+  markedUnicodeConcretePairsLM <- handleMaybe "Concrete Mark" $ toMarkedConcreteMarks markedUnicodeConcretePairsL
+  let markedUnicodeConcretePairsB = toMarkedUnicodeConcretePairs markedUnicodeConcretePairsLM
   let
     storedTypeDatas =
       [ makeWordPartType Type.SourceWord (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
@@ -60,9 +62,10 @@ process = do
       , makeSurfacePartType Type.UnicodeMark Marked._marks markedUnicodeLetters
       , makeWordPartType Type.LetterCount (pure . Word.LetterCount . length . Word.getSurface) markedUnicodeLetters
       , makeWordPartType Type.MarkCount (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) markedUnicodeLetters
-      , makeSurfaceType Type.ConcreteMarkedLetter markedConcreteLetters
-      , makeSurfacePartType Type.ConcreteLetter (pure . Marked._item) markedConcreteLetters
-      , makeSurfacePartType Type.ConcreteMark Marked._marks markedConcreteLetters
+      , makeSurfaceType (Type.Function Type.UnicodeMarkedLetter Type.ConcreteMarkedLetter) markedUnicodeConcretePairsB
+      --, makeSurfaceType Type.ConcreteMarkedLetter markedConcreteLetters
+      --, makeSurfacePartType Type.ConcreteLetter (pure . Marked._item) markedConcreteLetters
+      --, makeSurfacePartType Type.ConcreteMark Marked._marks markedConcreteLetters
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let
@@ -159,15 +162,28 @@ toMarkedUnicodeLetters
 toMarkedUnicodeLetters = Lens.over (wordSurfaceLens . traverse) snd
 
 toMarkedConcreteLetters
-  :: [Work.Indexed [Word.Indexed Word.Basic [Marked.Unit Unicode.Letter a]]]
-  -> Maybe [Work.Indexed [Word.Indexed Word.Basic [Marked.Unit Concrete.Letter a]]]
-toMarkedConcreteLetters = (wordSurfaceLens . traverse . Marked.item) Concrete.toMaybeLetter
+  :: WordSurfaceBasic [Marked.Unit Unicode.Letter a]
+  -> Maybe (WordSurfaceBasic [Marked.Unit (Unicode.Letter, Concrete.Letter) a])
+toMarkedConcreteLetters = dupApply (wordSurfaceLens . traverse . Marked.item) Concrete.toMaybeLetter
 
 toMarkedConcreteMarks
-  :: [Work.Indexed [Word.Indexed Word.Basic [Marked.Unit a [Unicode.Mark]]]]
-  -> Maybe [Work.Indexed [Word.Indexed Word.Basic [Marked.Unit a [Concrete.Mark]]]]
-toMarkedConcreteMarks = (wordSurfaceLens . traverse . Marked.marks . traverse) Concrete.toMaybeMark
+  :: WordSurfaceBasic [Marked.Unit a [Unicode.Mark]]
+  -> Maybe (WordSurfaceBasic [Marked.Unit a [(Unicode.Mark, Concrete.Mark)]])
+toMarkedConcreteMarks = dupApply (wordSurfaceLens . traverse . Marked.marks . traverse) Concrete.toMaybeMark
 
+toMarkedUnicodeConcretePairs
+  :: WordSurfaceBasic [Marked.Unit (Unicode.Letter, Concrete.Letter) [(Unicode.Mark, Concrete.Mark)]]
+  -> WordSurfaceBasic [(Marked.Unit Unicode.Letter [Unicode.Mark], Marked.Unit Concrete.Letter [Concrete.Mark])]
+toMarkedUnicodeConcretePairs = Lens.over (wordSurfaceLens . traverse) go
+  where
+    overBoth f g = Lens.over (Marked.marks . traverse) g . Lens.over Marked.item f
+    go x = (overBoth fst fst x, overBoth snd snd x)
+
+dupApply :: Functor f => ((a -> f (a, b)) -> t) -> (a -> f b) -> t
+dupApply lens f = lens (apply . dup)
+  where
+    apply = Lens._2 f
+    dup x = (x, x)
 
 wordSurfaceLens :: Applicative f =>
   (a -> f b)

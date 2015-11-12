@@ -17,7 +17,7 @@ import Prelude hiding (Word)
 import qualified Text.Greek.IO.Process as Process
 
 main :: IO ()
-main = Process.go
+main = Process.runProcess
 
 --commandLine :: IO ()
 --commandLine = handleAll
