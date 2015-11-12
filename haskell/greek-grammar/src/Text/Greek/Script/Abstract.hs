@@ -4,15 +4,8 @@
 
 module Text.Greek.Script.Abstract where
 
-import Control.Lens
-import Text.Greek.FileReference
-import Text.Greek.Parse.Utility
-import Text.Greek.Script.Unit
-import Text.Parsec.Error (ParseError)
-import Text.Parsec.Prim
-import Text.Parsec.Combinator
 import qualified Text.Greek.Script.Concrete as Concrete
-import qualified Text.Greek.Script.Word as Word
+import qualified Text.Greek.Script.Unicode as Unicode
 
 data Letter
   = L_α | L_β | L_γ | L_δ | L_ε | L_ζ | L_η | L_θ | L_ι | L_κ | L_λ | L_μ
@@ -20,166 +13,135 @@ data Letter
   deriving (Eq, Ord, Show)
 data Case = Lowercase | Uppercase deriving (Eq, Ord, Show)
 
-data IsFinal = IsFinal | IsNotFinal deriving (Eq, Ord, Show)
-data LetterFinal
-  = LF_α | LF_β | LF_γ | LF_δ | LF_ε | LF_ζ | LF_η | LF_θ | LF_ι | LF_κ | LF_λ | LF_μ
-  | LF_ν | LF_ξ | LF_ο | LF_π | LF_ρ | LF_σ IsFinal | LF_τ | LF_υ | LF_φ | LF_χ | LF_ψ | LF_ω
-  deriving (Eq, Ord, Show)
+data Final = FinalNotSupported | IsFinal | IsNotFinal deriving (Eq, Ord, Show)
 
-toCaseLetterFinal :: Concrete.Letter -> (Case, LetterFinal)
-toCaseLetterFinal Concrete.C_Α = (Uppercase, LF_α)
-toCaseLetterFinal Concrete.C_Β = (Uppercase, LF_β)
-toCaseLetterFinal Concrete.C_Γ = (Uppercase, LF_γ)
-toCaseLetterFinal Concrete.C_Δ = (Uppercase, LF_δ)
-toCaseLetterFinal Concrete.C_Ε = (Uppercase, LF_ε)
-toCaseLetterFinal Concrete.C_Ζ = (Uppercase, LF_ζ)
-toCaseLetterFinal Concrete.C_Η = (Uppercase, LF_η)
-toCaseLetterFinal Concrete.C_Θ = (Uppercase, LF_θ)
-toCaseLetterFinal Concrete.C_Ι = (Uppercase, LF_ι)
-toCaseLetterFinal Concrete.C_Κ = (Uppercase, LF_κ)
-toCaseLetterFinal Concrete.C_Λ = (Uppercase, LF_λ)
-toCaseLetterFinal Concrete.C_Μ = (Uppercase, LF_μ)
-toCaseLetterFinal Concrete.C_Ν = (Uppercase, LF_ν)
-toCaseLetterFinal Concrete.C_Ξ = (Uppercase, LF_ξ)
-toCaseLetterFinal Concrete.C_Ο = (Uppercase, LF_ο)
-toCaseLetterFinal Concrete.C_Π = (Uppercase, LF_π)
-toCaseLetterFinal Concrete.C_Ρ = (Uppercase, LF_ρ)
-toCaseLetterFinal Concrete.C_Σ = (Uppercase, LF_σ IsNotFinal)
-toCaseLetterFinal Concrete.C_Τ = (Uppercase, LF_τ)
-toCaseLetterFinal Concrete.C_Υ = (Uppercase, LF_υ)
-toCaseLetterFinal Concrete.C_Φ = (Uppercase, LF_φ)
-toCaseLetterFinal Concrete.C_Χ = (Uppercase, LF_χ)
-toCaseLetterFinal Concrete.C_Ψ = (Uppercase, LF_ψ)
-toCaseLetterFinal Concrete.C_Ω = (Uppercase, LF_ω)
-toCaseLetterFinal Concrete.C_α = (Lowercase, LF_α)
-toCaseLetterFinal Concrete.C_β = (Lowercase, LF_β)
-toCaseLetterFinal Concrete.C_γ = (Lowercase, LF_γ)
-toCaseLetterFinal Concrete.C_δ = (Lowercase, LF_δ)
-toCaseLetterFinal Concrete.C_ε = (Lowercase, LF_ε)
-toCaseLetterFinal Concrete.C_ζ = (Lowercase, LF_ζ)
-toCaseLetterFinal Concrete.C_η = (Lowercase, LF_η)
-toCaseLetterFinal Concrete.C_θ = (Lowercase, LF_θ)
-toCaseLetterFinal Concrete.C_ι = (Lowercase, LF_ι)
-toCaseLetterFinal Concrete.C_κ = (Lowercase, LF_κ)
-toCaseLetterFinal Concrete.C_λ = (Lowercase, LF_λ)
-toCaseLetterFinal Concrete.C_μ = (Lowercase, LF_μ)
-toCaseLetterFinal Concrete.C_ν = (Lowercase, LF_ν)
-toCaseLetterFinal Concrete.C_ξ = (Lowercase, LF_ξ)
-toCaseLetterFinal Concrete.C_ο = (Lowercase, LF_ο)
-toCaseLetterFinal Concrete.C_π = (Lowercase, LF_π)
-toCaseLetterFinal Concrete.C_ρ = (Lowercase, LF_ρ)
-toCaseLetterFinal Concrete.C_σ = (Lowercase, LF_σ IsNotFinal)
-toCaseLetterFinal Concrete.C_ς = (Lowercase, LF_σ IsFinal)
-toCaseLetterFinal Concrete.C_τ = (Lowercase, LF_τ)
-toCaseLetterFinal Concrete.C_υ = (Lowercase, LF_υ)
-toCaseLetterFinal Concrete.C_φ = (Lowercase, LF_φ)
-toCaseLetterFinal Concrete.C_χ = (Lowercase, LF_χ)
-toCaseLetterFinal Concrete.C_ψ = (Lowercase, LF_ψ)
-toCaseLetterFinal Concrete.C_ω = (Lowercase, LF_ω)
+toLetterCaseFinal :: Concrete.Letter -> (Letter, Case, Final)
+toLetterCaseFinal Concrete.C_Α = (L_α, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Β = (L_β, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Γ = (L_γ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Δ = (L_δ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Ε = (L_ε, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Ζ = (L_ζ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Η = (L_η, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Θ = (L_θ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Ι = (L_ι, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Κ = (L_κ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Λ = (L_λ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Μ = (L_μ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Ν = (L_ν, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Ξ = (L_ξ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Ο = (L_ο, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Π = (L_π, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Ρ = (L_ρ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Σ = (L_σ, Uppercase, IsNotFinal)
+toLetterCaseFinal Concrete.C_Τ = (L_τ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Υ = (L_υ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Φ = (L_φ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Χ = (L_χ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Ψ = (L_ψ, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_Ω = (L_ω, Uppercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_α = (L_α, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_β = (L_β, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_γ = (L_γ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_δ = (L_δ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_ε = (L_ε, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_ζ = (L_ζ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_η = (L_η, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_θ = (L_θ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_ι = (L_ι, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_κ = (L_κ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_λ = (L_λ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_μ = (L_μ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_ν = (L_ν, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_ξ = (L_ξ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_ο = (L_ο, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_π = (L_π, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_ρ = (L_ρ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_σ = (L_σ, Lowercase, IsNotFinal)
+toLetterCaseFinal Concrete.C_ς = (L_σ, Lowercase, IsFinal)
+toLetterCaseFinal Concrete.C_τ = (L_τ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_υ = (L_υ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_φ = (L_φ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_χ = (L_χ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_ψ = (L_ψ, Lowercase, FinalNotSupported)
+toLetterCaseFinal Concrete.C_ω = (L_ω, Lowercase, FinalNotSupported)
 
-letterFinalToLetter :: LetterFinal -> Letter
-letterFinalToLetter LF_α = L_α
-letterFinalToLetter LF_β = L_β
-letterFinalToLetter LF_γ = L_γ
-letterFinalToLetter LF_δ = L_δ
-letterFinalToLetter LF_ε = L_ε
-letterFinalToLetter LF_ζ = L_ζ
-letterFinalToLetter LF_η = L_η
-letterFinalToLetter LF_θ = L_θ
-letterFinalToLetter LF_ι = L_ι
-letterFinalToLetter LF_κ = L_κ
-letterFinalToLetter LF_λ = L_λ
-letterFinalToLetter LF_μ = L_μ
-letterFinalToLetter LF_ν = L_ν
-letterFinalToLetter LF_ξ = L_ξ
-letterFinalToLetter LF_ο = L_ο
-letterFinalToLetter LF_π = L_π
-letterFinalToLetter LF_ρ = L_ρ
-letterFinalToLetter (LF_σ _) = L_σ
-letterFinalToLetter LF_τ = L_τ
-letterFinalToLetter LF_υ = L_υ
-letterFinalToLetter LF_φ = L_φ
-letterFinalToLetter LF_χ = L_χ
-letterFinalToLetter LF_ψ = L_ψ
-letterFinalToLetter LF_ω = L_ω
+letterToUnicode :: Letter -> Unicode.Letter
+letterToUnicode L_α = Unicode.Letter 'α'
+letterToUnicode L_β = Unicode.Letter 'β'
+letterToUnicode L_γ = Unicode.Letter 'γ'
+letterToUnicode L_δ = Unicode.Letter 'δ'
+letterToUnicode L_ε = Unicode.Letter 'ε'
+letterToUnicode L_ζ = Unicode.Letter 'ζ'
+letterToUnicode L_η = Unicode.Letter 'η'
+letterToUnicode L_θ = Unicode.Letter 'θ'
+letterToUnicode L_ι = Unicode.Letter 'ι'
+letterToUnicode L_κ = Unicode.Letter 'κ'
+letterToUnicode L_λ = Unicode.Letter 'λ'
+letterToUnicode L_μ = Unicode.Letter 'μ'
+letterToUnicode L_ν = Unicode.Letter 'ν'
+letterToUnicode L_ξ = Unicode.Letter 'ξ'
+letterToUnicode L_ο = Unicode.Letter 'ο'
+letterToUnicode L_π = Unicode.Letter 'π'
+letterToUnicode L_ρ = Unicode.Letter 'ρ'
+letterToUnicode L_σ = Unicode.Letter 'σ'
+letterToUnicode L_τ = Unicode.Letter 'τ'
+letterToUnicode L_υ = Unicode.Letter 'υ'
+letterToUnicode L_φ = Unicode.Letter 'φ'
+letterToUnicode L_χ = Unicode.Letter 'χ'
+letterToUnicode L_ψ = Unicode.Letter 'ψ'
+letterToUnicode L_ω = Unicode.Letter 'ω'
 
+--letterFinalToLetterChar :: LetterFinal -> LetterChar
+--letterFinalToLetterChar (LF_σ IsFinal) = LetterChar 'ς'
+--letterFinalToLetterChar x = toLetterChar $ letterFinalToLetter x
 
-toLetterChar :: Letter -> LetterChar
-toLetterChar L_α = LetterChar 'α'
-toLetterChar L_β = LetterChar 'β'
-toLetterChar L_γ = LetterChar 'γ'
-toLetterChar L_δ = LetterChar 'δ'
-toLetterChar L_ε = LetterChar 'ε'
-toLetterChar L_ζ = LetterChar 'ζ'
-toLetterChar L_η = LetterChar 'η'
-toLetterChar L_θ = LetterChar 'θ'
-toLetterChar L_ι = LetterChar 'ι'
-toLetterChar L_κ = LetterChar 'κ'
-toLetterChar L_λ = LetterChar 'λ'
-toLetterChar L_μ = LetterChar 'μ'
-toLetterChar L_ν = LetterChar 'ν'
-toLetterChar L_ξ = LetterChar 'ξ'
-toLetterChar L_ο = LetterChar 'ο'
-toLetterChar L_π = LetterChar 'π'
-toLetterChar L_ρ = LetterChar 'ρ'
-toLetterChar L_σ = LetterChar 'σ'
-toLetterChar L_τ = LetterChar 'τ'
-toLetterChar L_υ = LetterChar 'υ'
-toLetterChar L_φ = LetterChar 'φ'
-toLetterChar L_χ = LetterChar 'χ'
-toLetterChar L_ψ = LetterChar 'ψ'
-toLetterChar L_ω = LetterChar 'ω'
+--nonFinalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] t
+--nonFinalLetterParser f g = primLensMaybe "Non-final letter" f g apply
+--  where
+--    apply (LF_σ IsFinal) = Nothing
+--    apply x = Just (letterFinalToLetter x)
 
-letterFinalToLetterChar :: LetterFinal -> LetterChar
-letterFinalToLetterChar (LF_σ IsFinal) = LetterChar 'ς'
-letterFinalToLetterChar x = toLetterChar $ letterFinalToLetter x
+--finalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] t
+--finalLetterParser f g = primLensMaybe "Final letter" f g apply
+--  where
+--    apply (LF_σ IsNotFinal) = Nothing
+--    apply x = Just (letterFinalToLetter x)
 
-nonFinalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] t
-nonFinalLetterParser f g = primLensMaybe "Non-final letter" f g apply
-  where
-    apply (LF_σ IsFinal) = Nothing
-    apply x = Just (letterFinalToLetter x)
+--finalParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] [t]
+--finalParser f g = tryManyEndEof (nonFinalLetterParser f g) (finalLetterParser f g)
 
-finalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] t
-finalLetterParser f g = primLensMaybe "Final letter" f g apply
-  where
-    apply (LF_σ IsNotFinal) = Nothing
-    apply x = Just (letterFinalToLetter x)
-
-finalParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] [t]
-finalParser f g = tryManyEndEof (nonFinalLetterParser f g) (finalLetterParser f g)
-
-parseFinals :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> [s] -> Either ParseError [t]
-parseFinals f g = parse (finalParser f g) ""
+--parseFinals :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> [s] -> Either ParseError [t]
+--parseFinals f g = parse (finalParser f g) ""
 
 
-lowercaseParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] t
-lowercaseParser f g = primLensMaybe "Lowercase" f g apply
-  where
-    apply Lowercase = Just ()
-    apply Uppercase = Nothing
+--lowercaseParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] t
+--lowercaseParser f g = primLensMaybe "Lowercase" f g apply
+--  where
+--    apply Lowercase = Just ()
+--    apply Uppercase = Nothing
 
-uppercaseParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] t
-uppercaseParser f g = primLensMaybe "Uppercase" f g apply
-  where
-    apply Lowercase = Nothing
-    apply Uppercase = Just ()
+--uppercaseParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] t
+--uppercaseParser f g = primLensMaybe "Uppercase" f g apply
+--  where
+--    apply Lowercase = Nothing
+--    apply Uppercase = Just ()
 
-capitalizedParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] (Word.IsCapitalized, [t])
-capitalizedParser f g = do
-  first <- uppercaseParser f g
-  remaining <- many (lowercaseParser f g)
-  _ <- eof
-  return (Word.IsCapitalized, first : remaining)
+--capitalizedParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] (Word.IsCapitalized, [t])
+--capitalizedParser f g = do
+--  first <- uppercaseParser f g
+--  remaining <- many (lowercaseParser f g)
+--  _ <- eof
+--  return (Word.IsCapitalized, first : remaining)
 
-uncapitalizedParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] (Word.IsCapitalized, [t])
-uncapitalizedParser f g = do
-  result <- many1 (lowercaseParser f g)
-  _ <- eof
-  return (Word.IsNotCapitalized, result)
+--uncapitalizedParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] (Word.IsCapitalized, [t])
+--uncapitalizedParser f g = do
+--  result <- many1 (lowercaseParser f g)
+--  _ <- eof
+--  return (Word.IsNotCapitalized, result)
 
-parseCase :: Show s => (s -> LineReference) -> Lens s t Case () -> [s] -> Either ParseError (Word.IsCapitalized, [t])
-parseCase f g = parse (try (capitalizedParser f g) <|> uncapitalizedParser f g) ""
+--parseCase :: Show s => (s -> LineReference) -> Lens s t Case () -> [s] -> Either ParseError (Word.IsCapitalized, [t])
+--parseCase f g = parse (try (capitalizedParser f g) <|> uncapitalizedParser f g) ""
 
 
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω deriving (Eq, Show, Ord)

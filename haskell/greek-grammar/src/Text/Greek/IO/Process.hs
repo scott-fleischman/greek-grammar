@@ -18,6 +18,7 @@ import qualified Text.Greek.IO.Render as Render
 import qualified Text.Greek.IO.Type as Type
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
+import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Script.Marked as Marked
@@ -44,6 +45,8 @@ process = do
   markedUnicodeConcretePairsLM <- handleMaybe "Concrete Mark" $ toMarkedConcreteMarks markedUnicodeConcretePairsL
   let markedUnicodeConcretePairsB = toMarkedUnicodeConcretePairs markedUnicodeConcretePairsLM
   let markedConcreteLetters = Lens.over (wordSurfaceLens . traverse) snd markedUnicodeConcretePairsB
+  let markedAbstractLetterPairs = Lens.over (wordSurfaceLens . traverse . Marked.item) (\x -> (x, Abstract.toLetterCaseFinal x)) markedConcreteLetters
+  let markedAbstractLetters = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedAbstractLetterPairs
   let
     storedTypeDatas =
       [ makeWordPartType Type.SourceWord (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
@@ -69,6 +72,11 @@ process = do
       , makeSurfaceType Type.ConcreteMarkedLetter markedConcreteLetters
       , makeSurfacePartType Type.ConcreteLetter (pure . Marked._item) markedConcreteLetters
       , makeSurfacePartType Type.ConcreteMark Marked._marks markedConcreteLetters
+      , makeSurfacePartType (Type.Function Type.ConcreteLetter Type.AbstractLetterCaseFinal) (pure . Marked._item) markedAbstractLetterPairs
+      , makeSurfaceType Type.AbstractMarkedLetter markedAbstractLetters
+      , makeSurfacePartType Type.AbstractLetter (pure . Lens.view (Marked.item . Lens._1)) markedAbstractLetters
+      , makeSurfacePartType Type.LetterCase (pure . Lens.view (Marked.item . Lens._2)) markedAbstractLetters
+      , makeSurfacePartType Type.LetterFinalForm (pure . Lens.view (Marked.item . Lens._3)) markedAbstractLetters
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let

@@ -9,6 +9,7 @@ import qualified Data.Text.Format as Format
 import qualified Data.Text.Lazy as Lazy
 import qualified Data.Text.Lazy.Builder as Lazy (toLazyText)
 import qualified Text.Greek.IO.Type as Type
+import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Unicode as Unicode
@@ -55,6 +56,11 @@ instance Render Type.Name where
   render Type.ConcreteLetter = "Concrete Letter"
   render Type.ConcreteMark = "Concrete Mark"
   render Type.ConcreteMarkedLetter = "Concrete Marked Letter"
+  render Type.AbstractMarkedLetter = "Abstract Marked Letter"
+  render Type.AbstractLetter = "Abstract Letter"
+  render Type.LetterCase = "Letter Case"
+  render Type.LetterFinalForm   = "Letter Final Form"
+  render Type.AbstractLetterCaseFinal = "Abstract Letter, Case, Final Form"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -157,7 +163,21 @@ getName Concrete.Rough = "Rough Breathing"
 getName Concrete.Circumflex = "Circumflex"
 getName Concrete.IotaSubscript = "Iota Subscript"
 
+instance Render Abstract.Letter where render = renderRawChar . Unicode.getLetter . Abstract.letterToUnicode
+instance Render Abstract.Case where
+  render Abstract.Lowercase = "Lowercase"
+  render Abstract.Uppercase = "Uppercase"
+instance Render Abstract.Final where
+  render Abstract.FinalNotSupported = "Has no final form"
+  render Abstract.IsFinal = "Is final form"
+  render Abstract.IsNotFinal = "Is not final form"
 
+renderTriple :: (Render a, Render b, Render c) => (a, b, c) -> Lazy.Text
+renderTriple (a, b, c) = Format.format "{}, {}, {}" (render a, render b, render c)
+
+instance Render (Concrete.Letter, (Abstract.Letter, Abstract.Case, Abstract.Final)) where render = renderFunction
+instance Render (Abstract.Letter, Abstract.Case, Abstract.Final) where render = renderTriple
+instance Render (Marked.Unit (Abstract.Letter, Abstract.Case, Abstract.Final) [Concrete.Mark]) where render = renderMarkedUnit
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar

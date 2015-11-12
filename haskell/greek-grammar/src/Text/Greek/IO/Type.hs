@@ -21,4 +21,9 @@ data Name
   | ConcreteMarkedLetter
   | ConcreteLetter
   | ConcreteMark
+  | AbstractMarkedLetter
+  | AbstractLetterCaseFinal
+  | AbstractLetter
+  | LetterCase
+  | LetterFinalForm
   deriving (Eq, Ord)
