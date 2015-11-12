@@ -1,7 +1,6 @@
 module Text.Greek.Script.Concrete where
 
-import Text.Greek.FileReference
-import qualified Text.Greek.Script.Unit as Unit
+--import qualified Text.Greek.Script.Unit as Unit
 import qualified Text.Greek.Script.Unicode as Unicode
 
 data Letter
@@ -12,142 +11,142 @@ data Letter
 data Mark = Acute | Grave | Circumflex | Smooth | Rough | IotaSubscript | Diaeresis
   deriving (Eq, Ord, Show)
 
-data Error
-  = ErrorLetter FileCharReference Unicode.Letter
-  | ErrorMark FileCharReference Unicode.Mark
-  deriving (Show)
+--data Error
+--  = ErrorLetter FileCharReference Unicode.Letter
+--  | ErrorMark FileCharReference Unicode.Mark
+--  deriving (Show)
 
-type Unit = Unit.UnitMarkList Letter Mark
+--type Unit = Unit.UnitMarkList Letter Mark
 
-toUnit :: Unit.UnitChar -> Either Error Unit
-toUnit x = U.unitItem toLetter x >>= (U.unitMarks . traverse) toMark
+--toUnit :: Unit.UnitChar -> Either Error Unit
+--toUnit x = U.unitItem toLetter x >>= (U.unitMarks . traverse) toMark
 
-toLetter :: (Unicode.Letter, FileCharReference) -> Either Error (Letter, FileCharReference)
-toLetter (l, r) | Just l' <- toMaybeLetter l = Right (l', r)
-toLetter (l, r) = Left $ ErrorLetter r l
+--toLetter :: (Unicode.Letter, FileCharReference) -> Either Error (Letter, FileCharReference)
+--toLetter (l, r) | Just l' <- toMaybeLetter l = Right (l', r)
+--toLetter (l, r) = Left $ ErrorLetter r l
 
-toMark :: (Unicode.Mark, FileCharReference) -> Either Error (Mark, FileCharReference)
-toMark (m, r) | Just m' <- toMaybeMark m = Right (m', r)
-toMark (m, r) = Left $ ErrorMark r m
+--toMark :: (Unicode.Mark, FileCharReference) -> Either Error (Mark, FileCharReference)
+--toMark (m, r) | Just m' <- toMaybeMark m = Right (m', r)
+--toMark (m, r) = Left $ ErrorMark r m
 
-toMaybeLetter :: U.LetterChar -> Maybe Letter
-toMaybeLetter (U.LetterChar 'Α') = Just C_Α
-toMaybeLetter (U.LetterChar 'Β') = Just C_Β
-toMaybeLetter (U.LetterChar 'Γ') = Just C_Γ
-toMaybeLetter (U.LetterChar 'Δ') = Just C_Δ
-toMaybeLetter (U.LetterChar 'Ε') = Just C_Ε
-toMaybeLetter (U.LetterChar 'Ζ') = Just C_Ζ
-toMaybeLetter (U.LetterChar 'Η') = Just C_Η
-toMaybeLetter (U.LetterChar 'Θ') = Just C_Θ
-toMaybeLetter (U.LetterChar 'Ι') = Just C_Ι
-toMaybeLetter (U.LetterChar 'Κ') = Just C_Κ
-toMaybeLetter (U.LetterChar 'Λ') = Just C_Λ
-toMaybeLetter (U.LetterChar 'Μ') = Just C_Μ
-toMaybeLetter (U.LetterChar 'Ν') = Just C_Ν
-toMaybeLetter (U.LetterChar 'Ξ') = Just C_Ξ
-toMaybeLetter (U.LetterChar 'Ο') = Just C_Ο
-toMaybeLetter (U.LetterChar 'Π') = Just C_Π
-toMaybeLetter (U.LetterChar 'Ρ') = Just C_Ρ
-toMaybeLetter (U.LetterChar 'Σ') = Just C_Σ
-toMaybeLetter (U.LetterChar 'Τ') = Just C_Τ
-toMaybeLetter (U.LetterChar 'Υ') = Just C_Υ
-toMaybeLetter (U.LetterChar 'Φ') = Just C_Φ
-toMaybeLetter (U.LetterChar 'Χ') = Just C_Χ
-toMaybeLetter (U.LetterChar 'Ψ') = Just C_Ψ
-toMaybeLetter (U.LetterChar 'Ω') = Just C_Ω
-toMaybeLetter (U.LetterChar 'α') = Just C_α
-toMaybeLetter (U.LetterChar 'β') = Just C_β
-toMaybeLetter (U.LetterChar 'γ') = Just C_γ
-toMaybeLetter (U.LetterChar 'δ') = Just C_δ
-toMaybeLetter (U.LetterChar 'ε') = Just C_ε
-toMaybeLetter (U.LetterChar 'ζ') = Just C_ζ
-toMaybeLetter (U.LetterChar 'η') = Just C_η
-toMaybeLetter (U.LetterChar 'θ') = Just C_θ
-toMaybeLetter (U.LetterChar 'ι') = Just C_ι
-toMaybeLetter (U.LetterChar 'κ') = Just C_κ
-toMaybeLetter (U.LetterChar 'λ') = Just C_λ
-toMaybeLetter (U.LetterChar 'μ') = Just C_μ
-toMaybeLetter (U.LetterChar 'ν') = Just C_ν
-toMaybeLetter (U.LetterChar 'ξ') = Just C_ξ
-toMaybeLetter (U.LetterChar 'ο') = Just C_ο
-toMaybeLetter (U.LetterChar 'π') = Just C_π
-toMaybeLetter (U.LetterChar 'ρ') = Just C_ρ
-toMaybeLetter (U.LetterChar 'ς') = Just C_ς
-toMaybeLetter (U.LetterChar 'σ') = Just C_σ
-toMaybeLetter (U.LetterChar 'τ') = Just C_τ
-toMaybeLetter (U.LetterChar 'υ') = Just C_υ
-toMaybeLetter (U.LetterChar 'φ') = Just C_φ
-toMaybeLetter (U.LetterChar 'χ') = Just C_χ
-toMaybeLetter (U.LetterChar 'ψ') = Just C_ψ
-toMaybeLetter (U.LetterChar 'ω') = Just C_ω
+toMaybeLetter :: Unicode.Letter -> Maybe Letter
+toMaybeLetter (Unicode.Letter 'Α') = Just C_Α
+toMaybeLetter (Unicode.Letter 'Β') = Just C_Β
+toMaybeLetter (Unicode.Letter 'Γ') = Just C_Γ
+toMaybeLetter (Unicode.Letter 'Δ') = Just C_Δ
+toMaybeLetter (Unicode.Letter 'Ε') = Just C_Ε
+toMaybeLetter (Unicode.Letter 'Ζ') = Just C_Ζ
+toMaybeLetter (Unicode.Letter 'Η') = Just C_Η
+toMaybeLetter (Unicode.Letter 'Θ') = Just C_Θ
+toMaybeLetter (Unicode.Letter 'Ι') = Just C_Ι
+toMaybeLetter (Unicode.Letter 'Κ') = Just C_Κ
+toMaybeLetter (Unicode.Letter 'Λ') = Just C_Λ
+toMaybeLetter (Unicode.Letter 'Μ') = Just C_Μ
+toMaybeLetter (Unicode.Letter 'Ν') = Just C_Ν
+toMaybeLetter (Unicode.Letter 'Ξ') = Just C_Ξ
+toMaybeLetter (Unicode.Letter 'Ο') = Just C_Ο
+toMaybeLetter (Unicode.Letter 'Π') = Just C_Π
+toMaybeLetter (Unicode.Letter 'Ρ') = Just C_Ρ
+toMaybeLetter (Unicode.Letter 'Σ') = Just C_Σ
+toMaybeLetter (Unicode.Letter 'Τ') = Just C_Τ
+toMaybeLetter (Unicode.Letter 'Υ') = Just C_Υ
+toMaybeLetter (Unicode.Letter 'Φ') = Just C_Φ
+toMaybeLetter (Unicode.Letter 'Χ') = Just C_Χ
+toMaybeLetter (Unicode.Letter 'Ψ') = Just C_Ψ
+toMaybeLetter (Unicode.Letter 'Ω') = Just C_Ω
+toMaybeLetter (Unicode.Letter 'α') = Just C_α
+toMaybeLetter (Unicode.Letter 'β') = Just C_β
+toMaybeLetter (Unicode.Letter 'γ') = Just C_γ
+toMaybeLetter (Unicode.Letter 'δ') = Just C_δ
+toMaybeLetter (Unicode.Letter 'ε') = Just C_ε
+toMaybeLetter (Unicode.Letter 'ζ') = Just C_ζ
+toMaybeLetter (Unicode.Letter 'η') = Just C_η
+toMaybeLetter (Unicode.Letter 'θ') = Just C_θ
+toMaybeLetter (Unicode.Letter 'ι') = Just C_ι
+toMaybeLetter (Unicode.Letter 'κ') = Just C_κ
+toMaybeLetter (Unicode.Letter 'λ') = Just C_λ
+toMaybeLetter (Unicode.Letter 'μ') = Just C_μ
+toMaybeLetter (Unicode.Letter 'ν') = Just C_ν
+toMaybeLetter (Unicode.Letter 'ξ') = Just C_ξ
+toMaybeLetter (Unicode.Letter 'ο') = Just C_ο
+toMaybeLetter (Unicode.Letter 'π') = Just C_π
+toMaybeLetter (Unicode.Letter 'ρ') = Just C_ρ
+toMaybeLetter (Unicode.Letter 'ς') = Just C_ς
+toMaybeLetter (Unicode.Letter 'σ') = Just C_σ
+toMaybeLetter (Unicode.Letter 'τ') = Just C_τ
+toMaybeLetter (Unicode.Letter 'υ') = Just C_υ
+toMaybeLetter (Unicode.Letter 'φ') = Just C_φ
+toMaybeLetter (Unicode.Letter 'χ') = Just C_χ
+toMaybeLetter (Unicode.Letter 'ψ') = Just C_ψ
+toMaybeLetter (Unicode.Letter 'ω') = Just C_ω
 toMaybeLetter _ = Nothing
 
-letterToLetterChar :: Letter -> U.LetterChar
-letterToLetterChar C_Α = (U.LetterChar 'Α')
-letterToLetterChar C_Β = (U.LetterChar 'Β')
-letterToLetterChar C_Γ = (U.LetterChar 'Γ')
-letterToLetterChar C_Δ = (U.LetterChar 'Δ')
-letterToLetterChar C_Ε = (U.LetterChar 'Ε')
-letterToLetterChar C_Ζ = (U.LetterChar 'Ζ')
-letterToLetterChar C_Η = (U.LetterChar 'Η')
-letterToLetterChar C_Θ = (U.LetterChar 'Θ')
-letterToLetterChar C_Ι = (U.LetterChar 'Ι')
-letterToLetterChar C_Κ = (U.LetterChar 'Κ')
-letterToLetterChar C_Λ = (U.LetterChar 'Λ')
-letterToLetterChar C_Μ = (U.LetterChar 'Μ')
-letterToLetterChar C_Ν = (U.LetterChar 'Ν')
-letterToLetterChar C_Ξ = (U.LetterChar 'Ξ')
-letterToLetterChar C_Ο = (U.LetterChar 'Ο')
-letterToLetterChar C_Π = (U.LetterChar 'Π')
-letterToLetterChar C_Ρ = (U.LetterChar 'Ρ')
-letterToLetterChar C_Σ = (U.LetterChar 'Σ')
-letterToLetterChar C_Τ = (U.LetterChar 'Τ')
-letterToLetterChar C_Υ = (U.LetterChar 'Υ')
-letterToLetterChar C_Φ = (U.LetterChar 'Φ')
-letterToLetterChar C_Χ = (U.LetterChar 'Χ')
-letterToLetterChar C_Ψ = (U.LetterChar 'Ψ')
-letterToLetterChar C_Ω = (U.LetterChar 'Ω')
-letterToLetterChar C_α = (U.LetterChar 'α')
-letterToLetterChar C_β = (U.LetterChar 'β')
-letterToLetterChar C_γ = (U.LetterChar 'γ')
-letterToLetterChar C_δ = (U.LetterChar 'δ')
-letterToLetterChar C_ε = (U.LetterChar 'ε')
-letterToLetterChar C_ζ = (U.LetterChar 'ζ')
-letterToLetterChar C_η = (U.LetterChar 'η')
-letterToLetterChar C_θ = (U.LetterChar 'θ')
-letterToLetterChar C_ι = (U.LetterChar 'ι')
-letterToLetterChar C_κ = (U.LetterChar 'κ')
-letterToLetterChar C_λ = (U.LetterChar 'λ')
-letterToLetterChar C_μ = (U.LetterChar 'μ')
-letterToLetterChar C_ν = (U.LetterChar 'ν')
-letterToLetterChar C_ξ = (U.LetterChar 'ξ')
-letterToLetterChar C_ο = (U.LetterChar 'ο')
-letterToLetterChar C_π = (U.LetterChar 'π')
-letterToLetterChar C_ρ = (U.LetterChar 'ρ')
-letterToLetterChar C_ς = (U.LetterChar 'ς')
-letterToLetterChar C_σ = (U.LetterChar 'σ')
-letterToLetterChar C_τ = (U.LetterChar 'τ')
-letterToLetterChar C_υ = (U.LetterChar 'υ')
-letterToLetterChar C_φ = (U.LetterChar 'φ')
-letterToLetterChar C_χ = (U.LetterChar 'χ')
-letterToLetterChar C_ψ = (U.LetterChar 'ψ')
-letterToLetterChar C_ω = (U.LetterChar 'ω')
+letterToUnicode :: Letter -> Unicode.Letter
+letterToUnicode C_Α = (Unicode.Letter 'Α')
+letterToUnicode C_Β = (Unicode.Letter 'Β')
+letterToUnicode C_Γ = (Unicode.Letter 'Γ')
+letterToUnicode C_Δ = (Unicode.Letter 'Δ')
+letterToUnicode C_Ε = (Unicode.Letter 'Ε')
+letterToUnicode C_Ζ = (Unicode.Letter 'Ζ')
+letterToUnicode C_Η = (Unicode.Letter 'Η')
+letterToUnicode C_Θ = (Unicode.Letter 'Θ')
+letterToUnicode C_Ι = (Unicode.Letter 'Ι')
+letterToUnicode C_Κ = (Unicode.Letter 'Κ')
+letterToUnicode C_Λ = (Unicode.Letter 'Λ')
+letterToUnicode C_Μ = (Unicode.Letter 'Μ')
+letterToUnicode C_Ν = (Unicode.Letter 'Ν')
+letterToUnicode C_Ξ = (Unicode.Letter 'Ξ')
+letterToUnicode C_Ο = (Unicode.Letter 'Ο')
+letterToUnicode C_Π = (Unicode.Letter 'Π')
+letterToUnicode C_Ρ = (Unicode.Letter 'Ρ')
+letterToUnicode C_Σ = (Unicode.Letter 'Σ')
+letterToUnicode C_Τ = (Unicode.Letter 'Τ')
+letterToUnicode C_Υ = (Unicode.Letter 'Υ')
+letterToUnicode C_Φ = (Unicode.Letter 'Φ')
+letterToUnicode C_Χ = (Unicode.Letter 'Χ')
+letterToUnicode C_Ψ = (Unicode.Letter 'Ψ')
+letterToUnicode C_Ω = (Unicode.Letter 'Ω')
+letterToUnicode C_α = (Unicode.Letter 'α')
+letterToUnicode C_β = (Unicode.Letter 'β')
+letterToUnicode C_γ = (Unicode.Letter 'γ')
+letterToUnicode C_δ = (Unicode.Letter 'δ')
+letterToUnicode C_ε = (Unicode.Letter 'ε')
+letterToUnicode C_ζ = (Unicode.Letter 'ζ')
+letterToUnicode C_η = (Unicode.Letter 'η')
+letterToUnicode C_θ = (Unicode.Letter 'θ')
+letterToUnicode C_ι = (Unicode.Letter 'ι')
+letterToUnicode C_κ = (Unicode.Letter 'κ')
+letterToUnicode C_λ = (Unicode.Letter 'λ')
+letterToUnicode C_μ = (Unicode.Letter 'μ')
+letterToUnicode C_ν = (Unicode.Letter 'ν')
+letterToUnicode C_ξ = (Unicode.Letter 'ξ')
+letterToUnicode C_ο = (Unicode.Letter 'ο')
+letterToUnicode C_π = (Unicode.Letter 'π')
+letterToUnicode C_ρ = (Unicode.Letter 'ρ')
+letterToUnicode C_ς = (Unicode.Letter 'ς')
+letterToUnicode C_σ = (Unicode.Letter 'σ')
+letterToUnicode C_τ = (Unicode.Letter 'τ')
+letterToUnicode C_υ = (Unicode.Letter 'υ')
+letterToUnicode C_φ = (Unicode.Letter 'φ')
+letterToUnicode C_χ = (Unicode.Letter 'χ')
+letterToUnicode C_ψ = (Unicode.Letter 'ψ')
+letterToUnicode C_ω = (Unicode.Letter 'ω')
 
-toMaybeMark :: U.MarkChar -> Maybe Mark
-toMaybeMark (U.MarkChar '\x0300') = Just Grave          -- COMBINING GRAVE ACCENT
-toMaybeMark (U.MarkChar '\x0301') = Just Acute          -- COMBINING ACUTE ACCENT
-toMaybeMark (U.MarkChar '\x0308') = Just Diaeresis      -- COMBINING DIAERESIS
-toMaybeMark (U.MarkChar '\x0313') = Just Smooth         -- COMBINING COMMA ABOVE
-toMaybeMark (U.MarkChar '\x0314') = Just Rough          -- COMBINING REVERSED COMMA ABOVE
-toMaybeMark (U.MarkChar '\x0342') = Just Circumflex     -- COMBINING GREEK PERISPOMENI
-toMaybeMark (U.MarkChar '\x0345') = Just IotaSubscript  -- COMBINING GREEK YPOGEGRAMMENI
+toMaybeMark :: Unicode.Mark -> Maybe Mark
+toMaybeMark (Unicode.Mark '\x0300') = Just Grave          -- COMBINING GRAVE ACCENT
+toMaybeMark (Unicode.Mark '\x0301') = Just Acute          -- COMBINING ACUTE ACCENT
+toMaybeMark (Unicode.Mark '\x0308') = Just Diaeresis      -- COMBINING DIAERESIS
+toMaybeMark (Unicode.Mark '\x0313') = Just Smooth         -- COMBINING COMMA ABOVE
+toMaybeMark (Unicode.Mark '\x0314') = Just Rough          -- COMBINING REVERSED COMMA ABOVE
+toMaybeMark (Unicode.Mark '\x0342') = Just Circumflex     -- COMBINING GREEK PERISPOMENI
+toMaybeMark (Unicode.Mark '\x0345') = Just IotaSubscript  -- COMBINING GREEK YPOGEGRAMMENI
 toMaybeMark _ = Nothing
 
-markToMarkChar :: Mark -> U.MarkChar
-markToMarkChar Grave         = U.MarkChar '\x0300' -- COMBINING GRAVE ACCENT
-markToMarkChar Acute         = U.MarkChar '\x0301' -- COMBINING ACUTE ACCENT
-markToMarkChar Diaeresis     = U.MarkChar '\x0308' -- COMBINING DIAERESIS
-markToMarkChar Smooth        = U.MarkChar '\x0313' -- COMBINING COMMA ABOVE
-markToMarkChar Rough         = U.MarkChar '\x0314' -- COMBINING REVERSED COMMA ABOVE
-markToMarkChar Circumflex    = U.MarkChar '\x0342' -- COMBINING GREEK PERISPOMENI
-markToMarkChar IotaSubscript = U.MarkChar '\x0345' -- COMBINING GREEK YPOGEGRAMMENI
+markToUnicode :: Mark -> Unicode.Mark
+markToUnicode Grave         = Unicode.Mark '\x0300' -- COMBINING GRAVE ACCENT
+markToUnicode Acute         = Unicode.Mark '\x0301' -- COMBINING ACUTE ACCENT
+markToUnicode Diaeresis     = Unicode.Mark '\x0308' -- COMBINING DIAERESIS
+markToUnicode Smooth        = Unicode.Mark '\x0313' -- COMBINING COMMA ABOVE
+markToUnicode Rough         = Unicode.Mark '\x0314' -- COMBINING REVERSED COMMA ABOVE
+markToUnicode Circumflex    = Unicode.Mark '\x0342' -- COMBINING GREEK PERISPOMENI
+markToUnicode IotaSubscript = Unicode.Mark '\x0345' -- COMBINING GREEK YPOGEGRAMMENI

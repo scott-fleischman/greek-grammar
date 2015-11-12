@@ -18,4 +18,7 @@ data Name
   | UnicodeMark
   | LetterCount
   | MarkCount
+  | ConcreteMarkedLetter
+  | ConcreteLetter
+  | ConcreteMark
   deriving (Eq, Ord)

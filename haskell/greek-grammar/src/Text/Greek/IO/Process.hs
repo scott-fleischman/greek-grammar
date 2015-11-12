@@ -17,6 +17,7 @@ import qualified Text.Greek.IO.Render as Render
 import qualified Text.Greek.IO.Type as Type
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
+import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Word as Word
@@ -37,7 +38,9 @@ process = do
   let decomposedWordPairs = toDecomposedWordPairs composedWords
   let decomposedWords = toDecomposedWords decomposedWordPairs
   markedLetterPairs <- handleError $ toMarkedLetterPairs decomposedWords
-  let markedLetters = toMarkedLetters markedLetterPairs
+  let markedUnicodeLetters = toMarkedUnicodeLetters markedLetterPairs
+  markedConcreteLetterUnicodeMark <- handleMaybe "Concrete Letter" $ toMarkedConcreteLetters markedUnicodeLetters
+  markedConcreteLetters <- handleMaybe "Concrete Mark" $ toMarkedConcreteMarks markedConcreteLetterUnicodeMark
   let
     storedTypeDatas =
       [ makeWordPartType Type.SourceWord (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
@@ -52,11 +55,12 @@ process = do
       , makeSurfaceType (Type.Function Type.UnicodeComposed (Type.List Type.UnicodeDecomposed)) decomposedWordPairs
       , makeSurfaceType Type.UnicodeDecomposed decomposedWords
       , makeSurfaceType (Type.Function (Type.List Type.UnicodeDecomposed) Type.UnicodeMarkedLetter) markedLetterPairs
-      , makeSurfaceType Type.UnicodeMarkedLetter markedLetters
-      , makeSurfacePartType Type.UnicodeLetter (pure . Marked._item) markedLetters
-      , makeSurfacePartType Type.UnicodeMark Marked._marks markedLetters
-      , makeWordPartType Type.LetterCount (pure . Word.LetterCount . length . Word.getSurface) markedLetters
-      , makeWordPartType Type.MarkCount (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) markedLetters
+      , makeSurfaceType Type.UnicodeMarkedLetter markedUnicodeLetters
+      , makeSurfacePartType Type.UnicodeLetter (pure . Marked._item) markedUnicodeLetters
+      , makeSurfacePartType Type.UnicodeMark Marked._marks markedUnicodeLetters
+      , makeWordPartType Type.LetterCount (pure . Word.LetterCount . length . Word.getSurface) markedUnicodeLetters
+      , makeWordPartType Type.MarkCount (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) markedUnicodeLetters
+      , makeSurfaceType Type.ConcreteMarkedLetter markedConcreteLetters
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let
@@ -147,10 +151,21 @@ toMarkedLetterPairs
   -> Either Unicode.Error (WordSurfaceBasic [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])])
 toMarkedLetterPairs = wordSurfaceLens Unicode.parseMarkedLetters
 
-toMarkedLetters
+toMarkedUnicodeLetters
   :: WordSurfaceBasic [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])]
   -> WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]]
-toMarkedLetters = Lens.over (wordSurfaceLens . traverse) snd
+toMarkedUnicodeLetters = Lens.over (wordSurfaceLens . traverse) snd
+
+toMarkedConcreteLetters
+  :: [Work.Indexed [Word.Indexed Word.Basic [Marked.Unit Unicode.Letter a]]]
+  -> Maybe [Work.Indexed [Word.Indexed Word.Basic [Marked.Unit Concrete.Letter a]]]
+toMarkedConcreteLetters = (wordSurfaceLens . traverse . Marked.item) Concrete.toMaybeLetter
+
+toMarkedConcreteMarks
+  :: [Work.Indexed [Word.Indexed Word.Basic [Marked.Unit a [Unicode.Mark]]]]
+  -> Maybe [Work.Indexed [Word.Indexed Word.Basic [Marked.Unit a [Concrete.Mark]]]]
+toMarkedConcreteMarks = (wordSurfaceLens . traverse . Marked.marks . traverse) Concrete.toMaybeMark
+
 
 wordSurfaceLens :: Applicative f =>
   (a -> f b)
@@ -212,6 +227,9 @@ handleResult (Right ()) = putStrLn "Complete"
 
 handleIOError :: Show a => IO (Either a b) -> ExceptT String IO b
 handleIOError x = liftIO x >>= handleError
+
+handleMaybe :: String -> Maybe a -> ExceptT String IO a
+handleMaybe s = handleError . Utility.maybeToEither s
 
 handleError :: Show a => Either a b -> ExceptT String IO b
 handleError (Left x) = throwError . show $ x

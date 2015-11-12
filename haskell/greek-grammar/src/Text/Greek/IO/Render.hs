@@ -9,6 +9,7 @@ import qualified Data.Text.Format as Format
 import qualified Data.Text.Lazy as Lazy
 import qualified Data.Text.Lazy.Builder as Lazy (toLazyText)
 import qualified Text.Greek.IO.Type as Type
+import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
@@ -51,6 +52,9 @@ instance Render Type.Name where
   render Type.UnicodeMark = "Unicode Mark"
   render Type.LetterCount = "Letter Count"
   render Type.MarkCount = "Mark Count"
+  render Type.ConcreteLetter = "Concrete Letter"
+  render Type.ConcreteMark = "Concrete Mark"
+  render Type.ConcreteMarkedLetter = "Concrete Marked Letter"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -112,8 +116,11 @@ instance Render (Unicode.Composed, [Unicode.Decomposed]) where render = renderFu
 
 instance Render [Unicode.Mark] where render = renderSingleLineList
 
-instance Render (Marked.Unit Unicode.Letter [Unicode.Mark]) where
-  render (Marked.Unit i m) = Format.format "{}, {}" (render i, render m)
+renderMarkedUnit :: (Render a, Render b) => Marked.Unit a b -> Lazy.Text
+renderMarkedUnit (Marked.Unit i m) = Format.format "{}, {}" (render i, render m)
+
+instance Render (Marked.Unit Unicode.Letter [Unicode.Mark]) where render = renderMarkedUnit
+
 instance Render ([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark]) where render = renderFunction
 
 instance Render Word.LetterCount where
@@ -130,6 +137,11 @@ instance Render Elision.IsElided where
   render Elision.NotElided = "Not elided"
 
 instance Render Elision.ElisionChar where render = render . Elision._getElisionChar
+
+instance Render Concrete.Letter where render = renderRawChar . Unicode.getLetter . Concrete.letterToUnicode
+instance Render Concrete.Mark where render = renderRawChar . Unicode.getMark . Concrete.markToUnicode
+instance Render [Concrete.Mark] where render = renderSingleLineList
+instance Render (Marked.Unit Concrete.Letter [Concrete.Mark]) where render = renderMarkedUnit
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar
