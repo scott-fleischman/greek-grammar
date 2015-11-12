@@ -14,8 +14,8 @@ System.config({
   },
 
   map: {
-    "babel": "npm:babel-core@5.8.33",
-    "babel-runtime": "npm:babel-runtime@5.8.29",
+    "babel": "npm:babel-core@5.8.34",
+    "babel-runtime": "npm:babel-runtime@5.8.34",
     "bootstrap": "github:twbs/bootstrap@3.3.5",
     "clean-css": "npm:clean-css@3.4.7",
     "core-js": "npm:core-js@1.2.6",
@@ -89,7 +89,7 @@ System.config({
     "npm:assert@1.3.0": {
       "util": "npm:util@0.10.3"
     },
-    "npm:babel-runtime@5.8.29": {
+    "npm:babel-runtime@5.8.34": {
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:buffer@3.5.1": {
@@ -210,7 +210,7 @@ System.config({
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:react-bootstrap@0.27.3": {
-      "babel-runtime": "npm:babel-runtime@5.8.29",
+      "babel-runtime": "npm:babel-runtime@5.8.34",
       "classnames": "npm:classnames@2.2.0",
       "dom-helpers": "npm:dom-helpers@2.4.0",
       "keycode": "npm:keycode@2.1.0",
