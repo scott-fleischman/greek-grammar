@@ -39,8 +39,8 @@ instance Render Lazy.Text where
 instance Render Type.Name where
   render (Type.List a) = Format.format "[{}]" . Format.Only . render $ a
   render (Type.Function a b) = Format.format "{} → {}" (render a, render b)
-  render (Type.Indexed a) = Format.format "Position, {}" . Format.Only . render $ a
-  render (Type.ReverseIndexed a) = Format.format "Reverse Position, {}" . Format.Only . render $ a
+  render (Type.Indexed a) = Format.format "{}, Position" . Format.Only . render $ a
+  render (Type.ReverseIndexed a) = Format.format "{}, Reverse Position" . Format.Only . render $ a
   render Type.SourceWord = "Source Word"
   render Type.WorkSource = "Work Source"
   render Type.WorkTitle = "Work Title"
@@ -194,14 +194,14 @@ instance Render Abstract.Final where
   render Abstract.IsFinal = "Is final form"
   render Abstract.IsNotFinal = "Not final form"
 
-instance Render (Abstract.LetterIndex, Abstract.Letter) where render = renderPair
+instance Render (Abstract.Letter, Abstract.LetterIndex) where render = renderPair
 instance Render Abstract.LetterIndex where render = renderLetterPosition . Abstract.getLetterIndex
-instance Render (Abstract.LetterReverseIndex, Abstract.Letter) where render = renderPair
+instance Render (Abstract.Letter, Abstract.LetterReverseIndex) where render = renderPair
 instance Render Abstract.LetterReverseIndex where render = renderReverseLetterPosition . Abstract.getLetterReverseIndex
 
-instance Render (Abstract.CaseIndex, Abstract.Case) where render = renderPair
+instance Render (Abstract.Case, Abstract.CaseIndex) where render = renderPair
 instance Render Abstract.CaseIndex where render = renderLetterPosition . Abstract.getCaseIndex
-instance Render (Abstract.FinalReverseIndex, Abstract.Final) where render = renderPair
+instance Render (Abstract.Final, Abstract.FinalReverseIndex) where render = renderPair
 instance Render Abstract.FinalReverseIndex where render = renderReverseLetterPosition . Abstract.getFinalReverseIndex
 
 
