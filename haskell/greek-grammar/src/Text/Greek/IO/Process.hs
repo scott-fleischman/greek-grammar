@@ -91,6 +91,7 @@ process = do
       , makeSurfacePartType Type.LetterCase (pure . Lens.view (Marked.item . Lens._2)) markedAbstractLetters
       , makeIndexedSurfacePartType Type.LetterCase Abstract.CaseIndex (Lens.view (Marked.item . Lens._2)) markedAbstractLetters
       , makeSurfacePartType Type.LetterFinalForm (pure . Lens.view (Marked.item . Lens._3)) markedAbstractLetters
+      , makeReverseIndexedSurfacePartType Type.LetterFinalForm Abstract.FinalReverseIndex (Lens.view (Marked.item . Lens._3)) markedAbstractLetters
 
       , makeSurfacePartType (Type.Function Type.ConcreteMark Type.MarkKind) Marked._marks markedAbstractLetterMarkKindPairs
       , makeSurfaceType (Type.AbstractLetterCaseFinalMarkKind) markedAbstractLetterMarkKinds
@@ -183,7 +184,18 @@ makeSurfacePartType t f = generateType t makeSimpleValue . extract . flattenSurf
   where extract = concatMap (\(l, m) -> fmap (\x -> (l, x)) (f m))
 
 makeIndexedSurfacePartType :: (Ord (i, b), Render.Render (i, b)) => Type.Name -> (Int -> i) -> (a -> b) -> WordSurface t [a] -> TypeData
-makeIndexedSurfacePartType t g f = generateType (Type.Indexed t) makeSimpleValue . Lens.over (traverse . Lens._2 . Lens._1) g . concatIndexedSnd . flattenWords (\_ -> fmap f . Word.getSurface)
+makeIndexedSurfacePartType t g f
+  = generateType (Type.Indexed t) makeSimpleValue
+  . Lens.over (traverse . Lens._2 . Lens._1) g
+  . concatIndexedSnd
+  . flattenWords (\_ -> fmap f . Word.getSurface)
+
+makeReverseIndexedSurfacePartType :: (Ord (i, b), Render.Render (i, b)) => Type.Name -> (Int -> i) -> (a -> b) -> WordSurface t [a] -> TypeData
+makeReverseIndexedSurfacePartType t g f
+  = generateType (Type.Indexed t) makeSimpleValue
+  . Lens.over (traverse . Lens._2 . Lens._1) g
+  . concatReverseIndexedSnd
+  . flattenWords (\_ -> fmap f . Word.getSurface)
 
 toDecomposedWordPairs
   :: WordSurfaceBasic [Unicode.Composed]
@@ -275,6 +287,9 @@ concatSnd = concatMap (\(x, ys) -> fmap (\y -> (x, y)) ys)
 
 concatIndexedSnd :: [(a, [b])] -> [(a, (Int, b))]
 concatIndexedSnd = concatMap (\(x, ys) -> fmap (\(i, y) -> (x, (i, y))) . zip [0..] $ ys)
+
+concatReverseIndexedSnd :: [(a, [b])] -> [(a, (Int, b))]
+concatReverseIndexedSnd = concatMap (\(x, ys) -> reverse . fmap (\(i, y) -> (x, (i, y))) . zip [0..] . reverse $ ys)
 
 flattenWords :: forall a b c. (Work.IndexSourceTitle -> Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
 flattenWords f = concatMap getIndexedWorkProps
