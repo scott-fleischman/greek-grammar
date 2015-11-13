@@ -3,6 +3,7 @@ module Text.Greek.IO.Type where
 data Name
   = List Name
   | Function Name Name
+  | Indexed Name
   | SourceWord
   | WorkSource
   | WorkTitle

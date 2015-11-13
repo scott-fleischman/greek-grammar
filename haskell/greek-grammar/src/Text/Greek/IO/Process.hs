@@ -89,6 +89,7 @@ process = do
       , makeSurfaceType Type.AbstractMarkedLetter markedAbstractLetters
       , makeSurfacePartType Type.AbstractLetter (pure . Lens.view (Marked.item . Lens._1)) markedAbstractLetters
       , makeSurfacePartType Type.LetterCase (pure . Lens.view (Marked.item . Lens._2)) markedAbstractLetters
+      , makeIndexedSurfacePartType Type.LetterCase Abstract.CaseIndex (Lens.view (Marked.item . Lens._2)) markedAbstractLetters
       , makeSurfacePartType Type.LetterFinalForm (pure . Lens.view (Marked.item . Lens._3)) markedAbstractLetters
 
       , makeSurfacePartType (Type.Function Type.ConcreteMark Type.MarkKind) Marked._marks markedAbstractLetterMarkKindPairs
@@ -175,11 +176,14 @@ makeWordPartType t f = generateType t makeSimpleValue . flatten . flattenWords (
   where flatten = concatMap (\(l, m) -> fmap (\x -> (l, x)) m)
 
 makeSurfaceType :: (Ord a, Render.Render a) => Type.Name -> WordSurface t [a] -> TypeData
-makeSurfaceType t = generateType t makeSimpleValue . flattenSurface Word.getSurface
+makeSurfaceType t = generateType t makeSimpleValue . flattenSurface
 
 makeSurfacePartType :: (Ord b, Render.Render b) => Type.Name -> (a -> [b]) -> WordSurface t [a] -> TypeData
-makeSurfacePartType t f = generateType t makeSimpleValue . extract . flattenSurface Word.getSurface
+makeSurfacePartType t f = generateType t makeSimpleValue . extract . flattenSurface
   where extract = concatMap (\(l, m) -> fmap (\x -> (l, x)) (f m))
+
+makeIndexedSurfacePartType :: (Ord (i, b), Render.Render (i, b)) => Type.Name -> (Int -> i) -> (a -> b) -> WordSurface t [a] -> TypeData
+makeIndexedSurfacePartType t g f = generateType (Type.Indexed t) makeSimpleValue . Lens.over (traverse . Lens._2 . Lens._1) g . concatIndexedSnd . flattenWords (\_ -> fmap f . Word.getSurface)
 
 toDecomposedWordPairs
   :: WordSurfaceBasic [Unicode.Composed]
@@ -263,11 +267,14 @@ generateType t f is = TypeData t $ Json.Type (Lazy.toStrict . Render.render $ t)
     locationToInstance :: WordLocation -> Json.Instance
     locationToInstance = uncurry Json.Instance
 
-flattenSurface :: forall a b c. (Word.Indexed a b -> [c]) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
-flattenSurface f = concatSurface . flattenWords (\_ x -> f x)
+flattenSurface :: forall a b. [Work.Indexed [Word.Indexed a [b]]] -> [(WordLocation, b)]
+flattenSurface = concatSnd . flattenWords (\_ -> Word.getSurface)
 
-concatSurface :: [(a, [b])] -> [(a, b)]
-concatSurface = concatMap (\(x, ys) -> fmap (\y -> (x, y)) ys)
+concatSnd :: [(a, [b])] -> [(a, b)]
+concatSnd = concatMap (\(x, ys) -> fmap (\y -> (x, y)) ys)
+
+concatIndexedSnd :: [(a, [b])] -> [(a, (Int, b))]
+concatIndexedSnd = concatMap (\(x, ys) -> fmap (\(i, y) -> (x, (i, y))) . zip [0..] $ ys)
 
 flattenWords :: forall a b c. (Work.IndexSourceTitle -> Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
 flattenWords f = concatMap getIndexedWorkProps

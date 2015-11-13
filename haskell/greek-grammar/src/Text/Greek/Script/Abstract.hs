@@ -15,6 +15,10 @@ data Case = Lowercase | Uppercase deriving (Eq, Ord, Show)
 
 data Final = FinalNotSupported | IsFinal | IsNotFinal deriving (Eq, Ord, Show)
 
+newtype LetterIndex = LetterIndex { getLetterIndex :: Int } deriving (Eq, Show, Ord)
+newtype CaseIndex = CaseIndex { getCaseIndex :: Int } deriving (Eq, Show, Ord)
+newtype FinalReverseIndex = FinalReverseIndex { getFinalReverseIndex :: Int } deriving (Eq, Show, Ord)
+
 toLetterCaseFinal :: Concrete.Letter -> (Letter, Case, Final)
 toLetterCaseFinal Concrete.C_Α = (L_α, Uppercase, FinalNotSupported)
 toLetterCaseFinal Concrete.C_Β = (L_β, Uppercase, FinalNotSupported)
@@ -91,6 +95,8 @@ letterToUnicode L_φ = Unicode.Letter 'φ'
 letterToUnicode L_χ = Unicode.Letter 'χ'
 letterToUnicode L_ψ = Unicode.Letter 'ψ'
 letterToUnicode L_ω = Unicode.Letter 'ω'
+
+
 
 --letterFinalToLetterChar :: LetterFinal -> LetterChar
 --letterFinalToLetterChar (LF_σ IsFinal) = LetterChar 'ς'

@@ -39,6 +39,7 @@ instance Render Lazy.Text where
 instance Render Type.Name where
   render (Type.List a) = Format.format "[{}]" . Format.Only . render $ a
   render (Type.Function a b) = Format.format "{} → {}" (render a, render b)
+  render (Type.Indexed a) = Format.format "Position, {}" . Format.Only . render $ a
   render Type.SourceWord = "Source Word"
   render Type.WorkSource = "Work Source"
   render Type.WorkTitle = "Work Title"
@@ -182,10 +183,15 @@ instance Render Abstract.Letter where render = renderRawChar . Unicode.getLetter
 instance Render Abstract.Case where
   render Abstract.Lowercase = "Lowercase Letter"
   render Abstract.Uppercase = "Uppercase Letter"
+instance Render (Abstract.CaseIndex, Abstract.Case) where render = renderPair
+instance Render Abstract.CaseIndex where render = renderOneBasedIndex . Abstract.getCaseIndex
 instance Render Abstract.Final where
   render Abstract.FinalNotSupported = "N/A Letter Final Form"
   render Abstract.IsFinal = "Letter Final Form"
   render Abstract.IsNotFinal = "Letter Non-final Form"
+
+renderPair :: (Render a, Render b) => (a, b) -> Lazy.Text
+renderPair (a, b) = Format.format "{}, {}" (render a, render b)
 
 renderTriple :: (Render a, Render b, Render c) => (a, b, c) -> Lazy.Text
 renderTriple (a, b, c) = Format.format "{}, {}, {}" (render a, render b, render c)
