@@ -165,12 +165,12 @@ getName Concrete.IotaSubscript = "Iota Subscript"
 
 instance Render Abstract.Letter where render = renderRawChar . Unicode.getLetter . Abstract.letterToUnicode
 instance Render Abstract.Case where
-  render Abstract.Lowercase = "Lowercase"
-  render Abstract.Uppercase = "Uppercase"
+  render Abstract.Lowercase = "Lowercase Letter"
+  render Abstract.Uppercase = "Uppercase Letter"
 instance Render Abstract.Final where
-  render Abstract.FinalNotSupported = "Has no final form"
-  render Abstract.IsFinal = "Is final form"
-  render Abstract.IsNotFinal = "Is not final form"
+  render Abstract.FinalNotSupported = "N/A Letter Final Form"
+  render Abstract.IsFinal = "Letter Final Form"
+  render Abstract.IsNotFinal = "Letter Non-final Form"
 
 renderTriple :: (Render a, Render b, Render c) => (a, b, c) -> Lazy.Text
 renderTriple (a, b, c) = Format.format "{}, {}, {}" (render a, render b, render c)
