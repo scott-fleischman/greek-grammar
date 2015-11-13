@@ -9,12 +9,10 @@ data Syllabic = SyllabicIotaSubscript | SyllabicDiaeresis deriving (Eq, Ord, Sho
 type Group f = (f Accent, f Breathing, f Syllabic)
 
 data Kind = KindAccent Accent | KindBreathing Breathing | KindSyllabic Syllabic deriving (Eq, Ord, Show)
-data KindTag = KindTagAccent | KindTagBreathing | KindTagSyllabic
 
-toKindTag :: Kind -> KindTag
-toKindTag (KindAccent _) = KindTagAccent
-toKindTag (KindBreathing _) = KindTagBreathing
-toKindTag (KindSyllabic _) = KindTagSyllabic
+newtype AccentCount = AccentCount { getAccentCount :: Int } deriving (Eq, Show, Ord)
+newtype BreathingCount = BreathingCount { getBreathingCount :: Int } deriving (Eq, Show, Ord)
+newtype SyllabicCount = SyllabicCount { getSyllabicCount :: Int } deriving (Eq, Show, Ord)
 
 toKind :: Concrete.Mark -> Kind
 toKind Concrete.Acute = KindAccent AccentAcute

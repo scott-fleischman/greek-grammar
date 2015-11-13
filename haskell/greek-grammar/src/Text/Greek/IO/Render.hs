@@ -66,6 +66,9 @@ instance Render Type.Name where
   render Type.AbstractLetterCaseFinalMarkKind = "Abstract Letter, Case, Final, Mark Kind"
   render Type.MarkGroup = "Mark Group"
   render Type.AbstractLetterCaseFinalMarkGroup = "Abstract Letter, Case, Final, Mark Group"
+  render Type.AccentCount = "Accent Count"
+  render Type.BreathingCount = "Breathing Count"
+  render Type.SyllabicMarkCount = "Syllabic Mark Count"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -143,6 +146,13 @@ renderLabeledNumber sg pl n = Format.format "{} {}" (n, if n == 1 then sg else p
 instance Render Word.MarkCount where
   render = renderLabeledNumber "mark" "marks" . Word.getMarkCount
 
+instance Render Mark.AccentCount where
+  render = renderLabeledNumber "accent" "accents" . Mark.getAccentCount
+instance Render Mark.BreathingCount where
+  render = renderLabeledNumber "breathing mark" "breathing marks" . Mark.getBreathingCount
+instance Render Mark.SyllabicCount where
+  render = renderLabeledNumber "syllabic mark" "syllabic marks" . Mark.getSyllabicCount
+
 instance Render Elision.IsElided where
   render Elision.Elided = "Elided"
   render Elision.NotElided = "Not elided"
@@ -202,11 +212,6 @@ instance Render Mark.Breathing where
 instance Render Mark.Syllabic where
   render Mark.SyllabicDiaeresis = "Diaeresis"
   render Mark.SyllabicIotaSubscript = "Iota Subscript"
-
-instance Render Mark.KindTag where
-  render Mark.KindTagAccent = "accent"
-  render Mark.KindTagBreathing = "breathing"
-  render Mark.KindTagSyllabic = "syllabic"
 
 instance Render [Mark.Kind] where render = renderSingleLineList
 instance Render (Marked.Unit (Abstract.Letter, Abstract.Case, Abstract.Final) [Mark.Kind]) where render = renderMarkedUnit

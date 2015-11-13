@@ -96,6 +96,9 @@ process = do
 
       , makeSurfacePartType (Type.Function (Type.List Type.MarkKind) (Type.MarkGroup)) (pure . Marked._marks) markedAbstractLetterMarkGroupPairs
       , makeSurfaceType (Type.AbstractLetterCaseFinalMarkGroup) markedAbstractLetterMarkGroups
+      , makeWordPartType Type.AccentCount (pure . Mark.AccentCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._1)) . Word.getSurface) markedAbstractLetterMarkGroups
+      , makeWordPartType Type.BreathingCount (pure . Mark.BreathingCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._2)) . Word.getSurface) markedAbstractLetterMarkGroups
+      , makeWordPartType Type.SyllabicMarkCount (pure . Mark.SyllabicCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._3)) . Word.getSurface) markedAbstractLetterMarkGroups
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let
@@ -108,6 +111,9 @@ process = do
   let
     summaryTypeIndexes = lookupAll typeNameMap
       [ Type.SourceWord
+      , Type.AccentCount
+      , Type.BreathingCount
+      , Type.SyllabicMarkCount
       , Type.LetterCount
       , Type.MarkCount
       , Type.Elision
@@ -123,6 +129,10 @@ process = do
 
 type WordSurface a b = [Work.Indexed [Word.Indexed a b]]
 type WordSurfaceBasic a = WordSurface Word.Basic a
+
+maybeToOneOrZero :: Maybe a -> Int
+maybeToOneOrZero Nothing = 0
+maybeToOneOrZero (Just _) = 1
 
 lookupAll :: Ord a => Map a b -> [a] -> [b]
 lookupAll m = Maybe.catMaybes . fmap (flip Map.lookup m)

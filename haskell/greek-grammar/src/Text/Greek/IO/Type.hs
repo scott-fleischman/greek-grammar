@@ -30,4 +30,7 @@ data Name
   | AbstractLetterCaseFinalMarkKind
   | MarkGroup
   | AbstractLetterCaseFinalMarkGroup
+  | AccentCount
+  | BreathingCount
+  | SyllabicMarkCount
   deriving (Eq, Ord)
