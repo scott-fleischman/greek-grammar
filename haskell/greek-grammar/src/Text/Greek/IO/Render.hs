@@ -188,14 +188,21 @@ instance Render Abstract.Letter where render = renderRawChar . Unicode.getLetter
 instance Render Abstract.Case where
   render Abstract.Lowercase = "Lowercase Letter"
   render Abstract.Uppercase = "Uppercase Letter"
-instance Render (Abstract.CaseIndex, Abstract.Case) where render = renderPair
-instance Render Abstract.CaseIndex where render = renderLetterPosition . Abstract.getCaseIndex
 instance Render Abstract.Final where
   render Abstract.FinalNotSupported = "N/A Letter Final Form"
   render Abstract.IsFinal = "Letter Final Form"
   render Abstract.IsNotFinal = "Letter Non-final Form"
-instance Render Abstract.FinalReverseIndex where render = renderReverseLetterPosition . Abstract.getFinalReverseIndex
+
+instance Render (Abstract.LetterIndex, Abstract.Letter) where render = renderPair
+instance Render Abstract.LetterIndex where render = renderLetterPosition . Abstract.getLetterIndex
+instance Render (Abstract.LetterReverseIndex, Abstract.Letter) where render = renderPair
+instance Render Abstract.LetterReverseIndex where render = renderReverseLetterPosition . Abstract.getLetterReverseIndex
+
+instance Render (Abstract.CaseIndex, Abstract.Case) where render = renderPair
+instance Render Abstract.CaseIndex where render = renderLetterPosition . Abstract.getCaseIndex
 instance Render (Abstract.FinalReverseIndex, Abstract.Final) where render = renderPair
+instance Render Abstract.FinalReverseIndex where render = renderReverseLetterPosition . Abstract.getFinalReverseIndex
+
 
 renderPair :: (Render a, Render b) => (a, b) -> Lazy.Text
 renderPair (a, b) = Format.format "{}, {}" (render a, render b)

@@ -16,6 +16,7 @@ data Case = Lowercase | Uppercase deriving (Eq, Ord, Show)
 data Final = FinalNotSupported | IsFinal | IsNotFinal deriving (Eq, Ord, Show)
 
 newtype LetterIndex = LetterIndex { getLetterIndex :: Int } deriving (Eq, Show, Ord)
+newtype LetterReverseIndex = LetterReverseIndex { getLetterReverseIndex :: Int } deriving (Eq, Show, Ord)
 newtype CaseIndex = CaseIndex { getCaseIndex :: Int } deriving (Eq, Show, Ord)
 newtype FinalReverseIndex = FinalReverseIndex { getFinalReverseIndex :: Int } deriving (Eq, Show, Ord)
 
