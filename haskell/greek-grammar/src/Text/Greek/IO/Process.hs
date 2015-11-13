@@ -21,6 +21,7 @@ import qualified Text.Greek.Source.Work as Work
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Elision as Elision
+import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Script.Unicode as Unicode
@@ -47,6 +48,9 @@ process = do
   let markedConcreteLetters = Lens.over (wordSurfaceLens . traverse) snd markedUnicodeConcretePairsB
   let markedAbstractLetterPairs = Lens.over (wordSurfaceLens . traverse . Marked.item) (\x -> (x, Abstract.toLetterCaseFinal x)) markedConcreteLetters
   let markedAbstractLetters = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedAbstractLetterPairs
+  let markedAbstractLetterMarkKindPairs = toMarkedAbstractLetterMarkKindPairs markedAbstractLetters
+  let markedAbstractLetterMarkKinds = Lens.over (wordSurfaceLens . traverse . Marked.marks . traverse) snd markedAbstractLetterMarkKindPairs
+
   let
     storedTypeDatas =
       [ makeWordPartType Type.SourceWord (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
@@ -58,25 +62,34 @@ process = do
       , makeWordPartType Type.Elision (pure . getElision . fst . snd . Word.getInfo) sourceWords
       , makeWordPartType Type.UnicodeElision (getUnicodeElision . fst . snd . Word.getInfo) sourceWords
       , makeSurfaceType Type.UnicodeComposed composedWords
+
       , makeSurfaceType (Type.Function Type.UnicodeComposed (Type.List Type.UnicodeDecomposed)) decomposedWordPairs
       , makeSurfaceType Type.UnicodeDecomposed decomposedWords
+
       , makeSurfaceType (Type.Function (Type.List Type.UnicodeDecomposed) Type.UnicodeMarkedLetter) markedLetterPairs
       , makeSurfaceType Type.UnicodeMarkedLetter markedUnicodeLetters
+
       , makeSurfacePartType Type.UnicodeLetter (pure . Marked._item) markedUnicodeLetters
       , makeSurfacePartType Type.UnicodeMark Marked._marks markedUnicodeLetters
       , makeWordPartType Type.LetterCount (pure . Word.LetterCount . length . Word.getSurface) markedUnicodeLetters
       , makeWordPartType Type.MarkCount (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) markedUnicodeLetters
+
       , makeSurfaceType (Type.Function Type.UnicodeMarkedLetter Type.ConcreteMarkedLetter) markedUnicodeConcretePairsB
       , makeSurfacePartType (Type.Function Type.UnicodeLetter Type.ConcreteLetter) (pure . Marked._item) markedUnicodeConcretePairsLM
       , makeSurfacePartType (Type.Function Type.UnicodeMark Type.ConcreteMark) Marked._marks markedUnicodeConcretePairsLM
+
       , makeSurfaceType Type.ConcreteMarkedLetter markedConcreteLetters
       , makeSurfacePartType Type.ConcreteLetter (pure . Marked._item) markedConcreteLetters
       , makeSurfacePartType Type.ConcreteMark Marked._marks markedConcreteLetters
       , makeSurfacePartType (Type.Function Type.ConcreteLetter Type.AbstractLetterCaseFinal) (pure . Marked._item) markedAbstractLetterPairs
+
       , makeSurfaceType Type.AbstractMarkedLetter markedAbstractLetters
       , makeSurfacePartType Type.AbstractLetter (pure . Lens.view (Marked.item . Lens._1)) markedAbstractLetters
       , makeSurfacePartType Type.LetterCase (pure . Lens.view (Marked.item . Lens._2)) markedAbstractLetters
       , makeSurfacePartType Type.LetterFinalForm (pure . Lens.view (Marked.item . Lens._3)) markedAbstractLetters
+
+      , makeSurfacePartType (Type.Function Type.ConcreteMark Type.MarkKind) Marked._marks markedAbstractLetterMarkKindPairs
+      , makeSurfaceType (Type.AbstractLetterCaseFinalMarkKind) markedAbstractLetterMarkKinds
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let
@@ -189,6 +202,14 @@ toMarkedUnicodeConcretePairs = Lens.over (wordSurfaceLens . traverse) go
   where
     overBoth f g = Lens.over (Marked.marks . traverse) g . Lens.over Marked.item f
     go x = (overBoth fst fst x, overBoth snd snd x)
+
+toMarkedAbstractLetterMarkKindPairs
+  :: WordSurfaceBasic [Marked.Unit a [Concrete.Mark]]
+  -> WordSurfaceBasic [Marked.Unit a ([(Concrete.Mark, Mark.Kind)])]
+toMarkedAbstractLetterMarkKindPairs = dupApply' (wordSurfaceLens . traverse . Marked.marks . traverse) Mark.toKind
+
+dupApply' :: ((a1 -> Lens.Identity (a1, b)) -> a -> Lens.Identity c) -> (a1 -> b) -> a -> c
+dupApply' a b = Lens.runIdentity . dupApply a (Lens.Identity . b)
 
 dupApply :: Functor f => ((a -> f (a, b)) -> t) -> (a -> f b) -> t
 dupApply lens f = lens (apply . dup)

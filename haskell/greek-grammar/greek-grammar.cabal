@@ -70,7 +70,7 @@ library
     Text.Greek.Script.Abstract
     Text.Greek.Script.Concrete
     Text.Greek.Script.Elision
---    Text.Greek.Script.Mark
+    Text.Greek.Script.Mark
     Text.Greek.Script.Marked
     Text.Greek.Script.Sound
 --    Text.Greek.Script.Syllable

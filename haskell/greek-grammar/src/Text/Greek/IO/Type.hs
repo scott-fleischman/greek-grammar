@@ -26,4 +26,6 @@ data Name
   | AbstractLetter
   | LetterCase
   | LetterFinalForm
+  | MarkKind
+  | AbstractLetterCaseFinalMarkKind
   deriving (Eq, Ord)

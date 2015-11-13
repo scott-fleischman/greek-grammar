@@ -11,6 +11,7 @@ import qualified Data.Text.Lazy.Builder as Lazy (toLazyText)
 import qualified Text.Greek.IO.Type as Type
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Concrete as Concrete
+import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
@@ -60,7 +61,9 @@ instance Render Type.Name where
   render Type.AbstractLetter = "Abstract Letter"
   render Type.LetterCase = "Letter Case"
   render Type.LetterFinalForm   = "Letter Final Form"
-  render Type.AbstractLetterCaseFinal = "Abstract Letter, Case, Final Form"
+  render Type.AbstractLetterCaseFinal = "Abstract Letter, Case, Final"
+  render Type.MarkKind = "Mark Kind"
+  render Type.AbstractLetterCaseFinalMarkKind = "Abstract Letter, Case, Final, Mark Kind"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -155,13 +158,13 @@ instance Render Concrete.Mark where
   render m = Format.format "{} {}" (getName m, renderRawChar . Unicode.getMark . Concrete.markToUnicode $ m)
 
 getName :: Concrete.Mark -> Lazy.Text
-getName Concrete.Grave = "Grave Accent"
-getName Concrete.Acute = "Acute Accent"
-getName Concrete.Diaeresis = "Diaeresis"
-getName Concrete.Smooth = "Smooth Breathing"
-getName Concrete.Rough = "Rough Breathing"
-getName Concrete.Circumflex = "Circumflex"
-getName Concrete.IotaSubscript = "Iota Subscript"
+getName Concrete.Grave = "Grave Accent Mark"
+getName Concrete.Acute = "Acute Accent Mark"
+getName Concrete.Diaeresis = "Diaeresis Mark"
+getName Concrete.Smooth = "Smooth Breathing Mark"
+getName Concrete.Rough = "Rough Breathing Mark"
+getName Concrete.Circumflex = "Circumflex Mark"
+getName Concrete.IotaSubscript = "Iota Subscript Mark"
 
 instance Render Abstract.Letter where render = renderRawChar . Unicode.getLetter . Abstract.letterToUnicode
 instance Render Abstract.Case where
@@ -178,6 +181,33 @@ renderTriple (a, b, c) = Format.format "{}, {}, {}" (render a, render b, render 
 instance Render (Concrete.Letter, (Abstract.Letter, Abstract.Case, Abstract.Final)) where render = renderFunction
 instance Render (Abstract.Letter, Abstract.Case, Abstract.Final) where render = renderTriple
 instance Render (Marked.Unit (Abstract.Letter, Abstract.Case, Abstract.Final) [Concrete.Mark]) where render = renderMarkedUnit
+
+instance Render (Concrete.Mark, Mark.Kind) where render = renderFunction
+instance Render Mark.Kind where
+  render (Mark.KindAccent x) = Format.format "Accent: {}" (Format.Only $ render x)
+  render (Mark.KindBreathing x) = Format.format "Breathing: {}" (Format.Only $ render x)
+  render (Mark.KindSyllabic x) = Format.format "Syllabic Mark: {}" (Format.Only $ render x)
+
+instance Render Mark.Accent where
+  render Mark.AccentAcute = "Acute"
+  render Mark.AccentGrave = "Grave"
+  render Mark.AccentCircumflex = "Circumflex"
+
+instance Render Mark.Breathing where
+  render Mark.BreathingSmooth = "Smooth"
+  render Mark.BreathingRough = "Rough"
+
+instance Render Mark.Syllabic where
+  render Mark.SyllabicDiaeresis = "Diaeresis"
+  render Mark.SyllabicIotaSubscript = "Iota Subscript"
+
+instance Render Mark.KindTag where
+  render Mark.KindTagAccent = "accent"
+  render Mark.KindTagBreathing = "breathing"
+  render Mark.KindTagSyllabic = "syllabic"
+
+instance Render [Mark.Kind] where render = renderSingleLineList
+instance Render (Marked.Unit (Abstract.Letter, Abstract.Case, Abstract.Final) [Mark.Kind]) where render = renderMarkedUnit
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar
