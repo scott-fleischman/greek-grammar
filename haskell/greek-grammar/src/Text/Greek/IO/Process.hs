@@ -194,7 +194,7 @@ makeIndexedSurfacePartType t g f
 
 makeReverseIndexedSurfacePartType :: (Ord (i, b), Render.Render (i, b)) => Type.Name -> (Int -> i) -> (a -> b) -> WordSurface t [a] -> TypeData
 makeReverseIndexedSurfacePartType t g f
-  = generateType (Type.Indexed t) makeSimpleValue
+  = generateType (Type.ReverseIndexed t) makeSimpleValue
   . Lens.over (traverse . Lens._2 . Lens._1) g
   . concatReverseIndexedSnd
   . flattenWords (\_ -> fmap f . Word.getSurface)

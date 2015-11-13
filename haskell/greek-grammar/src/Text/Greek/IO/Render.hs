@@ -40,6 +40,7 @@ instance Render Type.Name where
   render (Type.List a) = Format.format "[{}]" . Format.Only . render $ a
   render (Type.Function a b) = Format.format "{} → {}" (render a, render b)
   render (Type.Indexed a) = Format.format "Position, {}" . Format.Only . render $ a
+  render (Type.ReverseIndexed a) = Format.format "Reverse Position, {}" . Format.Only . render $ a
   render Type.SourceWord = "Source Word"
   render Type.WorkSource = "Work Source"
   render Type.WorkTitle = "Work Title"
@@ -189,9 +190,9 @@ instance Render Abstract.Case where
   render Abstract.Lowercase = "Lowercase Letter"
   render Abstract.Uppercase = "Uppercase Letter"
 instance Render Abstract.Final where
-  render Abstract.FinalNotSupported = "N/A Letter Final Form"
-  render Abstract.IsFinal = "Letter Final Form"
-  render Abstract.IsNotFinal = "Letter Non-final Form"
+  render Abstract.FinalNotSupported = "N/A final form"
+  render Abstract.IsFinal = "Is final form"
+  render Abstract.IsNotFinal = "Not final form"
 
 instance Render (Abstract.LetterIndex, Abstract.Letter) where render = renderPair
 instance Render Abstract.LetterIndex where render = renderLetterPosition . Abstract.getLetterIndex

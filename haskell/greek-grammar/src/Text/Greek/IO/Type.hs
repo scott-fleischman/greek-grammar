@@ -4,6 +4,7 @@ data Name
   = List Name
   | Function Name Name
   | Indexed Name
+  | ReverseIndexed Name
   | SourceWord
   | WorkSource
   | WorkTitle
