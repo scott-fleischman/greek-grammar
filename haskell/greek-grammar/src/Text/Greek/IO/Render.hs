@@ -64,6 +64,8 @@ instance Render Type.Name where
   render Type.AbstractLetterCaseFinal = "Abstract Letter, Case, Final"
   render Type.MarkKind = "Mark Kind"
   render Type.AbstractLetterCaseFinalMarkKind = "Abstract Letter, Case, Final, Mark Kind"
+  render Type.MarkGroup = "Mark Group"
+  render Type.AbstractLetterCaseFinalMarkGroup = "Abstract Letter, Case, Final, Mark Group"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -208,6 +210,19 @@ instance Render Mark.KindTag where
 
 instance Render [Mark.Kind] where render = renderSingleLineList
 instance Render (Marked.Unit (Abstract.Letter, Abstract.Case, Abstract.Final) [Mark.Kind]) where render = renderMarkedUnit
+
+instance Render ([Mark.Kind], Mark.Group Maybe) where render = renderFunction
+instance Render (Mark.Group Maybe) where render = renderTriple
+
+renderMaybe :: Render a => Lazy.Text -> Maybe a -> Lazy.Text
+renderMaybe _ (Just x) = render x
+renderMaybe t Nothing = t
+
+instance Render (Maybe Mark.Accent) where render = renderMaybe "No Accent"
+instance Render (Maybe Mark.Breathing) where render = renderMaybe "No Breathing"
+instance Render (Maybe Mark.Syllabic) where render = renderMaybe "No Syllabic Mark"
+
+instance Render (Marked.Unit (Abstract.Letter, Abstract.Case, Abstract.Final) (Mark.Group Maybe)) where render = renderMarkedUnit
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar

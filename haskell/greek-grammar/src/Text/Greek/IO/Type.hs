@@ -28,4 +28,6 @@ data Name
   | LetterFinalForm
   | MarkKind
   | AbstractLetterCaseFinalMarkKind
+  | MarkGroup
+  | AbstractLetterCaseFinalMarkGroup
   deriving (Eq, Ord)

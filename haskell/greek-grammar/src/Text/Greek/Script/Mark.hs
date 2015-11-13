@@ -25,9 +25,8 @@ toKind Concrete.Rough = KindBreathing BreathingRough
 toKind Concrete.IotaSubscript = KindSyllabic SyllabicIotaSubscript
 toKind Concrete.Diaeresis= KindSyllabic SyllabicDiaeresis
 
-toMarkGroups :: [Kind]
-  -> Maybe (Group Maybe)
-toMarkGroups = foldr go (Just (Nothing, Nothing, Nothing))
+toMarkGroup :: [Kind] -> Maybe (Group Maybe)
+toMarkGroup = foldr go (Just (Nothing, Nothing, Nothing))
   where
     go (KindAccent a) (Just (Nothing, y, z)) = Just (Just a, y, z)
     go (KindBreathing b) (Just (x, Nothing, z)) = Just (x, Just b, z)

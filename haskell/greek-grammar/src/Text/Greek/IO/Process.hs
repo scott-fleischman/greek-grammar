@@ -10,6 +10,7 @@ import Data.Map (Map)
 import Data.Text (Text)
 import Text.Greek.Source.FileReference
 import qualified Control.Lens as Lens
+import qualified Data.Functor.Identity as Functor
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text.Lazy as Lazy
@@ -50,6 +51,8 @@ process = do
   let markedAbstractLetters = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedAbstractLetterPairs
   let markedAbstractLetterMarkKindPairs = toMarkedAbstractLetterMarkKindPairs markedAbstractLetters
   let markedAbstractLetterMarkKinds = Lens.over (wordSurfaceLens . traverse . Marked.marks . traverse) snd markedAbstractLetterMarkKindPairs
+  markedAbstractLetterMarkGroupPairs <- handleMaybe "Mark Group" $ dupApply (wordSurfaceLens . traverse . Marked.marks) Mark.toMarkGroup markedAbstractLetterMarkKinds
+  let markedAbstractLetterMarkGroups = Lens.over (wordSurfaceLens . traverse . Marked.marks) snd markedAbstractLetterMarkGroupPairs
 
   let
     storedTypeDatas =
@@ -90,6 +93,9 @@ process = do
 
       , makeSurfacePartType (Type.Function Type.ConcreteMark Type.MarkKind) Marked._marks markedAbstractLetterMarkKindPairs
       , makeSurfaceType (Type.AbstractLetterCaseFinalMarkKind) markedAbstractLetterMarkKinds
+
+      , makeSurfacePartType (Type.Function (Type.List Type.MarkKind) (Type.MarkGroup)) (pure . Marked._marks) markedAbstractLetterMarkGroupPairs
+      , makeSurfaceType (Type.AbstractLetterCaseFinalMarkGroup) markedAbstractLetterMarkGroups
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let
@@ -208,8 +214,8 @@ toMarkedAbstractLetterMarkKindPairs
   -> WordSurfaceBasic [Marked.Unit a ([(Concrete.Mark, Mark.Kind)])]
 toMarkedAbstractLetterMarkKindPairs = dupApply' (wordSurfaceLens . traverse . Marked.marks . traverse) Mark.toKind
 
-dupApply' :: ((a1 -> Lens.Identity (a1, b)) -> a -> Lens.Identity c) -> (a1 -> b) -> a -> c
-dupApply' a b = Lens.runIdentity . dupApply a (Lens.Identity . b)
+dupApply' :: ((d -> Functor.Identity (d, b)) -> a -> Functor.Identity c) -> (d -> b) -> a -> c
+dupApply' a b = Functor.runIdentity . dupApply a (Functor.Identity . b)
 
 dupApply :: Functor f => ((a -> f (a, b)) -> t) -> (a -> f b) -> t
 dupApply lens f = lens (apply . dup)
