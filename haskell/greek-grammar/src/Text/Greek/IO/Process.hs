@@ -101,10 +101,10 @@ process = do
       , makeWordPartType Type.WordCapitalization (pure . Lens.view (Word.info . Lens._2 . Lens._3)) capMarkedAbstractLettersF
 
       , makeSurfacePartType (Type.Function Type.ConcreteMark Type.MarkKind) Marked._marks markedAbstractLetterMarkKindPairs
-      , makeSurfaceType (Type.AbstractLetterFinalMarkKind) markedAbstractLetterMarkKinds
+      , makeSurfaceType (Type.AbstractLetterMarkKinds) markedAbstractLetterMarkKinds
 
       , makeSurfacePartType (Type.Function (Type.List Type.MarkKind) (Type.MarkGroup)) (pure . Marked._marks) markedAbstractLetterMarkGroupPairs
-      , makeSurfaceType (Type.AbstractLetterFinalMarkGroup) markedAbstractLetterMarkGroups
+      , makeSurfaceType (Type.AbstractLetterMarkGroup) markedAbstractLetterMarkGroups
       , makeWordPartType Type.AccentCount (pure . Mark.AccentCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._1)) . Word.getSurface) markedAbstractLetterMarkGroups
       , makeWordPartType Type.BreathingCount (pure . Mark.BreathingCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._2)) . Word.getSurface) markedAbstractLetterMarkGroups
       , makeWordPartType Type.SyllabicMarkCount (pure . Mark.SyllabicCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._3)) . Word.getSurface) markedAbstractLetterMarkGroups
