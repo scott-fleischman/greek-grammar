@@ -15,15 +15,15 @@ data Name
   | UnicodeElision
   | UnicodeComposed
   | UnicodeDecomposed
-  | UnicodeMarkedLetter
+  | UnicodeLetterMarks
   | UnicodeLetter
   | UnicodeMark
   | LetterCount
   | MarkCount
-  | ConcreteMarkedLetter
+  | ConcreteLetterMarks
   | ConcreteLetter
   | ConcreteMark
-  | AbstractMarkedLetter
+  | AbstractLetterCaseFinalMarks
   | AbstractLetterCaseFinal
   | AbstractLetter
   | LetterCase
@@ -36,6 +36,7 @@ data Name
   | AccentCount
   | BreathingCount
   | SyllabicMarkCount
+  | SyllabicMarkAbstractLetter
   | VowelConsonantMarkGroup
   | VowelConsonant
   | Vowel

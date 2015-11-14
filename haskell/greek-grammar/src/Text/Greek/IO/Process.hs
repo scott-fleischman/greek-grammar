@@ -41,9 +41,9 @@ process = do
   let composedWords = toComposedWords sourceWords
   let decomposedWordPairs = toDecomposedWordPairs composedWords
   let decomposedWords = toDecomposedWords decomposedWordPairs
-  markedLetterPairs <- handleError $ toMarkedLetterPairs decomposedWords
-  let markedUnicodeLetters = toMarkedUnicodeLetters markedLetterPairs
-  markedUnicodeConcretePairsL <- handleMaybe "Concrete Letter" $ toMarkedConcreteLetters markedUnicodeLetters
+  unicodeLetterMarksPairs <- handleError $ toUnicodeLetterMarksPairs decomposedWords
+  let unicodeLetterMarks = toUnicodeLetterMarks unicodeLetterMarksPairs
+  markedUnicodeConcretePairsL <- handleMaybe "Concrete Letter" $ toMarkedConcreteLetters unicodeLetterMarks
   markedUnicodeConcretePairsLM <- handleMaybe "Concrete Mark" $ toMarkedConcreteMarks markedUnicodeConcretePairsL
   let markedUnicodeConcretePairsB = toMarkedUnicodeConcretePairs markedUnicodeConcretePairsLM
   let markedConcreteLetters = Lens.over (wordSurfaceLens . traverse) snd markedUnicodeConcretePairsB
@@ -74,24 +74,24 @@ process = do
       , makeSurfaceType (Type.Function Type.UnicodeComposed (Type.List Type.UnicodeDecomposed)) decomposedWordPairs
       , makeSurfaceType Type.UnicodeDecomposed decomposedWords
 
-      , makeSurfaceType (Type.Function (Type.List Type.UnicodeDecomposed) Type.UnicodeMarkedLetter) markedLetterPairs
-      , makeSurfaceType Type.UnicodeMarkedLetter markedUnicodeLetters
+      , makeSurfaceType (Type.Function (Type.List Type.UnicodeDecomposed) Type.UnicodeLetterMarks) unicodeLetterMarksPairs
+      , makeSurfaceType Type.UnicodeLetterMarks unicodeLetterMarks
 
-      , makeSurfacePartType Type.UnicodeLetter (pure . Marked._item) markedUnicodeLetters
-      , makeSurfacePartType Type.UnicodeMark Marked._marks markedUnicodeLetters
-      , makeWordPartType Type.LetterCount (pure . Word.LetterCount . length . Word.getSurface) markedUnicodeLetters
-      , makeWordPartType Type.MarkCount (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) markedUnicodeLetters
+      , makeSurfacePartType Type.UnicodeLetter (pure . Marked._item) unicodeLetterMarks
+      , makeSurfacePartType Type.UnicodeMark Marked._marks unicodeLetterMarks
+      , makeWordPartType Type.LetterCount (pure . Word.LetterCount . length . Word.getSurface) unicodeLetterMarks
+      , makeWordPartType Type.MarkCount (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) unicodeLetterMarks
 
-      , makeSurfaceType (Type.Function Type.UnicodeMarkedLetter Type.ConcreteMarkedLetter) markedUnicodeConcretePairsB
+      , makeSurfaceType (Type.Function Type.UnicodeLetterMarks Type.ConcreteLetterMarks) markedUnicodeConcretePairsB
       , makeSurfacePartType (Type.Function Type.UnicodeLetter Type.ConcreteLetter) (pure . Marked._item) markedUnicodeConcretePairsLM
       , makeSurfacePartType (Type.Function Type.UnicodeMark Type.ConcreteMark) Marked._marks markedUnicodeConcretePairsLM
 
-      , makeSurfaceType Type.ConcreteMarkedLetter markedConcreteLetters
+      , makeSurfaceType Type.ConcreteLetterMarks markedConcreteLetters
       , makeSurfacePartType Type.ConcreteLetter (pure . Marked._item) markedConcreteLetters
       , makeSurfacePartType Type.ConcreteMark Marked._marks markedConcreteLetters
       , makeSurfacePartType (Type.Function Type.ConcreteLetter Type.AbstractLetterCaseFinal) (pure . Marked._item) markedAbstractLetterPairs
 
-      , makeSurfaceType Type.AbstractMarkedLetter markedAbstractLettersCF
+      , makeSurfaceType Type.AbstractLetterCaseFinalMarks markedAbstractLettersCF
       , makeSurfacePartType Type.AbstractLetter (pure . Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
       , makeSurfacePartType Type.LetterCase (pure . Lens.view (Marked.item . Lens._2)) markedAbstractLettersCF
       , makeSurfacePartType Type.LetterFinalForm (pure . Lens.view (Marked.item . Lens._3)) markedAbstractLettersCF
@@ -118,6 +118,7 @@ process = do
       , makeSurfacePartType Type.Consonant (Lens.toListOf (Marked.item . Lens._Right)) vowelConsonantMarkGroup
       , makeWordPartType Type.VowelCount (pure . Word.VowelCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Left))) . Word.getSurface) vowelConsonantMarkGroup
       , makeWordPartType Type.ConsonantCount (pure . Word.ConsonantCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Right))) . Word.getSurface) vowelConsonantMarkGroup
+      , makeSurfacePartType Type.Vowel (Lens.toListOf (Marked.item . Lens._Left)) vowelConsonantMarkGroup
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let
@@ -227,15 +228,15 @@ toDecomposedWords
   -> WordSurfaceBasic [Unicode.Decomposed]
 toDecomposedWords = Lens.over wordSurfaceLens (concatMap snd)
 
-toMarkedLetterPairs
+toUnicodeLetterMarksPairs
   :: WordSurfaceBasic [Unicode.Decomposed]
   -> Either Unicode.Error (WordSurfaceBasic [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])])
-toMarkedLetterPairs = wordSurfaceLens Unicode.parseMarkedLetters
+toUnicodeLetterMarksPairs = wordSurfaceLens Unicode.parseMarkedLetters
 
-toMarkedUnicodeLetters
+toUnicodeLetterMarks
   :: WordSurfaceBasic [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])]
   -> WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]]
-toMarkedUnicodeLetters = Lens.over (wordSurfaceLens . traverse) snd
+toUnicodeLetterMarks = Lens.over (wordSurfaceLens . traverse) snd
 
 toMarkedConcreteLetters
   :: WordSurfaceBasic [Marked.Unit Unicode.Letter a]
@@ -277,6 +278,11 @@ transferCapitalSurfaceToWord = Lens.over (traverse . Work.content . traverse) se
 validateFinalForm :: [Work.Indexed [Word.Indexed a [Marked.Unit (t, Abstract.Final) m0]]]
   -> Maybe [Work.Indexed [Word.Indexed a [Marked.Unit t m0]]]
 validateFinalForm = wordSurfaceLens $ Abstract.validateLetterFinal (Lens.view $ Marked.item . Lens._2) (Lens.over Marked.item fst)
+
+getVowelSyllabicPair :: Marked.Unit (Either Abstract.Vowel Abstract.Consonant) (Mark.Group Maybe) -> [(Abstract.Vowel, Mark.Syllabic)]
+getVowelSyllabicPair (Marked.Unit (Left v) (_, _, Just m)) = pure (v, m)
+getVowelSyllabicPair _ = mempty
+
 
 dupApply' :: ((d -> Functor.Identity (d, b)) -> a -> Functor.Identity c) -> (d -> b) -> a -> c
 dupApply' a b = Functor.runIdentity . dupApply a (Functor.Identity . b)

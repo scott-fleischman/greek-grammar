@@ -1,6 +1,5 @@
 module Text.Greek.Script.Concrete where
 
---import qualified Text.Greek.Script.Unit as Unit
 import qualified Text.Greek.Script.Unicode as Unicode
 
 data Letter
@@ -10,24 +9,6 @@ data Letter
 
 data Mark = Acute | Grave | Circumflex | Smooth | Rough | IotaSubscript | Diaeresis
   deriving (Eq, Ord, Show)
-
---data Error
---  = ErrorLetter FileCharReference Unicode.Letter
---  | ErrorMark FileCharReference Unicode.Mark
---  deriving (Show)
-
---type Unit = Unit.UnitMarkList Letter Mark
-
---toUnit :: Unit.UnitChar -> Either Error Unit
---toUnit x = U.unitItem toLetter x >>= (U.unitMarks . traverse) toMark
-
---toLetter :: (Unicode.Letter, FileCharReference) -> Either Error (Letter, FileCharReference)
---toLetter (l, r) | Just l' <- toMaybeLetter l = Right (l', r)
---toLetter (l, r) = Left $ ErrorLetter r l
-
---toMark :: (Unicode.Mark, FileCharReference) -> Either Error (Mark, FileCharReference)
---toMark (m, r) | Just m' <- toMaybeMark m = Right (m', r)
---toMark (m, r) = Left $ ErrorMark r m
 
 toMaybeLetter :: Unicode.Letter -> Maybe Letter
 toMaybeLetter (Unicode.Letter 'Α') = Just C_Α
