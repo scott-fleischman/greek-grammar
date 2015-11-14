@@ -1,23 +1,25 @@
 import React from 'react';
 import R from 'ramda';
 import { OverlayTrigger, Button, Popover } from 'react-bootstrap';
-import { Property } from './property.js';
+import { SingleProperty } from './property.js';
 
 const Word = ({ word, key, wordSummary, url, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl }) => {
   const getTypeIndex = x => x[0];
-  const getValueIndex = x => x[1];
+  const getValueIndexes = x => x[1];
   const getPropertyTitle = x => getTypeTitle(getTypeIndex(x));
-  const getPropertyValue = x => getValueTitle(getTypeIndex(x), getValueIndex(x));
   const summaryProperties = R.compose(R.sortBy(x => wordSummary.get(getTypeIndex(x))), R.filter(x => wordSummary.has(getTypeIndex(x)))) (word);
+  const surfaceWordProperty = word[0];
+  const surfaceWordValue = getValueTitle(word[0][0], word[0][1][0]);
 
   const popoverList = R.addIndex(R.map)
     ((x, i) => (
-      <Property
-        key={i}
+      <SingleProperty
+        key={key + '.' + i}
         name={getPropertyTitle(x)}
-        value={getPropertyValue(x)}
         nameUrl={getValueListUrl(getTypeIndex(x))}
-        valueUrl={getInstanceListUrl(getTypeIndex(x), getValueIndex(x))}
+        valueIndexes={getValueIndexes(x)}
+        getValue={v => getValueTitle(getTypeIndex(x), v)}
+        getValueUrl={v => getInstanceListUrl(getTypeIndex(x), v)}
       />
     ))
     (summaryProperties);
@@ -29,7 +31,7 @@ const Word = ({ word, key, wordSummary, url, getTypeTitle, getValueTitle, getVal
   );
   return (
     <OverlayTrigger trigger="click" rootClose placement="bottom" overlay={popover}>
-      <span><a className="workWord" href="javascript:">{getPropertyValue(word[0])}</a> </span>
+      <span><a className="workWord" href="javascript:">{surfaceWordValue}</a> </span>
     </OverlayTrigger>
   );
 }

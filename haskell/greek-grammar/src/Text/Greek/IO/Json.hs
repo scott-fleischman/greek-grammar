@@ -52,20 +52,20 @@ newtype AtomIndex = AtomIndex { getAtomIndex :: Int } deriving (Eq, Ord, Show)
 data Instance = Instance
   { instanceWorkIndex :: Work.Index
   , instanceWordIndex :: Word.Index
-  , instanceAtomIndex :: AtomIndex
+  , instanceAtomIndex :: Maybe AtomIndex
   } deriving (Eq, Ord, Show)
 instance Aeson.ToJSON Instance where toJSON (Instance wk wd _) = Aeson.toJSON [Work.getIndex wk, Word.getIndex wd]
 
 makeInstanceMap :: [Type] -> Map (Work.Index, Word.Index) [(TypeIndex, [ValueIndex])]
 makeInstanceMap = fmap (groupTypes . fmap fst) . Utility.mapGroupBy snd . flattenInstances
   where
-    groupTypes :: [(TypeIndex, AtomIndex, ValueIndex)] -> [(TypeIndex, [ValueIndex])]
+    groupTypes :: [(TypeIndex, Maybe AtomIndex, ValueIndex)] -> [(TypeIndex, [ValueIndex])]
     groupTypes = Map.toAscList . fmap sortValues . (fmap . fmap) (\(_, x, y) -> (x, y)) . Utility.mapGroupBy (Lens.view Lens._1)
 
-    sortValues :: [(AtomIndex, ValueIndex)] -> [ValueIndex]
+    sortValues :: [(Maybe AtomIndex, ValueIndex)] -> [ValueIndex]
     sortValues = fmap snd . List.sortOn fst
 
-flattenInstances :: [Type] -> [((TypeIndex, AtomIndex, ValueIndex), (Work.Index, Word.Index))]
+flattenInstances :: [Type] -> [((TypeIndex, Maybe AtomIndex, ValueIndex), (Work.Index, Word.Index))]
 flattenInstances = typeLeaf
   where
     index :: (Int -> a) -> [b] -> [(a, b)]
@@ -74,13 +74,13 @@ flattenInstances = typeLeaf
     instancePair :: Instance -> (Work.Index, Word.Index)
     instancePair (Instance k d _) = (k, d)
 
-    instanceLeaf :: TypeIndex -> ValueIndex -> [Instance] -> [((TypeIndex, AtomIndex, ValueIndex), (Work.Index, Word.Index))]
+    instanceLeaf :: TypeIndex -> ValueIndex -> [Instance] -> [((TypeIndex, Maybe AtomIndex, ValueIndex), (Work.Index, Word.Index))]
     instanceLeaf ti vi = fmap (\i -> ((ti, instanceAtomIndex i, vi), instancePair i))
 
-    valueLeaf :: TypeIndex -> [Value] -> [((TypeIndex, AtomIndex, ValueIndex), (Work.Index, Word.Index))]
+    valueLeaf :: TypeIndex -> [Value] -> [((TypeIndex, Maybe AtomIndex, ValueIndex), (Work.Index, Word.Index))]
     valueLeaf ti = concatMap (\(vi, Value _ is) -> instanceLeaf ti vi is) . index ValueIndex
 
-    typeLeaf :: [Type] -> [((TypeIndex, AtomIndex, ValueIndex), (Work.Index, Word.Index))]
+    typeLeaf :: [Type] -> [((TypeIndex, Maybe AtomIndex, ValueIndex), (Work.Index, Word.Index))]
     typeLeaf = concatMap (\(ti, Type _ vs) -> valueLeaf ti vs) . index TypeIndex
 
 data Index = Index

@@ -1,18 +1,20 @@
 import React from 'react';
 import R from 'ramda';
 import { OverlayTrigger, Button, Popover } from 'react-bootstrap';
-import { Property } from './property.js';
+import { PropertyDetail } from './property.js';
 
 export const Word = ({ word, workIndex, wordIndex, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl }) => {
   const properties = R.addIndex(R.map)
-    ((x, i) => (
-      <Property
-        key={i}
-        name={getTypeTitle(x[0])}
-        value={getValueTitle(x[0], x[1])}
-        nameUrl={getValueListUrl(x[0])}
-        valueUrl={getInstanceListUrl(x[0], x[1])}
-      />))
+    ((t, i) => (
+      <PropertyDetail
+        key={workIndex + '.' + wordIndex + '.' + i}
+        name={getTypeTitle(t[0])}
+        nameUrl={getValueListUrl(t[0])}
+        valueIndexes={t[1]}
+        getValue={x => getValueTitle(t[0], x)}
+        getValueUrl={x => getInstanceListUrl(t[0], x)}
+      />)
+    )
     (word);
   return (
     <div className="wordContainer">

@@ -266,22 +266,19 @@ data TypeData = TypeData
   , typeDataJson :: Json.Type
   }
 
-generateType :: forall a. Ord a => Type.Name -> (a -> Value) -> [(WordLocation, a)] -> TypeData
+generateType :: forall a. Ord a => Type.Name -> (a -> Value) -> [(Json.Instance, a)] -> TypeData
 generateType t f is = TypeData t $ Json.Type (Lazy.toStrict . Render.render $ t) (fmap storeValue typedValueInstances)
   where
-    valueInstances :: [(a, [WordLocation])]
+    valueInstances :: [(a, [Json.Instance])]
     valueInstances = Lens.over (traverse . Lens._2 . traverse) fst . Map.assocs . Utility.mapGroupBy snd $ is
 
-    typedValueInstances :: [(Value, [WordLocation])]
+    typedValueInstances :: [(Value, [Json.Instance])]
     typedValueInstances = Lens.over (traverse . Lens._1) f valueInstances
 
-    storeValue :: (Value, [WordLocation]) -> Json.Value
-    storeValue ((ValueSimple vt), ls) = Json.Value vt (fmap locationToInstance ls)
+    storeValue :: (Value, [Json.Instance]) -> Json.Value
+    storeValue ((ValueSimple vt), ls) = Json.Value vt ls
 
-    locationToInstance :: WordLocation -> Json.Instance
-    locationToInstance = uncurry Json.Instance
-
-flattenSurface :: forall a b. [Work.Indexed [Word.Indexed a [b]]] -> [(WordLocation, b)]
+flattenSurface :: forall a b. [Work.Indexed [Word.Indexed a [b]]] -> [(Json.Instance, b)]
 flattenSurface = concatSnd . flattenWords (\_ -> Word.getSurface)
 
 concatSnd :: [(a, [b])] -> [(a, b)]
@@ -293,11 +290,11 @@ concatIndexedSnd = concatMap (\(x, ys) -> fmap (\(i, y) -> (x, (i, y))) . flip z
 concatReverseIndexedSnd :: [(a, [b])] -> [(a, (b, Int))]
 concatReverseIndexedSnd = concatMap (\(x, ys) -> reverse . fmap (\(i, y) -> (x, (i, y))) . flip zip [0..] . reverse $ ys)
 
-flattenWords :: forall a b c. (Work.IndexSourceTitle -> Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(WordLocation, c)]
+flattenWords :: forall a b c. (Work.IndexSourceTitle -> Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(Json.Instance, c)]
 flattenWords f = concatMap getIndexedWorkProps
   where
-    getIndexedWorkProps :: Work.Indexed [Word.Indexed a b] -> [(WordLocation, c)]
-    getIndexedWorkProps w = fmap (\(i, p) -> ((getWorkIndex w, i), p)) (getWorkProps w)
+    getIndexedWorkProps :: Work.Indexed [Word.Indexed a b] -> [(Json.Instance, c)]
+    getIndexedWorkProps w = fmap (\(i, p) -> (Json.Instance (getWorkIndex w) i Nothing, p)) (getWorkProps w)
 
     getWorkProps :: Work.Indexed [Word.Indexed a b] -> [(Word.Index, c)]
     getWorkProps k = fmap (getIndexedWordProp (Work.getInfo k)) . Work.getContent $ k
