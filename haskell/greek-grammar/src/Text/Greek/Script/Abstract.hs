@@ -119,57 +119,6 @@ validateLetterFinal f g = fmap reverse . validateReverseList . reverse
     validateFinalLetter x | f x == FinalNotSupported || f x == IsFinal = Just $ g x
     validateFinalLetter _ = Nothing
 
---letterFinalToLetterChar :: LetterFinal -> LetterChar
---letterFinalToLetterChar (LF_σ IsFinal) = LetterChar 'ς'
---letterFinalToLetterChar x = toLetterChar $ letterFinalToLetter x
-
---nonFinalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] t
---nonFinalLetterParser f g = primLensMaybe "Non-final letter" f g apply
---  where
---    apply (LF_σ IsFinal) = Nothing
---    apply x = Just (letterFinalToLetter x)
-
---finalLetterParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] t
---finalLetterParser f g = primLensMaybe "Final letter" f g apply
---  where
---    apply (LF_σ IsNotFinal) = Nothing
---    apply x = Just (letterFinalToLetter x)
-
---finalParser :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> Parser [s] [t]
---finalParser f g = tryManyEndEof (nonFinalLetterParser f g) (finalLetterParser f g)
-
---parseFinals :: Show s => (s -> LineReference) -> Lens s t LetterFinal Letter -> [s] -> Either ParseError [t]
---parseFinals f g = parse (finalParser f g) ""
-
-
---lowercaseParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] t
---lowercaseParser f g = primLensMaybe "Lowercase" f g apply
---  where
---    apply Lowercase = Just ()
---    apply Uppercase = Nothing
-
---uppercaseParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] t
---uppercaseParser f g = primLensMaybe "Uppercase" f g apply
---  where
---    apply Lowercase = Nothing
---    apply Uppercase = Just ()
-
---capitalizedParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] (Word.IsCapitalized, [t])
---capitalizedParser f g = do
---  first <- uppercaseParser f g
---  remaining <- many (lowercaseParser f g)
---  _ <- eof
---  return (Word.IsCapitalized, first : remaining)
-
---uncapitalizedParser :: Show s => (s -> LineReference) -> Lens s t Case () -> Parser [s] (Word.IsCapitalized, [t])
---uncapitalizedParser f g = do
---  result <- many1 (lowercaseParser f g)
---  _ <- eof
---  return (Word.IsNotCapitalized, result)
-
---parseCase :: Show s => (s -> LineReference) -> Lens s t Case () -> [s] -> Either ParseError (Word.IsCapitalized, [t])
---parseCase f g = parse (try (capitalizedParser f g) <|> uncapitalizedParser f g) ""
-
 
 data Vowel = V_α | V_ε | V_η | V_ι | V_ο | V_υ | V_ω deriving (Eq, Show, Ord)
 data Consonant = C_β | C_γ | C_δ | C_ζ | C_θ | C_κ | C_λ | C_μ | C_ν | C_ξ | C_π | C_ρ | C_σ | C_τ | C_φ | C_χ | C_ψ deriving (Eq, Show, Ord)

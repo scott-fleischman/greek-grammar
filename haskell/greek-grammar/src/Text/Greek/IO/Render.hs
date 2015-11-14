@@ -72,6 +72,10 @@ instance Render Type.Name where
   render Type.AccentCount = "Accent Count"
   render Type.BreathingCount = "Breathing Count"
   render Type.SyllabicMarkCount = "Syllabic Mark Count"
+  render Type.VowelConsonantMarkGroup = "Vowel Consonant Mark Group"
+  render Type.VowelConsonant = "Vowel/Consonant"
+  render Type.Vowel = "Vowel"
+  render Type.Consonant = "Consonant"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -259,6 +263,16 @@ instance Render (Maybe Mark.Syllabic) where render = renderMaybe "No Syllabic Ma
 
 instance Render (Marked.Unit Abstract.Letter (Mark.Group Maybe)) where render = renderMarkedUnit
 
+instance Render (Abstract.Letter, Either Abstract.Vowel Abstract.Consonant) where render = renderPair
+instance Render (Either Abstract.Vowel Abstract.Consonant) where render = renderEitherIgnore
+instance Render Abstract.Vowel where render = Format.format "Vowel {}" . Format.Only . render . Abstract.vowelToLetter
+instance Render Abstract.Consonant where render = Format.format "Vowel {}" . Format.Only . render . Abstract.consonantToLetter
+
+renderEitherIgnore :: (Render a, Render b) => Either a b -> Lazy.Text
+renderEitherIgnore (Left x) = render x
+renderEitherIgnore (Right x) = render x
+
+
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar
 
@@ -375,10 +389,6 @@ instance Render (Marked.Unit Abstract.Letter (Mark.Group Maybe)) where render = 
 
 --instance Render [(Either [(Abstract.Vowel, Maybe Mark.SyllabicAll)] [(Abstract.Consonant, Maybe Mark.SyllabicAll)], FileCharReference)] where
 --  render = renderListLines
-
---renderEitherIgnore :: (Render a, Render b) => Either a b -> L.Text
---renderEitherIgnore (Left x) = render x
---renderEitherIgnore (Right x) = render x
 
 --renderElision :: Maybe (ElisionChar, FileCharReference) -> L.Text
 --renderElision = render . fmap (view _1)

@@ -36,4 +36,8 @@ data Name
   | AccentCount
   | BreathingCount
   | SyllabicMarkCount
+  | VowelConsonantMarkGroup
+  | VowelConsonant
+  | Vowel
+  | Consonant
   deriving (Eq, Ord)
