@@ -8,8 +8,6 @@ import Prelude hiding (Word)
 import Data.Aeson ((.=))
 import Data.Map (Map)
 import Data.Text (Text)
-import Text.Greek.Source.FileReference
---import Text.Greek.Xml.Common
 import System.FilePath
 import qualified Control.Lens as Lens
 import qualified Data.Aeson as Aeson
@@ -17,14 +15,9 @@ import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-import qualified Data.Text as Text
-import qualified Data.Text.Lazy as Lazy
-import qualified Data.Text.Format as Format
 import qualified System.Directory as Directory
 import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.IO.Render as Render
-import qualified Text.Greek.Script.Elision as Elision
-import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Source.Work as Work
 import qualified Text.Greek.Utility as Utility
@@ -176,13 +169,6 @@ workToWorkInfo ts (Work s t ws _ _) = WorkInfo t s [] (fmap (\(Word vs) -> WordI
     typeToOrder = Map.fromList . zip ts $ [0..]
     filterValues = List.sortOn (flip Map.lookup typeToOrder . fst) . filter (flip Map.member typeToOrder . fst)
 
---process
---  :: Either [XmlError] [All.Work [Word.Basic (Text, FileReference)]]
---  -> Either String     [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]]
---process x
---  =   showError x
---  >>= showError . toStage0Hierarchy
-
 makeValueMap :: Ord a => [a] -> Map a ValueIndex
 makeValueMap
   = Map.fromList
@@ -194,66 +180,11 @@ makeValueMap
 newtype WordText = WordText { getWordText :: Text } deriving (Eq, Ord, Show)
 instance Aeson.ToJSON WordText where toJSON (WordText t) = Aeson.toJSON t
 
---makeType :: Text -> (a -> Text) -> [a] -> Type
---makeType t f = Type t . fmap f
-
---getData' :: [Work.Basic [Word.Basic (Text, FileReference)]] -> Data
---getData' ws = Data ourIndex [] ourTypes
---  where
---    ourIndex = Index [] (fmap makeTypeInfo ourTypes)
---    ourTypes = [wordTextType]
-
---    wordTextType = makeType "Source Text" getWordText (Map.keys wordTextMap)
---    wordTextMap = makeValueMap (workWordTexts ws)
---    wordTexts = fmap (WordText . fst . Word.getSurface)
---    workWordTexts = concatMap (wordTexts . Work.getContent)
-
 makeTypeInfo :: Type -> TypeInfo
 makeTypeInfo (Type t vs) = TypeInfo t (fmap makeValueInfo vs)
 
 makeValueInfo :: Value -> ValueInfo
 makeValueInfo (Value t is) = ValueInfo t (length is)
-
---getData :: [All.Work [Word.Basic [(Unicode.Composed, FileCharReference)]]] -> Data
---getData ws = Data ourIndex stage0Works ourTypes
---  where
---    ourIndex = Index (fmap makeWorkInfo ws) (fmap makeTypeInfo ourTypes)
-
---    ourTypes = [Type "Simple Type" ["Value1", "Value2"]]
-
---    makeWorkInfo (All.Work s t c) = WorkInfo (titleWorkTitle t) (titleWorkSource s) (length c)
---    makeTypeInfo (Type t vs) = TypeInfo t (length vs) 0
-
---    stage0Works = fmap makeWork ws
---    makeWork (All.Work s t c) = Work (titleWorkSource s) (titleWorkTitle t) (fmap (\(_,_,w) -> w) iws) [ps] propertyNames summaryProperties
---      where
---        ps = paragraphs iws
---        iws = indexedWords c
---        propertyNames = ["Elision", "Unicode Composed", "Line:Column", "File"]
---        summaryProperties = [0..3]
---    paragraphs = WordGroup "Paragraph" . (fmap . fmap) fst . List.groupBy (\(_,p1) (_,p2) -> p1 == p2) . fmap (\(i,p,_) -> (i,p))
---    indexedWords = fmap (uncurry makeWord) . zip [0..]
---    makeWord i w@(Word.Basic s _ p) = (i, p, Word (titleStage0Word . getStageWord $ s) (getWordProperties w))
-
-getWordProperties :: Word.Word Word.Basic [(Unicode.Composed, FileCharReference)] -> [Text]
-getWordProperties (Word.Word (e, _) s) =
-  [ getElisionProperty e
-  , unicodeComposedProperty . fmap fst $ s
-  , lineProperty . fmap snd $ s
-  , fileProperty . fmap snd $ s
-  ]
-  where
-    lineProperty ((FileCharReference _ (LineReference (Line l) (Column c))) : _) = Lazy.toStrict $ Format.format "{}:{}" (l, c)
-    lineProperty _ = "No line"
-
-    fileProperty ((FileCharReference (Path p) _) : _) = Text.pack p
-    fileProperty [] = "No file"
-
-    unicodeComposedProperty = Text.intercalate ", " . fmap (Lazy.toStrict . Render.render . Unicode.composed)
-
-getElisionProperty :: Maybe (Elision.ElisionChar, FileCharReference) -> Text
-getElisionProperty (Just (Elision.ElisionChar c, r)) = Lazy.toStrict $ Format.format "Elided {} {}" (Render.render c, titleFileCharReference r)
-getElisionProperty _ = "Not elided"
 
 dumpJson :: Data -> IO ()
 dumpJson (Data i ws ts) = do
@@ -273,62 +204,3 @@ dumpJson (Data i ws ts) = do
   where
     write n = BL.writeFile (Paths.pagesData </> n) . Aeson.encode
     writeAll n = sequence . fmap (\(xi, x) -> write (n ++ show xi ++ ".json") x) . zip ([0..] :: [Int])
-
-
-newtype Stage0Word = Stage0Word [Unicode.Composed] deriving (Eq, Ord, Show)
-type Stage0 = (Work.Source, Work.Title, Stage0Word, FileCharReference, Unicode.Composed)
-
-toStage0Hierarchy
-  ::  [Work.Basic [Word.Word Word.Basic (Text, FileReference)]]
-  -> Either Unicode.Error
-      [Work.Basic [Word.Word Word.Basic [(Unicode.Composed, FileCharReference)]]]
-toStage0Hierarchy = (traverse . Work.content . traverse . Word.surface) (uncurry Unicode.splitText)
-
-flattenStage0
-  :: [Work.Basic [Word.Word Word.Basic [(Unicode.Composed, FileCharReference)]]]
-  -> [Stage0]
-flattenStage0 = concatMap flattenWork
-  where
-    flattenWork :: Work.Basic [Word.Word Word.Basic [(Unicode.Composed, FileCharReference)]] -> [Stage0]
-    flattenWork (Work.Work (source, title) content) = fmap (\(w, r, c) -> (source, title, w, r, c)) $ concatMap flattenWord content
-  
-    flattenWord :: Word.Word Word.Basic [(Unicode.Composed, FileCharReference)] -> [(Stage0Word, FileCharReference, Unicode.Composed)]
-    flattenWord (Word.Word _ surface) = fmap (\(c, r) -> (stageWord, r, c)) surface
-      where
-        stageWord = getStageWord surface
-
-getStageWord :: [(Unicode.Composed, FileCharReference)] -> Stage0Word
-getStageWord = Stage0Word . fmap fst
-
-workSourceName :: Text
-workSourceName = "WorkSource"
-
-workTitleName :: Text
-workTitleName = "WorkTitle"
-
-stage0WordName :: Text
-stage0WordName = "Stage0Word"
-
-fileCharReferenceName :: Text
-fileCharReferenceName = "FileLocation"
-
-unicodeComposedName :: Text
-unicodeComposedName = "UnicodeComposed"
-
-titleWorkSource :: Work.Source -> Text
-titleWorkSource Work.SourceSblgnt = "SBLGNT"
-
-titleWorkTitle :: Work.Title -> Text
-titleWorkTitle (Work.Title t) = t
-
-titleStage0Word :: Stage0Word -> Text
-titleStage0Word (Stage0Word cs) = Text.pack . fmap (\(Unicode.Composed c) -> c) $ cs
-
-titleFileCharReference :: FileCharReference -> Text
-titleFileCharReference (FileCharReference (Path p) (LineReference (Line l) (Column c))) = Lazy.toStrict $ Format.format "{}:{}:{}" (p, l, c)
-
-formatList :: (a -> Text) -> [a] -> Text
-formatList f xs = Lazy.toStrict $ Format.format "[{}]" (Format.Only . Text.intercalate ", " . fmap f $ xs)
-
-formatFunction :: (a -> Text) -> (b -> Text) -> (a, b) -> Text
-formatFunction f g (a, b) = Lazy.toStrict $ Format.format "{} → {}" (f a, g b)
