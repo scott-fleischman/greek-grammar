@@ -50,8 +50,9 @@ process = do
   let markedAbstractLetterPairs = Lens.over (wordSurfaceLens . traverse . Marked.item) (\x -> (x, Abstract.toLetterCaseFinal x)) markedConcreteLetters
   let markedAbstractLettersCF = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedAbstractLetterPairs
   capMarkedAbstractLettersF <- handleMaybe "IsCapitalized" $ toCapitalWord markedAbstractLettersCF
+  capMarkedAbstractLetters <- handleMaybe "FinalForm" $ validateFinalForm capMarkedAbstractLettersF
 
-  let markedAbstractLetterMarkKindPairs = toMarkedAbstractLetterMarkKindPairs capMarkedAbstractLettersF
+  let markedAbstractLetterMarkKindPairs = toMarkedAbstractLetterMarkKindPairs capMarkedAbstractLetters
   let markedAbstractLetterMarkKinds = Lens.over (wordSurfaceLens . traverse . Marked.marks . traverse) snd markedAbstractLetterMarkKindPairs
   markedAbstractLetterMarkGroupPairs <- handleMaybe "Mark Group" $ dupApply (wordSurfaceLens . traverse . Marked.marks) Mark.toMarkGroup markedAbstractLetterMarkKinds
   let markedAbstractLetterMarkGroups = Lens.over (wordSurfaceLens . traverse . Marked.marks) snd markedAbstractLetterMarkGroupPairs
@@ -260,6 +261,10 @@ transferCapitalSurfaceToWord :: [Work.Indexed [Word.Indexed Word.Basic (Word.IsC
 transferCapitalSurfaceToWord = Lens.over (traverse . Work.content . traverse) setCapital
   where
     setCapital (Word.Word (wi, (e, p)) (c, m)) = Word.Word (wi, (e, p, c)) m
+
+validateFinalForm :: [Work.Indexed [Word.Indexed a [Marked.Unit (t, Abstract.Final) m0]]]
+  -> Maybe [Work.Indexed [Word.Indexed a [Marked.Unit t m0]]]
+validateFinalForm = wordSurfaceLens $ Abstract.validateLetterFinal (Lens.view $ Marked.item . Lens._2) (Lens.over Marked.item fst)
 
 dupApply' :: ((d -> Functor.Identity (d, b)) -> a -> Functor.Identity c) -> (d -> b) -> a -> c
 dupApply' a b = Functor.runIdentity . dupApply a (Functor.Identity . b)

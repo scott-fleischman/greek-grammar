@@ -108,6 +108,16 @@ validateIsCapitalized f g xs@(x : xs') = case (f x, allLowercase xs') of
   where
     allLowercase = all ((== Lowercase) . f)
 
+validateLetterFinal :: (a -> Final) -> (a -> b) -> [a] -> Maybe [b]
+validateLetterFinal f g = fmap reverse . validateReverseList . reverse
+  where
+    validateReverseList [] = pure []
+    validateReverseList (x : xs') = (:) <$> validateFinalLetter x <*> traverse validateNonFinalLetter xs'
+
+    validateNonFinalLetter x | f x == FinalNotSupported || f x == IsNotFinal = Just $ g x
+    validateNonFinalLetter _ = Nothing
+    validateFinalLetter x | f x == FinalNotSupported || f x == IsFinal = Just $ g x
+    validateFinalLetter _ = Nothing
 
 --letterFinalToLetterChar :: LetterFinal -> LetterChar
 --letterFinalToLetterChar (LF_σ IsFinal) = LetterChar 'ς'

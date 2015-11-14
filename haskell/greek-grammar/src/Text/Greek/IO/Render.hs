@@ -223,6 +223,8 @@ instance Render (Marked.Unit (Abstract.Letter, Abstract.Case, Abstract.Final) [C
 instance Render (Abstract.Letter, Abstract.Final) where render = renderPair
 instance Render (Marked.Unit (Abstract.Letter, Abstract.Final) [Concrete.Mark]) where render = renderMarkedUnit
 
+instance Render (Marked.Unit Abstract.Letter [Concrete.Mark]) where render = renderMarkedUnit
+
 instance Render (Concrete.Mark, Mark.Kind) where render = renderFunction
 instance Render Mark.Kind where
   render (Mark.KindAccent x) = Format.format "Accent: {}" (Format.Only $ render x)
@@ -243,7 +245,7 @@ instance Render Mark.Syllabic where
   render Mark.SyllabicIotaSubscript = "Iota Subscript"
 
 instance Render [Mark.Kind] where render = renderSingleLineList
-instance Render (Marked.Unit (Abstract.Letter, Abstract.Final) [Mark.Kind]) where render = renderMarkedUnit
+instance Render (Marked.Unit Abstract.Letter [Mark.Kind]) where render = renderMarkedUnit
 
 instance Render ([Mark.Kind], Mark.Group Maybe) where render = renderFunction
 instance Render (Mark.Group Maybe) where render = renderTriple
@@ -256,7 +258,7 @@ instance Render (Maybe Mark.Accent) where render = renderMaybe "No Accent"
 instance Render (Maybe Mark.Breathing) where render = renderMaybe "No Breathing"
 instance Render (Maybe Mark.Syllabic) where render = renderMaybe "No Syllabic Mark"
 
-instance Render (Marked.Unit (Abstract.Letter, Abstract.Final) (Mark.Group Maybe)) where render = renderMarkedUnit
+instance Render (Marked.Unit Abstract.Letter (Mark.Group Maybe)) where render = renderMarkedUnit
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar
