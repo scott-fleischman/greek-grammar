@@ -282,15 +282,18 @@ flattenSurface :: forall a b. [Work.Indexed [Word.Indexed a [b]]] -> [(Json.Inst
 flattenSurface = concatInstanceValues . flattenWords (\_ -> Word.getSurface)
 
 concatInstanceValues :: [(Json.Instance, [b])] -> [(Json.Instance, b)]
-concatInstanceValues = concatMap (\(x, ys) -> fmap (\(i, y) -> (setAtomIndex i x, y)) . zip [0..] $ ys)
+concatInstanceValues = concatMap (\(x, ys) -> mapAtomIndexes x ys)
+
+mapAtomIndexes :: Json.Instance -> [t] -> [(Json.Instance, t)]
+mapAtomIndexes a = fmap (\(i, y) -> (setAtomIndex i a, y)) . zip [0..]
   where
     setAtomIndex z (Json.Instance x y _) = Json.Instance x y (Just . Json.AtomIndex $ z)
 
-concatIndexedSnd :: [(a, [b])] -> [(a, (b, Int))]
-concatIndexedSnd = concatMap (\(x, ys) -> fmap (\(i, y) -> (x, (i, y))) . flip zip [0..] $ ys)
+concatIndexedSnd :: [(Json.Instance, [b])] -> [(Json.Instance, (b, Int))]
+concatIndexedSnd = concatMap (\(x, ys) -> fmap (\(i, (a, b)) -> (a, (b, i))) . zip [0..] . mapAtomIndexes x $ ys)
 
-concatReverseIndexedSnd :: [(a, [b])] -> [(a, (b, Int))]
-concatReverseIndexedSnd = concatMap (\(x, ys) -> reverse . fmap (\(i, y) -> (x, (i, y))) . flip zip [0..] . reverse $ ys)
+concatReverseIndexedSnd :: [(Json.Instance, [b])] -> [(Json.Instance, (b, Int))]
+concatReverseIndexedSnd = concatMap (\(x, ys) -> reverse . fmap (\(i, (a, b)) -> (a, (b, i))) . zip [0..] . reverse . mapAtomIndexes x $ ys)
 
 flattenWords :: forall a b c. (Work.IndexSourceTitle -> Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(Json.Instance, c)]
 flattenWords f = concatMap getIndexedWorkProps
