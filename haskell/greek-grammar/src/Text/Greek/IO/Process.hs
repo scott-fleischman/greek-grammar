@@ -149,7 +149,7 @@ getUnicodeElision :: Maybe (Elision.ElisionChar, a) -> [Elision.ElisionChar]
 getUnicodeElision Nothing = []
 getUnicodeElision (Just (e, _)) = [e]
 
-getWorks :: [Json.TypeIndex] -> Map WordLocation [(Json.TypeIndex, Json.ValueIndex)] -> [Work.Indexed [Word.Indexed Word.Basic a]] -> [Json.Work]
+getWorks :: [Json.TypeIndex] -> Map WordLocation [(Json.TypeIndex, [Json.ValueIndex])] -> [Work.Indexed [Word.Indexed Word.Basic a]] -> [Json.Work]
 getWorks summaryTypes m works = workInfos
   where
     workInfos = fmap getWorkInfo works

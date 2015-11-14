@@ -47,30 +47,40 @@ data Value = Value
   }
 instance Aeson.ToJSON Value where toJSON (Value t is) = Aeson.object ["t" .= t, "i" .= is]
 
+newtype AtomIndex = AtomIndex { getAtomIndex :: Int } deriving (Eq, Ord, Show)
+
 data Instance = Instance
   { instanceWorkIndex :: Work.Index
   , instanceWordIndex :: Word.Index
-  }
-instance Aeson.ToJSON Instance where toJSON (Instance wk wd) = Aeson.toJSON [Work.getIndex wk, Word.getIndex wd]
+  , instanceAtomIndex :: AtomIndex
+  } deriving (Eq, Ord, Show)
+instance Aeson.ToJSON Instance where toJSON (Instance wk wd _) = Aeson.toJSON [Work.getIndex wk, Word.getIndex wd]
 
-makeInstanceMap :: [Type] -> Map (Work.Index, Word.Index) [(TypeIndex, ValueIndex)]
-makeInstanceMap = (fmap . fmap) fst . Utility.mapGroupBy snd . flattenInstances
+makeInstanceMap :: [Type] -> Map (Work.Index, Word.Index) [(TypeIndex, [ValueIndex])]
+makeInstanceMap = fmap (groupTypes . fmap fst) . Utility.mapGroupBy snd . flattenInstances
+  where
+    groupTypes :: [(TypeIndex, AtomIndex, ValueIndex)] -> [(TypeIndex, [ValueIndex])]
+    groupTypes = Map.toAscList . fmap sortValues . (fmap . fmap) (\(_, x, y) -> (x, y)) . Utility.mapGroupBy (Lens.view Lens._1)
 
-flattenInstances :: [Type] -> [((TypeIndex, ValueIndex), (Work.Index, Word.Index))]
+    sortValues :: [(AtomIndex, ValueIndex)] -> [ValueIndex]
+    sortValues = fmap snd . List.sortOn fst
+
+flattenInstances :: [Type] -> [((TypeIndex, AtomIndex, ValueIndex), (Work.Index, Word.Index))]
 flattenInstances = typeLeaf
   where
     index :: (Int -> a) -> [b] -> [(a, b)]
     index f = Lens.over (traverse . Lens._1) f . zip [0..]
 
-    instancePair (Instance k d) = (k, d)
+    instancePair :: Instance -> (Work.Index, Word.Index)
+    instancePair (Instance k d _) = (k, d)
 
-    instanceLeaf :: TypeIndex -> ValueIndex -> [Instance] -> [((TypeIndex, ValueIndex), (Work.Index, Word.Index))]
-    instanceLeaf ti vi = fmap (\i -> ((ti, vi), instancePair i))
+    instanceLeaf :: TypeIndex -> ValueIndex -> [Instance] -> [((TypeIndex, AtomIndex, ValueIndex), (Work.Index, Word.Index))]
+    instanceLeaf ti vi = fmap (\i -> ((ti, instanceAtomIndex i, vi), instancePair i))
 
-    valueLeaf :: TypeIndex -> [Value] -> [((TypeIndex, ValueIndex), (Work.Index, Word.Index))]
+    valueLeaf :: TypeIndex -> [Value] -> [((TypeIndex, AtomIndex, ValueIndex), (Work.Index, Word.Index))]
     valueLeaf ti = concatMap (\(vi, Value _ is) -> instanceLeaf ti vi is) . index ValueIndex
 
-    typeLeaf :: [Type] -> [((TypeIndex, ValueIndex), (Work.Index, Word.Index))]
+    typeLeaf :: [Type] -> [((TypeIndex, AtomIndex, ValueIndex), (Work.Index, Word.Index))]
     typeLeaf = concatMap (\(ti, Type _ vs) -> valueLeaf ti vs) . index TypeIndex
 
 data Index = Index
@@ -101,7 +111,7 @@ newtype WordContextIndex = WordContextIndex Int deriving (Eq, Ord, Show)
 instance Aeson.ToJSON WordContextIndex where toJSON (WordContextIndex i) = Aeson.toJSON i
 
 data WordInfo = WordInfo
-  { wordInfoValues :: [(TypeIndex, ValueIndex)]
+  { wordInfoValues :: [(TypeIndex, [ValueIndex])]
   , wordInfoContext :: WordContextIndex
   }
 instance Aeson.ToJSON WordInfo
@@ -126,7 +136,7 @@ instance Aeson.ToJSON ValueInfo where toJSON (ValueInfo t ic) = Aeson.object ["t
 instance Aeson.ToJSON (TypeIndex, ValueIndex) where toJSON (TypeIndex a, ValueIndex b) = Aeson.toJSON [a, b]
 
 data Word = Word
-  { wordValues :: [(TypeIndex, ValueIndex)]
+  { wordValues :: [(TypeIndex, [ValueIndex])]
   }
 instance Aeson.ToJSON Word where toJSON (Word vs) = Aeson.toJSON vs
 
