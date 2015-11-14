@@ -279,10 +279,12 @@ generateType t f is = TypeData t $ Json.Type (Lazy.toStrict . Render.render $ t)
     storeValue ((ValueSimple vt), ls) = Json.Value vt ls
 
 flattenSurface :: forall a b. [Work.Indexed [Word.Indexed a [b]]] -> [(Json.Instance, b)]
-flattenSurface = concatSnd . flattenWords (\_ -> Word.getSurface)
+flattenSurface = concatInstanceValues . flattenWords (\_ -> Word.getSurface)
 
-concatSnd :: [(a, [b])] -> [(a, b)]
-concatSnd = concatMap (\(x, ys) -> fmap (\y -> (x, y)) ys)
+concatInstanceValues :: [(Json.Instance, [b])] -> [(Json.Instance, b)]
+concatInstanceValues = concatMap (\(x, ys) -> fmap (\(i, y) -> (setAtomIndex i x, y)) . zip [0..] $ ys)
+  where
+    setAtomIndex z (Json.Instance x y _) = Json.Instance x y (Just . Json.AtomIndex $ z)
 
 concatIndexedSnd :: [(a, [b])] -> [(a, (b, Int))]
 concatIndexedSnd = concatMap (\(x, ys) -> fmap (\(i, y) -> (x, (i, y))) . flip zip [0..] $ ys)
