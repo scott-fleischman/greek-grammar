@@ -200,8 +200,8 @@ instance Render (Abstract.Final, Abstract.FinalReverseIndex) where render = rend
 instance Render Abstract.FinalReverseIndex where render = renderReverseLetterPosition . Abstract.getFinalReverseIndex
 
 instance Render Word.IsCapitalized where
-  render Word.IsCapitalized = "Word Is Capitalized"
-  render Word.IsNotCapitalized = "Word Is Not Capitalized"
+  render Word.IsCapitalized = "Word is capitalized"
+  render Word.IsNotCapitalized = "Word is not capitalized"
 
 renderPair :: (Render a, Render b) => (a, b) -> Lazy.Text
 renderPair (a, b) = Format.format "{}, {}" (render a, render b)
