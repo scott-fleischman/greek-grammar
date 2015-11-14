@@ -116,6 +116,8 @@ process = do
       , makeSurfacePartType Type.VowelConsonant (pure . Marked._item) vowelConsonantMarkGroup
       , makeSurfacePartType Type.Vowel (Lens.toListOf (Marked.item . Lens._Left)) vowelConsonantMarkGroup
       , makeSurfacePartType Type.Consonant (Lens.toListOf (Marked.item . Lens._Right)) vowelConsonantMarkGroup
+      , makeWordPartType Type.VowelCount (pure . Word.VowelCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Left))) . Word.getSurface) vowelConsonantMarkGroup
+      , makeWordPartType Type.ConsonantCount (pure . Word.ConsonantCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Right))) . Word.getSurface) vowelConsonantMarkGroup
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let
@@ -128,6 +130,8 @@ process = do
   let
     summaryTypeIndexes = lookupAll typeNameMap
       [ Type.SourceWord
+      , Type.VowelCount
+      , Type.ConsonantCount
       , Type.WordCapitalization      
       , Type.AccentCount
       , Type.BreathingCount

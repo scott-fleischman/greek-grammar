@@ -40,4 +40,6 @@ data Name
   | VowelConsonant
   | Vowel
   | Consonant
+  | VowelCount
+  | ConsonantCount
   deriving (Eq, Ord)

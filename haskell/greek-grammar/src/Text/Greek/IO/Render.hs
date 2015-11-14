@@ -76,6 +76,8 @@ instance Render Type.Name where
   render Type.VowelConsonant = "Vowel/Consonant"
   render Type.Vowel = "Vowel"
   render Type.Consonant = "Consonant"
+  render Type.VowelCount = "Vowel Count"
+  render Type.ConsonantCount = "Consonant Count"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -273,6 +275,9 @@ renderEitherIgnore (Left x) = render x
 renderEitherIgnore (Right x) = render x
 
 instance Render (Marked.Unit (Either Abstract.Vowel Abstract.Consonant) (Mark.Group Maybe)) where render = renderMarkedUnit
+
+instance Render Word.VowelCount where render = renderLabeledNumber "vowel" "vowels" . Word.getVowelCount
+instance Render Word.ConsonantCount where render = renderLabeledNumber "consonant" "consonants" . Word.getConsonantCount
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar

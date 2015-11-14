@@ -31,6 +31,8 @@ data SourceInfo = SourceInfo
 
 newtype LetterCount = LetterCount { getLetterCount :: Int } deriving (Eq, Show, Ord)
 newtype MarkCount = MarkCount { getMarkCount :: Int } deriving (Eq, Show, Ord)
+newtype VowelCount = VowelCount { getVowelCount :: Int } deriving (Eq, Show, Ord)
+newtype ConsonantCount = ConsonantCount { getConsonantCount :: Int } deriving (Eq, Show, Ord)
 
 type Basic = (Maybe (ElisionChar, FileCharReference), ParagraphIndex)
 type Capital = (Maybe (ElisionChar, FileCharReference), ParagraphIndex, IsCapitalized)
