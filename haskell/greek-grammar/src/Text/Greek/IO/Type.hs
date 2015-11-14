@@ -28,10 +28,12 @@ data Name
   | AbstractLetter
   | LetterCase
   | LetterFinalForm
+  | WordCapitalization
+  | AbstractLetterFinal
   | MarkKind
-  | AbstractLetterCaseFinalMarkKind
+  | AbstractLetterFinalMarkKind
   | MarkGroup
-  | AbstractLetterCaseFinalMarkGroup
+  | AbstractLetterFinalMarkGroup
   | AccentCount
   | BreathingCount
   | SyllabicMarkCount

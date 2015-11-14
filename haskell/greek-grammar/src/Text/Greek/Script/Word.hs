@@ -8,13 +8,7 @@ import Text.Greek.Source.FileReference
 import Text.Greek.Script.Elision
 import qualified Control.Lens as Lens
 
---data IsCapitalized = IsCapitalized | IsNotCapitalized deriving (Eq, Ord, Show)
---data Cased a = Cased
---  { _casedSurface :: a
---  , _casedElision :: Maybe (ElisionChar, FileCharReference)
---  , _casedIsCapitalized :: IsCapitalized
---  } deriving Show
---makeLenses ''Cased
+data IsCapitalized = IsCapitalized | IsNotCapitalized deriving (Eq, Ord, Show)
 
 newtype ParagraphIndex = ParagraphIndex { getParagraphIndex :: Int } deriving (Eq, Show, Ord)
 newtype Index = Index { getIndex :: Int } deriving (Eq, Ord, Show)
@@ -39,6 +33,7 @@ newtype LetterCount = LetterCount { getLetterCount :: Int } deriving (Eq, Show, 
 newtype MarkCount = MarkCount { getMarkCount :: Int } deriving (Eq, Show, Ord)
 
 type Basic = (Maybe (ElisionChar, FileCharReference), ParagraphIndex)
+type Capital = (Maybe (ElisionChar, FileCharReference), ParagraphIndex, IsCapitalized)
 type Indexed a = Word (Index, a)
 
 indexBasic :: [Word Basic s] -> [Indexed Basic s]

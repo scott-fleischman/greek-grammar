@@ -48,8 +48,10 @@ process = do
   let markedUnicodeConcretePairsB = toMarkedUnicodeConcretePairs markedUnicodeConcretePairsLM
   let markedConcreteLetters = Lens.over (wordSurfaceLens . traverse) snd markedUnicodeConcretePairsB
   let markedAbstractLetterPairs = Lens.over (wordSurfaceLens . traverse . Marked.item) (\x -> (x, Abstract.toLetterCaseFinal x)) markedConcreteLetters
-  let markedAbstractLetters = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedAbstractLetterPairs
-  let markedAbstractLetterMarkKindPairs = toMarkedAbstractLetterMarkKindPairs markedAbstractLetters
+  let markedAbstractLettersCF = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedAbstractLetterPairs
+  capMarkedAbstractLettersF <- handleMaybe "IsCapitalized" $ toCapitalWord markedAbstractLettersCF
+
+  let markedAbstractLetterMarkKindPairs = toMarkedAbstractLetterMarkKindPairs capMarkedAbstractLettersF
   let markedAbstractLetterMarkKinds = Lens.over (wordSurfaceLens . traverse . Marked.marks . traverse) snd markedAbstractLetterMarkKindPairs
   markedAbstractLetterMarkGroupPairs <- handleMaybe "Mark Group" $ dupApply (wordSurfaceLens . traverse . Marked.marks) Mark.toMarkGroup markedAbstractLetterMarkKinds
   let markedAbstractLetterMarkGroups = Lens.over (wordSurfaceLens . traverse . Marked.marks) snd markedAbstractLetterMarkGroupPairs
@@ -86,20 +88,22 @@ process = do
       , makeSurfacePartType Type.ConcreteMark Marked._marks markedConcreteLetters
       , makeSurfacePartType (Type.Function Type.ConcreteLetter Type.AbstractLetterCaseFinal) (pure . Marked._item) markedAbstractLetterPairs
 
-      , makeSurfaceType Type.AbstractMarkedLetter markedAbstractLetters
-      , makeSurfacePartType Type.AbstractLetter (pure . Lens.view (Marked.item . Lens._1)) markedAbstractLetters
-      , makeSurfacePartType Type.LetterCase (pure . Lens.view (Marked.item . Lens._2)) markedAbstractLetters
-      , makeSurfacePartType Type.LetterFinalForm (pure . Lens.view (Marked.item . Lens._3)) markedAbstractLetters
-      , makeIndexedSurfacePartType Type.LetterCase Abstract.CaseIndex (Lens.view (Marked.item . Lens._2)) markedAbstractLetters
-      , makeReverseIndexedSurfacePartType Type.LetterFinalForm Abstract.FinalReverseIndex (Lens.view (Marked.item . Lens._3)) markedAbstractLetters
-      , makeIndexedSurfacePartType Type.AbstractLetter Abstract.LetterIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLetters
-      , makeReverseIndexedSurfacePartType Type.AbstractLetter Abstract.LetterReverseIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLetters
+      , makeSurfaceType Type.AbstractMarkedLetter markedAbstractLettersCF
+      , makeSurfacePartType Type.AbstractLetter (pure . Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
+      , makeSurfacePartType Type.LetterCase (pure . Lens.view (Marked.item . Lens._2)) markedAbstractLettersCF
+      , makeSurfacePartType Type.LetterFinalForm (pure . Lens.view (Marked.item . Lens._3)) markedAbstractLettersCF
+      , makeIndexedSurfacePartType Type.LetterCase Abstract.CaseIndex (Lens.view (Marked.item . Lens._2)) markedAbstractLettersCF
+      , makeReverseIndexedSurfacePartType Type.LetterFinalForm Abstract.FinalReverseIndex (Lens.view (Marked.item . Lens._3)) markedAbstractLettersCF
+      , makeIndexedSurfacePartType Type.AbstractLetter Abstract.LetterIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
+      , makeReverseIndexedSurfacePartType Type.AbstractLetter Abstract.LetterReverseIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
+
+      , makeWordPartType Type.WordCapitalization (pure . Lens.view (Word.info . Lens._2 . Lens._3)) capMarkedAbstractLettersF
 
       , makeSurfacePartType (Type.Function Type.ConcreteMark Type.MarkKind) Marked._marks markedAbstractLetterMarkKindPairs
-      , makeSurfaceType (Type.AbstractLetterCaseFinalMarkKind) markedAbstractLetterMarkKinds
+      , makeSurfaceType (Type.AbstractLetterFinalMarkKind) markedAbstractLetterMarkKinds
 
       , makeSurfacePartType (Type.Function (Type.List Type.MarkKind) (Type.MarkGroup)) (pure . Marked._marks) markedAbstractLetterMarkGroupPairs
-      , makeSurfaceType (Type.AbstractLetterCaseFinalMarkGroup) markedAbstractLetterMarkGroups
+      , makeSurfaceType (Type.AbstractLetterFinalMarkGroup) markedAbstractLetterMarkGroups
       , makeWordPartType Type.AccentCount (pure . Mark.AccentCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._1)) . Word.getSurface) markedAbstractLetterMarkGroups
       , makeWordPartType Type.BreathingCount (pure . Mark.BreathingCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._2)) . Word.getSurface) markedAbstractLetterMarkGroups
       , makeWordPartType Type.SyllabicMarkCount (pure . Mark.SyllabicCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._3)) . Word.getSurface) markedAbstractLetterMarkGroups
@@ -115,6 +119,7 @@ process = do
   let
     summaryTypeIndexes = lookupAll typeNameMap
       [ Type.SourceWord
+      , Type.WordCapitalization      
       , Type.AccentCount
       , Type.BreathingCount
       , Type.SyllabicMarkCount
@@ -238,9 +243,23 @@ toMarkedUnicodeConcretePairs = Lens.over (wordSurfaceLens . traverse) go
     go x = (overBoth fst fst x, overBoth snd snd x)
 
 toMarkedAbstractLetterMarkKindPairs
-  :: WordSurfaceBasic [Marked.Unit a [Concrete.Mark]]
-  -> WordSurfaceBasic [Marked.Unit a ([(Concrete.Mark, Mark.Kind)])]
+  :: WordSurface b [Marked.Unit a [Concrete.Mark]]
+  -> WordSurface b [Marked.Unit a ([(Concrete.Mark, Mark.Kind)])]
 toMarkedAbstractLetterMarkKindPairs = dupApply' (wordSurfaceLens . traverse . Marked.marks . traverse) Mark.toKind
+
+toCapitalWord :: [Work.Indexed [Word.Indexed Word.Basic [Marked.Unit (t, Abstract.Case, t1) m0]]]
+  -> Maybe [Work.Indexed [Word.Indexed Word.Capital [Marked.Unit (t, t1) m0]]]
+toCapitalWord = fmap transferCapitalSurfaceToWord . toCapitalWordSurface
+
+toCapitalWordSurface :: [Work.Indexed [Word.Indexed Word.Basic [Marked.Unit (t, Abstract.Case, t1) m0]]]
+ -> Maybe [Work.Indexed [Word.Indexed Word.Basic (Word.IsCapitalized, [Marked.Unit (t, t1) m0])]]
+toCapitalWordSurface = wordSurfaceLens (Abstract.validateIsCapitalized ((\(_,x,_) -> x) . Marked._item) (Lens.over Marked.item (\(x,_,y) -> (x,y))))
+
+transferCapitalSurfaceToWord :: [Work.Indexed [Word.Indexed Word.Basic (Word.IsCapitalized, [Marked.Unit (t, t1) m0])]]
+  -> [Work.Indexed [Word.Indexed Word.Capital [Marked.Unit (t, t1) m0]]]
+transferCapitalSurfaceToWord = Lens.over (traverse . Work.content . traverse) setCapital
+  where
+    setCapital (Word.Word (wi, (e, p)) (c, m)) = Word.Word (wi, (e, p, c)) m
 
 dupApply' :: ((d -> Functor.Identity (d, b)) -> a -> Functor.Identity c) -> (d -> b) -> a -> c
 dupApply' a b = Functor.runIdentity . dupApply a (Functor.Identity . b)
@@ -253,8 +272,8 @@ dupApply lens f = lens (apply . dup)
 
 wordSurfaceLens :: Applicative f =>
   (a -> f b)
-  -> [Work.Indexed [Word.Indexed Word.Basic a]]
-  -> f [Work.Indexed [Word.Indexed Word.Basic b]]
+  -> [Work.Indexed [Word.Indexed c a]]
+  -> f [Work.Indexed [Word.Indexed c b]]
 wordSurfaceLens = traverse . Work.content . traverse . Word.surface
 
 type WordLocation = (Work.Index, Word.Index)
@@ -282,15 +301,18 @@ flattenSurface :: forall a b. [Work.Indexed [Word.Indexed a [b]]] -> [(Json.Inst
 flattenSurface = concatInstanceValues . flattenWords (\_ -> Word.getSurface)
 
 concatInstanceValues :: [(Json.Instance, [b])] -> [(Json.Instance, b)]
-concatInstanceValues = concatMap (\(x, ys) -> fmap (\(i, y) -> (setAtomIndex i x, y)) . zip [0..] $ ys)
+concatInstanceValues = concatMap (\(x, ys) -> mapAtomIndexes x ys)
+
+mapAtomIndexes :: Json.Instance -> [t] -> [(Json.Instance, t)]
+mapAtomIndexes a = fmap (\(i, y) -> (setAtomIndex i a, y)) . zip [0..]
   where
     setAtomIndex z (Json.Instance x y _) = Json.Instance x y (Just . Json.AtomIndex $ z)
 
-concatIndexedSnd :: [(a, [b])] -> [(a, (b, Int))]
-concatIndexedSnd = concatMap (\(x, ys) -> fmap (\(i, y) -> (x, (i, y))) . flip zip [0..] $ ys)
+concatIndexedSnd :: [(Json.Instance, [b])] -> [(Json.Instance, (b, Int))]
+concatIndexedSnd = concatMap (\(x, ys) -> fmap (\(i, (a, b)) -> (a, (b, i))) . zip [0..] . mapAtomIndexes x $ ys)
 
-concatReverseIndexedSnd :: [(a, [b])] -> [(a, (b, Int))]
-concatReverseIndexedSnd = concatMap (\(x, ys) -> reverse . fmap (\(i, y) -> (x, (i, y))) . flip zip [0..] . reverse $ ys)
+concatReverseIndexedSnd :: [(Json.Instance, [b])] -> [(Json.Instance, (b, Int))]
+concatReverseIndexedSnd = concatMap (\(x, ys) -> reverse . fmap (\(i, (a, b)) -> (a, (b, i))) . zip [0..] . reverse . mapAtomIndexes x $ ys)
 
 flattenWords :: forall a b c. (Work.IndexSourceTitle -> Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(Json.Instance, c)]
 flattenWords f = concatMap getIndexedWorkProps

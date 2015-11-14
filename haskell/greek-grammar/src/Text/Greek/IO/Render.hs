@@ -64,10 +64,12 @@ instance Render Type.Name where
   render Type.LetterCase = "Letter Case"
   render Type.LetterFinalForm   = "Letter Final Form"
   render Type.AbstractLetterCaseFinal = "Abstract Letter, Case, Final"
+  render Type.WordCapitalization = "Word Capitalization"
+  render Type.AbstractLetterFinal = "Abstract Letter, Final"
   render Type.MarkKind = "Mark Kind"
-  render Type.AbstractLetterCaseFinalMarkKind = "Abstract Letter, Case, Final, Mark Kind"
+  render Type.AbstractLetterFinalMarkKind = "Abstract Letter, Final, Mark Kind"
   render Type.MarkGroup = "Mark Group"
-  render Type.AbstractLetterCaseFinalMarkGroup = "Abstract Letter, Case, Final, Mark Group"
+  render Type.AbstractLetterFinalMarkGroup = "Abstract Letter, Final, Mark Group"
   render Type.AccentCount = "Accent Count"
   render Type.BreathingCount = "Breathing Count"
   render Type.SyllabicMarkCount = "Syllabic Mark Count"
@@ -204,6 +206,9 @@ instance Render Abstract.CaseIndex where render = renderLetterPosition . Abstrac
 instance Render (Abstract.Final, Abstract.FinalReverseIndex) where render = renderPair
 instance Render Abstract.FinalReverseIndex where render = renderReverseLetterPosition . Abstract.getFinalReverseIndex
 
+instance Render Word.IsCapitalized where
+  render Word.IsCapitalized = "Word Is Capitalized"
+  render Word.IsNotCapitalized = "Word Is Not Capitalized"
 
 renderPair :: (Render a, Render b) => (a, b) -> Lazy.Text
 renderPair (a, b) = Format.format "{}, {}" (render a, render b)
@@ -214,6 +219,9 @@ renderTriple (a, b, c) = Format.format "{}, {}, {}" (render a, render b, render 
 instance Render (Concrete.Letter, (Abstract.Letter, Abstract.Case, Abstract.Final)) where render = renderFunction
 instance Render (Abstract.Letter, Abstract.Case, Abstract.Final) where render = renderTriple
 instance Render (Marked.Unit (Abstract.Letter, Abstract.Case, Abstract.Final) [Concrete.Mark]) where render = renderMarkedUnit
+
+instance Render (Abstract.Letter, Abstract.Final) where render = renderPair
+instance Render (Marked.Unit (Abstract.Letter, Abstract.Final) [Concrete.Mark]) where render = renderMarkedUnit
 
 instance Render (Concrete.Mark, Mark.Kind) where render = renderFunction
 instance Render Mark.Kind where
@@ -235,7 +243,7 @@ instance Render Mark.Syllabic where
   render Mark.SyllabicIotaSubscript = "Iota Subscript"
 
 instance Render [Mark.Kind] where render = renderSingleLineList
-instance Render (Marked.Unit (Abstract.Letter, Abstract.Case, Abstract.Final) [Mark.Kind]) where render = renderMarkedUnit
+instance Render (Marked.Unit (Abstract.Letter, Abstract.Final) [Mark.Kind]) where render = renderMarkedUnit
 
 instance Render ([Mark.Kind], Mark.Group Maybe) where render = renderFunction
 instance Render (Mark.Group Maybe) where render = renderTriple
@@ -248,7 +256,7 @@ instance Render (Maybe Mark.Accent) where render = renderMaybe "No Accent"
 instance Render (Maybe Mark.Breathing) where render = renderMaybe "No Breathing"
 instance Render (Maybe Mark.Syllabic) where render = renderMaybe "No Syllabic Mark"
 
-instance Render (Marked.Unit (Abstract.Letter, Abstract.Case, Abstract.Final) (Mark.Group Maybe)) where render = renderMarkedUnit
+instance Render (Marked.Unit (Abstract.Letter, Abstract.Final) (Mark.Group Maybe)) where render = renderMarkedUnit
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar

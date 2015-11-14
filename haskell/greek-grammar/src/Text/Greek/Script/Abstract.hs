@@ -6,6 +6,7 @@ module Text.Greek.Script.Abstract where
 
 import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Unicode as Unicode
+import qualified Text.Greek.Script.Word as Word
 
 data Letter
   = L_α | L_β | L_γ | L_δ | L_ε | L_ζ | L_η | L_θ | L_ι | L_κ | L_λ | L_μ
@@ -97,6 +98,15 @@ letterToUnicode L_χ = Unicode.Letter 'χ'
 letterToUnicode L_ψ = Unicode.Letter 'ψ'
 letterToUnicode L_ω = Unicode.Letter 'ω'
 
+
+validateIsCapitalized :: (a -> Case) -> (a -> b) -> [a] -> Maybe (Word.IsCapitalized, [b])
+validateIsCapitalized _ _ [] = Nothing
+validateIsCapitalized f g xs@(x : xs') = case (f x, allLowercase xs') of
+  (Lowercase, True) -> Just (Word.IsNotCapitalized, fmap g xs)
+  (Uppercase, True) -> Just (Word.IsCapitalized, fmap g xs)
+  _ -> Nothing
+  where
+    allLowercase = all ((== Lowercase) . f)
 
 
 --letterFinalToLetterChar :: LetterFinal -> LetterChar
