@@ -73,7 +73,7 @@ library
     Text.Greek.Script.Mark
     Text.Greek.Script.Marked
     Text.Greek.Script.Sound
---    Text.Greek.Script.Syllable
+    Text.Greek.Script.Syllable
     Text.Greek.Script.Token
     Text.Greek.Script.Unicode
     Text.Greek.Script.UnicodeTokenPairs

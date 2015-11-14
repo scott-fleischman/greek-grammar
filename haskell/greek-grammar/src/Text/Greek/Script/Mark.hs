@@ -8,6 +8,8 @@ data Syllabic = SyllabicIotaSubscript | SyllabicDiaeresis deriving (Eq, Ord, Sho
 
 type Group f = (f Accent, f Breathing, f Syllabic)
 
+type AccentBreathing f = (f Accent, f Breathing)
+
 data Kind = KindAccent Accent | KindBreathing Breathing | KindSyllabic Syllabic deriving (Eq, Ord, Show)
 
 newtype AccentCount = AccentCount { getAccentCount :: Int } deriving (Eq, Show, Ord)
@@ -30,3 +32,6 @@ toMarkGroup = foldr go (Just (Nothing, Nothing, Nothing))
     go (KindBreathing b) (Just (x, Nothing, z)) = Just (x, Just b, z)
     go (KindSyllabic c) (Just (x, y, Nothing)) = Just (x, y, Just c)
     go _ _ = Nothing
+
+forgetSyllabic :: Group f -> AccentBreathing f
+forgetSyllabic (x, y, _) = (x, y)

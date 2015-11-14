@@ -43,4 +43,5 @@ data Name
   | VowelCount
   | ConsonantCount
   | SyllabicMarkVowelConsonant
+  | StartSyllable
   deriving (Eq, Ord)

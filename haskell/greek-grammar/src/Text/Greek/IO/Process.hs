@@ -24,6 +24,7 @@ import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Marked as Marked
+import qualified Text.Greek.Script.Syllable as Syllable
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Utility as Utility
@@ -119,6 +120,8 @@ process = do
       , makeWordPartType Type.VowelCount (pure . Word.VowelCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Left))) . Word.getSurface) vowelConsonantMarkGroup
       , makeWordPartType Type.ConsonantCount (pure . Word.ConsonantCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Right))) . Word.getSurface) vowelConsonantMarkGroup
       , makeSurfacePartType Type.SyllabicMarkVowelConsonant getSyllabicMarkVowelConsonant vowelConsonantMarkGroup
+ 
+      , makeWordPartType Type.StartSyllable toStartSyllable vowelConsonantMarkGroup
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let
@@ -283,6 +286,14 @@ getSyllabicMarkVowelConsonant :: Marked.Unit Abstract.VowelConsonant (Mark.Group
 getSyllabicMarkVowelConsonant (Marked.Unit vc (_, _, Just m)) = pure (m, vc)
 getSyllabicMarkVowelConsonant _ = mempty
 
+
+toStartSyllable :: Word.Indexed Word.Capital [Marked.Unit Abstract.VowelConsonant (Mark.Group Maybe)]
+  -> [Syllable.Start (Abstract.Case, Mark.Group Maybe)]
+toStartSyllable (Word.Word (_, (_, _, cap)) xs)
+  = Syllable.makeStartVocalic
+  . fmap (\(c, Marked.Unit i m) -> (i, c, m))
+  . Abstract.applyCapitalization cap
+  $ xs
 
 dupApply' :: ((d -> Functor.Identity (d, b)) -> a -> Functor.Identity c) -> (d -> b) -> a -> c
 dupApply' a b = Functor.runIdentity . dupApply a (Functor.Identity . b)

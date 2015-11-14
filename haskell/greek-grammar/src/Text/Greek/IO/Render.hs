@@ -13,6 +13,7 @@ import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Marked as Marked
+import qualified Text.Greek.Script.Syllable as Syllable
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Script.Elision as Elision
@@ -67,6 +68,7 @@ instance Render Type.Name where
   render Type.VowelCount = "Vowel Count"
   render Type.ConsonantCount = "Consonant Count"
   render Type.SyllabicMarkVowelConsonant = "Syllabic Mark, Vowel/Consonant"
+  render Type.StartSyllable = "Start Syllable"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -269,3 +271,13 @@ instance Render Word.VowelCount where render = renderLabeledNumber "vowel" "vowe
 instance Render Word.ConsonantCount where render = renderLabeledNumber "consonant" "consonants" . Word.getConsonantCount
 
 instance Render (Mark.Syllabic, Abstract.VowelConsonant) where render = renderPair
+
+instance Render (Syllable.Start (Abstract.Case, Mark.Group Maybe)) where render = renderEitherIgnore
+instance Render (Abstract.Consonant, (Abstract.Case, Mark.Group Maybe)) where render = renderPair
+instance Render (Abstract.Case, Mark.Group Maybe) where render = renderPair
+instance Render (Abstract.Vowel, (Abstract.Case, Mark.Group Maybe)) where render = renderPair
+instance Render (Syllable.StartVocalic (Abstract.Vowel, (Abstract.Case, Mark.Group Maybe))) where
+  render (Syllable.StartVocalicSingle v) = Format.format "Start Vocalic Single — {}" (Format.Only . render $ v)
+  render (Syllable.StartVocalicDiaeresis v) = Format.format "Start Vocalic Diaeresis — {}" (Format.Only . render $ v)
+  render (Syllable.StartVocalicIota v) = Format.format "Start Vocalic Iota — {}" (Format.Only . render $ v)
+  render (Syllable.StartVocalicDiphthong v1 v2) = Format.format "Start Vocalic Diphthong — {} — {}" (render v1, render v2)
