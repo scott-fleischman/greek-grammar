@@ -118,7 +118,7 @@ process = do
       , makeSurfacePartType Type.Consonant (Lens.toListOf (Marked.item . Lens._Right)) vowelConsonantMarkGroup
       , makeWordPartType Type.VowelCount (pure . Word.VowelCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Left))) . Word.getSurface) vowelConsonantMarkGroup
       , makeWordPartType Type.ConsonantCount (pure . Word.ConsonantCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Right))) . Word.getSurface) vowelConsonantMarkGroup
-      , makeSurfacePartType Type.Vowel (Lens.toListOf (Marked.item . Lens._Left)) vowelConsonantMarkGroup
+      , makeSurfacePartType Type.SyllabicMarkVowelConsonant getSyllabicMarkVowelConsonant vowelConsonantMarkGroup
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let
@@ -279,9 +279,9 @@ validateFinalForm :: [Work.Indexed [Word.Indexed a [Marked.Unit (t, Abstract.Fin
   -> Maybe [Work.Indexed [Word.Indexed a [Marked.Unit t m0]]]
 validateFinalForm = wordSurfaceLens $ Abstract.validateLetterFinal (Lens.view $ Marked.item . Lens._2) (Lens.over Marked.item fst)
 
-getVowelSyllabicPair :: Marked.Unit (Either Abstract.Vowel Abstract.Consonant) (Mark.Group Maybe) -> [(Abstract.Vowel, Mark.Syllabic)]
-getVowelSyllabicPair (Marked.Unit (Left v) (_, _, Just m)) = pure (v, m)
-getVowelSyllabicPair _ = mempty
+getSyllabicMarkVowelConsonant :: Marked.Unit Abstract.VowelConsonant (Mark.Group Maybe) -> [(Mark.Syllabic, Abstract.VowelConsonant)]
+getSyllabicMarkVowelConsonant (Marked.Unit vc (_, _, Just m)) = pure (m, vc)
+getSyllabicMarkVowelConsonant _ = mempty
 
 
 dupApply' :: ((d -> Functor.Identity (d, b)) -> a -> Functor.Identity c) -> (d -> b) -> a -> c

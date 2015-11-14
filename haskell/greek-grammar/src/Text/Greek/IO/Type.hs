@@ -36,11 +36,11 @@ data Name
   | AccentCount
   | BreathingCount
   | SyllabicMarkCount
-  | SyllabicMarkAbstractLetter
   | VowelConsonantMarkGroup
   | VowelConsonant
   | Vowel
   | Consonant
   | VowelCount
   | ConsonantCount
+  | SyllabicMarkVowelConsonant
   deriving (Eq, Ord)

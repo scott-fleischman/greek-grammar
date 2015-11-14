@@ -60,13 +60,13 @@ instance Render Type.Name where
   render Type.AccentCount = "Accent Count"
   render Type.BreathingCount = "Breathing Count"
   render Type.SyllabicMarkCount = "Syllabic Mark Count"
-  render Type.SyllabicMarkAbstractLetter = "Syllabic Mark, Abstract Letter"
   render Type.VowelConsonantMarkGroup = "Vowel/Consonant, Mark Group"
   render Type.VowelConsonant = "Vowel/Consonant"
   render Type.Vowel = "Vowel"
   render Type.Consonant = "Consonant"
   render Type.VowelCount = "Vowel Count"
   render Type.ConsonantCount = "Consonant Count"
+  render Type.SyllabicMarkVowelConsonant = "Syllabic Mark, Vowel/Consonant"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -267,3 +267,5 @@ instance Render (Marked.Unit (Either Abstract.Vowel Abstract.Consonant) (Mark.Gr
 
 instance Render Word.VowelCount where render = renderLabeledNumber "vowel" "vowels" . Word.getVowelCount
 instance Render Word.ConsonantCount where render = renderLabeledNumber "consonant" "consonants" . Word.getConsonantCount
+
+instance Render (Mark.Syllabic, Abstract.VowelConsonant) where render = renderPair
