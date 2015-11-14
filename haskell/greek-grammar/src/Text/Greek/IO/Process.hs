@@ -57,7 +57,7 @@ process = do
   markedAbstractLetterMarkGroupPairs <- handleMaybe "Mark Group" $ dupApply (wordSurfaceLens . traverse . Marked.marks) Mark.toMarkGroup markedAbstractLetterMarkKinds
   let markedAbstractLetterMarkGroups = Lens.over (wordSurfaceLens . traverse . Marked.marks) snd markedAbstractLetterMarkGroupPairs
   let markedVowelConsonantMarkGroupPairs = dupApply' (wordSurfaceLens . traverse . Marked.item) Abstract.toVowelConsonant markedAbstractLetterMarkGroups
-
+  let vowelConsonantMarkGroup = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedVowelConsonantMarkGroupPairs
 
   let
     storedTypeDatas =
@@ -111,8 +111,11 @@ process = do
       , makeWordPartType Type.BreathingCount (pure . Mark.BreathingCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._2)) . Word.getSurface) markedAbstractLetterMarkGroups
       , makeWordPartType Type.SyllabicMarkCount (pure . Mark.SyllabicCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._3)) . Word.getSurface) markedAbstractLetterMarkGroups
 
-      , makeSurfacePartType (Type.Function Type.AbstractLetterMarkGroup Type.VowelConsonantMarkGroup) (pure . Marked._item) markedVowelConsonantMarkGroupPairs
-      -- , makeSurfacePartType (Type.Function Type.AbstractLetter Type.VowelConsonant) (Marked._item) markedVowelConsonantMarkGroupPairs
+      , makeSurfacePartType (Type.Function Type.AbstractLetter Type.VowelConsonant) (pure . Marked._item) markedVowelConsonantMarkGroupPairs
+      , makeSurfaceType Type.VowelConsonantMarkGroup vowelConsonantMarkGroup
+      , makeSurfacePartType Type.VowelConsonant (pure . Marked._item) vowelConsonantMarkGroup
+      , makeSurfacePartType Type.Vowel (Lens.toListOf (Marked.item . Lens._Left)) vowelConsonantMarkGroup
+      , makeSurfacePartType Type.Consonant (Lens.toListOf (Marked.item . Lens._Right)) vowelConsonantMarkGroup
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let

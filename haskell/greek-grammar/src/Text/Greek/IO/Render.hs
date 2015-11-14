@@ -266,12 +266,13 @@ instance Render (Marked.Unit Abstract.Letter (Mark.Group Maybe)) where render = 
 instance Render (Abstract.Letter, Either Abstract.Vowel Abstract.Consonant) where render = renderPair
 instance Render (Either Abstract.Vowel Abstract.Consonant) where render = renderEitherIgnore
 instance Render Abstract.Vowel where render = Format.format "Vowel {}" . Format.Only . render . Abstract.vowelToLetter
-instance Render Abstract.Consonant where render = Format.format "Vowel {}" . Format.Only . render . Abstract.consonantToLetter
+instance Render Abstract.Consonant where render = Format.format "Consonant {}" . Format.Only . render . Abstract.consonantToLetter
 
 renderEitherIgnore :: (Render a, Render b) => Either a b -> Lazy.Text
 renderEitherIgnore (Left x) = render x
 renderEitherIgnore (Right x) = render x
 
+instance Render (Marked.Unit (Either Abstract.Vowel Abstract.Consonant) (Mark.Group Maybe)) where render = renderMarkedUnit
 
 --instance Render U.LetterChar where
 --  render = L.singleton . U.getLetterChar
