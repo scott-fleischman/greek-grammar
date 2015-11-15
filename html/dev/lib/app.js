@@ -21,6 +21,7 @@ function getUrl(action) {
 export const onHashChange = dispatch => resetHash => newHash => {
   const visual = QueryString.parse(newHash);
   const action = State.getActionForVisual(visual);
+  window.scrollTo(0, 0);
   if (!R.isNil(action))
     dispatch(action);
   else
