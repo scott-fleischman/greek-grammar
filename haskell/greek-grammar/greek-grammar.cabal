@@ -59,6 +59,7 @@ library
     Text.Greek.Mounce.Verb
     Text.Greek.NewTestament.SBL
     Text.Greek.Parse.Utility
+    Text.Greek.Phonology.Consonant
     Text.Greek.Phonology.Consonants
     Text.Greek.Phonology.Contractions
     Text.Greek.Phonology.Euphony

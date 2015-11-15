@@ -19,6 +19,7 @@ import qualified Text.Greek.IO.Render as Render
 import qualified Text.Greek.IO.Type as Type
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
+import qualified Text.Greek.Phonology.Consonant as Consonant
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Elision as Elision
@@ -62,6 +63,8 @@ process = do
   let startSyllable = Lens.over wordSurfaceLens (Syllable.makeStartVocalic . fmap (\(Marked.Unit a b) -> (a, b))) vowelConsonantMarkGroup
   vocalicSyllableConsonantPair <- handleMaybe "Vocalic Syllable Consonant" $ dupApply (wordSurfaceLens . traverse) Syllable.validateVocalicConsonant startSyllable
   let vocalicSyllableConsonant = Lens.over (wordSurfaceLens . traverse) snd vocalicSyllableConsonantPair
+  vocalicSyllableConsonantRRPair <- handleMaybe "Reify Rho Rough" $ dupApply (wordSurfaceLens . traverse . Lens._Right) Consonant.reifyBreathing vocalicSyllableConsonant
+  let vocalicSyllableConsonantRR = Lens.over (wordSurfaceLens . traverse . Lens._Right) snd vocalicSyllableConsonantRRPair
 
   let
     storedTypeDatas =
@@ -134,6 +137,10 @@ process = do
       , makeWordPartType (Type.Count Type.VocalicSyllableSingle) (pure . sum . fmap Syllable.getVocalicSingleCount . Word.getSurface) vocalicSyllableConsonant
       , makeWordPartType (Type.Count Type.ImproperDiphthong) (pure . sum . fmap Syllable.getImproperDiphthongCount . Word.getSurface) vocalicSyllableConsonant
       , makeWordPartType (Type.Count Type.Diphthong) (pure . sum . fmap Syllable.getDiphthongCount . Word.getSurface) vocalicSyllableConsonant
+
+      , makeSurfaceType Type.VocalicSyllableConsonantRR vocalicSyllableConsonantRR
+      , makeSurfacePartType (Type.Function Type.ConsonantBreathing Type.ConsonantPlusRhoRough) (Lens.toListOf Lens._Right) vocalicSyllableConsonantRRPair
+      , makeSurfacePartType Type.ConsonantPlusRhoRough (Lens.toListOf Lens._Right) vocalicSyllableConsonantRR
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $

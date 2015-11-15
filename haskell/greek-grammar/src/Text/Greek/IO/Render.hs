@@ -9,6 +9,7 @@ import qualified Data.Text.Format as Format
 import qualified Data.Text.Lazy as Lazy
 import qualified Data.Text.Lazy.Builder as Lazy (toLazyText)
 import qualified Text.Greek.IO.Type as Type
+import qualified Text.Greek.Phonology.Consonant as Consonant
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Mark as Mark
@@ -71,6 +72,9 @@ instance Render Type.Name where
   render Type.ImproperDiphthong = "Improper Diphthong"
   render Type.Diphthong = "Diphthong"
   render Type.Syllable = "Syllable"
+  render Type.VocalicSyllableConsonantRR = "Vocalic Syllable Consonant+ῥ"
+  render Type.ConsonantBreathing = "ConsonantBreathing"
+  render Type.ConsonantPlusRhoRough = "Consonant+ῥ"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -311,3 +315,8 @@ instance Render Syllable.Count where render (Syllable.Count c) = renderLabeledNu
 instance Render Syllable.VocalicSingleCount where render (Syllable.VocalicSingleCount c) = renderLabeledNumber "single vowel syllable" "single vowel syllables" c
 instance Render Syllable.ImproperDiphthongCount where render (Syllable.ImproperDiphthongCount c) = renderLabeledNumber "improper diphthong" "improper diphthongs" c
 instance Render Syllable.DiphthongCount where render (Syllable.DiphthongCount c) = renderLabeledNumber "diphthong" "diphthongs" c
+
+instance Render ((Abstract.Consonant, Maybe Mark.Breathing), Consonant.PlusRhoRough) where render = renderFunction
+instance Render Consonant.PlusRhoRough where render = renderEitherIgnore
+instance Render Consonant.RR_ῥ where render Consonant.RR_ῥ = "Consonant ῥ"
+instance Render (Either (Syllable.Vocalic (Mark.AccentBreathing Maybe)) Consonant.PlusRhoRough) where render = renderEitherIgnore

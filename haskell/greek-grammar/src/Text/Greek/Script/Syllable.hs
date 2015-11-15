@@ -54,7 +54,10 @@ data Vocalic m
   | VocalicDiphthong Diphthong m
   deriving (Eq, Ord, Show)
 
-type VocalicConsonant mv mc = Either (Vocalic mv) (Abstract.Consonant, mc)
+type VocalicEither mv c = Either (Vocalic mv) c
+type VocalicConsonant mv mc = VocalicEither mv (Abstract.Consonant, mc)
+
+type ConsonantCluster m = [(Abstract.Consonant, m)]
 
 newtype Count = Count Int deriving (Eq, Ord, Show, Num)
 newtype VocalicSingleCount = VocalicSingleCount Int deriving (Eq, Ord, Show, Num)
