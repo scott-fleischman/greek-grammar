@@ -317,6 +317,23 @@ instance Render Syllable.ImproperDiphthongCount where render (Syllable.ImproperD
 instance Render Syllable.DiphthongCount where render (Syllable.DiphthongCount c) = renderLabeledNumber "diphthong" "diphthongs" c
 
 instance Render ((Abstract.Consonant, Maybe Mark.Breathing), Consonant.PlusRhoRough) where render = renderFunction
-instance Render Consonant.PlusRhoRough where render = renderEitherIgnore
-instance Render Consonant.RR_ῥ where render Consonant.RR_ῥ = "Consonant ῥ"
 instance Render (Either (Syllable.Vocalic (Mark.AccentBreathing Maybe)) Consonant.PlusRhoRough) where render = renderEitherIgnore
+instance Render Consonant.PlusRhoRough where
+  render Consonant.RR_β = "Consonant β"
+  render Consonant.RR_γ = "Consonant γ"
+  render Consonant.RR_δ = "Consonant δ"
+  render Consonant.RR_ζ = "Consonant ζ"
+  render Consonant.RR_θ = "Consonant θ"
+  render Consonant.RR_κ = "Consonant κ"
+  render Consonant.RR_λ = "Consonant λ"
+  render Consonant.RR_μ = "Consonant μ"
+  render Consonant.RR_ν = "Consonant ν"
+  render Consonant.RR_ξ = "Consonant ξ"
+  render Consonant.RR_π = "Consonant π"
+  render Consonant.RR_ρ = "Consonant ρ"
+  render Consonant.RR_ῥ = "Consonant ῥ"
+  render Consonant.RR_σ = "Consonant σ"
+  render Consonant.RR_τ = "Consonant τ"
+  render Consonant.RR_φ = "Consonant φ"
+  render Consonant.RR_χ = "Consonant χ"
+  render Consonant.RR_ψ = "Consonant ψ"
