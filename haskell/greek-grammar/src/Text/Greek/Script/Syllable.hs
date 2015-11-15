@@ -92,6 +92,18 @@ validateConsonantBreathing :: (Abstract.Consonant, Mark.Group Maybe) -> Maybe (A
 validateConsonantBreathing (x, (Nothing, b, Nothing)) = Just (x, b)
 validateConsonantBreathing _ = Nothing
 
+vocalicToSingle :: Vocalic m -> [Abstract.Vowel]
+vocalicToSingle (VocalicSingle v _) = [v]
+vocalicToSingle _ = []
+
+vocalicToImproperDiphthong :: Vocalic m -> [ImproperDiphthong]
+vocalicToImproperDiphthong (VocalicIota d _) = [d]
+vocalicToImproperDiphthong _ = []
+
+vocalicToDiphthong :: Vocalic m -> [Diphthong]
+vocalicToDiphthong (VocalicDiphthong d _) = [d]
+vocalicToDiphthong _ = []
+
 
 --data Vocalic a b c
 --  = OneVowel a

@@ -60,7 +60,8 @@ process = do
   let markedVowelConsonantMarkGroupPairs = dupApply' (wordSurfaceLens . traverse . Marked.item) Abstract.toVowelConsonant markedAbstractLetterMarkGroups
   let vowelConsonantMarkGroup = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedVowelConsonantMarkGroupPairs
   let startSyllable = Lens.over wordSurfaceLens (Syllable.makeStartVocalic . fmap (\(Marked.Unit a b) -> (a, b))) vowelConsonantMarkGroup
-  vocalicSyllableConsonant <- handleMaybe "Vocalic Syllable Consonant" $ dupApply (wordSurfaceLens . traverse) Syllable.validateVocalicConsonant startSyllable
+  vocalicSyllableConsonantPair <- handleMaybe "Vocalic Syllable Consonant" $ dupApply (wordSurfaceLens . traverse) Syllable.validateVocalicConsonant startSyllable
+  let vocalicSyllableConsonant = Lens.over (wordSurfaceLens . traverse) snd vocalicSyllableConsonantPair
 
   let
     storedTypeDatas =
@@ -124,7 +125,11 @@ process = do
       , makeSurfacePartType Type.SyllabicMarkVowelConsonant getSyllabicMarkVowelConsonant vowelConsonantMarkGroup
  
       , makeSurfaceType Type.StartSyllable startSyllable
-      , makeSurfaceType (Type.Function Type.StartSyllable Type.VocalicSyllableConsonant) vocalicSyllableConsonant
+      , makeSurfaceType (Type.Function Type.StartSyllable Type.VocalicSyllableConsonant) vocalicSyllableConsonantPair
+      , makeSurfaceType Type.VocalicSyllableConsonant vocalicSyllableConsonant
+      , makeSurfacePartType Type.VocalicSyllableSingle (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToSingle) vocalicSyllableConsonant
+      , makeSurfacePartType Type.ImproperDiphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left  Syllable.vocalicToImproperDiphthong) vocalicSyllableConsonant
+      , makeSurfacePartType Type.Diphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left  Syllable.vocalicToDiphthong) vocalicSyllableConsonant
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let

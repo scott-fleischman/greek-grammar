@@ -70,6 +70,10 @@ instance Render Type.Name where
   render Type.SyllabicMarkVowelConsonant = "Syllabic Mark, Vowel/Consonant"
   render Type.StartSyllable = "Start Syllable"
   render Type.VocalicSyllableConsonant = "Vocalic Syllable/Consonant"
+  render Type.VocalicSyllableSingle = "Vocalic Syllable Single"
+  render Type.ImproperDiphthong = "Improper Diphthong"
+  render Type.Diphthong = "Diphthong"
+
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"

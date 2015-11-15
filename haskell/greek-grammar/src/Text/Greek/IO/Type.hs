@@ -45,4 +45,7 @@ data Name
   | SyllabicMarkVowelConsonant
   | StartSyllable
   | VocalicSyllableConsonant
+  | VocalicSyllableSingle
+  | ImproperDiphthong
+  | Diphthong
   deriving (Eq, Ord)
