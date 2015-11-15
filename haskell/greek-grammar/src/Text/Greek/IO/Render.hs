@@ -30,6 +30,7 @@ instance Render Type.Name where
   render (Type.Function a b) = Format.format "{} → {}" (render a, render b)
   render (Type.Indexed a) = Format.format "{}, Position" . Format.Only . render $ a
   render (Type.ReverseIndexed a) = Format.format "{}, Reverse Position" . Format.Only . render $ a
+  render (Type.Count a) = Format.format "{} Count" . Format.Only . render $ a
   render Type.SourceWord = "Source Word"
   render Type.WorkSource = "Work Source"
   render Type.WorkTitle = "Work Title"
@@ -43,8 +44,6 @@ instance Render Type.Name where
   render Type.UnicodeLetterMarks = "Unicode Letter, [Unicode Mark]"
   render Type.UnicodeLetter = "Unicode Letter"
   render Type.UnicodeMark = "Unicode Mark"
-  render Type.LetterCount = "Letter Count"
-  render Type.MarkCount = "Mark Count"
   render Type.ConcreteLetter = "Concrete Letter"
   render Type.ConcreteMark = "Concrete Mark"
   render Type.ConcreteLetterMarks = "Concrete Letter, [Concrete Mark]"
@@ -55,25 +54,23 @@ instance Render Type.Name where
   render Type.AbstractLetterCaseFinal = "Abstract Letter, Case, Final"
   render Type.WordCapitalization = "Word Capitalization"
   render Type.MarkKind = "Mark Kind"
+  render Type.Accent = "Accent"
+  render Type.Breathing = "Breathing"
+  render Type.SyllabicMark = "Syllabic Mark"
   render Type.AbstractLetterMarkKinds = "Abstract Letter, [Mark Kind]"
   render Type.MarkGroup = "Mark Group"
   render Type.AbstractLetterMarkGroup = "Abstract Letter, Mark Group"
-  render Type.AccentCount = "Accent Count"
-  render Type.BreathingCount = "Breathing Count"
-  render Type.SyllabicMarkCount = "Syllabic Mark Count"
   render Type.VowelConsonantMarkGroup = "Vowel/Consonant, Mark Group"
   render Type.VowelConsonant = "Vowel/Consonant"
   render Type.Vowel = "Vowel"
   render Type.Consonant = "Consonant"
-  render Type.VowelCount = "Vowel Count"
-  render Type.ConsonantCount = "Consonant Count"
   render Type.SyllabicMarkVowelConsonant = "Syllabic Mark, Vowel/Consonant"
   render Type.StartSyllable = "Start Syllable"
   render Type.VocalicSyllableConsonant = "Vocalic Syllable/Consonant"
   render Type.VocalicSyllableSingle = "Vocalic Syllable Single"
   render Type.ImproperDiphthong = "Improper Diphthong"
   render Type.Diphthong = "Diphthong"
-
+  render Type.Syllable = "Syllable"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -309,3 +306,8 @@ instance Render Syllable.Diphthong where
   render Syllable.D_οι = "οι" 
   render Syllable.D_ου = "ου" 
   render Syllable.D_υι = "υι"
+
+instance Render Syllable.Count where render (Syllable.Count c) = renderLabeledNumber "syllable" "syllables" c
+instance Render Syllable.VocalicSingleCount where render (Syllable.VocalicSingleCount c) = renderLabeledNumber "single vowel syllable" "single vowel syllables" c
+instance Render Syllable.ImproperDiphthongCount where render (Syllable.ImproperDiphthongCount c) = renderLabeledNumber "improper diphthong" "improper diphthongs" c
+instance Render Syllable.DiphthongCount where render (Syllable.DiphthongCount c) = renderLabeledNumber "diphthong" "diphthongs" c

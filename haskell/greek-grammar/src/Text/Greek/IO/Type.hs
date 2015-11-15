@@ -5,6 +5,7 @@ data Name
   | Function Name Name
   | Indexed Name
   | ReverseIndexed Name
+  | Count Name
   | SourceWord
   | WorkSource
   | WorkTitle
@@ -18,8 +19,6 @@ data Name
   | UnicodeLetterMarks
   | UnicodeLetter
   | UnicodeMark
-  | LetterCount
-  | MarkCount
   | ConcreteLetterMarks
   | ConcreteLetter
   | ConcreteMark
@@ -30,22 +29,21 @@ data Name
   | LetterFinalForm
   | WordCapitalization
   | MarkKind
+  | Accent
+  | Breathing
+  | SyllabicMark
   | AbstractLetterMarkKinds
   | MarkGroup
   | AbstractLetterMarkGroup
-  | AccentCount
-  | BreathingCount
-  | SyllabicMarkCount
   | VowelConsonantMarkGroup
   | VowelConsonant
   | Vowel
   | Consonant
-  | VowelCount
-  | ConsonantCount
   | SyllabicMarkVowelConsonant
   | StartSyllable
   | VocalicSyllableConsonant
   | VocalicSyllableSingle
   | ImproperDiphthong
   | Diphthong
+  | Syllable
   deriving (Eq, Ord)

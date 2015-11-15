@@ -1,4 +1,4 @@
--- {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Text.Greek.Script.Syllable where
 
@@ -55,6 +55,27 @@ data Vocalic m
   deriving (Eq, Ord, Show)
 
 type VocalicConsonant mv mc = Either (Vocalic mv) (Abstract.Consonant, mc)
+
+newtype Count = Count Int deriving (Eq, Ord, Show, Num)
+newtype VocalicSingleCount = VocalicSingleCount Int deriving (Eq, Ord, Show, Num)
+newtype ImproperDiphthongCount = ImproperDiphthongCount Int deriving (Eq, Ord, Show, Num)
+newtype DiphthongCount = DiphthongCount Int deriving (Eq, Ord, Show, Num)
+
+getSyllableCount :: VocalicConsonant a b -> Count
+getSyllableCount (Left _) = 1
+getSyllableCount (Right _) = 0
+
+getVocalicSingleCount :: VocalicConsonant a b -> VocalicSingleCount
+getVocalicSingleCount (Left (VocalicSingle _ _)) = 1
+getVocalicSingleCount _ = 0
+
+getImproperDiphthongCount :: VocalicConsonant a b -> ImproperDiphthongCount
+getImproperDiphthongCount (Left (VocalicIota _ _)) = 1
+getImproperDiphthongCount _ = 0
+
+getDiphthongCount :: VocalicConsonant a b -> DiphthongCount
+getDiphthongCount (Left (VocalicDiphthong _ _)) = 1
+getDiphthongCount _ = 0
 
 validateVocalicConsonant :: Start (Mark.Group Maybe) -> Maybe (VocalicConsonant (Mark.AccentBreathing Maybe) (Maybe Mark.Breathing))
 validateVocalicConsonant x = Lens._Left validateStartVocalic x >>= Lens._Right validateConsonantBreathing

@@ -83,8 +83,8 @@ process = do
 
       , makeSurfacePartType Type.UnicodeLetter (pure . Marked._item) unicodeLetterMarks
       , makeSurfacePartType Type.UnicodeMark Marked._marks unicodeLetterMarks
-      , makeWordPartType Type.LetterCount (pure . Word.LetterCount . length . Word.getSurface) unicodeLetterMarks
-      , makeWordPartType Type.MarkCount (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) unicodeLetterMarks
+      , makeWordPartType (Type.Count Type.AbstractLetter) (pure . Word.LetterCount . length . Word.getSurface) unicodeLetterMarks
+      , makeWordPartType (Type.Count Type.ConcreteMark) (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) unicodeLetterMarks
 
       , makeSurfaceType (Type.Function Type.UnicodeLetterMarks Type.ConcreteLetterMarks) markedUnicodeConcretePairsB
       , makeSurfacePartType (Type.Function Type.UnicodeLetter Type.ConcreteLetter) (pure . Marked._item) markedUnicodeConcretePairsLM
@@ -111,45 +111,52 @@ process = do
 
       , makeSurfacePartType (Type.Function (Type.List Type.MarkKind) (Type.MarkGroup)) (pure . Marked._marks) markedAbstractLetterMarkGroupPairs
       , makeSurfaceType (Type.AbstractLetterMarkGroup) markedAbstractLetterMarkGroups
-      , makeWordPartType Type.AccentCount (pure . Mark.AccentCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._1)) . Word.getSurface) markedAbstractLetterMarkGroups
-      , makeWordPartType Type.BreathingCount (pure . Mark.BreathingCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._2)) . Word.getSurface) markedAbstractLetterMarkGroups
-      , makeWordPartType Type.SyllabicMarkCount (pure . Mark.SyllabicCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._3)) . Word.getSurface) markedAbstractLetterMarkGroups
+      , makeWordPartType (Type.Count Type.Accent) (pure . Mark.AccentCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._1)) . Word.getSurface) markedAbstractLetterMarkGroups
+      , makeWordPartType (Type.Count Type.Breathing) (pure . Mark.BreathingCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._2)) . Word.getSurface) markedAbstractLetterMarkGroups
+      , makeWordPartType (Type.Count Type.SyllabicMark) (pure . Mark.SyllabicCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._3)) . Word.getSurface) markedAbstractLetterMarkGroups
 
       , makeSurfacePartType (Type.Function Type.AbstractLetter Type.VowelConsonant) (pure . Marked._item) markedVowelConsonantMarkGroupPairs
       , makeSurfaceType Type.VowelConsonantMarkGroup vowelConsonantMarkGroup
       , makeSurfacePartType Type.VowelConsonant (pure . Marked._item) vowelConsonantMarkGroup
       , makeSurfacePartType Type.Vowel (Lens.toListOf (Marked.item . Lens._Left)) vowelConsonantMarkGroup
       , makeSurfacePartType Type.Consonant (Lens.toListOf (Marked.item . Lens._Right)) vowelConsonantMarkGroup
-      , makeWordPartType Type.VowelCount (pure . Word.VowelCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Left))) . Word.getSurface) vowelConsonantMarkGroup
-      , makeWordPartType Type.ConsonantCount (pure . Word.ConsonantCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Right))) . Word.getSurface) vowelConsonantMarkGroup
+      , makeWordPartType (Type.Count Type.Vowel) (pure . Word.VowelCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Left))) . Word.getSurface) vowelConsonantMarkGroup
+      , makeWordPartType (Type.Count Type.Consonant) (pure . Word.ConsonantCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Right))) . Word.getSurface) vowelConsonantMarkGroup
       , makeSurfacePartType Type.SyllabicMarkVowelConsonant getSyllabicMarkVowelConsonant vowelConsonantMarkGroup
  
       , makeSurfaceType Type.StartSyllable startSyllable
       , makeSurfaceType (Type.Function Type.StartSyllable Type.VocalicSyllableConsonant) vocalicSyllableConsonantPair
       , makeSurfaceType Type.VocalicSyllableConsonant vocalicSyllableConsonant
       , makeSurfacePartType Type.VocalicSyllableSingle (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToSingle) vocalicSyllableConsonant
-      , makeSurfacePartType Type.ImproperDiphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left  Syllable.vocalicToImproperDiphthong) vocalicSyllableConsonant
-      , makeSurfacePartType Type.Diphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left  Syllable.vocalicToDiphthong) vocalicSyllableConsonant
+      , makeSurfacePartType Type.ImproperDiphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToImproperDiphthong) vocalicSyllableConsonant
+      , makeSurfacePartType Type.Diphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToDiphthong) vocalicSyllableConsonant
+      , makeWordPartType (Type.Count Type.Syllable) (pure . sum . fmap Syllable.getSyllableCount . Word.getSurface) vocalicSyllableConsonant
+      , makeWordPartType (Type.Count Type.VocalicSyllableSingle) (pure . sum . fmap Syllable.getVocalicSingleCount . Word.getSurface) vocalicSyllableConsonant
+      , makeWordPartType (Type.Count Type.ImproperDiphthong) (pure . sum . fmap Syllable.getImproperDiphthongCount . Word.getSurface) vocalicSyllableConsonant
+      , makeWordPartType (Type.Count Type.Diphthong) (pure . sum . fmap Syllable.getDiphthongCount . Word.getSurface) vocalicSyllableConsonant
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
-  let
-    workInfoTypeIndexes = lookupAll typeNameMap
+  workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $
+    lookupAll typeNameMap
       [ Type.SourceWord
       , Type.WorkTitle
       , Type.ParagraphNumber
       , Type.WorkSource
       ]
-  let
-    summaryTypeIndexes = lookupAll typeNameMap
+  summaryTypeIndexes <- handleMaybe "summaryTypeIndexes" $
+    lookupAll typeNameMap
       [ Type.SourceWord
-      , Type.VowelCount
-      , Type.ConsonantCount
+      , (Type.Count Type.VocalicSyllableSingle)
+      , (Type.Count Type.ImproperDiphthong)
+      , (Type.Count Type.Diphthong)
+      , (Type.Count Type.Vowel)
+      , (Type.Count Type.Consonant)
       , Type.WordCapitalization      
-      , Type.AccentCount
-      , Type.BreathingCount
-      , Type.SyllabicMarkCount
-      , Type.LetterCount
-      , Type.MarkCount
+      , (Type.Count Type.Accent)
+      , (Type.Count Type.Breathing)
+      , (Type.Count Type.SyllabicMark)
+      , (Type.Count Type.AbstractLetter)
+      , (Type.Count Type.ConcreteMark)
       , Type.Elision
       , Type.ParagraphNumber
       ]
@@ -168,8 +175,8 @@ maybeToOneOrZero :: Maybe a -> Int
 maybeToOneOrZero Nothing = 0
 maybeToOneOrZero (Just _) = 1
 
-lookupAll :: Ord a => Map a b -> [a] -> [b]
-lookupAll m = Maybe.catMaybes . fmap (flip Map.lookup m)
+lookupAll :: Ord a => Map a b -> [a] -> Maybe [b]
+lookupAll m = traverse (flip Map.lookup m)
 
 getElision :: Maybe a -> Elision.IsElided
 getElision Nothing = Elision.NotElided
