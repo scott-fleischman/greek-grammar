@@ -146,6 +146,7 @@ process = do
   summaryTypeIndexes <- handleMaybe "summaryTypeIndexes" $
     lookupAll typeNameMap
       [ Type.SourceWord
+      , (Type.Count Type.Syllable)
       , (Type.Count Type.VocalicSyllableSingle)
       , (Type.Count Type.ImproperDiphthong)
       , (Type.Count Type.Diphthong)
