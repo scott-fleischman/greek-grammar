@@ -31,20 +31,40 @@ instance Functor StartVocalic where
 
 type Start m = Either (StartVocalic (Abstract.Vowel, m)) (Abstract.Consonant, m)
 
-
 makeStartVocalic :: [(Abstract.VowelConsonant, Abstract.Case, Mark.Group Maybe)] -> [Start (Abstract.Case, Mark.Group Maybe)]
 makeStartVocalic = foldr go []
   where
     go (Right a, b, c) xs = Right (a, (b, c)) : xs
     go (Left a, b, c@(_, _, Just Mark.SyllabicIotaSubscript)) xs = Left (StartVocalicIota (a, (b, c))) : xs
     go (Left a, b, c@(_, _, Just Mark.SyllabicDiaeresis)) xs = Left (StartVocalicDiaeresis (a, (b, c))) : xs
-    go (Left a, b, c@(_, _, Nothing)) [] = Left (StartVocalicDiaeresis (a, (b, c))) : []
+    go (Left a, b, c@(_, _, Nothing)) [] = Left (StartVocalicSingle (a, (b, c))) : []
     go (Left a, b, c@(_, _, Nothing)) (Left (StartVocalicSingle v@(vw, _)) : xs) | isCombiner vw = Left (StartVocalicDiphthong (a, (b, c)) v) : xs
     go (Left a, b, c) xs = Left (StartVocalicSingle (a, (b, c))) : xs
 
     isCombiner Abstract.V_ι = True
     isCombiner Abstract.V_υ = True
     isCombiner _ = False
+
+data Diphthong = D_αι | D_αυ | D_ει | D_ευ | D_ηυ | D_οι | D_ου | D_υι deriving (Eq, Ord, Show)
+data ImproperDiphthong = I_α | I_η | I_ω deriving (Eq, Ord, Show)
+
+data Vocalic m
+  = VocalicSingle Abstract.Vowel m
+  | VocalicIota ImproperDiphthong m
+  | VocalicDiphthong Diphthong m
+  deriving (Eq, Ord, Show)
+
+type VocalicConsonant mv mc = Either (Vocalic mv) (Abstract.Consonant, mc)
+
+--validateVocalicConsonant :: [Start (Mark.Group Maybe)] -> Maybe [VocalicConsonant (Mark.AccentBreathing Maybe) (Maybe Mark.Breathing)]
+
+--validateStartVocalic :: StartVocalic (Mark.Group Maybe) -> Maybe (Vocalic Mark.AccentBreathing)
+--validateStartVocalic StartVocalicSingle
+
+validateConsonantBreathing :: (Abstract.Consonant, Mark.Group Maybe) -> Maybe (Abstract.Consonant, Maybe Mark.Breathing)
+validateConsonantBreathing (x, (Nothing, b, Nothing)) = Just (x, b)
+validateConsonantBreathing _ = Nothing
+
 
 --data Vocalic a b c
 --  = OneVowel a
