@@ -2,7 +2,6 @@
 
 module Text.Greek.Script.Syllable where
 
---import Control.Lens
 --import Text.Greek.FileReference
 --import Text.Greek.Parse.Utility
 --import Text.Greek.Script.Unit (Unit)
@@ -13,6 +12,7 @@ module Text.Greek.Script.Syllable where
 --import qualified Text.Greek.Script.Mark as Mark
 --import qualified Text.Greek.Script.Unit as Unit
 
+import qualified Control.Lens as Lens
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Mark as Mark
 
@@ -31,15 +31,15 @@ instance Functor StartVocalic where
 
 type Start m = Either (StartVocalic (Abstract.Vowel, m)) (Abstract.Consonant, m)
 
-makeStartVocalic :: [(Abstract.VowelConsonant, Abstract.Case, Mark.Group Maybe)] -> [Start (Abstract.Case, Mark.Group Maybe)]
+makeStartVocalic :: [(Abstract.VowelConsonant, Mark.Group Maybe)] -> [Start (Mark.Group Maybe)]
 makeStartVocalic = foldr go []
   where
-    go (Right a, b, c) xs = Right (a, (b, c)) : xs
-    go (Left a, b, c@(_, _, Just Mark.SyllabicIotaSubscript)) xs = Left (StartVocalicIota (a, (b, c))) : xs
-    go (Left a, b, c@(_, _, Just Mark.SyllabicDiaeresis)) xs = Left (StartVocalicDiaeresis (a, (b, c))) : xs
-    go (Left a, b, c@(_, _, Nothing)) [] = Left (StartVocalicSingle (a, (b, c))) : []
-    go (Left a, b, c@(_, _, Nothing)) (Left (StartVocalicSingle v@(vw, _)) : xs) | isCombiner vw = Left (StartVocalicDiphthong (a, (b, c)) v) : xs
-    go (Left a, b, c) xs = Left (StartVocalicSingle (a, (b, c))) : xs
+    go (Right a, c) xs = Right (a, c) : xs
+    go (Left a, c@(_, _, Just Mark.SyllabicIotaSubscript)) xs = Left (StartVocalicIota (a, c)) : xs
+    go (Left a, c@(_, _, Just Mark.SyllabicDiaeresis)) xs = Left (StartVocalicDiaeresis (a, c)) : xs
+    go (Left a, c@(_, _, Nothing)) [] = Left (StartVocalicSingle (a, c)) : []
+    go (Left a, c@(_, _, Nothing)) (Left (StartVocalicSingle v@(vw, _)) : xs) | isCombiner vw = Left (StartVocalicDiphthong (a, c) v) : xs
+    go (Left a, c) xs = Left (StartVocalicSingle (a, c)) : xs
 
     isCombiner Abstract.V_ι = True
     isCombiner Abstract.V_υ = True
@@ -56,10 +56,37 @@ data Vocalic m
 
 type VocalicConsonant mv mc = Either (Vocalic mv) (Abstract.Consonant, mc)
 
---validateVocalicConsonant :: [Start (Mark.Group Maybe)] -> Maybe [VocalicConsonant (Mark.AccentBreathing Maybe) (Maybe Mark.Breathing)]
+validateVocalicConsonant :: Start (Mark.Group Maybe) -> Maybe (VocalicConsonant (Mark.AccentBreathing Maybe) (Maybe Mark.Breathing))
+validateVocalicConsonant x = Lens._Left validateStartVocalic x >>= Lens._Right validateConsonantBreathing
 
---validateStartVocalic :: StartVocalic (Mark.Group Maybe) -> Maybe (Vocalic Mark.AccentBreathing)
---validateStartVocalic StartVocalicSingle
+validateStartVocalic :: StartVocalic (Abstract.Vowel, Mark.Group Maybe) -> Maybe (Vocalic (Mark.AccentBreathing Maybe))
+validateStartVocalic (StartVocalicSingle (v, (a, b, Nothing))) =
+  Just $ VocalicSingle v (a, b)
+validateStartVocalic (StartVocalicDiaeresis (v, (a, b, Just Mark.SyllabicDiaeresis))) =
+  Just $ VocalicSingle v (a, b)
+validateStartVocalic (StartVocalicIota (v, (a, b, Just Mark.SyllabicIotaSubscript))) =
+  VocalicIota <$> vowelToImproperDiphthong v <*> pure (a, b)
+validateStartVocalic (StartVocalicDiphthong (v1, (Nothing, Nothing, Nothing)) (v2, (a, b, Nothing))) =
+  VocalicDiphthong <$> vowelPairToDiphthong v1 v2 <*> pure (a, b)
+validateStartVocalic _ =
+  Nothing
+
+vowelToImproperDiphthong :: Abstract.Vowel -> Maybe ImproperDiphthong
+vowelToImproperDiphthong Abstract.V_α = Just I_α
+vowelToImproperDiphthong Abstract.V_η = Just I_η
+vowelToImproperDiphthong Abstract.V_ω = Just I_ω
+vowelToImproperDiphthong _ = Nothing
+
+vowelPairToDiphthong :: Abstract.Vowel -> Abstract.Vowel -> Maybe Diphthong
+vowelPairToDiphthong Abstract.V_α Abstract.V_ι = Just D_αι
+vowelPairToDiphthong Abstract.V_α Abstract.V_υ = Just D_αυ
+vowelPairToDiphthong Abstract.V_ε Abstract.V_ι = Just D_ει
+vowelPairToDiphthong Abstract.V_ε Abstract.V_υ = Just D_ευ
+vowelPairToDiphthong Abstract.V_η Abstract.V_υ = Just D_ηυ
+vowelPairToDiphthong Abstract.V_ο Abstract.V_ι = Just D_οι
+vowelPairToDiphthong Abstract.V_ο Abstract.V_υ = Just D_ου
+vowelPairToDiphthong Abstract.V_υ Abstract.V_ι = Just D_υι
+vowelPairToDiphthong _ _ = Nothing
 
 validateConsonantBreathing :: (Abstract.Consonant, Mark.Group Maybe) -> Maybe (Abstract.Consonant, Maybe Mark.Breathing)
 validateConsonantBreathing (x, (Nothing, b, Nothing)) = Just (x, b)

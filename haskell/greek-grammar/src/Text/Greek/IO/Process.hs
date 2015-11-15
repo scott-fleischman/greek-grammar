@@ -59,6 +59,8 @@ process = do
   let markedAbstractLetterMarkGroups = Lens.over (wordSurfaceLens . traverse . Marked.marks) snd markedAbstractLetterMarkGroupPairs
   let markedVowelConsonantMarkGroupPairs = dupApply' (wordSurfaceLens . traverse . Marked.item) Abstract.toVowelConsonant markedAbstractLetterMarkGroups
   let vowelConsonantMarkGroup = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedVowelConsonantMarkGroupPairs
+  let startSyllable = Lens.over wordSurfaceLens (Syllable.makeStartVocalic . fmap (\(Marked.Unit a b) -> (a, b))) vowelConsonantMarkGroup
+  vocalicSyllableConsonant <- handleMaybe "Vocalic Syllable Consonant" $ dupApply (wordSurfaceLens . traverse) Syllable.validateVocalicConsonant startSyllable
 
   let
     storedTypeDatas =
@@ -121,7 +123,8 @@ process = do
       , makeWordPartType Type.ConsonantCount (pure . Word.ConsonantCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Right))) . Word.getSurface) vowelConsonantMarkGroup
       , makeSurfacePartType Type.SyllabicMarkVowelConsonant getSyllabicMarkVowelConsonant vowelConsonantMarkGroup
  
-      , makeWordPartType Type.StartSyllable toStartSyllable vowelConsonantMarkGroup
+      , makeSurfaceType Type.StartSyllable startSyllable
+      , makeSurfaceType (Type.Function Type.StartSyllable Type.VocalicSyllableConsonant) vocalicSyllableConsonant
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   let
@@ -286,14 +289,6 @@ getSyllabicMarkVowelConsonant :: Marked.Unit Abstract.VowelConsonant (Mark.Group
 getSyllabicMarkVowelConsonant (Marked.Unit vc (_, _, Just m)) = pure (m, vc)
 getSyllabicMarkVowelConsonant _ = mempty
 
-
-toStartSyllable :: Word.Indexed Word.Capital [Marked.Unit Abstract.VowelConsonant (Mark.Group Maybe)]
-  -> [Syllable.Start (Abstract.Case, Mark.Group Maybe)]
-toStartSyllable (Word.Word (_, (_, _, cap)) xs)
-  = Syllable.makeStartVocalic
-  . fmap (\(c, Marked.Unit i m) -> (i, c, m))
-  . Abstract.applyCapitalization cap
-  $ xs
 
 dupApply' :: ((d -> Functor.Identity (d, b)) -> a -> Functor.Identity c) -> (d -> b) -> a -> c
 dupApply' a b = Functor.runIdentity . dupApply a (Functor.Identity . b)

@@ -69,6 +69,7 @@ instance Render Type.Name where
   render Type.ConsonantCount = "Consonant Count"
   render Type.SyllabicMarkVowelConsonant = "Syllabic Mark, Vowel/Consonant"
   render Type.StartSyllable = "Start Syllable"
+  render Type.VocalicSyllableConsonant = "Vocalic Syllable/Consonant"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -272,12 +273,35 @@ instance Render Word.ConsonantCount where render = renderLabeledNumber "consonan
 
 instance Render (Mark.Syllabic, Abstract.VowelConsonant) where render = renderPair
 
-instance Render (Syllable.Start (Abstract.Case, Mark.Group Maybe)) where render = renderEitherIgnore
-instance Render (Abstract.Consonant, (Abstract.Case, Mark.Group Maybe)) where render = renderPair
-instance Render (Abstract.Case, Mark.Group Maybe) where render = renderPair
-instance Render (Abstract.Vowel, (Abstract.Case, Mark.Group Maybe)) where render = renderPair
-instance Render (Syllable.StartVocalic (Abstract.Vowel, (Abstract.Case, Mark.Group Maybe))) where
+instance Render (Syllable.Start (Mark.Group Maybe)) where render = renderEitherIgnore
+instance Render (Abstract.Consonant, Mark.Group Maybe) where render = renderPair
+instance Render (Abstract.Vowel, Mark.Group Maybe) where render = renderPair
+instance Render (Syllable.StartVocalic (Abstract.Vowel, Mark.Group Maybe)) where
   render (Syllable.StartVocalicSingle v) = Format.format "Start Vocalic Single — {}" (Format.Only . render $ v)
   render (Syllable.StartVocalicDiaeresis v) = Format.format "Start Vocalic Diaeresis — {}" (Format.Only . render $ v)
   render (Syllable.StartVocalicIota v) = Format.format "Start Vocalic Iota — {}" (Format.Only . render $ v)
   render (Syllable.StartVocalicDiphthong v1 v2) = Format.format "Start Vocalic Diphthong — {} — {}" (render v1, render v2)
+
+instance Render (Syllable.Start (Mark.Group Maybe), Syllable.VocalicConsonant (Mark.AccentBreathing Maybe) (Maybe Mark.Breathing)) where
+  render = renderFunction
+instance Render (Syllable.VocalicConsonant (Mark.AccentBreathing Maybe) (Maybe Mark.Breathing)) where
+  render = renderEitherIgnore
+instance Render (Abstract.Consonant, Maybe Mark.Breathing) where render = renderPair
+instance Render (Syllable.Vocalic (Mark.AccentBreathing Maybe)) where
+  render (Syllable.VocalicSingle v m) = Format.format "Single Vowel {} {}" (render v, render m)
+  render (Syllable.VocalicIota d m) = Format.format "Improper Diphthong {} {}" (render d, render m)
+  render (Syllable.VocalicDiphthong d m) = Format.format "Diphthong {} {}" (render d, render m)
+instance Render (Mark.AccentBreathing Maybe) where render = renderPair
+instance Render Syllable.ImproperDiphthong where
+  render Syllable.I_α = "ᾳ"
+  render Syllable.I_η = "ῃ"
+  render Syllable.I_ω = "ῳ"
+instance Render Syllable.Diphthong where
+  render Syllable.D_αι = "αι" 
+  render Syllable.D_αυ = "αυ" 
+  render Syllable.D_ει = "ει" 
+  render Syllable.D_ευ = "ευ" 
+  render Syllable.D_ηυ = "ηυ" 
+  render Syllable.D_οι = "οι" 
+  render Syllable.D_ου = "ου" 
+  render Syllable.D_υι = "υι"
