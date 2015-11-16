@@ -16,8 +16,8 @@ export const SingleProperty = ({ name, nameUrl, valueIndexes, getValue, getValue
 export const PropertyDetail = ({ name, nameUrl, valueIndexes, getValue, getValueUrl }) => {
   const valueElements = R.addIndex(R.map)
     ((x, i) => (
-      <div>
-        <Value key={i} value={getValue(x)} valueUrl={getValueUrl(x)} />
+      <div key={i}>
+        <Value value={getValue(x)} valueUrl={getValueUrl(x)} />
       </div>
     ))
     (valueIndexes);
