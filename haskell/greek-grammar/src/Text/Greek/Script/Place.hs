@@ -35,7 +35,7 @@ type Place4 = (Initial, Medial, Final, AttestedInitial)
 applyAttestation :: Ord c => Set.Set c -> (c, Place3) -> (c, Place4)
 applyAttestation ss (c, p)
   | (_,IsMedial,_) <- p
-  , Set.notMember c ss
+  , Set.member c ss
   = (c, addAttestedInitial p AttestedInitial)
 applyAttestation _ (c, p) = (c, addAttestedInitial p UnattestedInitial)
 

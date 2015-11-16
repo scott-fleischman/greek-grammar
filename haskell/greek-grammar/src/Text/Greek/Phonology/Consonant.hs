@@ -41,11 +41,11 @@ getStop Rh_χ = IsStop
 getStop Rh_θ = IsStop
 getStop _ = NotStop
 
-data IsolatedDouble = IsIsolatedDouble | IsNotIsolatedDouble deriving (Eq, Ord, Show)
+data IsolatedDouble = IsIsolatedDouble | NotIsolatedDouble deriving (Eq, Ord, Show)
 
 getIsolatedDouble :: [PlusRoughRho] -> IsolatedDouble
 getIsolatedDouble (x : y : []) | x == y = IsIsolatedDouble
-getIsolatedDouble _ = IsNotIsolatedDouble
+getIsolatedDouble _ = NotIsolatedDouble
 
 data StopMuNu = IsStopMuNu | IsNotStopMuNu deriving (Eq, Ord, Show)
 
@@ -58,5 +58,5 @@ getStopMuNu _ = IsNotStopMuNu
 
 newtype ClusterLength = ClusterLength { getClusterLength :: Int } deriving (Eq, Ord, Show)
 
-splitScriptSyllableInfo :: [PlusRoughRho] -> (ClusterLength, StopMuNu, [PlusRoughRho])
-splitScriptSyllableInfo xs = (ClusterLength . length $ xs, getStopMuNu xs, xs)
+splitScriptSyllableInfo :: [PlusRoughRho] -> (ClusterLength, StopMuNu, IsolatedDouble, [PlusRoughRho])
+splitScriptSyllableInfo xs = (ClusterLength . length $ xs, getStopMuNu xs, getIsolatedDouble xs, xs)

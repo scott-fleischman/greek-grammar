@@ -81,7 +81,7 @@ instance Render Type.Name where
   render Type.ConsonantRhCluster = "[Consonant+ῥ]"
   render Type.ConsonantRhClusterPlace3 = "[Consonant+ῥ], Initial, Medial, Final"
   render Type.ConsonantRhClusterPlace3Swap = "Initial, Medial, Final, [Consonant+ῥ]"
-  render Type.ConsonantRhClusterPlaceInfo = "Medial, AttestedInitial, Length, Stop+μ/ν, [Consonant+ῥ]"
+  render Type.ConsonantRhClusterPlaceInfo = "Medial, Attested Initial, Length, Stop+μ/ν, Double, [Consonant+ῥ]"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -420,3 +420,9 @@ instance Render Consonant.StopMuNu where
   render Consonant.IsNotStopMuNu = "Not Stop+μ/ν"
 
 instance Render Consonant.ClusterLength where render = renderLabeledNumber "consonant" "consonants" . Consonant.getClusterLength
+instance Render (Place.Medial, Place.AttestedInitial,
+  (Consonant.ClusterLength, Consonant.StopMuNu, Consonant.IsolatedDouble, [Consonant.PlusRoughRho])) where render = renderTriple
+instance Render (Consonant.ClusterLength, Consonant.StopMuNu, Consonant.IsolatedDouble, [Consonant.PlusRoughRho]) where render = renderQuad
+instance Render Consonant.IsolatedDouble where
+  render Consonant.IsIsolatedDouble = "Is Isolated Double"
+  render Consonant.NotIsolatedDouble = "Not Isolated Double"
