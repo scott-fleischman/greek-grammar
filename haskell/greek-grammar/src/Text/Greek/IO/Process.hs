@@ -61,11 +61,12 @@ process = do
   let markedVowelConsonantMarkGroupPairs = dupApply' (wordSurfaceLens . traverse . Marked.item) Abstract.toVowelConsonant markedAbstractLetterMarkGroups
   let vowelConsonantMarkGroup = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedVowelConsonantMarkGroupPairs
   let startSyllable = Lens.over wordSurfaceLens (Syllable.makeStartVocalic . fmap (\(Marked.Unit a b) -> (a, b))) vowelConsonantMarkGroup
-  vocalicSyllableConsonantPair <- handleMaybe "Vocalic Syllable Consonant" $ dupApply (wordSurfaceLens . traverse) Syllable.validateVocalicConsonant startSyllable
-  let vocalicSyllableConsonant = Lens.over (wordSurfaceLens . traverse) snd vocalicSyllableConsonantPair
-  vocalicSyllableConsonantRhPair <- handleMaybe "Reify Rho Rough" $ dupApply (wordSurfaceLens . traverse . Lens._Right) Consonant.reifyBreathing vocalicSyllableConsonant
-  let vocalicSyllableConsonantRh = Lens.over (wordSurfaceLens . traverse . Lens._Right) snd vocalicSyllableConsonantRhPair
-  let vocalicSyllableConsonantCluster = Lens.over wordSurfaceLens Syllable.clusterConsonants vocalicSyllableConsonantRh
+  vocalicSyllableABConsonantBPair <- handleMaybe "Vocalic Syllable Consonant" $ dupApply (wordSurfaceLens . traverse) Syllable.validateVocalicConsonant startSyllable
+  let vocalicSyllableABConsonantB = Lens.over (wordSurfaceLens . traverse) snd vocalicSyllableABConsonantBPair
+  vocalicSyllableABConsonantRhPair <- handleMaybe "Reify Rho Rough" $ dupApply (wordSurfaceLens . traverse . Lens._Right) Consonant.reifyBreathing vocalicSyllableABConsonantB
+  let vocalicSyllableABConsonantRh = Lens.over (wordSurfaceLens . traverse . Lens._Right) snd vocalicSyllableABConsonantRhPair
+  let vocalicSyllableABConsonantCluster = Lens.over wordSurfaceLens Syllable.clusterConsonants vocalicSyllableABConsonantRh
+  let vocalicSyllableABConsonantClusterP = Lens.over wordSurfaceLens Syllable.tagConsonantPositions vocalicSyllableABConsonantCluster
 
   let
     storedTypeDatas =
@@ -127,24 +128,27 @@ process = do
       , makeWordPartType (Type.Count Type.Vowel) (pure . Word.VowelCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Left))) . Word.getSurface) vowelConsonantMarkGroup
       , makeWordPartType (Type.Count Type.Consonant) (pure . Word.ConsonantCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Right))) . Word.getSurface) vowelConsonantMarkGroup
       , makeSurfacePartType Type.SyllabicMarkVowelConsonant getSyllabicMarkVowelConsonant vowelConsonantMarkGroup
- 
+
       , makeSurfaceType Type.StartSyllable startSyllable
-      , makeSurfaceType (Type.Function Type.StartSyllable Type.VocalicSyllableConsonant) vocalicSyllableConsonantPair
-      , makeSurfaceType Type.VocalicSyllableConsonant vocalicSyllableConsonant
-      , makeSurfacePartType Type.VocalicSyllableSingle (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToSingle) vocalicSyllableConsonant
-      , makeSurfacePartType Type.ImproperDiphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToImproperDiphthong) vocalicSyllableConsonant
-      , makeSurfacePartType Type.Diphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToDiphthong) vocalicSyllableConsonant
-      , makeWordPartType (Type.Count Type.Syllable) (pure . sum . fmap Syllable.getSyllableCount . Word.getSurface) vocalicSyllableConsonant
-      , makeWordPartType (Type.Count Type.VocalicSyllableSingle) (pure . sum . fmap Syllable.getVocalicSingleCount . Word.getSurface) vocalicSyllableConsonant
-      , makeWordPartType (Type.Count Type.ImproperDiphthong) (pure . sum . fmap Syllable.getImproperDiphthongCount . Word.getSurface) vocalicSyllableConsonant
-      , makeWordPartType (Type.Count Type.Diphthong) (pure . sum . fmap Syllable.getDiphthongCount . Word.getSurface) vocalicSyllableConsonant
+      , makeSurfaceType (Type.Function Type.StartSyllable Type.VocalicSyllableABConsonantB) vocalicSyllableABConsonantBPair
+      , makeSurfaceType Type.VocalicSyllableABConsonantB vocalicSyllableABConsonantB
+      , makeSurfacePartType Type.VocalicSyllable (Lens.toListOf Lens._Left) $ Lens.over (wordSurfaceLens . traverse . Lens._Left) (fmap (const ())) vocalicSyllableABConsonantB
+      , makeSurfacePartType Type.VocalicSyllableSingle (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToSingle) vocalicSyllableABConsonantB
+      , makeSurfacePartType Type.ImproperDiphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToImproperDiphthong) vocalicSyllableABConsonantB
+      , makeSurfacePartType Type.Diphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToDiphthong) vocalicSyllableABConsonantB
+      , makeWordPartType (Type.Count Type.Syllable) (pure . sum . fmap Syllable.getSyllableCount . Word.getSurface) vocalicSyllableABConsonantB
+      , makeWordPartType (Type.Count Type.VocalicSyllableSingle) (pure . sum . fmap Syllable.getVocalicSingleCount . Word.getSurface) vocalicSyllableABConsonantB
+      , makeWordPartType (Type.Count Type.ImproperDiphthong) (pure . sum . fmap Syllable.getImproperDiphthongCount . Word.getSurface) vocalicSyllableABConsonantB
+      , makeWordPartType (Type.Count Type.Diphthong) (pure . sum . fmap Syllable.getDiphthongCount . Word.getSurface) vocalicSyllableABConsonantB
 
-      , makeSurfaceType Type.VocalicSyllableConsonantRh vocalicSyllableConsonantRh
-      , makeSurfacePartType (Type.Function Type.ConsonantBreathing Type.ConsonantRh) (Lens.toListOf Lens._Right) vocalicSyllableConsonantRhPair
-      , makeSurfacePartType Type.ConsonantRh (Lens.toListOf Lens._Right) vocalicSyllableConsonantRh
+      , makeSurfaceType Type.VocalicSyllableABConsonantRh vocalicSyllableABConsonantRh
+      , makeSurfacePartType (Type.Function Type.ConsonantBreathing Type.ConsonantRh) (Lens.toListOf Lens._Right) vocalicSyllableABConsonantRhPair
+      , makeSurfacePartType Type.ConsonantRh (Lens.toListOf Lens._Right) vocalicSyllableABConsonantRh
 
-      , makeSurfaceType Type.VocalicSyllableConsonantRhCluster vocalicSyllableConsonantCluster
-      , makeSurfacePartType Type.ConsonantRhCluster (Lens.toListOf Lens._Right) vocalicSyllableConsonantCluster
+      , makeSurfaceType Type.VocalicSyllableABConsonantRhCluster vocalicSyllableABConsonantCluster
+      , makeSurfacePartType Type.ConsonantRhCluster (Lens.toListOf Lens._Right) vocalicSyllableABConsonantCluster
+
+      , makeSurfacePartType Type.ConsonantRhClusterPlace (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterP
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $

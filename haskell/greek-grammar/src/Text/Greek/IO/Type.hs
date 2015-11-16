@@ -41,14 +41,16 @@ data Name
   | Consonant
   | SyllabicMarkVowelConsonant
   | StartSyllable
-  | VocalicSyllableConsonant
+  | VocalicSyllableABConsonantB
+  | VocalicSyllable
   | VocalicSyllableSingle
   | ImproperDiphthong
   | Diphthong
   | Syllable
-  | VocalicSyllableConsonantRh
+  | VocalicSyllableABConsonantRh
   | ConsonantBreathing
   | ConsonantRh
-  | VocalicSyllableConsonantRhCluster
+  | VocalicSyllableABConsonantRhCluster
   | ConsonantRhCluster
+  | ConsonantRhClusterPlace
   deriving (Eq, Ord)

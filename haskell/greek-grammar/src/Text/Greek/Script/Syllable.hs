@@ -44,6 +44,11 @@ data Vocalic m
   | VocalicDiphthong Diphthong m
   deriving (Eq, Ord, Show)
 
+instance Functor Vocalic where
+  fmap f (VocalicSingle v m) = VocalicSingle v (f m)
+  fmap f (VocalicIota v m) = VocalicIota v (f m)
+  fmap f (VocalicDiphthong v m) = VocalicDiphthong v (f m)
+
 type VocalicEither mv c = Either (Vocalic mv) c
 type VocalicConsonant mv mc = VocalicEither mv (Abstract.Consonant, mc)
 
@@ -58,6 +63,22 @@ newtype Count = Count Int deriving (Eq, Ord, Show, Num)
 newtype VocalicSingleCount = VocalicSingleCount Int deriving (Eq, Ord, Show, Num)
 newtype ImproperDiphthongCount = ImproperDiphthongCount Int deriving (Eq, Ord, Show, Num)
 newtype DiphthongCount = DiphthongCount Int deriving (Eq, Ord, Show, Num)
+
+data Place
+  = PlaceInitialFinal
+  | PlaceInitial
+  | PlaceMedial
+  | PlaceFinal
+  deriving (Eq, Ord, Show)
+
+tagConsonantPositions :: [Either v c] -> [Either v (c, Place)]
+tagConsonantPositions [] = []
+tagConsonantPositions [x] = pure . Lens.over Lens._Right (flip (,) PlaceInitialFinal) $ x
+tagConsonantPositions (x : xs) = (Lens.over Lens._Right (flip (,) PlaceInitial) x) : (reverse . tagReverseMedialFinal . reverse $ xs)
+
+tagReverseMedialFinal :: [Either v c] -> [Either v (c, Place)]
+tagReverseMedialFinal [] = []
+tagReverseMedialFinal (x : xs) = (Lens.over Lens._Right (flip (,) PlaceFinal) x) : (Lens.over (traverse . Lens._Right) (flip (,) PlaceMedial) xs)
 
 getSyllableCount :: VocalicConsonant a b -> Count
 getSyllableCount (Left _) = 1
