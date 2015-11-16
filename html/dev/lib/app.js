@@ -68,7 +68,7 @@ function getViewTypeList(types, getTypeUrl) {
   };
 }
 
-function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl) {
+function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl, showAll) {
   return {
     navTitle: workTitle,
     content: (
@@ -80,6 +80,7 @@ function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getVa
         getValueTitle={getValueTitle}
         getValueListUrl={getValueListUrl}
         getInstanceListUrl={getInstanceListUrl}
+        showAll={showAll}
       />
     ),
   };
@@ -125,7 +126,8 @@ function getViewInstanceList(getWorkInfo, getTypeInfo, instances, typeIndex, val
   };
 }
 
-const App = ({ dispatch, visual, data }) => {
+const App = ({ dispatch, visual, data, ephemeral }) => {
+  const showAll = ephemeral.showAll || false;
   const viewWork = x => dispatch(Action.fetchViewWork(x));
 
   const getWorkInfo = workIndex => data.index.works[workIndex];
@@ -153,7 +155,8 @@ const App = ({ dispatch, visual, data }) => {
         getTypeTitle,
         getValueTitle,
         getValueListUrl,
-        getInstanceListUrl);
+        getInstanceListUrl,
+        showAll);
       break;
     case State.view.word:
       info = getViewWord(
@@ -205,6 +208,7 @@ function select(state) {
   return {
     visual: state.visual,
     data: state.data,
+    ephemeral: state.ephemeral,
   };
 }
 

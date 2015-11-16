@@ -57,7 +57,7 @@ const WordGroup = ({ key, wordIndexes, words, workIndex, wordSummary, getWordUrl
   );
 }
 
-export const Work = ({ work, workIndex, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl }) => {
+export const Work = ({ work, workIndex, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl, showAll }) => {
   const wordSummary = new Map(R.addIndex(R.map) ((x, i) => [x, i]) (work.wordSummary));
   const wordGroups = R.addIndex(R.map)
     ((wg, i) => (

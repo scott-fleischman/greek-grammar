@@ -35,8 +35,9 @@ function updateMap(map, key, value) {
 export function applyAction(state = {}, action) {
   const data = getData(state.data, action);
   const visual = getVisual(action);
+  const ephemeral = getEphemeral(action);
 
-  return { data, visual };
+  return { data, visual, ephemeral };
 }
 
 export const getVisual = action => {
@@ -57,6 +58,13 @@ export const getVisual = action => {
     default: console.log('Unknown action', action); return {};
   }
 };
+
+const getEphemeral = action => {
+  switch (action.type) {
+    case Action.types.showAll: return { showAll: true };
+    default: return {};
+  }
+}
 
 const getData = (data, action) => {
   switch (action.type) {
