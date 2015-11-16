@@ -79,9 +79,9 @@ instance Render Type.Name where
   render Type.ConsonantRh = "Consonant+ῥ"
   render Type.VocalicSyllableABConsonantRhCluster = "Vocalic Syllable, Accent, Breathing / [Consonant+ῥ]"
   render Type.ConsonantRhCluster = "[Consonant+ῥ]"
-  render Type.ConsonantRhClusterPlace = "[Consonant+ῥ], Initial, Medial, Final"
-  render Type.ConsonantRhClusterPlaceSwap = "Initial, Medial, Final, [Consonant+ῥ]"
-  render Type.ConsonantRhClusterMedialNonInitial = "[Consonant+ῥ] Medial Non-Initial"
+  render Type.ConsonantRhClusterPlace3 = "[Consonant+ῥ], Initial, Medial, Final"
+  render Type.ConsonantRhClusterPlace3Swap = "Initial, Medial, Final, [Consonant+ῥ]"
+  render Type.ConsonantRhClusterPlaceInfo = "Medial, AttestedInitial, Length, Stop+μ/ν, [Consonant+ῥ]"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -227,6 +227,9 @@ renderPair (a, b) = Format.format "{}, {}" (render a, render b)
 
 renderTriple :: (Render a, Render b, Render c) => (a, b, c) -> Lazy.Text
 renderTriple (a, b, c) = Format.format "{}, {}, {}" (render a, render b, render c)
+
+renderQuad :: (Render a, Render b, Render c, Render d) => (a, b, c, d) -> Lazy.Text
+renderQuad (a, b, c, d) = Format.format "{}, {}, {}, {}" (render a, render b, render c, render d)
 
 instance Render (Concrete.Letter, (Abstract.Letter, Abstract.Case, Abstract.Final)) where render = renderFunction
 instance Render (Abstract.Letter, Abstract.Case, Abstract.Final) where render = renderTriple
@@ -386,9 +389,9 @@ instance Render
 instance Render [Syllable.VocalicEither (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]] where render = renderSingleLineList
 instance Render [Syllable.VocalicEither (Mark.AccentBreathing Maybe) Consonant.PlusRoughRho] where render = renderSingleLineList
 
-instance Render ([Consonant.PlusRoughRho], Place.Place) where render = renderPair
-instance Render (Place.Place, [Consonant.PlusRoughRho]) where render = renderPair
-instance Render Place.Place where render (Place.Place a b c) = renderTriple (a, b, c)
+instance Render ([Consonant.PlusRoughRho], Place.Place3) where render = renderPair
+instance Render (Place.Place3, [Consonant.PlusRoughRho]) where render = renderPair
+instance Render Place.Place3 where render = renderTriple
 
 instance Render Place.Initial where
   render Place.IsInitial = "Is Initial"
@@ -399,3 +402,21 @@ instance Render Place.Medial where
 instance Render Place.Final where
   render Place.IsFinal = "Is Final"
   render Place.NotFinal = "Not Final"
+instance Render Place.AttestedInitial where
+  render Place.AttestedInitial = "Attested Initial"
+  render Place.UnattestedInitial = "Unattested Initial"
+
+instance Render ([Consonant.PlusRoughRho], Place.Place4) where render = renderPair
+instance Render Place.Place4 where render = renderQuad
+instance Render ([Consonant.PlusRoughRho], (Place.Medial, Place.AttestedInitial)) where render = renderPair
+instance Render (Place.Medial, Place.AttestedInitial) where render = renderPair
+
+instance Render (Place.Medial, Place.AttestedInitial, 
+  (Consonant.ClusterLength, Consonant.StopMuNu, [Consonant.PlusRoughRho]))
+  where render = renderTriple
+instance Render (Consonant.ClusterLength, Consonant.StopMuNu, [Consonant.PlusRoughRho]) where render = renderTriple
+instance Render Consonant.StopMuNu where
+  render Consonant.IsStopMuNu = "Is Stop+μ/ν"
+  render Consonant.IsNotStopMuNu = "Not Stop+μ/ν"
+
+instance Render Consonant.ClusterLength where render = renderLabeledNumber "consonant" "consonants" . Consonant.getClusterLength

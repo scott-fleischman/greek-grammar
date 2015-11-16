@@ -52,7 +52,7 @@ data Name
   | ConsonantRh
   | VocalicSyllableABConsonantRhCluster
   | ConsonantRhCluster
-  | ConsonantRhClusterPlace
-  | ConsonantRhClusterPlaceSwap
-  | ConsonantRhClusterMedialNonInitial
+  | ConsonantRhClusterPlace3
+  | ConsonantRhClusterPlace3Swap
+  | ConsonantRhClusterPlaceInfo
   deriving (Eq, Ord)

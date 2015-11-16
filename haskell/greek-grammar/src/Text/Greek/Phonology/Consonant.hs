@@ -26,3 +26,37 @@ reifyBreathing (Abstract.C_φ, Nothing) = Just Rh_φ
 reifyBreathing (Abstract.C_χ, Nothing) = Just Rh_χ
 reifyBreathing (Abstract.C_ψ, Nothing) = Just Rh_ψ
 reifyBreathing _ = Nothing
+
+data Stop = IsStop | NotStop deriving (Eq, Ord, Show)
+
+getStop :: PlusRoughRho -> Stop
+getStop Rh_β = IsStop
+getStop Rh_γ = IsStop
+getStop Rh_δ = IsStop
+getStop Rh_π = IsStop
+getStop Rh_κ = IsStop
+getStop Rh_τ = IsStop
+getStop Rh_φ = IsStop
+getStop Rh_χ = IsStop
+getStop Rh_θ = IsStop
+getStop _ = NotStop
+
+data IsolatedDouble = IsIsolatedDouble | IsNotIsolatedDouble deriving (Eq, Ord, Show)
+
+getIsolatedDouble :: [PlusRoughRho] -> IsolatedDouble
+getIsolatedDouble (x : y : []) | x == y = IsIsolatedDouble
+getIsolatedDouble _ = IsNotIsolatedDouble
+
+data StopMuNu = IsStopMuNu | IsNotStopMuNu deriving (Eq, Ord, Show)
+
+getStopMuNu :: [PlusRoughRho] -> StopMuNu
+getStopMuNu (x : y : [])
+  | IsStop <- getStop x
+  , True <- y == Rh_μ || y == Rh_ν
+  = IsStopMuNu
+getStopMuNu _ = IsNotStopMuNu
+
+newtype ClusterLength = ClusterLength { getClusterLength :: Int } deriving (Eq, Ord, Show)
+
+splitScriptSyllableInfo :: [PlusRoughRho] -> (ClusterLength, StopMuNu, [PlusRoughRho])
+splitScriptSyllableInfo xs = (ClusterLength . length $ xs, getStopMuNu xs, xs)

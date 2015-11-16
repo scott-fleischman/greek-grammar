@@ -3,7 +3,6 @@
 module Text.Greek.Script.Syllable where
 
 import qualified Control.Lens as Lens
-import qualified Data.Set as Set
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Place as Place
@@ -67,27 +66,14 @@ newtype ImproperDiphthongCount = ImproperDiphthongCount Int deriving (Eq, Ord, S
 newtype DiphthongCount = DiphthongCount Int deriving (Eq, Ord, Show, Num)
 
 
-tagConsonantPositions :: [Either v c] -> [Either v (c, Place.Place)]
+tagConsonantPositions :: [Either v c] -> [Either v (c, Place.Place3)]
 tagConsonantPositions [] = []
 tagConsonantPositions [x] = pure . Lens.over Lens._Right (flip (,) Place.initialFinal) $ x
 tagConsonantPositions (x : xs) = (Lens.over Lens._Right (flip (,) Place.initial) x) : (reverse . tagReverseMedialFinal . reverse $ xs)
 
-tagReverseMedialFinal :: [Either v c] -> [Either v (c, Place.Place)]
+tagReverseMedialFinal :: [Either v c] -> [Either v (c, Place.Place3)]
 tagReverseMedialFinal [] = []
 tagReverseMedialFinal (x : xs) = (Lens.over Lens._Right (flip (,) Place.final) x) : (Lens.over (traverse . Lens._Right) (flip (,) Place.medial) xs)
-
-getInitialSet :: Ord c => [(c, Place.Place)] -> Set.Set c
-getInitialSet = Set.fromList . concatMap go
-  where
-    go (c, p) | Place.IsInitial <- Place.getPlaceInitial p = [c]
-    go _ = []
-
-getNonMatching :: Ord c => Set.Set c -> (c, Place.Place) -> Maybe (c, Place.Place)
-getNonMatching ss (c, p)
-  | Place.IsMedial <- Place.getPlaceMedial p
-  , Set.notMember c ss
-  = Just (c, p)
-getNonMatching _ _ = Nothing
 
 getSyllableCount :: VocalicConsonant a b -> Count
 getSyllableCount (Left _) = 1

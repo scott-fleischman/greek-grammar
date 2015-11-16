@@ -26,6 +26,7 @@ import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Marked as Marked
+import qualified Text.Greek.Script.Place as Place
 import qualified Text.Greek.Script.Syllable as Syllable
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Script.Unicode as Unicode
@@ -67,9 +68,11 @@ process = do
   vocalicSyllableABConsonantRhPair <- handleMaybe "Reify Rho Rough" $ dupApply (wordSurfaceLens . traverse . Lens._Right) Consonant.reifyBreathing vocalicSyllableABConsonantB
   let vocalicSyllableABConsonantRh = Lens.over (wordSurfaceLens . traverse . Lens._Right) snd vocalicSyllableABConsonantRhPair
   let vocalicSyllableABConsonantCluster = Lens.over wordSurfaceLens Syllable.clusterConsonants vocalicSyllableABConsonantRh
-  let vocalicSyllableABConsonantClusterPlace = Lens.over wordSurfaceLens Syllable.tagConsonantPositions vocalicSyllableABConsonantCluster
-  let vocalicSyllableABConsonantClusterPlaceSwap = Lens.over (wordSurfaceLens . traverse . Lens._Right) Tuple.swap vocalicSyllableABConsonantClusterPlace
-  let initialConsonantClusterSet = Syllable.getInitialSet . Lens.toListOf (wordSurfaceLens . traverse . Lens._Right) $ vocalicSyllableABConsonantClusterPlace
+  let vocalicSyllableABConsonantClusterPlace3 = Lens.over wordSurfaceLens Syllable.tagConsonantPositions vocalicSyllableABConsonantCluster
+  let vocalicSyllableABConsonantClusterPlace3Swap = Lens.over (wordSurfaceLens . traverse . Lens._Right) Tuple.swap vocalicSyllableABConsonantClusterPlace3
+  let initialConsonantClusterSet = Place.getInitialSet . Lens.toListOf (wordSurfaceLens . traverse . Lens._Right) $ vocalicSyllableABConsonantClusterPlace3
+  let vocalicSyllableABConsonantClusterPlace4 = Lens.over (wordSurfaceLens . traverse . Lens._Right) (Place.applyAttestation initialConsonantClusterSet) vocalicSyllableABConsonantClusterPlace3
+  let vocalicSyllableABConsonantClusterMAI = Lens.over (wordSurfaceLens . traverse . Lens._Right . Lens._2) (\(_,b,_,d) -> (b,d)) vocalicSyllableABConsonantClusterPlace4
 
   let
     storedTypeDatas =
@@ -151,9 +154,9 @@ process = do
       , makeSurfaceType Type.VocalicSyllableABConsonantRhCluster vocalicSyllableABConsonantCluster
       , makeSurfacePartType Type.ConsonantRhCluster (Lens.toListOf Lens._Right) vocalicSyllableABConsonantCluster
 
-      , makeSurfacePartType Type.ConsonantRhClusterPlace (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace
-      , makeSurfacePartType Type.ConsonantRhClusterPlaceSwap (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlaceSwap
-      , makeSurfacePartType Type.ConsonantRhClusterMedialNonInitial (Lens.toListOf (Lens._Right . Lens.prism' id (Syllable.getNonMatching initialConsonantClusterSet))) vocalicSyllableABConsonantClusterPlace
+      , makeSurfacePartType Type.ConsonantRhClusterPlace3 (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace3
+      , makeSurfacePartType Type.ConsonantRhClusterPlace3Swap (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace3Swap
+      , makeSurfacePartType Type.ConsonantRhClusterPlaceInfo (fmap (\(a, (b, c)) -> (b, c, Consonant.splitScriptSyllableInfo a)) . Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterMAI
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $
