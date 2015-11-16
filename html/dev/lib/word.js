@@ -4,21 +4,23 @@ import { OverlayTrigger, Button, Popover } from 'react-bootstrap';
 import { PropertyDetail } from './property.js';
 
 export const Word = ({ word, workIndex, wordIndex, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl }) => {
-  const properties = R.addIndex(R.map)
-    ((t, i) => (
+  const indexedProperties = R.addIndex(R.map) ((t, i) => ({ propertyIndex: i, typeIndex: t[0], valueIndexes: t[1] })) (word);
+  const orderedProperties = R.reverse(indexedProperties);
+  const propertyElements = R.map
+    (x => (
       <PropertyDetail
-        key={workIndex + '.' + wordIndex + '.' + i}
-        name={getTypeTitle(t[0])}
-        nameUrl={getValueListUrl(t[0])}
-        valueIndexes={t[1]}
-        getValue={x => getValueTitle(t[0], x)}
-        getValueUrl={x => getInstanceListUrl(t[0], x)}
+        key={workIndex + '.' + wordIndex + '.' + x.propertyIndex}
+        name={getTypeTitle(x.typeIndex)}
+        nameUrl={getValueListUrl(x.typeIndex)}
+        valueIndexes={x.valueIndexes}
+        getValue={v => getValueTitle(x.typeIndex, v)}
+        getValueUrl={v => getInstanceListUrl(x.typeIndex, v)}
       />)
     )
-    (word);
+    (orderedProperties);
   return (
     <div className="wordContainer">
-      {properties}
+      {propertyElements}
     </div>
   );
 }
