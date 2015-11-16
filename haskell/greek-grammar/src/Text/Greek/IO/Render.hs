@@ -131,6 +131,9 @@ renderFunction (a, b) = Format.format "{} → {}" (render a, render b)
 renderSingleLineList :: Render a => [a] -> Lazy.Text
 renderSingleLineList = Format.format "[{}]" . Format.Only . Lazy.intercalate ", " . fmap render
 
+renderSingleLineString :: Render a => [a] -> Lazy.Text
+renderSingleLineString = Lazy.concat . fmap render
+
 instance Render [Unicode.Decomposed] where render = renderSingleLineList
 instance Render (Unicode.Composed, [Unicode.Decomposed]) where render = renderFunction
 
@@ -316,24 +319,49 @@ instance Render Syllable.VocalicSingleCount where render (Syllable.VocalicSingle
 instance Render Syllable.ImproperDiphthongCount where render (Syllable.ImproperDiphthongCount c) = renderLabeledNumber "improper diphthong" "improper diphthongs" c
 instance Render Syllable.DiphthongCount where render (Syllable.DiphthongCount c) = renderLabeledNumber "diphthong" "diphthongs" c
 
-instance Render ((Abstract.Consonant, Maybe Mark.Breathing), Consonant.PlusRhoRough) where render = renderFunction
-instance Render (Either (Syllable.Vocalic (Mark.AccentBreathing Maybe)) Consonant.PlusRhoRough) where render = renderEitherIgnore
-instance Render Consonant.PlusRhoRough where
-  render Consonant.RR_β = "Consonant β"
-  render Consonant.RR_γ = "Consonant γ"
-  render Consonant.RR_δ = "Consonant δ"
-  render Consonant.RR_ζ = "Consonant ζ"
-  render Consonant.RR_θ = "Consonant θ"
-  render Consonant.RR_κ = "Consonant κ"
-  render Consonant.RR_λ = "Consonant λ"
-  render Consonant.RR_μ = "Consonant μ"
-  render Consonant.RR_ν = "Consonant ν"
-  render Consonant.RR_ξ = "Consonant ξ"
-  render Consonant.RR_π = "Consonant π"
-  render Consonant.RR_ρ = "Consonant ρ"
-  render Consonant.RR_ῥ = "Consonant ῥ"
-  render Consonant.RR_σ = "Consonant σ"
-  render Consonant.RR_τ = "Consonant τ"
-  render Consonant.RR_φ = "Consonant φ"
-  render Consonant.RR_χ = "Consonant χ"
-  render Consonant.RR_ψ = "Consonant ψ"
+instance Render ((Abstract.Consonant, Maybe Mark.Breathing), Consonant.PlusRoughRho) where render = renderFunction
+instance Render (Either (Syllable.Vocalic (Mark.AccentBreathing Maybe)) Consonant.PlusRoughRho) where render = renderEitherIgnore
+
+instance Render Consonant.PlusRoughRho where render = renderRhConsonant
+
+renderRhConsonant :: Consonant.PlusRoughRho -> Lazy.Text
+renderRhConsonant Consonant.Rh_β = "Consonant β"
+renderRhConsonant Consonant.Rh_γ = "Consonant γ"
+renderRhConsonant Consonant.Rh_δ = "Consonant δ"
+renderRhConsonant Consonant.Rh_ζ = "Consonant ζ"
+renderRhConsonant Consonant.Rh_θ = "Consonant θ"
+renderRhConsonant Consonant.Rh_κ = "Consonant κ"
+renderRhConsonant Consonant.Rh_λ = "Consonant λ"
+renderRhConsonant Consonant.Rh_μ = "Consonant μ"
+renderRhConsonant Consonant.Rh_ν = "Consonant ν"
+renderRhConsonant Consonant.Rh_ξ = "Consonant ξ"
+renderRhConsonant Consonant.Rh_π = "Consonant π"
+renderRhConsonant Consonant.Rh_ρ = "Consonant ρ"
+renderRhConsonant Consonant.Rh_ῥ = "Consonant ῥ"
+renderRhConsonant Consonant.Rh_σ = "Consonant σ"
+renderRhConsonant Consonant.Rh_τ = "Consonant τ"
+renderRhConsonant Consonant.Rh_φ = "Consonant φ"
+renderRhConsonant Consonant.Rh_χ = "Consonant χ"
+renderRhConsonant Consonant.Rh_ψ = "Consonant ψ"
+
+renderRhChar :: Consonant.PlusRoughRho -> Lazy.Text
+renderRhChar Consonant.Rh_β = "β"
+renderRhChar Consonant.Rh_γ = "γ"
+renderRhChar Consonant.Rh_δ = "δ"
+renderRhChar Consonant.Rh_ζ = "ζ"
+renderRhChar Consonant.Rh_θ = "θ"
+renderRhChar Consonant.Rh_κ = "κ"
+renderRhChar Consonant.Rh_λ = "λ"
+renderRhChar Consonant.Rh_μ = "μ"
+renderRhChar Consonant.Rh_ν = "ν"
+renderRhChar Consonant.Rh_ξ = "ξ"
+renderRhChar Consonant.Rh_π = "π"
+renderRhChar Consonant.Rh_ρ = "ρ"
+renderRhChar Consonant.Rh_ῥ = "ῥ"
+renderRhChar Consonant.Rh_σ = "σ"
+renderRhChar Consonant.Rh_τ = "τ"
+renderRhChar Consonant.Rh_φ = "φ"
+renderRhChar Consonant.Rh_χ = "χ"
+renderRhChar Consonant.Rh_ψ = "ψ"
+
+instance Render [Consonant.PlusRoughRho] where render = renderSingleLineString . fmap renderRhChar

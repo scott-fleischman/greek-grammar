@@ -47,7 +47,12 @@ data Vocalic m
 type VocalicEither mv c = Either (Vocalic mv) c
 type VocalicConsonant mv mc = VocalicEither mv (Abstract.Consonant, mc)
 
-type ConsonantCluster m = [(Abstract.Consonant, m)]
+clusterConsonants :: [VocalicEither mv c] -> [VocalicEither mv [c]]
+clusterConsonants = foldr go []
+  where
+    go (Left v) xs = Left v : xs
+    go (Right c) (Right cs : xs) = Right (c : cs) : xs
+    go (Right c) xs = Right [c] : xs
 
 newtype Count = Count Int deriving (Eq, Ord, Show, Num)
 newtype VocalicSingleCount = VocalicSingleCount Int deriving (Eq, Ord, Show, Num)
