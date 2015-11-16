@@ -9,8 +9,12 @@ const TypeInfo = ({ title, values, url }) => (
   </div>
 );
 
-export const TypeList = ({ types, getTypeUrl }) => (
-  <div className="listContainer">
-    {R.addIndex(R.map) ((x, i) => (<TypeInfo key={i} {...x} url={getTypeUrl(i)} />)) (types)}
-  </div>
-);
+export const TypeList = ({ types, getTypeUrl }) => {
+  const indexedTypes = R.addIndex(R.map) ((x, i) => ({ index: i, type: x })) (types);
+  const orderedTypes = R.reverse(indexedTypes);
+  return (
+    <div className="listContainer">
+      {R.map (x => (<TypeInfo key={x.index} {...x.type} url={getTypeUrl(x.index)} />)) (orderedTypes)}
+    </div>
+  );
+};
