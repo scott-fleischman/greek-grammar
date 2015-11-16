@@ -14,6 +14,7 @@ import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Marked as Marked
+import qualified Text.Greek.Script.Place as Place
 import qualified Text.Greek.Script.Syllable as Syllable
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
@@ -78,7 +79,8 @@ instance Render Type.Name where
   render Type.ConsonantRh = "Consonant+ῥ"
   render Type.VocalicSyllableABConsonantRhCluster = "Vocalic Syllable, Accent, Breathing / [Consonant+ῥ]"
   render Type.ConsonantRhCluster = "[Consonant+ῥ]"
-  render Type.ConsonantRhClusterPlace = "[Consonant+ῥ], Place"
+  render Type.ConsonantRhClusterPlace = "[Consonant+ῥ], Initial, Medial, Final"
+  render Type.ConsonantRhClusterPlaceSwap = "Initial, Medial, Final, [Consonant+ῥ]"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -383,9 +385,16 @@ instance Render
 instance Render [Syllable.VocalicEither (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]] where render = renderSingleLineList
 instance Render [Syllable.VocalicEither (Mark.AccentBreathing Maybe) Consonant.PlusRoughRho] where render = renderSingleLineList
 
-instance Render ([Consonant.PlusRoughRho], Syllable.Place) where render = renderPair
-instance Render Syllable.Place where
-  render Syllable.PlaceInitialFinal = "Initial/Final"
-  render Syllable.PlaceInitial = "Initial"
-  render Syllable.PlaceMedial = "Medial"
-  render Syllable.PlaceFinal = "Final"
+instance Render ([Consonant.PlusRoughRho], Place.Place) where render = renderPair
+instance Render (Place.Place, [Consonant.PlusRoughRho]) where render = renderPair
+instance Render Place.Place where render (Place.Place a b c) = renderTriple (a, b, c)
+
+instance Render Place.Initial where
+  render Place.IsInitial = "Is Initial"
+  render Place.NotInitial = "Not Initial"
+instance Render Place.Medial where
+  render Place.IsMedial = "Is Medial"
+  render Place.NotMedial = "Not Medial"
+instance Render Place.Final where
+  render Place.IsFinal = "Is Final"
+  render Place.NotFinal = "Not Final"

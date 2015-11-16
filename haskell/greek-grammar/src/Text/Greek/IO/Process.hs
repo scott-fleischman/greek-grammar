@@ -14,6 +14,7 @@ import qualified Data.Functor.Identity as Functor
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text.Lazy as Lazy
+import qualified Data.Tuple as Tuple
 import qualified Text.Greek.IO.Json as Json
 import qualified Text.Greek.IO.Render as Render
 import qualified Text.Greek.IO.Type as Type
@@ -66,7 +67,8 @@ process = do
   vocalicSyllableABConsonantRhPair <- handleMaybe "Reify Rho Rough" $ dupApply (wordSurfaceLens . traverse . Lens._Right) Consonant.reifyBreathing vocalicSyllableABConsonantB
   let vocalicSyllableABConsonantRh = Lens.over (wordSurfaceLens . traverse . Lens._Right) snd vocalicSyllableABConsonantRhPair
   let vocalicSyllableABConsonantCluster = Lens.over wordSurfaceLens Syllable.clusterConsonants vocalicSyllableABConsonantRh
-  let vocalicSyllableABConsonantClusterP = Lens.over wordSurfaceLens Syllable.tagConsonantPositions vocalicSyllableABConsonantCluster
+  let vocalicSyllableABConsonantClusterPlace = Lens.over wordSurfaceLens Syllable.tagConsonantPositions vocalicSyllableABConsonantCluster
+  let vocalicSyllableABConsonantClusterPlaceSwap = Lens.over (wordSurfaceLens . traverse . Lens._Right) Tuple.swap vocalicSyllableABConsonantClusterPlace
 
   let
     storedTypeDatas =
@@ -148,7 +150,8 @@ process = do
       , makeSurfaceType Type.VocalicSyllableABConsonantRhCluster vocalicSyllableABConsonantCluster
       , makeSurfacePartType Type.ConsonantRhCluster (Lens.toListOf Lens._Right) vocalicSyllableABConsonantCluster
 
-      , makeSurfacePartType Type.ConsonantRhClusterPlace (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterP
+      , makeSurfacePartType Type.ConsonantRhClusterPlace (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace
+      , makeSurfacePartType Type.ConsonantRhClusterPlaceSwap (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlaceSwap
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $

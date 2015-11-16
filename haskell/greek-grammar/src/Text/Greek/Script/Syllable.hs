@@ -5,6 +5,7 @@ module Text.Greek.Script.Syllable where
 import qualified Control.Lens as Lens
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Mark as Mark
+import qualified Text.Greek.Script.Place as Place
 
 data StartVocalic v
   = StartVocalicSingle v
@@ -64,21 +65,15 @@ newtype VocalicSingleCount = VocalicSingleCount Int deriving (Eq, Ord, Show, Num
 newtype ImproperDiphthongCount = ImproperDiphthongCount Int deriving (Eq, Ord, Show, Num)
 newtype DiphthongCount = DiphthongCount Int deriving (Eq, Ord, Show, Num)
 
-data Place
-  = PlaceInitialFinal
-  | PlaceInitial
-  | PlaceMedial
-  | PlaceFinal
-  deriving (Eq, Ord, Show)
 
-tagConsonantPositions :: [Either v c] -> [Either v (c, Place)]
+tagConsonantPositions :: [Either v c] -> [Either v (c, Place.Place)]
 tagConsonantPositions [] = []
-tagConsonantPositions [x] = pure . Lens.over Lens._Right (flip (,) PlaceInitialFinal) $ x
-tagConsonantPositions (x : xs) = (Lens.over Lens._Right (flip (,) PlaceInitial) x) : (reverse . tagReverseMedialFinal . reverse $ xs)
+tagConsonantPositions [x] = pure . Lens.over Lens._Right (flip (,) Place.initialFinal) $ x
+tagConsonantPositions (x : xs) = (Lens.over Lens._Right (flip (,) Place.initial) x) : (reverse . tagReverseMedialFinal . reverse $ xs)
 
-tagReverseMedialFinal :: [Either v c] -> [Either v (c, Place)]
+tagReverseMedialFinal :: [Either v c] -> [Either v (c, Place.Place)]
 tagReverseMedialFinal [] = []
-tagReverseMedialFinal (x : xs) = (Lens.over Lens._Right (flip (,) PlaceFinal) x) : (Lens.over (traverse . Lens._Right) (flip (,) PlaceMedial) xs)
+tagReverseMedialFinal (x : xs) = (Lens.over Lens._Right (flip (,) Place.final) x) : (Lens.over (traverse . Lens._Right) (flip (,) Place.medial) xs)
 
 getSyllableCount :: VocalicConsonant a b -> Count
 getSyllableCount (Left _) = 1

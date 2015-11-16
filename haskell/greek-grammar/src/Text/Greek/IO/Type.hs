@@ -53,4 +53,5 @@ data Name
   | VocalicSyllableABConsonantRhCluster
   | ConsonantRhCluster
   | ConsonantRhClusterPlace
+  | ConsonantRhClusterPlaceSwap
   deriving (Eq, Ord)
