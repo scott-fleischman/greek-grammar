@@ -17,6 +17,7 @@ const InstanceInfo = ({ getWorkInfo, getTypeInfo, workIndex, wordIndex, url }) =
 };
 
 export const InstanceList = ({ getWorkInfo, getTypeInfo, instances, typeIndex, valueIndex, getWordUrl }) => {
+  const indexedInstances = R.addIndex(R.map) ((x, i) => ({ index: i, instance: x })) (instances);
   return (
     <div className="listContainer">
       {R.addIndex(R.map) ((x, i) => (

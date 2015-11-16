@@ -61,20 +61,22 @@ instance Render Type.Name where
   render Type.AbstractLetterMarkKinds = "Abstract Letter, [Mark Kind]"
   render Type.MarkGroup = "Mark Group"
   render Type.AbstractLetterMarkGroup = "Abstract Letter, Mark Group"
-  render Type.VowelConsonantMarkGroup = "Vowel/Consonant, Mark Group"
-  render Type.VowelConsonant = "Vowel/Consonant"
+  render Type.VowelConsonantMarkGroup = "Vowel / Consonant, Mark Group"
+  render Type.VowelConsonant = "Vowel / Consonant"
   render Type.Vowel = "Vowel"
   render Type.Consonant = "Consonant"
-  render Type.SyllabicMarkVowelConsonant = "Syllabic Mark, Vowel/Consonant"
+  render Type.SyllabicMarkVowelConsonant = "Syllabic Mark, Vowel / Consonant"
   render Type.StartSyllable = "Start Syllable"
-  render Type.VocalicSyllableConsonant = "Vocalic Syllable/Consonant"
+  render Type.VocalicSyllableConsonant = "Vocalic Syllable / Consonant"
   render Type.VocalicSyllableSingle = "Vocalic Syllable Single"
   render Type.ImproperDiphthong = "Improper Diphthong"
   render Type.Diphthong = "Diphthong"
   render Type.Syllable = "Syllable"
-  render Type.VocalicSyllableConsonantRR = "Vocalic Syllable Consonant+ῥ"
-  render Type.ConsonantBreathing = "ConsonantBreathing"
-  render Type.ConsonantPlusRhoRough = "Consonant+ῥ"
+  render Type.VocalicSyllableConsonantRh = "Vocalic Syllable / Consonant+ῥ"
+  render Type.ConsonantBreathing = "Consonant, Breathing"
+  render Type.ConsonantRh = "Consonant+ῥ"
+  render Type.VocalicSyllableConsonantRhCluster = "Vocalic Syllable / [Consonant+ῥ]"
+  render Type.ConsonantRhCluster = "[Consonant+ῥ]"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -365,3 +367,12 @@ renderRhChar Consonant.Rh_χ = "χ"
 renderRhChar Consonant.Rh_ψ = "ψ"
 
 instance Render [Consonant.PlusRoughRho] where render = renderSingleLineString . fmap renderRhChar
+
+instance Render (Syllable.VocalicEither (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]) where render = renderEitherIgnore
+instance Render
+  ( [Syllable.VocalicEither (Mark.AccentBreathing Maybe) Consonant.PlusRoughRho]
+  , [Syllable.VocalicEither (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]]
+  )
+  where render = renderFunction
+instance Render [Syllable.VocalicEither (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]] where render = renderSingleLineList
+instance Render [Syllable.VocalicEither (Mark.AccentBreathing Maybe) Consonant.PlusRoughRho] where render = renderSingleLineList

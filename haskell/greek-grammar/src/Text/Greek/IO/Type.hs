@@ -46,7 +46,9 @@ data Name
   | ImproperDiphthong
   | Diphthong
   | Syllable
-  | VocalicSyllableConsonantRR
+  | VocalicSyllableConsonantRh
   | ConsonantBreathing
-  | ConsonantPlusRhoRough
+  | ConsonantRh
+  | VocalicSyllableConsonantRhCluster
+  | ConsonantRhCluster
   deriving (Eq, Ord)
