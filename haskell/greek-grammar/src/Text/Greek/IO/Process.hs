@@ -65,8 +65,7 @@ process = do
   let vocalicSyllableConsonant = Lens.over (wordSurfaceLens . traverse) snd vocalicSyllableConsonantPair
   vocalicSyllableConsonantRhPair <- handleMaybe "Reify Rho Rough" $ dupApply (wordSurfaceLens . traverse . Lens._Right) Consonant.reifyBreathing vocalicSyllableConsonant
   let vocalicSyllableConsonantRh = Lens.over (wordSurfaceLens . traverse . Lens._Right) snd vocalicSyllableConsonantRhPair
-  let vocalicSyllableConsonantClusterPair = dupApply' wordSurfaceLens Syllable.clusterConsonants vocalicSyllableConsonantRh
-  let vocalicSyllableConsonantCluster = Lens.over wordSurfaceLens snd vocalicSyllableConsonantClusterPair
+  let vocalicSyllableConsonantCluster = Lens.over wordSurfaceLens Syllable.clusterConsonants vocalicSyllableConsonantRh
 
   let
     storedTypeDatas =
@@ -144,7 +143,6 @@ process = do
       , makeSurfacePartType (Type.Function Type.ConsonantBreathing Type.ConsonantRh) (Lens.toListOf Lens._Right) vocalicSyllableConsonantRhPair
       , makeSurfacePartType Type.ConsonantRh (Lens.toListOf Lens._Right) vocalicSyllableConsonantRh
 
-      , makeWordPartType (Type.Function Type.VocalicSyllableConsonantRh Type.VocalicSyllableConsonantRhCluster) (pure . Word.getSurface) vocalicSyllableConsonantClusterPair
       , makeSurfaceType Type.VocalicSyllableConsonantRhCluster vocalicSyllableConsonantCluster
       , makeSurfacePartType Type.ConsonantRhCluster (Lens.toListOf Lens._Right) vocalicSyllableConsonantCluster
       ]
