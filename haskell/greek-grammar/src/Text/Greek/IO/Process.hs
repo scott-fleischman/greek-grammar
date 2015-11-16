@@ -69,6 +69,7 @@ process = do
   let vocalicSyllableABConsonantCluster = Lens.over wordSurfaceLens Syllable.clusterConsonants vocalicSyllableABConsonantRh
   let vocalicSyllableABConsonantClusterPlace = Lens.over wordSurfaceLens Syllable.tagConsonantPositions vocalicSyllableABConsonantCluster
   let vocalicSyllableABConsonantClusterPlaceSwap = Lens.over (wordSurfaceLens . traverse . Lens._Right) Tuple.swap vocalicSyllableABConsonantClusterPlace
+  let initialConsonantClusterSet = Syllable.getInitialSet . Lens.toListOf (wordSurfaceLens . traverse . Lens._Right) $ vocalicSyllableABConsonantClusterPlace
 
   let
     storedTypeDatas =
@@ -152,6 +153,7 @@ process = do
 
       , makeSurfacePartType Type.ConsonantRhClusterPlace (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace
       , makeSurfacePartType Type.ConsonantRhClusterPlaceSwap (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlaceSwap
+      , makeSurfacePartType Type.ConsonantRhClusterMedialNonInitial (Lens.toListOf (Lens._Right . Lens.prism' id (Syllable.getNonMatching initialConsonantClusterSet))) vocalicSyllableABConsonantClusterPlace
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $

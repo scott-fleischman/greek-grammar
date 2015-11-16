@@ -54,4 +54,5 @@ data Name
   | ConsonantRhCluster
   | ConsonantRhClusterPlace
   | ConsonantRhClusterPlaceSwap
+  | ConsonantRhClusterMedialNonInitial
   deriving (Eq, Ord)

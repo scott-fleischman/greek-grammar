@@ -81,6 +81,7 @@ instance Render Type.Name where
   render Type.ConsonantRhCluster = "[Consonant+ῥ]"
   render Type.ConsonantRhClusterPlace = "[Consonant+ῥ], Initial, Medial, Final"
   render Type.ConsonantRhClusterPlaceSwap = "Initial, Medial, Final, [Consonant+ῥ]"
+  render Type.ConsonantRhClusterMedialNonInitial = "[Consonant+ῥ] Medial Non-Initial"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"

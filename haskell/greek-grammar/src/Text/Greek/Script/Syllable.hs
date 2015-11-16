@@ -3,6 +3,7 @@
 module Text.Greek.Script.Syllable where
 
 import qualified Control.Lens as Lens
+import qualified Data.Set as Set
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Place as Place
@@ -74,6 +75,19 @@ tagConsonantPositions (x : xs) = (Lens.over Lens._Right (flip (,) Place.initial)
 tagReverseMedialFinal :: [Either v c] -> [Either v (c, Place.Place)]
 tagReverseMedialFinal [] = []
 tagReverseMedialFinal (x : xs) = (Lens.over Lens._Right (flip (,) Place.final) x) : (Lens.over (traverse . Lens._Right) (flip (,) Place.medial) xs)
+
+getInitialSet :: Ord c => [(c, Place.Place)] -> Set.Set c
+getInitialSet = Set.fromList . concatMap go
+  where
+    go (c, p) | Place.IsInitial <- Place.getPlaceInitial p = [c]
+    go _ = []
+
+getNonMatching :: Ord c => Set.Set c -> (c, Place.Place) -> Maybe (c, Place.Place)
+getNonMatching ss (c, p)
+  | Place.IsMedial <- Place.getPlaceMedial p
+  , Set.notMember c ss
+  = Just (c, p)
+getNonMatching _ _ = Nothing
 
 getSyllableCount :: VocalicConsonant a b -> Count
 getSyllableCount (Left _) = 1
