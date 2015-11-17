@@ -80,8 +80,16 @@ flattenInstances = typeLeaf
 data Index = Index
   { indexWorkInfos :: [WorkInfo]
   , indexTypeInfos :: [TypeInfo]
+  , indexSpecialTypes :: SpecialTypes
   }
-instance Aeson.ToJSON Index where toJSON (Index ws ts) = Aeson.object ["works" .= ws, "types" .= ts]
+instance Aeson.ToJSON Index where toJSON (Index ws ts s) = Aeson.object ["works" .= ws, "types" .= ts, "special" .= s]
+
+data SpecialTypes = SpecialTypes
+  { specialTypesWordSurface :: TypeIndex
+  , specialTypesWordPrefix :: TypeIndex
+  , specialTypesWordSuffix :: TypeIndex
+  }
+instance Aeson.ToJSON SpecialTypes where toJSON (SpecialTypes a b c) = Aeson.object [ "surface" .= a, "prefix" .= b, "suffix" .= c]
 
 data WorkInfo = WorkInfo
   { workInfoTitle :: Work.Title

@@ -203,12 +203,16 @@ process = do
       , Type.Elision
       , Type.ParagraphNumber
       ]
+  specialTypes <- handleMaybe "special types" $ Json.SpecialTypes
+    <$> Map.lookup Type.SourceWord typeNameMap
+    <*> Map.lookup Type.WordPrefix typeNameMap
+    <*> Map.lookup Type.WordSuffix typeNameMap
   let storedTypes = fmap typeDataJson storedTypeDatas
   let instanceMap = Json.makeInstanceMap storedTypes
   let ourWorks = getWorks summaryTypeIndexes instanceMap sourceWords
   let ourWorkInfos = fmap (Json.workToWorkInfo workInfoTypeIndexes) ourWorks
   let ourTypeInfos = fmap Json.makeTypeInfo storedTypes
-  let ourIndex = Json.Index ourWorkInfos ourTypeInfos
+  let ourIndex = Json.Index ourWorkInfos ourTypeInfos specialTypes
   liftIO $ dumpData (Json.Data ourIndex ourWorks storedTypes)
 
 type WordSurface a b = [Work.Indexed [Word.Indexed a b]]
