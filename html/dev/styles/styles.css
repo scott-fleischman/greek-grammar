@@ -57,3 +57,30 @@ span.workWordSuffix {
 div.showAllButton {
   margin: 1em 0 2em 0;
 }
+
+div.typeKindWordStage {
+
+}
+div.typeKindWordStageTransition {
+  margin-left: 4em;
+}
+div.typeKindWordStagePartTransition {
+  margin-left: 4em;
+}
+div.typeKindWordStagePart {
+  margin-left: 4em;
+}
+div.typeKindWordProperty {
+  margin-left: 4em;
+}
+div.typeKindWorkProperty {
+  margin-left: 4em;
+}
+div.typeKindCompositeProperty {
+  margin-left: 4em;
+}
+
+span.typeKind {
+  font-size: 75%;
+  color: #4b4b4b;
+}
