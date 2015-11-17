@@ -195,21 +195,23 @@ makeTypeInfo (Type t vs) = TypeInfo t (fmap makeValueInfo vs)
 makeValueInfo :: Value -> ValueInfo
 makeValueInfo (Value t is) = ValueInfo t (length is)
 
-dumpJson :: Data -> IO ()
-dumpJson (Data i ws ts) = do
+writeIndex :: Index -> IO ()
+writeIndex i = do
   _ <- Directory.createDirectoryIfMissing True Paths.pagesData
+  encodeWrite "index.json" i
+
+writeWorks :: [Work] -> IO ()
+writeWorks ws = do
   _ <- Directory.createDirectoryIfMissing True (Paths.pagesData </> "works")
+  encodeWriteAll "works/work" ws
+
+writeTypes :: [Type] -> IO ()
+writeTypes ts = do
   _ <- Directory.createDirectoryIfMissing True (Paths.pagesData </> "types")
+  encodeWriteAll "types/type" ts
 
-  _ <- putStrLn "Writing index"
-  _ <- write "index.json" i
+encodeWrite :: Aeson.ToJSON a => FilePath -> a -> IO ()
+encodeWrite n = BL.writeFile (Paths.pagesData </> n) . Aeson.encode
 
-  _ <- putStrLn "Writing works"
-  _ <- writeAll "works/work" ws
-
-  _ <- putStrLn "Writing types"
-  _ <- writeAll "types/type" ts
-  return ()
-  where
-    write n = BL.writeFile (Paths.pagesData </> n) . Aeson.encode
-    writeAll n = sequence . fmap (\(xi, x) -> write (n ++ show xi ++ ".json") x) . zip ([0..] :: [Int])
+encodeWriteAll :: Aeson.ToJSON a => String -> [a] -> IO ()
+encodeWriteAll n = sequence_ . fmap (\(xi, x) -> encodeWrite (n ++ show xi ++ ".json") x) . zip ([0..] :: [Int])

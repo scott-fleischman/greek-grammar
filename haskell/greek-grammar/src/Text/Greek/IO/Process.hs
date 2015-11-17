@@ -208,12 +208,19 @@ process = do
     <*> Map.lookup Type.WordPrefix typeNameMap
     <*> Map.lookup Type.WordSuffix typeNameMap
   let storedTypes = fmap typeDataJson storedTypeDatas
+  liftIO $ putStrLn "Writing types"
+  liftIO $ Json.writeTypes storedTypes
+
   let instanceMap = Json.makeInstanceMap storedTypes
   let ourWorks = getWorks summaryTypeIndexes instanceMap sourceWords
+  liftIO $ putStrLn "Writing works"
+  liftIO $ Json.writeWorks ourWorks
+
   let ourWorkInfos = fmap (Json.workToWorkInfo workInfoTypeIndexes) ourWorks
   let ourTypeInfos = fmap Json.makeTypeInfo storedTypes
   let ourIndex = Json.Index ourWorkInfos ourTypeInfos specialTypes
-  liftIO $ dumpData (Json.Data ourIndex ourWorks storedTypes)
+  liftIO $ putStrLn "Writing index"
+  liftIO $ Json.writeIndex ourIndex
 
 type WordSurface a b = [Work.Indexed [Word.Indexed a b]]
 type WordSurfaceBasic a = WordSurface Word.Basic a
@@ -437,6 +444,3 @@ handleError (Right x) = return x
 
 showError :: Show a => Either a b -> Either String b
 showError = Lens.over Lens._Left show
-
-dumpData :: Json.Data -> IO ()
-dumpData = Json.dumpJson
