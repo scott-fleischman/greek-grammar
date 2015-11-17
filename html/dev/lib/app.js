@@ -13,6 +13,7 @@ import { Nav } from './nav.js';
 import R from 'ramda';
 import QueryString from 'query-string';
 import { getShowAllInfo } from './showAll.js';
+import { labelNumber } from './labelNumber.js';
 
 function getUrl(action) {
   const visual = State.getVisual({}, action);
@@ -64,15 +65,17 @@ function getLoadingType(typeIndex, types) {
 }
 
 function getViewWorkList(works, getWorkUrl) {
+  const workCount = works.length;
+  const wordCount = R.compose(R.sum, R.map(x => x.wordInfos.length))(works);
   return {
-    navTitle: `${works.length} Greek Works, ${R.compose(R.sum, R.map(x => x.wordInfos.length))(works)} Words`,
+    navTitle: `${labelNumber(workCount, 'Greek Work', 'Greek Works')}, ${labelNumber(wordCount, 'Word', 'Words')}`,
     content: (<WorkList works={works} getWorkUrl={getWorkUrl} />),
   };
 }
 
 function getViewTypeList(types, getTypeUrl) {
   return {
-    navTitle: `${types.length} Types`,
+    navTitle: `${labelNumber(types.length, 'Type', 'Types')}`,
     content: (<TypeList types={types} getTypeUrl={getTypeUrl} />),
   };
 }
@@ -115,7 +118,7 @@ function getViewWord(workIndex, wordIndex, word, getTypeTitle, getValueTitle, ge
 
 function getViewValueList(values, typeTitle, typeIndex, getInstanceListUrl, getShowItemInfo) {
   return {
-    navTitle: `${typeTitle}, ${values.length} Values`,
+    navTitle: `${typeTitle}, ${labelNumber(values.length, 'Value', 'Values')}`,
     content: (
       <ValueList
         values={values}
@@ -128,7 +131,7 @@ function getViewValueList(values, typeTitle, typeIndex, getInstanceListUrl, getS
 
 function getViewInstanceList(getWorkInfo, getTypeInfo, instances, typeIndex, valueIndex, typeTitle, valueTitle, getWordUrl, getShowItemInfo) {
   return {
-    navTitle: `${typeTitle}, ${valueTitle}, ${instances.length} Instances`,
+    navTitle: `${typeTitle}, ${valueTitle}, ${labelNumber(instances.length, 'Instance', 'Instances')}`,
     content: (
       <InstanceList
         getWorkInfo={getWorkInfo}

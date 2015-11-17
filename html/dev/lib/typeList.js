@@ -1,13 +1,17 @@
 import React from 'react';
 import R from 'ramda';
+import { labelNumber } from './labelNumber.js';
 
-const TypeInfo = ({ title, values, url }) => (
-  <div>
-    <a href={url}>{title}</a>
-    &ensp;
-    <span className="typeInfoCounts">{values.length} values, {R.compose(R.sum, R.map(x => x.i))(values)} instances</span>
-  </div>
-);
+const TypeInfo = ({ title, values, url }) => {
+  const instanceCount = R.compose(R.sum, R.map(x => x.i))(values);
+  return (
+    <div>
+      <a href={url}>{title}</a>
+      &ensp;
+      <span className="typeInfoCounts">{labelNumber(values.length, 'value', 'values')}, {labelNumber(instanceCount, 'instance', 'instances')}</span>
+    </div>
+  );
+};
 
 export const TypeList = ({ types, getTypeUrl }) => {
   const indexedTypes = R.addIndex(R.map) ((x, i) => ({ index: i, type: x })) (types);

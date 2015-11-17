@@ -1,11 +1,12 @@
 import React from 'react';
 import R from 'ramda';
+import { labelNumber } from './labelNumber.js';
 
 const ValueInfo = ({ title, instanceCount, url }) => (
   <div>
     <a href={url}>{title}</a>
     &ensp;
-    <span className="valueInfoCount">{instanceCount} instances</span>
+    <span className="valueInfoCount">{labelNumber(instanceCount, 'instance', 'instances')}</span>
   </div>
 );
 
