@@ -8,8 +8,9 @@ import GHC.Generics (Generic)
 import Data.Aeson (ToJSON, FromJSON)
 import Data.Text (Text)
 import Text.Greek.Source.FileReference
-import Text.Greek.Script.Elision
+import qualified Text.Greek.Script.Elision as Elision
 import qualified Control.Lens as Lens
+import qualified Data.Text as Text
 
 data IsCapitalized = IsCapitalized | IsNotCapitalized deriving (Eq, Ord, Show, Generic)
 instance ToJSON IsCapitalized
@@ -62,12 +63,27 @@ newtype ConsonantCount = ConsonantCount { getConsonantCount :: Int } deriving (E
 instance ToJSON ConsonantCount
 instance FromJSON ConsonantCount
 
+newtype Prefix = Prefix { getPrefix :: Text } deriving (Eq, Show, Ord, Generic)
+newtype Suffix = Suffix { getSuffix :: Text } deriving (Eq, Show, Ord, Generic)
 
-type Basic = (Maybe (ElisionChar, FileCharReference), ParagraphIndex)
-type Capital = (Maybe (ElisionChar, FileCharReference), ParagraphIndex, IsCapitalized)
+makePrefix :: Text -> Maybe Prefix
+makePrefix = fmap Prefix . nothingIfEmpty . Text.strip
+
+makeSuffix :: Text -> Maybe Suffix
+makeSuffix = fmap Suffix . nothingIfEmpty . Text.strip
+
+nothingIfEmpty :: Text -> Maybe Text
+nothingIfEmpty x | Text.null x = Nothing
+nothingIfEmpty x = Just x
+
+type Affix = (Maybe Prefix, Maybe Suffix)
+
+type Basic = (Affix, ParagraphIndex)
+type Elision = (Affix, ParagraphIndex, Elision.Pair)
+type Capital = (Affix, ParagraphIndex, IsCapitalized)
 type Indexed a = Word (Index, a)
 
-indexBasic :: [Word Basic s] -> [Indexed Basic s]
-indexBasic = fmap addIndex . zip (fmap Index [0..])
+index :: [Word a s] -> [Indexed a s]
+index = fmap addIndex . zip (fmap Index [0..])
   where
-    addIndex (i, Word (e, p) s) = Word (i, (e, p)) s
+    addIndex (i, Word a s) = Word (i, a) s

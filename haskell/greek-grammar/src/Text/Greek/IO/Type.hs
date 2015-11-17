@@ -13,6 +13,7 @@ data Name
   | SourceFileLocation
   | ParagraphNumber
   | Elision
+  | WordAffix
   | UnicodeElision
   | UnicodeComposed
   | UnicodeDecomposed

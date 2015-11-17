@@ -16,7 +16,6 @@ import qualified Data.Maybe as Maybe
 import qualified Data.Text.Lazy as Lazy
 import qualified Data.Tuple as Tuple
 import qualified Text.Greek.IO.Json as Json
-import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.IO.Render as Render
 import qualified Text.Greek.IO.Type as Type
 import qualified Text.Greek.Source.All as All
@@ -24,7 +23,7 @@ import qualified Text.Greek.Source.Work as Work
 import qualified Text.Greek.Phonology.Consonant as Consonant
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Concrete as Concrete
-import qualified Text.Greek.Script.Elision as Elision
+--import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Place as Place
@@ -41,6 +40,7 @@ runProcess = do
 --import qualified Data.Aeson as Aeson
 --import qualified Data.ByteString.Lazy.Char8 as BL
 --import qualified System.Directory as Directory
+--import qualified Text.Greek.IO.Paths as Paths
 --import System.FilePath ((</>))
 --import qualified Codec.Compression.GZip as GZip
 --  _ <- liftIO $ Directory.createDirectoryIfMissing True Paths.buildData
@@ -98,8 +98,8 @@ process = do
       , makeWordPartType Type.SourceFile (pure . _fileReferencePath . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType Type.SourceFileLocation (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType Type.ParagraphNumber (pure . snd . snd . Word.getInfo) sourceWords
-      , makeWordPartType Type.Elision (pure . getElision . fst . snd . Word.getInfo) sourceWords
-      , makeWordPartType Type.UnicodeElision (getUnicodeElision . fst . snd . Word.getInfo) sourceWords
+      , makeWordPartType Type.WordAffix (pure . fst . snd . Word.getInfo) sourceWords
+--      , makeWordPartType Type.Elision (pure . fst . snd . Word.getInfo) sourceWords
       , makeSurfaceType Type.UnicodeComposed composedWords
 
       , makeSurfaceType (Type.Function Type.UnicodeComposed (Type.List Type.UnicodeDecomposed)) decomposedWordPairs
@@ -217,14 +217,6 @@ maybeToOneOrZero (Just _) = 1
 
 lookupAll :: Ord a => Map a b -> [a] -> Maybe [b]
 lookupAll m = traverse (flip Map.lookup m)
-
-getElision :: Maybe a -> Elision.IsElided
-getElision Nothing = Elision.NotElided
-getElision _ = Elision.Elided
-
-getUnicodeElision :: Maybe (Elision.ElisionChar, a) -> [Elision.ElisionChar]
-getUnicodeElision Nothing = []
-getUnicodeElision (Just (e, _)) = [e]
 
 getWorks :: [Json.TypeIndex] -> Map WordLocation [(Json.TypeIndex, [Json.ValueIndex])] -> [Work.Indexed [Word.Indexed Word.Basic a]] -> [Json.Work]
 getWorks summaryTypes m works = workInfos

@@ -19,7 +19,7 @@ loadAll = do
     sblgntWorks <- sblgntResult
     let allWorks = sblgntWorks
     let indexedWorks = Work.indexBasic allWorks
-    let indexedWorksWords = Lens.over (Lens.each . Work.content) Word.indexBasic indexedWorks
+    let indexedWorksWords = Lens.over (Lens.each . Work.content) Word.index indexedWorks
     return indexedWorksWords
 
 loadSblgnt :: IO (Either [XmlError] [Work.Basic [Word.Word Word.Basic Word.SourceInfo]])
@@ -39,4 +39,4 @@ sblgntParagraphToWords :: Word.ParagraphIndex -> SBL.BookParagraph -> [Word.Word
 sblgntParagraphToWords i = fmap (sblWordToWord i) . concatMap (Lens.toListOf SBL._ItemWord) . concat . Lens.toListOf SBL._BookParagraphContent
 
 sblWordToWord :: Word.ParagraphIndex -> SBL.Word -> Word.Word Word.Basic Word.SourceInfo
-sblWordToWord i (SBL.Word (t, f) e _ _) = Word.Word (e, i) (Word.SourceInfo (Word.Source t) f)
+sblWordToWord i (SBL.Word (t, f) p s) = Word.Word ((p >>= Word.makePrefix, Word.makeSuffix s), i) (Word.SourceInfo (Word.Source t) f)

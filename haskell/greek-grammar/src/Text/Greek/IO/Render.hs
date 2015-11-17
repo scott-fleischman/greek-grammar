@@ -40,6 +40,7 @@ instance Render Type.Name where
   render Type.SourceFileLocation = "Source File Location"
   render Type.ParagraphNumber = "Paragraph Number"
   render Type.Elision = "Elision"
+  render Type.WordAffix = "Word Prefix, Suffix"
   render Type.UnicodeElision = "Unicode Elision"
   render Type.UnicodeComposed = "Unicode Composed"
   render Type.UnicodeDecomposed = "Unicode Decomposed"
@@ -141,6 +142,12 @@ renderSingleLineList = Format.format "[{}]" . Format.Only . Lazy.intercalate ", 
 renderSingleLineString :: Render a => [a] -> Lazy.Text
 renderSingleLineString = Lazy.concat . fmap render
 
+instance Render (Maybe Word.Prefix, Maybe Word.Suffix) where render = renderPair
+instance Render (Maybe Word.Prefix) where render = renderMaybe "No prefix"
+instance Render (Maybe Word.Suffix) where render = renderMaybe "No suffix"
+instance Render Word.Prefix where render = Lazy.fromStrict . Word.getPrefix
+instance Render Word.Suffix where render = Lazy.fromStrict . Word.getSuffix
+
 instance Render [Unicode.Decomposed] where render = renderSingleLineList
 instance Render (Unicode.Composed, [Unicode.Decomposed]) where render = renderFunction
 
@@ -169,8 +176,8 @@ instance Render Mark.BreathingCount where
 instance Render Mark.SyllabicCount where
   render = renderLabeledNumber "syllabic mark" "syllabic marks" . Mark.getSyllabicCount
 
-instance Render Elision.IsElided where
-  render Elision.Elided = "Elided"
+instance Render Elision.Elided where
+  render Elision.IsElided = "Is elided"
   render Elision.NotElided = "Not elided"
 
 instance Render Elision.ElisionChar where render = render . Elision._getElisionChar
