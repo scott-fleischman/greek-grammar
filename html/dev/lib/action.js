@@ -17,6 +17,7 @@ export const types = R.compose(R.fromPairs, R.map(x => [x,x])) ([
   'viewWord',
   'showAllLoading',
   'showAllItems',
+  'viewLicense',
 ]);
 
 function checkStatus(response) {
@@ -63,6 +64,7 @@ export function viewWork(workIndex) { return { type: types.viewWork, workIndex }
 export function viewWord(workIndex, wordIndex) { return { type: types.viewWord, workIndex, wordIndex }; }
 export function viewValueList(typeIndex) { return { type: types.viewValueList, typeIndex }; }
 export function viewInstanceList(typeIndex, valueIndex) { return { type: types.viewInstanceList, typeIndex, valueIndex }; }
+export function viewLicense() { return { type: types.viewLicense }; }
 
 function showAllLoading() { return { type: types.showAllLoading }; }
 function showAllItems() { return { type: types.showAllItems }; }

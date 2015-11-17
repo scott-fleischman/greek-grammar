@@ -2,6 +2,7 @@ import R from 'ramda';
 import * as Action from "./action.js"
 
 export const view = R.compose(R.fromPairs, R.map(x => [x,x])) ([
+  'license',
   'loadingIndex',
   'loadingWork',
   'loadingType',
@@ -42,6 +43,7 @@ export function applyAction(state = {}, action) {
 
 export const getVisual = (state, action) => {
   switch (action.type) {
+    case Action.types.viewLicense: return { view: view.license };
     case Action.types.requestIndex: return { view: view.loadingIndex };
     case Action.types.receiveIndex: return { view: view.workList };
     case Action.types.viewWorkList: return { view: view.workList };
@@ -82,6 +84,8 @@ const getData = (data, action) => {
 };
 
 export const getActionForVisual = visual => {
+  if (visual.view === view.license)
+    return Action.viewLicense();
   if (visual.view === view.workList)
     return Action.fetchViewWorkList();
   if (visual.view === view.typeList)

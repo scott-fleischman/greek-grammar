@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux'
 import * as Action from './action.js'
 import * as State from './state.js';
+import { License } from './license.js';
 import { Work } from './work.js';
 import { Word } from './word.js';
 import { WorkList } from './workList.js';
@@ -27,6 +28,13 @@ export const onHashChange = dispatch => resetHash => newHash => {
     dispatch(action);
   else
     resetHash(getUrl(Action.viewWorkList()));
+}
+
+function getViewLicense() {
+  return {
+    navTitle: 'License',
+    content: (<License />),
+  };
 }
 
 const loadingText = 'Loading…';
@@ -149,6 +157,7 @@ const App = ({ dispatch, visual, data, ephemeral }) => {
 
   let info = null;
   switch (visual.view) {
+    case State.view.license: info = getViewLicense(); break;
     case State.view.loadingIndex: info = getLoadingIndex(); break;
     case State.view.loadingWork: info = getLoadingWork(visual.workIndex, data.index.works); break;
     case State.view.loadingType: info = getLoadingType(); break;
@@ -208,6 +217,7 @@ const App = ({ dispatch, visual, data, ephemeral }) => {
         title={info.navTitle}
         workListUrl={getUrl(Action.viewWorkList())}
         typeListUrl={getUrl(Action.viewTypeList())}
+        licenseUrl={getUrl(Action.viewLicense())}
         />
       {info.content}
     </div>
