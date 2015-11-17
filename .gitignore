@@ -8,3 +8,4 @@ cabal.sandbox.config
 html/dev/jspm_packages/
 html/dev/node_modules/
 html/dev/data/
+build/

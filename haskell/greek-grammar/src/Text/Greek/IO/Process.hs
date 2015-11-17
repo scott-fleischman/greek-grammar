@@ -16,6 +16,7 @@ import qualified Data.Maybe as Maybe
 import qualified Data.Text.Lazy as Lazy
 import qualified Data.Tuple as Tuple
 import qualified Text.Greek.IO.Json as Json
+import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.IO.Render as Render
 import qualified Text.Greek.IO.Type as Type
 import qualified Text.Greek.Source.All as All
@@ -36,6 +37,21 @@ runProcess :: IO ()
 runProcess = do
   result <- runExceptT process
   handleResult result
+
+--import qualified Data.Aeson as Aeson
+--import qualified Data.ByteString.Lazy.Char8 as BL
+--import qualified System.Directory as Directory
+--import System.FilePath ((</>))
+--import qualified Codec.Compression.GZip as GZip
+--  _ <- liftIO $ Directory.createDirectoryIfMissing True Paths.buildData
+
+--writeCompressed :: Aeson.ToJSON a => String -> a -> IO ()
+--writeCompressed n = BL.writeFile (Paths.buildData </> n) . GZip.compress . Aeson.encode
+
+--readCompressed :: Aeson.FromJSON a => String -> ExceptT String IO a
+--readCompressed n = do
+--  bytes <- liftIO $ fmap GZip.decompress . BL.readFile $ Paths.buildData </> n
+--  handleMaybe ("readCompressed " ++ n) $ Aeson.decode bytes
 
 process :: ExceptT String IO ()
 process = do

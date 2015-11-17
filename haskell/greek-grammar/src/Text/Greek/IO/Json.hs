@@ -22,6 +22,7 @@ import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Source.Work as Work
 import qualified Text.Greek.Utility as Utility
 
+
 data Data = Data
   { dataIndex :: Index
   , dataWorks :: [Work]

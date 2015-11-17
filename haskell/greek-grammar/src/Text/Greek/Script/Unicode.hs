@@ -1,8 +1,11 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Text.Greek.Script.Unicode where
 
 import Control.Lens
+import GHC.Generics (Generic)
+import Data.Aeson (ToJSON, FromJSON)
 import Data.Text (Text)
 import Data.Unicode.DecomposeChar
 import Text.Greek.Source.FileReference
@@ -15,10 +18,22 @@ import qualified Data.Char as Char
 import qualified Data.Text as Text
 import qualified Text.Greek.Script.Marked as Marked
 
-newtype Composed = Composed { composed :: Char } deriving (Eq, Ord, Show)
-newtype Decomposed = Decomposed { decomposed :: Char } deriving (Eq, Ord, Show)
-newtype Letter = Letter { getLetter :: Char } deriving (Eq, Ord, Show)
-newtype Mark = Mark { getMark :: Char } deriving (Eq, Ord, Show)
+newtype Composed = Composed { composed :: Char } deriving (Eq, Ord, Show, Generic)
+instance ToJSON Composed
+instance FromJSON Composed
+
+newtype Decomposed = Decomposed { decomposed :: Char } deriving (Eq, Ord, Show, Generic)
+instance ToJSON Decomposed
+instance FromJSON Decomposed
+
+newtype Letter = Letter { getLetter :: Char } deriving (Eq, Ord, Show, Generic)
+instance ToJSON Letter
+instance FromJSON Letter
+
+newtype Mark = Mark { getMark :: Char } deriving (Eq, Ord, Show, Generic)
+instance ToJSON Mark
+instance FromJSON Mark
+
 
 data Error
   = ErrorMultipleLines FileReference Text

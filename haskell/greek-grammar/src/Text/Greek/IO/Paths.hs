@@ -40,3 +40,6 @@ perseusInventoryXmlPath = perseusCatalogPath </> "perseus" </> "perseuscts.xml"
 
 pagesData :: FilePath
 pagesData = projectRootPath </> "html" </> "dev" </> "data"
+
+buildData :: FilePath
+buildData = projectRootPath </> "build" </> "data"
