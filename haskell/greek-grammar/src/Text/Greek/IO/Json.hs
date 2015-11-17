@@ -29,11 +29,29 @@ data Data = Data
   , dataTypes :: [Type]
   }
 
+data TypeKind
+  = WordStageTypeKind
+  | WordStageFunctionTypeKind
+  | WordStagePartFunctionTypeKind
+  | WordStagePartTypeKind
+  | WordPropertyTypeKind
+  | WorkPropertyTypeKind
+  | CompositePropertyTypeKind
+instance Aeson.ToJSON TypeKind where
+  toJSON WordStageTypeKind = "Word Stage"
+  toJSON WordStageFunctionTypeKind = "Word Stage Transition"
+  toJSON WordStagePartFunctionTypeKind = "Word Stage Part Transition"
+  toJSON WordStagePartTypeKind = "Word Stage Part"
+  toJSON WordPropertyTypeKind = "Word Property"
+  toJSON WorkPropertyTypeKind = "Work Property"
+  toJSON CompositePropertyTypeKind = "Composite Property"
+
 data Type = Type
   { typeTitle :: Text
+  , typeKind :: TypeKind
   , typeValues :: [Value]
   }
-instance Aeson.ToJSON Type where toJSON (Type t vs) = Aeson.object ["title" .= t, "values" .= vs]
+instance Aeson.ToJSON Type where toJSON (Type t k vs) = Aeson.object ["title" .= t, "kind" .= k, "values" .= vs]
 
 data Value = Value
   { valueText :: Text
@@ -75,7 +93,7 @@ flattenInstances = typeLeaf
     valueLeaf ti = concatMap (\(vi, Value _ is) -> instanceLeaf ti vi is) . index ValueIndex
 
     typeLeaf :: [Type] -> [((TypeIndex, Maybe AtomIndex, ValueIndex), (Work.Index, Word.Index))]
-    typeLeaf = concatMap (\(ti, Type _ vs) -> valueLeaf ti vs) . index TypeIndex
+    typeLeaf = concatMap (\(ti, Type _ _ vs) -> valueLeaf ti vs) . index TypeIndex
 
 data Index = Index
   { indexWorkInfos :: [WorkInfo]
@@ -125,9 +143,10 @@ instance Aeson.ToJSON WordInfo
 
 data TypeInfo = TypeInfo
   { typeInfoTitle :: Text
+  , typeInfoKind :: TypeKind
   , typeInfoValueInfos :: [ValueInfo]
   }
-instance Aeson.ToJSON TypeInfo where toJSON (TypeInfo t vs) = Aeson.object ["title" .= t, "values" .= vs]
+instance Aeson.ToJSON TypeInfo where toJSON (TypeInfo t k vs) = Aeson.object ["title" .= t, "kind" .= k, "values" .= vs]
 
 data ValueInfo = ValueInfo
   { valueInfoTitle :: Text
@@ -190,7 +209,7 @@ newtype WordText = WordText { getWordText :: Text } deriving (Eq, Ord, Show)
 instance Aeson.ToJSON WordText where toJSON (WordText t) = Aeson.toJSON t
 
 makeTypeInfo :: Type -> TypeInfo
-makeTypeInfo (Type t vs) = TypeInfo t (fmap makeValueInfo vs)
+makeTypeInfo (Type t k vs) = TypeInfo t k (fmap makeValueInfo vs)
 
 makeValueInfo :: Value -> ValueInfo
 makeValueInfo (Value t is) = ValueInfo t (length is)

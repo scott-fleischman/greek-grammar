@@ -93,89 +93,88 @@ process = do
 
   let
     storedTypeDatas =
-      [ makeWordPartType Type.SourceWord (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
-      , makeWorkInfoType Type.WorkSource (Lens.view Lens._2) sourceWords
-      , makeWorkInfoType Type.WorkTitle (Lens.view Lens._3) sourceWords
-      , makeWordPartType Type.SourceFile (pure . _fileReferencePath . Word.getSourceInfoFile . Word.getSurface) sourceWords
-      , makeWordPartType Type.SourceFileLocation (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
-      , makeWordPartType Type.ParagraphNumber (pure . snd . snd . Word.getInfo) sourceWords
-      , makeWordPartType Type.WordPrefix (pure . fst . fst . snd . Word.getInfo) sourceWords
-      , makeWordPartType Type.WordSuffix (pure . snd . fst . snd . Word.getInfo) sourceWords
-      , makeSurfaceType Type.UnicodeComposed composedWords
+      [ makeWordPartType Json.WordStageTypeKind Type.SourceWord (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
+      , makeWorkInfoType Json.WorkPropertyTypeKind Type.WorkSource (Lens.view Lens._2) sourceWords
+      , makeWorkInfoType Json.WorkPropertyTypeKind Type.WorkTitle (Lens.view Lens._3) sourceWords
+      , makeWordPartType Json.WordPropertyTypeKind Type.SourceFile (pure . _fileReferencePath . Word.getSourceInfoFile . Word.getSurface) sourceWords
+      , makeWordPartType Json.WordPropertyTypeKind Type.SourceFileLocation (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
+      , makeWordPartType Json.WordPropertyTypeKind Type.ParagraphNumber (pure . snd . snd . Word.getInfo) sourceWords
+      , makeWordPartType Json.WordPropertyTypeKind Type.WordPrefix (pure . fst . fst . snd . Word.getInfo) sourceWords
+      , makeWordPartType Json.WordPropertyTypeKind Type.WordSuffix (pure . snd . fst . snd . Word.getInfo) sourceWords
+      , makeSurfaceType Json.WordStageTypeKind Type.UnicodeComposed composedWords
 
-      , makeSurfaceType (Type.Function Type.UnicodeComposed (Type.List Type.UnicodeDecomposed)) decomposedWordPairs
-      , makeSurfaceType Type.UnicodeDecomposed decomposedWords
+      , makeSurfaceType Json.WordStageFunctionTypeKind (Type.Function Type.UnicodeComposed (Type.List Type.UnicodeDecomposed)) decomposedWordPairs
+      , makeSurfaceType Json.WordStageTypeKind Type.UnicodeDecomposed decomposedWords
 
-      , makeWordPartType Type.Elision (pure . Lens.view (Word.info . Lens._2 . Lens._3)) decomposedWordsE
+      , makeWordPartType Json.WordPropertyTypeKind Type.Elision (pure . Lens.view (Word.info . Lens._2 . Lens._3)) decomposedWordsE
 
-      , makeSurfaceType (Type.Function (Type.List Type.UnicodeDecomposed) Type.UnicodeLetterMarks) unicodeLetterMarksPairs
-      , makeSurfaceType Type.UnicodeLetterMarks unicodeLetterMarks
+      , makeSurfaceType Json.WordStageFunctionTypeKind (Type.Function (Type.List Type.UnicodeDecomposed) Type.UnicodeLetterMarks) unicodeLetterMarksPairs
+      , makeSurfaceType Json.WordStageTypeKind Type.UnicodeLetterMarks unicodeLetterMarks
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.UnicodeLetter (pure . Marked._item) unicodeLetterMarks
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.UnicodeMark Marked._marks unicodeLetterMarks
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.AbstractLetter) (pure . Word.LetterCount . length . Word.getSurface) unicodeLetterMarks
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.ConcreteMark) (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) unicodeLetterMarks
 
-      , makeSurfacePartType Type.UnicodeLetter (pure . Marked._item) unicodeLetterMarks
-      , makeSurfacePartType Type.UnicodeMark Marked._marks unicodeLetterMarks
-      , makeWordPartType (Type.Count Type.AbstractLetter) (pure . Word.LetterCount . length . Word.getSurface) unicodeLetterMarks
-      , makeWordPartType (Type.Count Type.ConcreteMark) (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) unicodeLetterMarks
+      , makeSurfaceType Json.WordStageFunctionTypeKind (Type.Function Type.UnicodeLetterMarks Type.ConcreteLetterMarks) markedUnicodeConcretePairsB
+      , makeSurfacePartType Json.WordStagePartFunctionTypeKind (Type.Function Type.UnicodeLetter Type.ConcreteLetter) (pure . Marked._item) markedUnicodeConcretePairsLM
+      , makeSurfacePartType Json.WordStagePartFunctionTypeKind (Type.Function Type.UnicodeMark Type.ConcreteMark) Marked._marks markedUnicodeConcretePairsLM
 
-      , makeSurfaceType (Type.Function Type.UnicodeLetterMarks Type.ConcreteLetterMarks) markedUnicodeConcretePairsB
-      , makeSurfacePartType (Type.Function Type.UnicodeLetter Type.ConcreteLetter) (pure . Marked._item) markedUnicodeConcretePairsLM
-      , makeSurfacePartType (Type.Function Type.UnicodeMark Type.ConcreteMark) Marked._marks markedUnicodeConcretePairsLM
+      , makeSurfaceType Json.WordStageTypeKind Type.ConcreteLetterMarks markedConcreteLetters
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.ConcreteLetter (pure . Marked._item) markedConcreteLetters
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.ConcreteMark Marked._marks markedConcreteLetters
+      , makeSurfacePartType Json.WordStagePartFunctionTypeKind (Type.Function Type.ConcreteLetter Type.AbstractLetterCaseFinal) (pure . Marked._item) markedAbstractLetterPairs
 
-      , makeSurfaceType Type.ConcreteLetterMarks markedConcreteLetters
-      , makeSurfacePartType Type.ConcreteLetter (pure . Marked._item) markedConcreteLetters
-      , makeSurfacePartType Type.ConcreteMark Marked._marks markedConcreteLetters
-      , makeSurfacePartType (Type.Function Type.ConcreteLetter Type.AbstractLetterCaseFinal) (pure . Marked._item) markedAbstractLetterPairs
+      , makeSurfaceType Json.WordStageTypeKind Type.AbstractLetterCaseFinalMarks markedAbstractLettersCF
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.AbstractLetter (pure . Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.LetterCase (pure . Lens.view (Marked.item . Lens._2)) markedAbstractLettersCF
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.LetterFinalForm (pure . Lens.view (Marked.item . Lens._3)) markedAbstractLettersCF
+      , makeIndexedSurfacePartType Json.CompositePropertyTypeKind Type.LetterCase Abstract.CaseIndex (Lens.view (Marked.item . Lens._2)) markedAbstractLettersCF
+      , makeReverseIndexedSurfacePartType Json.CompositePropertyTypeKind Type.LetterFinalForm Abstract.FinalReverseIndex (Lens.view (Marked.item . Lens._3)) markedAbstractLettersCF
+      , makeIndexedSurfacePartType Json.CompositePropertyTypeKind Type.AbstractLetter Abstract.LetterIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
+      , makeReverseIndexedSurfacePartType Json.CompositePropertyTypeKind Type.AbstractLetter Abstract.LetterReverseIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
 
-      , makeSurfaceType Type.AbstractLetterCaseFinalMarks markedAbstractLettersCF
-      , makeSurfacePartType Type.AbstractLetter (pure . Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
-      , makeSurfacePartType Type.LetterCase (pure . Lens.view (Marked.item . Lens._2)) markedAbstractLettersCF
-      , makeSurfacePartType Type.LetterFinalForm (pure . Lens.view (Marked.item . Lens._3)) markedAbstractLettersCF
-      , makeIndexedSurfacePartType Type.LetterCase Abstract.CaseIndex (Lens.view (Marked.item . Lens._2)) markedAbstractLettersCF
-      , makeReverseIndexedSurfacePartType Type.LetterFinalForm Abstract.FinalReverseIndex (Lens.view (Marked.item . Lens._3)) markedAbstractLettersCF
-      , makeIndexedSurfacePartType Type.AbstractLetter Abstract.LetterIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
-      , makeReverseIndexedSurfacePartType Type.AbstractLetter Abstract.LetterReverseIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
+      , makeWordPartType Json.WordPropertyTypeKind Type.WordCapitalization (pure . Lens.view (Word.info . Lens._2 . Lens._4)) capMarkedAbstractLettersF
 
-      , makeWordPartType Type.WordCapitalization (pure . Lens.view (Word.info . Lens._2 . Lens._4)) capMarkedAbstractLettersF
+      , makeSurfacePartType Json.WordStageFunctionTypeKind (Type.Function Type.ConcreteMark Type.MarkKind) Marked._marks markedAbstractLetterMarkKindPairs
+      , makeSurfaceType Json.WordStageTypeKind (Type.AbstractLetterMarkKinds) markedAbstractLetterMarkKinds
 
-      , makeSurfacePartType (Type.Function Type.ConcreteMark Type.MarkKind) Marked._marks markedAbstractLetterMarkKindPairs
-      , makeSurfaceType (Type.AbstractLetterMarkKinds) markedAbstractLetterMarkKinds
+      , makeSurfacePartType Json.WordStageFunctionTypeKind (Type.Function (Type.List Type.MarkKind) (Type.MarkGroup)) (pure . Marked._marks) markedAbstractLetterMarkGroupPairs
+      , makeSurfaceType Json.WordStageTypeKind (Type.AbstractLetterMarkGroup) markedAbstractLetterMarkGroups
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Accent) (pure . Mark.AccentCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._1)) . Word.getSurface) markedAbstractLetterMarkGroups
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Breathing) (pure . Mark.BreathingCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._2)) . Word.getSurface) markedAbstractLetterMarkGroups
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.SyllabicMark) (pure . Mark.SyllabicCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._3)) . Word.getSurface) markedAbstractLetterMarkGroups
 
-      , makeSurfacePartType (Type.Function (Type.List Type.MarkKind) (Type.MarkGroup)) (pure . Marked._marks) markedAbstractLetterMarkGroupPairs
-      , makeSurfaceType (Type.AbstractLetterMarkGroup) markedAbstractLetterMarkGroups
-      , makeWordPartType (Type.Count Type.Accent) (pure . Mark.AccentCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._1)) . Word.getSurface) markedAbstractLetterMarkGroups
-      , makeWordPartType (Type.Count Type.Breathing) (pure . Mark.BreathingCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._2)) . Word.getSurface) markedAbstractLetterMarkGroups
-      , makeWordPartType (Type.Count Type.SyllabicMark) (pure . Mark.SyllabicCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._3)) . Word.getSurface) markedAbstractLetterMarkGroups
+      , makeSurfacePartType Json.WordStageFunctionTypeKind (Type.Function Type.AbstractLetter Type.VowelConsonant) (pure . Marked._item) markedVowelConsonantMarkGroupPairs
+      , makeSurfaceType Json.WordStageTypeKind Type.VowelConsonantMarkGroup vowelConsonantMarkGroup
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.VowelConsonant (pure . Marked._item) vowelConsonantMarkGroup
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.Vowel (Lens.toListOf (Marked.item . Lens._Left)) vowelConsonantMarkGroup
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.Consonant (Lens.toListOf (Marked.item . Lens._Right)) vowelConsonantMarkGroup
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Vowel) (pure . Word.VowelCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Left))) . Word.getSurface) vowelConsonantMarkGroup
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Consonant) (pure . Word.ConsonantCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Right))) . Word.getSurface) vowelConsonantMarkGroup
+      , makeSurfacePartType Json.CompositePropertyTypeKind  Type.SyllabicMarkVowelConsonant getSyllabicMarkVowelConsonant vowelConsonantMarkGroup
 
-      , makeSurfacePartType (Type.Function Type.AbstractLetter Type.VowelConsonant) (pure . Marked._item) markedVowelConsonantMarkGroupPairs
-      , makeSurfaceType Type.VowelConsonantMarkGroup vowelConsonantMarkGroup
-      , makeSurfacePartType Type.VowelConsonant (pure . Marked._item) vowelConsonantMarkGroup
-      , makeSurfacePartType Type.Vowel (Lens.toListOf (Marked.item . Lens._Left)) vowelConsonantMarkGroup
-      , makeSurfacePartType Type.Consonant (Lens.toListOf (Marked.item . Lens._Right)) vowelConsonantMarkGroup
-      , makeWordPartType (Type.Count Type.Vowel) (pure . Word.VowelCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Left))) . Word.getSurface) vowelConsonantMarkGroup
-      , makeWordPartType (Type.Count Type.Consonant) (pure . Word.ConsonantCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Right))) . Word.getSurface) vowelConsonantMarkGroup
-      , makeSurfacePartType Type.SyllabicMarkVowelConsonant getSyllabicMarkVowelConsonant vowelConsonantMarkGroup
+      , makeSurfaceType Json.WordStageTypeKind Type.StartSyllable startSyllable
+      , makeSurfaceType Json.WordStageFunctionTypeKind (Type.Function Type.StartSyllable Type.VocalicSyllableABConsonantB) vocalicSyllableABConsonantBPair
+      , makeSurfaceType Json.WordStageTypeKind Type.VocalicSyllableABConsonantB vocalicSyllableABConsonantB
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.VocalicSyllable (Lens.toListOf Lens._Left) $ Lens.over (wordSurfaceLens . traverse . Lens._Left) (fmap (const ())) vocalicSyllableABConsonantB
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.VocalicSyllableSingle (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToSingle) vocalicSyllableABConsonantB
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.ImproperDiphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToImproperDiphthong) vocalicSyllableABConsonantB
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.Diphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToDiphthong) vocalicSyllableABConsonantB
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Syllable) (pure . sum . fmap Syllable.getSyllableCount . Word.getSurface) vocalicSyllableABConsonantB
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.VocalicSyllableSingle) (pure . sum . fmap Syllable.getVocalicSingleCount . Word.getSurface) vocalicSyllableABConsonantB
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.ImproperDiphthong) (pure . sum . fmap Syllable.getImproperDiphthongCount . Word.getSurface) vocalicSyllableABConsonantB
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Diphthong) (pure . sum . fmap Syllable.getDiphthongCount . Word.getSurface) vocalicSyllableABConsonantB
 
-      , makeSurfaceType Type.StartSyllable startSyllable
-      , makeSurfaceType (Type.Function Type.StartSyllable Type.VocalicSyllableABConsonantB) vocalicSyllableABConsonantBPair
-      , makeSurfaceType Type.VocalicSyllableABConsonantB vocalicSyllableABConsonantB
-      , makeSurfacePartType Type.VocalicSyllable (Lens.toListOf Lens._Left) $ Lens.over (wordSurfaceLens . traverse . Lens._Left) (fmap (const ())) vocalicSyllableABConsonantB
-      , makeSurfacePartType Type.VocalicSyllableSingle (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToSingle) vocalicSyllableABConsonantB
-      , makeSurfacePartType Type.ImproperDiphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToImproperDiphthong) vocalicSyllableABConsonantB
-      , makeSurfacePartType Type.Diphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToDiphthong) vocalicSyllableABConsonantB
-      , makeWordPartType (Type.Count Type.Syllable) (pure . sum . fmap Syllable.getSyllableCount . Word.getSurface) vocalicSyllableABConsonantB
-      , makeWordPartType (Type.Count Type.VocalicSyllableSingle) (pure . sum . fmap Syllable.getVocalicSingleCount . Word.getSurface) vocalicSyllableABConsonantB
-      , makeWordPartType (Type.Count Type.ImproperDiphthong) (pure . sum . fmap Syllable.getImproperDiphthongCount . Word.getSurface) vocalicSyllableABConsonantB
-      , makeWordPartType (Type.Count Type.Diphthong) (pure . sum . fmap Syllable.getDiphthongCount . Word.getSurface) vocalicSyllableABConsonantB
+      , makeSurfaceType Json.WordStageTypeKind Type.VocalicSyllableABConsonantRh vocalicSyllableABConsonantRh
+      , makeSurfacePartType Json.WordStageFunctionTypeKind (Type.Function Type.ConsonantBreathing Type.ConsonantRh) (Lens.toListOf Lens._Right) vocalicSyllableABConsonantRhPair
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.ConsonantRh (Lens.toListOf Lens._Right) vocalicSyllableABConsonantRh
 
-      , makeSurfaceType Type.VocalicSyllableABConsonantRh vocalicSyllableABConsonantRh
-      , makeSurfacePartType (Type.Function Type.ConsonantBreathing Type.ConsonantRh) (Lens.toListOf Lens._Right) vocalicSyllableABConsonantRhPair
-      , makeSurfacePartType Type.ConsonantRh (Lens.toListOf Lens._Right) vocalicSyllableABConsonantRh
+      , makeSurfaceType Json.WordStageTypeKind Type.VocalicSyllableABConsonantRhCluster vocalicSyllableABConsonantCluster
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.ConsonantRhCluster (Lens.toListOf Lens._Right) vocalicSyllableABConsonantCluster
 
-      , makeSurfaceType Type.VocalicSyllableABConsonantRhCluster vocalicSyllableABConsonantCluster
-      , makeSurfacePartType Type.ConsonantRhCluster (Lens.toListOf Lens._Right) vocalicSyllableABConsonantCluster
-
-      , makeSurfacePartType Type.ConsonantRhClusterPlace3 (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace3
-      , makeSurfacePartType Type.ConsonantRhClusterPlace3Swap (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace3Swap
-      , makeSurfacePartType Type.ConsonantRhClusterPlaceInfo (fmap (\(a, (b, c)) -> (b, c, Consonant.splitScriptSyllableInfo a)) . Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterMAI
+      , makeSurfacePartType Json.CompositePropertyTypeKind Type.ConsonantRhClusterPlace3 (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace3
+      , makeSurfacePartType Json.CompositePropertyTypeKind Type.ConsonantRhClusterPlace3Swap (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace3Swap
+      , makeSurfacePartType Json.CompositePropertyTypeKind Type.ConsonantRhClusterPlaceInfo (fmap (\(a, (b, c)) -> (b, c, Consonant.splitScriptSyllableInfo a)) . Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterMAI
       ]
   let typeNameMap = Map.fromList . zip (fmap typeDataName storedTypeDatas) $ (fmap Json.TypeIndex [0..])
   workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $
@@ -254,30 +253,30 @@ toComposedWords = Lens.over wordSurfaceLens (Unicode.toComposed . Word.getSource
 makeSimpleValue :: Render.Render a => a -> Value
 makeSimpleValue = ValueSimple . Lazy.toStrict . Render.render
 
-makeWorkInfoType :: (Ord a, Render.Render a) => Type.Name -> (Work.IndexSourceTitle -> a) -> [Work.Indexed [Word.Indexed b c]] -> TypeData
-makeWorkInfoType t f = generateType t makeSimpleValue . flattenWords (\x _ -> f x)
+makeWorkInfoType :: (Ord a, Render.Render a) => Json.TypeKind -> Type.Name -> (Work.IndexSourceTitle -> a) -> [Work.Indexed [Word.Indexed b c]] -> TypeData
+makeWorkInfoType k t f = generateType k t makeSimpleValue . flattenWords (\x _ -> f x)
 
-makeWordPartType :: (Ord b, Render.Render b) => Type.Name -> (Word.Indexed t a -> [b]) -> WordSurface t a -> TypeData
-makeWordPartType t f = generateType t makeSimpleValue . flatten . flattenWords (\_ x -> f x)
+makeWordPartType :: (Ord b, Render.Render b) => Json.TypeKind -> Type.Name -> (Word.Indexed t a -> [b]) -> WordSurface t a -> TypeData
+makeWordPartType k t f = generateType k t makeSimpleValue . flatten . flattenWords (\_ x -> f x)
   where flatten = concatMap (\(l, m) -> fmap (\x -> (l, x)) m)
 
-makeSurfaceType :: (Ord a, Render.Render a) => Type.Name -> WordSurface t [a] -> TypeData
-makeSurfaceType t = generateType t makeSimpleValue . flattenSurface
+makeSurfaceType :: (Ord a, Render.Render a) => Json.TypeKind -> Type.Name -> WordSurface t [a] -> TypeData
+makeSurfaceType k t = generateType k t makeSimpleValue . flattenSurface
 
-makeSurfacePartType :: (Ord b, Render.Render b) => Type.Name -> (a -> [b]) -> WordSurface t [a] -> TypeData
-makeSurfacePartType t f = generateType t makeSimpleValue . extract . flattenSurface
+makeSurfacePartType :: (Ord b, Render.Render b) => Json.TypeKind -> Type.Name -> (a -> [b]) -> WordSurface t [a] -> TypeData
+makeSurfacePartType k t f = generateType k t makeSimpleValue . extract . flattenSurface
   where extract = concatMap (\(l, m) -> fmap (\x -> (l, x)) (f m))
 
-makeIndexedSurfacePartType :: (Ord (b, i), Render.Render (b, i)) => Type.Name -> (Int -> i) -> (a -> b) -> WordSurface t [a] -> TypeData
-makeIndexedSurfacePartType t g f
-  = generateType (Type.Indexed t) makeSimpleValue
+makeIndexedSurfacePartType :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> b) -> WordSurface t [a] -> TypeData
+makeIndexedSurfacePartType k t g f
+  = generateType k (Type.Indexed t) makeSimpleValue
   . Lens.over (traverse . Lens._2 . Lens._2) g
   . concatIndexedSnd
   . flattenWords (\_ -> fmap f . Word.getSurface)
 
-makeReverseIndexedSurfacePartType :: (Ord (b, i), Render.Render (b, i)) => Type.Name -> (Int -> i) -> (a -> b) -> WordSurface t [a] -> TypeData
-makeReverseIndexedSurfacePartType t g f
-  = generateType (Type.ReverseIndexed t) makeSimpleValue
+makeReverseIndexedSurfacePartType :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> b) -> WordSurface t [a] -> TypeData
+makeReverseIndexedSurfacePartType k t g f
+  = generateType k (Type.ReverseIndexed t) makeSimpleValue
   . Lens.over (traverse . Lens._2 . Lens._2) g
   . concatReverseIndexedSnd
   . flattenWords (\_ -> fmap f . Word.getSurface)
@@ -381,8 +380,8 @@ data TypeData = TypeData
   , typeDataJson :: Json.Type
   }
 
-generateType :: forall a. Ord a => Type.Name -> (a -> Value) -> [(Json.Instance, a)] -> TypeData
-generateType t f is = TypeData t $ Json.Type (Lazy.toStrict . Render.render $ t) (fmap storeValue typedValueInstances)
+generateType :: forall a. Ord a => Json.TypeKind -> Type.Name -> (a -> Value) -> [(Json.Instance, a)] -> TypeData
+generateType k t f is = TypeData t $ Json.Type (Lazy.toStrict . Render.render $ t) k (fmap storeValue typedValueInstances)
   where
     valueInstances :: [(a, [Json.Instance])]
     valueInstances = Lens.over (traverse . Lens._2 . traverse) fst . Map.assocs . Utility.mapGroupBy snd $ is
