@@ -80,13 +80,14 @@ function getViewTypeList(types, getTypeUrl) {
   };
 }
 
-function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl, getShowItemInfo) {
+function getViewWork(workTitle, workIndex, work, specialTypes, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl, getShowItemInfo) {
   return {
     navTitle: workTitle,
     content: (
       <Work
         workIndex={workIndex}
         work={work}
+        specialTypes={specialTypes}
         getWordUrl={getWordUrl}
         getTypeTitle={getTypeTitle}
         getValueTitle={getValueTitle}
@@ -171,6 +172,7 @@ const App = ({ dispatch, visual, data, ephemeral }) => {
         data.index.works[visual.workIndex].title,
         visual.workIndex,
         data.works.get(visual.workIndex),
+        data.index.special,
         R.compose(getUrl, Action.viewWord),
         getTypeTitle,
         getValueTitle,
