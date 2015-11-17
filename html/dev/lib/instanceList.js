@@ -16,8 +16,9 @@ const InstanceInfo = ({ getWorkInfo, getTypeInfo, workIndex, wordIndex, url }) =
   );
 };
 
-export const InstanceList = ({ getWorkInfo, getTypeInfo, instances, typeIndex, valueIndex, getWordUrl }) => {
+export const InstanceList = ({ getWorkInfo, getTypeInfo, instances, typeIndex, valueIndex, getWordUrl, getShowItemInfo }) => {
   const indexedInstances = R.addIndex(R.map) ((x, i) => ({ instanceIndex: i, workIndex: x[0], wordIndex: x[1] })) (instances);
+  const { shownItems, showAllButton } = getShowItemInfo(2000, indexedInstances);
   return (
     <div className="listContainer">
       {R.map (x => (
@@ -29,7 +30,9 @@ export const InstanceList = ({ getWorkInfo, getTypeInfo, instances, typeIndex, v
           wordIndex={x.wordIndex}
           url={getWordUrl(x.workIndex, x.wordIndex)}
         />
-      )) (indexedInstances)}
+      )) (shownItems)}
+
+      { showAllButton }
     </div>
   );
 };

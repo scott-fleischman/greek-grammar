@@ -34,13 +34,13 @@ function updateMap(map, key, value) {
 
 export function applyAction(state = {}, action) {
   const data = getData(state.data, action);
-  const visual = getVisual(action);
+  const visual = getVisual(state.visual, action);
   const ephemeral = getEphemeral(action);
 
   return { data, visual, ephemeral };
 }
 
-export const getVisual = action => {
+export const getVisual = (state, action) => {
   switch (action.type) {
     case Action.types.requestIndex: return { view: view.loadingIndex };
     case Action.types.receiveIndex: return { view: view.workList };
@@ -54,6 +54,8 @@ export const getVisual = action => {
     case Action.types.requestType: return { view: view.loadingType, typeIndex: action.typeIndex };
     case Action.types.receiveType: return { view: view.loadingType, typeIndex: action.typeIndex };
     case Action.types.viewInstanceList: return { view: view.instanceList, typeIndex: action.typeIndex, valueIndex: action.valueIndex };
+    case Action.types.showAllLoading: return state;
+    case Action.types.showAllItems: return state;
     case '@@redux/INIT': return {};
     default: console.log('Unknown action', action); return {};
   }
@@ -61,7 +63,8 @@ export const getVisual = action => {
 
 const getEphemeral = action => {
   switch (action.type) {
-    case Action.types.showAll: return { showAll: true };
+    case Action.types.showAllLoading: return { showAllLoading: true };
+    case Action.types.showAllItems: return { showAllItems: true };
     default: return {};
   }
 }

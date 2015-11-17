@@ -45,3 +45,7 @@ span.propertySeparator {
 a.workWord {
   color: #4b4b4b;
 }
+
+div.showAllButton {
+  margin: 1em 0 2em 0;
+}

@@ -11,9 +11,10 @@ import { InstanceList } from './instanceList.js';
 import { Nav } from './nav.js';
 import R from 'ramda';
 import QueryString from 'query-string';
+import { getShowAllInfo } from './showAll.js';
 
 function getUrl(action) {
-  const visual = State.getVisual(action);
+  const visual = State.getVisual({}, action);
   const queryString = QueryString.stringify(visual);
   return `#${queryString}`;
 }
@@ -68,7 +69,7 @@ function getViewTypeList(types, getTypeUrl) {
   };
 }
 
-function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl, showAll) {
+function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl, getShowItemInfo) {
   return {
     navTitle: workTitle,
     content: (
@@ -80,7 +81,7 @@ function getViewWork(workTitle, workIndex, work, getWordUrl, getTypeTitle, getVa
         getValueTitle={getValueTitle}
         getValueListUrl={getValueListUrl}
         getInstanceListUrl={getInstanceListUrl}
-        showAll={showAll}
+        getShowItemInfo={getShowItemInfo}
       />
     ),
   };
@@ -104,14 +105,20 @@ function getViewWord(workIndex, wordIndex, word, getTypeTitle, getValueTitle, ge
   };
 }
 
-function getViewValueList(values, typeTitle, typeIndex, getInstanceListUrl) {
+function getViewValueList(values, typeTitle, typeIndex, getInstanceListUrl, getShowItemInfo) {
   return {
     navTitle: `${typeTitle}, ${values.length} Values`,
-    content: (<ValueList values={values} typeIndex={typeIndex} getInstanceListUrl={getInstanceListUrl} />),
+    content: (
+      <ValueList
+        values={values}
+        typeIndex={typeIndex}
+        getInstanceListUrl={getInstanceListUrl}
+        getShowItemInfo={getShowItemInfo}
+      />),
   };
 }
 
-function getViewInstanceList(getWorkInfo, getTypeInfo, instances, typeIndex, valueIndex, typeTitle, valueTitle, getWordUrl) {
+function getViewInstanceList(getWorkInfo, getTypeInfo, instances, typeIndex, valueIndex, typeTitle, valueTitle, getWordUrl, getShowItemInfo) {
   return {
     navTitle: `${typeTitle}, ${valueTitle}, ${instances.length} Instances`,
     content: (
@@ -122,12 +129,12 @@ function getViewInstanceList(getWorkInfo, getTypeInfo, instances, typeIndex, val
         valueIndex={valueIndex}
         instances={instances}
         getWordUrl={getWordUrl}
+        getShowItemInfo={getShowItemInfo}
       />),
   };
 }
 
 const App = ({ dispatch, visual, data, ephemeral }) => {
-  const showAll = ephemeral.showAll || false;
   const viewWork = x => dispatch(Action.fetchViewWork(x));
 
   const getWorkInfo = workIndex => data.index.works[workIndex];
@@ -138,6 +145,7 @@ const App = ({ dispatch, visual, data, ephemeral }) => {
   const getInstanceListUrl = R.compose(getUrl, Action.viewInstanceList);
   const getValueListUrl = R.compose(getUrl, Action.viewValueList);
   const getWordUrl = R.compose(getUrl, Action.viewWord);
+  const getShowItemInfo = (x, y) => getShowAllInfo(x, y, ephemeral.showAllLoading, ephemeral.showAllItems, () => dispatch(Action.showAll()));
 
   let info = null;
   switch (visual.view) {
@@ -156,7 +164,7 @@ const App = ({ dispatch, visual, data, ephemeral }) => {
         getValueTitle,
         getValueListUrl,
         getInstanceListUrl,
-        showAll);
+        getShowItemInfo);
       break;
     case State.view.word:
       info = getViewWord(
@@ -173,7 +181,8 @@ const App = ({ dispatch, visual, data, ephemeral }) => {
         getTypeInfo(visual.typeIndex).values,
         getTypeTitle(visual.typeIndex),
         visual.typeIndex,
-        getInstanceListUrl);
+        getInstanceListUrl,
+        getShowItemInfo);
       break;
     case State.view.instanceList:
       info = getViewInstanceList(
@@ -184,7 +193,8 @@ const App = ({ dispatch, visual, data, ephemeral }) => {
         visual.valueIndex,
         getTypeTitle(visual.typeIndex),
         getValueTitle(visual.typeIndex, visual.valueIndex),
-        getWordUrl);
+        getWordUrl,
+        getShowItemInfo);
       break;
   }
   if (!info) {

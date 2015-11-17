@@ -57,8 +57,9 @@ const WordGroup = ({ key, wordIndexes, words, workIndex, wordSummary, getWordUrl
   );
 }
 
-export const Work = ({ work, workIndex, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl, showAll }) => {
+export const Work = ({ work, workIndex, getWordUrl, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl, getShowItemInfo }) => {
   const wordSummary = new Map(R.addIndex(R.map) ((x, i) => [x, i]) (work.wordSummary));
+  const { shownItems, showAllButton } = getShowItemInfo(20, work.wordGroups[0].words);
   const wordGroups = R.addIndex(R.map)
     ((wg, i) => (
       <WordGroup
@@ -73,10 +74,11 @@ export const Work = ({ work, workIndex, getWordUrl, getTypeTitle, getValueTitle,
         getValueListUrl={getValueListUrl}
         getInstanceListUrl={getInstanceListUrl}
       />))
-    (work.wordGroups[0].words);
+    (shownItems);
   return (
     <div className="workContainer">
       { wordGroups }
+      { showAllButton }
     </div>
   );
 };
