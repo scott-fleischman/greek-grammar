@@ -25,8 +25,8 @@ instance FromJSON ElisionChar
 
 type Pair = (Elided, Maybe ElisionChar)
 
-split :: [Char] -> (Pair, [Char])
-split = Lens.over Lens._2 reverse . getElision . reverse
+split :: (a -> Char) -> [a] -> (Pair, [a])
+split f = Lens.over Lens._2 reverse . getElision . reverse
   where
-    getElision (x : xs) | Set.member x elisionCharacters = ((IsElided, Just . ElisionChar $ x), xs)
+    getElision (x : xs) | Set.member (f x) elisionCharacters = ((IsElided, Just . ElisionChar . f $ x), xs)
     getElision xs = ((NotElided, Nothing), xs)

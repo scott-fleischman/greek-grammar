@@ -23,7 +23,7 @@ import qualified Text.Greek.Source.Work as Work
 import qualified Text.Greek.Phonology.Consonant as Consonant
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Concrete as Concrete
---import qualified Text.Greek.Script.Elision as Elision
+import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Place as Place
@@ -61,7 +61,8 @@ process = do
   let composedWords = toComposedWords sourceWords
   let decomposedWordPairs = toDecomposedWordPairs composedWords
   let decomposedWords = toDecomposedWords decomposedWordPairs
-  unicodeLetterMarksPairs <- handleError $ toUnicodeLetterMarksPairs decomposedWords
+  let decomposedWordsE = splitDecomposedElision decomposedWords
+  unicodeLetterMarksPairs <- handleError $ toUnicodeLetterMarksPairs decomposedWordsE
   let unicodeLetterMarks = toUnicodeLetterMarks unicodeLetterMarksPairs
   markedUnicodeConcretePairsL <- handleMaybe "Concrete Letter" $ toMarkedConcreteLetters unicodeLetterMarks
   markedUnicodeConcretePairsLM <- handleMaybe "Concrete Mark" $ toMarkedConcreteMarks markedUnicodeConcretePairsL
@@ -99,11 +100,12 @@ process = do
       , makeWordPartType Type.SourceFileLocation (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType Type.ParagraphNumber (pure . snd . snd . Word.getInfo) sourceWords
       , makeWordPartType Type.WordAffix (pure . fst . snd . Word.getInfo) sourceWords
---      , makeWordPartType Type.Elision (pure . fst . snd . Word.getInfo) sourceWords
       , makeSurfaceType Type.UnicodeComposed composedWords
 
       , makeSurfaceType (Type.Function Type.UnicodeComposed (Type.List Type.UnicodeDecomposed)) decomposedWordPairs
       , makeSurfaceType Type.UnicodeDecomposed decomposedWords
+
+      , makeWordPartType Type.Elision (pure . Lens.view (Word.info . Lens._2 . Lens._3)) decomposedWordsE
 
       , makeSurfaceType (Type.Function (Type.List Type.UnicodeDecomposed) Type.UnicodeLetterMarks) unicodeLetterMarksPairs
       , makeSurfaceType Type.UnicodeLetterMarks unicodeLetterMarks
@@ -131,7 +133,7 @@ process = do
       , makeIndexedSurfacePartType Type.AbstractLetter Abstract.LetterIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
       , makeReverseIndexedSurfacePartType Type.AbstractLetter Abstract.LetterReverseIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
 
-      , makeWordPartType Type.WordCapitalization (pure . Lens.view (Word.info . Lens._2 . Lens._3)) capMarkedAbstractLettersF
+      , makeWordPartType Type.WordCapitalization (pure . Lens.view (Word.info . Lens._2 . Lens._4)) capMarkedAbstractLettersF
 
       , makeSurfacePartType (Type.Function Type.ConcreteMark Type.MarkKind) Marked._marks markedAbstractLetterMarkKindPairs
       , makeSurfaceType (Type.AbstractLetterMarkKinds) markedAbstractLetterMarkKinds
@@ -278,29 +280,38 @@ toDecomposedWords
   -> WordSurfaceBasic [Unicode.Decomposed]
 toDecomposedWords = Lens.over wordSurfaceLens (concatMap snd)
 
-toUnicodeLetterMarksPairs
+splitDecomposedElision
   :: WordSurfaceBasic [Unicode.Decomposed]
-  -> Either Unicode.Error (WordSurfaceBasic [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])])
+  -> WordSurface Word.Elision [Unicode.Decomposed]
+splitDecomposedElision = Lens.over (traverse . Work.content . traverse) go
+  where
+    go w = Word.addElisionPair e . Lens.set Word.surface as $ w
+      where
+        (e, as) = Elision.split Unicode.decomposed (Word.getSurface w)
+
+toUnicodeLetterMarksPairs
+  :: WordSurface b [Unicode.Decomposed]
+  -> Either Unicode.Error (WordSurface b [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])])
 toUnicodeLetterMarksPairs = wordSurfaceLens Unicode.parseMarkedLetters
 
 toUnicodeLetterMarks
-  :: WordSurfaceBasic [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])]
-  -> WordSurfaceBasic [Marked.Unit Unicode.Letter [Unicode.Mark]]
+  :: WordSurface b [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])]
+  -> WordSurface b [Marked.Unit Unicode.Letter [Unicode.Mark]]
 toUnicodeLetterMarks = Lens.over (wordSurfaceLens . traverse) snd
 
 toMarkedConcreteLetters
-  :: WordSurfaceBasic [Marked.Unit Unicode.Letter a]
-  -> Maybe (WordSurfaceBasic [Marked.Unit (Unicode.Letter, Concrete.Letter) a])
+  :: WordSurface b [Marked.Unit Unicode.Letter a]
+  -> Maybe (WordSurface b [Marked.Unit (Unicode.Letter, Concrete.Letter) a])
 toMarkedConcreteLetters = dupApply (wordSurfaceLens . traverse . Marked.item) Concrete.toMaybeLetter
 
 toMarkedConcreteMarks
-  :: WordSurfaceBasic [Marked.Unit a [Unicode.Mark]]
-  -> Maybe (WordSurfaceBasic [Marked.Unit a [(Unicode.Mark, Concrete.Mark)]])
+  :: WordSurface b [Marked.Unit a [Unicode.Mark]]
+  -> Maybe (WordSurface b [Marked.Unit a [(Unicode.Mark, Concrete.Mark)]])
 toMarkedConcreteMarks = dupApply (wordSurfaceLens . traverse . Marked.marks . traverse) Concrete.toMaybeMark
 
 toMarkedUnicodeConcretePairs
-  :: WordSurfaceBasic [Marked.Unit (Unicode.Letter, Concrete.Letter) [(Unicode.Mark, Concrete.Mark)]]
-  -> WordSurfaceBasic [(Marked.Unit Unicode.Letter [Unicode.Mark], Marked.Unit Concrete.Letter [Concrete.Mark])]
+  :: WordSurface b [Marked.Unit (Unicode.Letter, Concrete.Letter) [(Unicode.Mark, Concrete.Mark)]]
+  -> WordSurface b [(Marked.Unit Unicode.Letter [Unicode.Mark], Marked.Unit Concrete.Letter [Concrete.Mark])]
 toMarkedUnicodeConcretePairs = Lens.over (wordSurfaceLens . traverse) go
   where
     overBoth f g = Lens.over (Marked.marks . traverse) g . Lens.over Marked.item f
@@ -311,19 +322,19 @@ toMarkedAbstractLetterMarkKindPairs
   -> WordSurface b [Marked.Unit a ([(Concrete.Mark, Mark.Kind)])]
 toMarkedAbstractLetterMarkKindPairs = dupApply' (wordSurfaceLens . traverse . Marked.marks . traverse) Mark.toKind
 
-toCapitalWord :: [Work.Indexed [Word.Indexed Word.Basic [Marked.Unit (t, Abstract.Case, t1) m0]]]
+toCapitalWord :: [Work.Indexed [Word.Indexed Word.Elision [Marked.Unit (t, Abstract.Case, t1) m0]]]
   -> Maybe [Work.Indexed [Word.Indexed Word.Capital [Marked.Unit (t, t1) m0]]]
 toCapitalWord = fmap transferCapitalSurfaceToWord . toCapitalWordSurface
 
-toCapitalWordSurface :: [Work.Indexed [Word.Indexed Word.Basic [Marked.Unit (t, Abstract.Case, t1) m0]]]
- -> Maybe [Work.Indexed [Word.Indexed Word.Basic (Word.IsCapitalized, [Marked.Unit (t, t1) m0])]]
+toCapitalWordSurface :: [Work.Indexed [Word.Indexed Word.Elision [Marked.Unit (t, Abstract.Case, t1) m0]]]
+ -> Maybe [Work.Indexed [Word.Indexed Word.Elision (Word.IsCapitalized, [Marked.Unit (t, t1) m0])]]
 toCapitalWordSurface = wordSurfaceLens (Abstract.validateIsCapitalized ((\(_,x,_) -> x) . Marked._item) (Lens.over Marked.item (\(x,_,y) -> (x,y))))
 
-transferCapitalSurfaceToWord :: [Work.Indexed [Word.Indexed Word.Basic (Word.IsCapitalized, [Marked.Unit (t, t1) m0])]]
+transferCapitalSurfaceToWord :: [Work.Indexed [Word.Indexed Word.Elision (Word.IsCapitalized, [Marked.Unit (t, t1) m0])]]
   -> [Work.Indexed [Word.Indexed Word.Capital [Marked.Unit (t, t1) m0]]]
 transferCapitalSurfaceToWord = Lens.over (traverse . Work.content . traverse) setCapital
   where
-    setCapital (Word.Word (wi, (e, p)) (c, m)) = Word.Word (wi, (e, p, c)) m
+    setCapital (Word.Word (wi, (a, p, e)) (c, m)) = Word.Word (wi, (a, p, e, c)) m
 
 validateFinalForm :: [Work.Indexed [Word.Indexed a [Marked.Unit (t, Abstract.Final) m0]]]
   -> Maybe [Work.Indexed [Word.Indexed a [Marked.Unit t m0]]]

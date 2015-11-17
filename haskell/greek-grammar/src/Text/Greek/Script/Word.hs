@@ -80,10 +80,13 @@ type Affix = (Maybe Prefix, Maybe Suffix)
 
 type Basic = (Affix, ParagraphIndex)
 type Elision = (Affix, ParagraphIndex, Elision.Pair)
-type Capital = (Affix, ParagraphIndex, IsCapitalized)
+type Capital = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized)
 type Indexed a = Word (Index, a)
 
 index :: [Word a s] -> [Indexed a s]
 index = fmap addIndex . zip (fmap Index [0..])
   where
     addIndex (i, Word a s) = Word (i, a) s
+
+addElisionPair :: Elision.Pair -> Indexed Basic a -> Indexed Elision a
+addElisionPair e = Lens.over (info . Lens._2) (\(a, p) -> (a, p, e))

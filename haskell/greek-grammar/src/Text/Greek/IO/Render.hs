@@ -181,6 +181,8 @@ instance Render Elision.Elided where
   render Elision.NotElided = "Not elided"
 
 instance Render Elision.ElisionChar where render = render . Elision._getElisionChar
+instance Render (Maybe Elision.ElisionChar) where render = renderMaybe "No elision character"
+instance Render Elision.Pair where render = renderPair
 
 instance Render Concrete.Letter where render = renderRawChar . Unicode.getLetter . Concrete.letterToUnicode
 instance Render [Concrete.Mark] where render = renderSingleLineList
