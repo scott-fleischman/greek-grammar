@@ -99,7 +99,8 @@ process = do
       , makeWordPartType Type.SourceFile (pure . _fileReferencePath . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType Type.SourceFileLocation (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType Type.ParagraphNumber (pure . snd . snd . Word.getInfo) sourceWords
-      , makeWordPartType Type.WordAffix (pure . fst . snd . Word.getInfo) sourceWords
+      , makeWordPartType Type.WordPrefix (pure . fst . fst . snd . Word.getInfo) sourceWords
+      , makeWordPartType Type.WordSuffix (pure . snd . fst . snd . Word.getInfo) sourceWords
       , makeSurfaceType Type.UnicodeComposed composedWords
 
       , makeSurfaceType (Type.Function Type.UnicodeComposed (Type.List Type.UnicodeDecomposed)) decomposedWordPairs
