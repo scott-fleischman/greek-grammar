@@ -3,7 +3,7 @@ import R from 'ramda';
 import { Button } from 'react-bootstrap';
 
 const ShowAllButton = ({showAllLoading, handleShowAll}) => {
-  const text = showAllLoading ? 'Loading…' : 'Show all (may take awhile)';
+  const text = showAllLoading ? 'Loading…' : 'Show all (may take a while)';
   return (
     <div className="showAllButton">
       <Button onClick={() => handleShowAll()}>{text}</Button>
