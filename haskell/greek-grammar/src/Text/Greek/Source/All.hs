@@ -39,4 +39,7 @@ sblgntParagraphToWords :: Word.ParagraphIndex -> SBL.BookParagraph -> [Word.Word
 sblgntParagraphToWords i = fmap (sblWordToWord i) . concatMap (Lens.toListOf SBL._ItemWord) . concat . Lens.toListOf SBL._BookParagraphContent
 
 sblWordToWord :: Word.ParagraphIndex -> SBL.Word -> Word.Word Word.Basic Word.SourceInfo
-sblWordToWord i (SBL.Word (t, f) p s) = Word.Word ((p >>= Word.makePrefix, Word.makeSuffix s), i) (Word.SourceInfo (Word.Source t) f)
+sblWordToWord i (SBL.Word (t, f) p s) = Word.Word ((unifiedPrefix, unifiedSuffix), i) (Word.SourceInfo (Word.Source t) f)
+  where
+    unifiedPrefix = p >>= Word.makePrefix . SBL.stripSigla
+    unifiedSuffix = Word.makeSuffix . SBL.stripSigla $ s

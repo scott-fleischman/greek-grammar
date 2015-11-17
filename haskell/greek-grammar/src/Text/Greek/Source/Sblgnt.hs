@@ -14,6 +14,7 @@ import Text.Greek.Source.FileReference
 import Text.Greek.Xml.Parse
 import Text.Parsec.Combinator
 import Text.Parsec.Prim
+import qualified Data.Set as Set
 import qualified Data.Text as T
 import qualified Text.ParserCombinators.Parsec as C
 
@@ -76,6 +77,12 @@ data Word = Word
 -- ⸀ or ⸁ or ⸀1 ⸀2 (following word; dot = second occurrence; number = third and subsequent)
 -- ⸂ ⸃ or ⸄ ⸅  (enclosed words)
 -- [ ]  (doubtful)
+
+sigla :: Set.Set Char
+sigla = Set.fromList ['⸂', '⸃', '[', ']', '⟦', '⟧', '⸄', '⸅', '⸀', '⸁', '1', '2']
+
+stripSigla :: Text -> Text
+stripSigla = T.filter (flip Set.notMember sigla)
 
 wordContentParser :: C.CharParser () Text
 wordContentParser = T.pack <$> many1 (C.satisfy (\x -> isLetter x || isPunctuation x))
