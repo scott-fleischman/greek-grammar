@@ -304,8 +304,9 @@ makeStage7 vowelConsonantMarkGroup = (,) <$> mStage <*> mVocalicSyllableABConson
       ]
 
 makeStage8 :: WordSurface a [Syllable.VocalicEither (Mark.AccentBreathing Maybe) Consonant.PlusRoughRho]
-  -> Maybe (Stage TypeData, WordSurface a [Syllable.Syllable (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]])
-makeStage8 vocalicSyllableABConsonantRh = (,) <$> mStage <*> mSyllableApproxAB
+  -> Maybe (Stage TypeData, WordSurface a
+    [Syllable.SyllableConsonant (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]])
+makeStage8 vocalicSyllableABConsonantRh = (,) <$> mStage <*> mSyllableRightAB
   where
     vocalicSyllableABConsonantCluster = Lens.over wordSurfaceLens Syllable.clusterConsonants vocalicSyllableABConsonantRh
     vocalicSyllableABConsonantClusterPlace3 = Lens.over wordSurfaceLens Syllable.tagConsonantPositions vocalicSyllableABConsonantCluster
@@ -315,14 +316,15 @@ makeStage8 vocalicSyllableABConsonantRh = (,) <$> mStage <*> mSyllableApproxAB
     vocalicSyllableABConsonantClusterMAI = Lens.over (wordSurfaceLens . traverse . Lens._Right . Lens._2) (\(_,b,_,d) -> (b,d)) vocalicSyllableABConsonantClusterPlace4
 
     mSyllableRightAB = wordSurfaceLens Syllable.makeSyllableMedialNext vocalicSyllableABConsonantCluster
-    dropMark = Lens.over (Lens._Just . wordSurfaceLens . traverse) (Syllable.mapSyllableMark (const ()))
+    dropMark = Lens.over (Lens._Just . wordSurfaceLens . traverse . Lens._Left) (Syllable.mapSyllableMark (const ()))
     mSyllableRight = dropMark mSyllableRightAB
-    approxSplit = Consonant.splitScriptSyllable initialConsonantClusterSet
-    mSyllableApproxAB = mSyllableRightAB >>= wordSurfaceLens (Syllable.splitMedial approxSplit)
-    mSyllableApprox = dropMark mSyllableApproxAB
+--    approxSplit = Consonant.splitScriptSyllable initialConsonantClusterSet
+--    mSyllableApproxAB = mSyllableRightAB >>= wordSurfaceLens (Syllable.splitMedial approxSplit)
+--    mSyllableApprox = dropMark mSyllableApproxAB
 
     mStage = Stage <$> mPrimaryType <*> mTypeParts
-    mPrimaryType = makeSurfaceType Json.WordStageTypeKind Type.ScriptSyllableConsonantRhClusterAB_Approx <$> mSyllableApproxAB
+    mPrimaryType = makeSurfaceType Json.WordStageTypeKind Type.ScriptSyllableConsonantRhClusterAB_Right <$> mSyllableRightAB
+      -- makeSurfaceType Json.WordStageTypeKind Type.ScriptSyllableConsonantRhClusterAB_Approx <$> mSyllableApproxAB
     mTypeParts = sequence
       [ pure $ makeSurfaceType Json.WordStageTypeKind Type.VocalicSyllableABConsonantRhCluster vocalicSyllableABConsonantCluster
       , pure $ makeSurfacePartType Json.WordStagePartTypeKind Type.ConsonantRhCluster (Lens.toListOf Lens._Right) vocalicSyllableABConsonantCluster
@@ -330,7 +332,7 @@ makeStage8 vocalicSyllableABConsonantRh = (,) <$> mStage <*> mSyllableApproxAB
       , pure $ makeSurfacePartType Json.CompositePropertyTypeKind Type.ConsonantRhClusterPlace3Swap (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace3Swap
       , pure $ makeSurfacePartType Json.CompositePropertyTypeKind Type.ConsonantRhClusterPlaceInfo (fmap (\(a, (b, c)) -> (b, c, Consonant.splitScriptSyllableInfo a)) . Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterMAI
       , makeSurfaceType Json.WordStagePartTypeKind Type.ScriptSyllableConsonantRhCluster_Right <$> mSyllableRight
-      , makeSurfaceType Json.WordStagePartTypeKind Type.ScriptSyllableConsonantRhCluster_Approx <$> mSyllableApprox
+--      , makeSurfaceType Json.WordStagePartTypeKind Type.ScriptSyllableConsonantRhCluster_Approx <$> mSyllableApprox
       ]
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]

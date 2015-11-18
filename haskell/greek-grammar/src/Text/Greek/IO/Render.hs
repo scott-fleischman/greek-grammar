@@ -86,6 +86,7 @@ instance Render Type.Name where
   render Type.ConsonantRhClusterPlace3Swap = "Initial, Medial, Final, [Consonant+ῥ]"
   render Type.ConsonantRhClusterPlaceInfo = "Medial, Attested Initial, Length, Stop+μ/ν, Double, [Consonant+ῥ]"
   render Type.ScriptSyllableConsonantRhCluster_Right = "Script Syllable, [Consonant+ῥ], Medial-Right"
+  render Type.ScriptSyllableConsonantRhClusterAB_Right = "Script Syllable, [Consonant+ῥ], Accent, Breathing, Medial-Right"
   render Type.ScriptSyllableConsonantRhCluster_Approx = "Script Syllable, [Consonant+ῥ], Accent, Breathing, Approximate"
   render Type.ScriptSyllableConsonantRhClusterAB_Approx = "Script Syllable, [Consonant+ῥ], Accent, Breathing, Approximate"
 
@@ -298,6 +299,10 @@ renderEitherIgnore :: (Render a, Render b) => Either a b -> Lazy.Text
 renderEitherIgnore (Left x) = render x
 renderEitherIgnore (Right x) = render x
 
+renderEitherIgnore' :: (a -> Lazy.Text) -> (b -> Lazy.Text) -> Either a b -> Lazy.Text
+renderEitherIgnore' f _ (Left x) = f x
+renderEitherIgnore' _ g (Right x) = g x
+
 instance Render (Marked.Unit (Either Abstract.Vowel Abstract.Consonant) (Mark.Group Maybe)) where render = renderMarkedUnit
 
 instance Render Word.VowelCount where render = renderLabeledNumber "vowel" "vowels" . Word.getVowelCount
@@ -449,6 +454,18 @@ renderVocalicIngoreMark (Syllable.VocalicDiphthong d _) = Format.format "{}" (Fo
 renderSyllable :: Render c => (Syllable.Vocalic m -> Lazy.Text) -> Syllable.Syllable m c -> Lazy.Text
 renderSyllable f (Syllable.Syllable cl v cr) = Format.format "{} {} {}" (render cl, f v, render cr)
 
+renderSyllableConsonant :: Render c => (Syllable.Vocalic m -> Lazy.Text) -> Syllable.SyllableConsonant m c -> Lazy.Text
+renderSyllableConsonant f = renderEitherIgnore' (renderSyllable f) render
+
 instance Render (Syllable.Syllable () [Consonant.PlusRoughRho]) where render = renderSyllable renderVocalicIngoreMark
 instance Render (Syllable.Syllable (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]) where
   render s@(Syllable.Syllable _ v _) = Format.format "{}, {}" (renderSyllable renderVocalicIngoreMark s, render . Syllable.getVocalicMark $ v)
+
+instance Render (Syllable.SyllableConsonant (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]) where
+  render = renderSyllableConsonant renderVocalicIngoreMark
+
+instance Render (Either
+  (Syllable.Syllable () [Consonant.PlusRoughRho])
+  [Consonant.PlusRoughRho])
+  where
+    render = renderEitherIgnore
