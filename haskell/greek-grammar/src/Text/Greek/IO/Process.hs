@@ -22,14 +22,14 @@ import qualified Text.Greek.IO.Render as Render
 import qualified Text.Greek.IO.Type as Type
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
---import qualified Text.Greek.Phonology.Consonant as Consonant
+import qualified Text.Greek.Phonology.Consonant as Consonant
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Marked as Marked
 --import qualified Text.Greek.Script.Place as Place
---import qualified Text.Greek.Script.Syllable as Syllable
+import qualified Text.Greek.Script.Syllable as Syllable
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Utility as Utility
@@ -66,13 +66,9 @@ process = do
   (stage3, concreteLetterConcreteMarks) <- handleMaybe "stage3" $ tryMakeStage3 unicodeLetterMarks
   (stage4, abstractLetterConcreteMarks) <- handleMaybe "stage4" $ tryMakeStage4 concreteLetterConcreteMarks
   (stage5, abstractLetterMarkGroup) <- handleMaybe "stage5" $ tryMakeStage5 abstractLetterConcreteMarks
-  let (stage6, _) = makeStage6 abstractLetterMarkGroup
+  let (stage6, vowelConsonantMarkGroup) = makeStage6 abstractLetterMarkGroup
+  (stage7, _) <- handleMaybe "stage7" $ makeStage7 vowelConsonantMarkGroup
 
-    --let startSyllable = Lens.over wordSurfaceLens (Syllable.makeStartVocalic . fmap (\(Marked.Unit a b) -> (a, b))) vowelConsonantMarkGroup
-  --vocalicSyllableABConsonantBPair <- handleMaybe "Vocalic Syllable Consonant" $ dupApply (wordSurfaceLens . traverse) Syllable.validateVocalicConsonant startSyllable
-  --let vocalicSyllableABConsonantB = Lens.over (wordSurfaceLens . traverse) snd vocalicSyllableABConsonantBPair
-  --vocalicSyllableABConsonantRhPair <- handleMaybe "Reify Rho Rough" $ dupApply (wordSurfaceLens . traverse . Lens._Right) Consonant.reifyBreathing vocalicSyllableABConsonantB
-  --let vocalicSyllableABConsonantRh = Lens.over (wordSurfaceLens . traverse . Lens._Right) snd vocalicSyllableABConsonantRhPair
   --let vocalicSyllableABConsonantCluster = Lens.over wordSurfaceLens Syllable.clusterConsonants vocalicSyllableABConsonantRh
   --let vocalicSyllableABConsonantClusterPlace3 = Lens.over wordSurfaceLens Syllable.tagConsonantPositions vocalicSyllableABConsonantCluster
   --let vocalicSyllableABConsonantClusterPlace3Swap = Lens.over (wordSurfaceLens . traverse . Lens._Right) Tuple.swap vocalicSyllableABConsonantClusterPlace3
@@ -84,21 +80,6 @@ process = do
   --  storedTypeDatas =
   --    [ 
 
-  --    , makeSurfaceType Json.WordStageTypeKind Type.StartSyllable startSyllable
-  --    , makeSurfaceType Json.WordStageFunctionTypeKind (Type.Function Type.StartSyllable Type.VocalicSyllableABConsonantB) vocalicSyllableABConsonantBPair
-  --    , makeSurfaceType Json.WordStageTypeKind Type.VocalicSyllableABConsonantB vocalicSyllableABConsonantB
-  --    , makeSurfacePartType Json.WordStagePartTypeKind Type.VocalicSyllable (Lens.toListOf Lens._Left) $ Lens.over (wordSurfaceLens . traverse . Lens._Left) (fmap (const ())) vocalicSyllableABConsonantB
-  --    , makeSurfacePartType Json.WordStagePartTypeKind Type.VocalicSyllableSingle (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToSingle) vocalicSyllableABConsonantB
-  --    , makeSurfacePartType Json.WordStagePartTypeKind Type.ImproperDiphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToImproperDiphthong) vocalicSyllableABConsonantB
-  --    , makeSurfacePartType Json.WordStagePartTypeKind Type.Diphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToDiphthong) vocalicSyllableABConsonantB
-  --    , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Syllable) (pure . sum . fmap Syllable.getSyllableCount . Word.getSurface) vocalicSyllableABConsonantB
-  --    , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.VocalicSyllableSingle) (pure . sum . fmap Syllable.getVocalicSingleCount . Word.getSurface) vocalicSyllableABConsonantB
-  --    , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.ImproperDiphthong) (pure . sum . fmap Syllable.getImproperDiphthongCount . Word.getSurface) vocalicSyllableABConsonantB
-  --    , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Diphthong) (pure . sum . fmap Syllable.getDiphthongCount . Word.getSurface) vocalicSyllableABConsonantB
-
-  --    , makeSurfaceType Json.WordStageTypeKind Type.VocalicSyllableABConsonantRh vocalicSyllableABConsonantRh
-  --    , makeSurfacePartType Json.WordStageFunctionTypeKind (Type.Function Type.ConsonantBreathing Type.ConsonantRh) (Lens.toListOf Lens._Right) vocalicSyllableABConsonantRhPair
-  --    , makeSurfacePartType Json.WordStagePartTypeKind Type.ConsonantRh (Lens.toListOf Lens._Right) vocalicSyllableABConsonantRh
 
   --    , makeSurfaceType Json.WordStageTypeKind Type.VocalicSyllableABConsonantRhCluster vocalicSyllableABConsonantCluster
   --    , makeSurfacePartType Json.WordStagePartTypeKind Type.ConsonantRhCluster (Lens.toListOf Lens._Right) vocalicSyllableABConsonantCluster
@@ -117,6 +98,7 @@ process = do
       , stage4
       , stage5
       , stage6
+      , stage7
       ]
   let indexedStages = indexStages stages
   let indexedTypeDatas = getIndexedStageTypeDatas indexedStages
@@ -310,6 +292,33 @@ makeStage6 abstractLetterMarkGroup = (stage, vowelConsonantMarkGroup)
       , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Vowel) (pure . Word.VowelCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Left))) . Word.getSurface) vowelConsonantMarkGroup
       , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Consonant) (pure . Word.ConsonantCount . sum . fmap (length . (Lens.toListOf (Marked.item . Lens._Right))) . Word.getSurface) vowelConsonantMarkGroup
       , makeSurfacePartType Json.CompositePropertyTypeKind  Type.SyllabicMarkVowelConsonant getSyllabicMarkVowelConsonant vowelConsonantMarkGroup
+      ]
+
+makeStage7 :: WordSurface a [Marked.Unit Abstract.VowelConsonant (Mark.Group Maybe)]
+  -> Maybe (Stage TypeData, WordSurface a [Syllable.VocalicEither (Mark.AccentBreathing Maybe) Consonant.PlusRoughRho])
+makeStage7 vowelConsonantMarkGroup = (,) <$> mStage <*> mVocalicSyllableABConsonantRh
+  where
+    startSyllable = Lens.over wordSurfaceLens (Syllable.makeStartVocalic . fmap (\(Marked.Unit a b) -> (a, b))) vowelConsonantMarkGroup
+    mVocalicSyllableABConsonantBPair = dupApply (wordSurfaceLens . traverse) Syllable.validateVocalicConsonant startSyllable
+    mVocalicSyllableABConsonantB = Lens.over (Lens._Just . wordSurfaceLens . traverse) snd mVocalicSyllableABConsonantBPair
+    mVocalicSyllableABConsonantRhPair = mVocalicSyllableABConsonantB >>= dupApply (wordSurfaceLens . traverse . Lens._Right) Consonant.reifyBreathing
+    mVocalicSyllableABConsonantRh = Lens.over (Lens._Just . wordSurfaceLens . traverse . Lens._Right) snd mVocalicSyllableABConsonantRhPair
+    mStage = Stage <$> mPrimaryType <*> mTypeParts
+    mPrimaryType = makeSurfaceType Json.WordStageTypeKind Type.VocalicSyllableABConsonantRh <$> mVocalicSyllableABConsonantRh
+    mTypeParts = sequence
+      [ pure $ makeSurfaceType Json.WordStageTypeKind Type.StartSyllable startSyllable
+      , makeSurfaceType Json.WordStageFunctionTypeKind (Type.Function Type.StartSyllable Type.VocalicSyllableABConsonantB) <$> mVocalicSyllableABConsonantBPair
+      , makeSurfaceType Json.WordStageTypeKind Type.VocalicSyllableABConsonantB <$> mVocalicSyllableABConsonantB
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.VocalicSyllable (Lens.toListOf Lens._Left) <$> Lens.over (Lens._Just . wordSurfaceLens . traverse . Lens._Left) (fmap (const ())) mVocalicSyllableABConsonantB
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.VocalicSyllableSingle (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToSingle) <$> mVocalicSyllableABConsonantB
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.ImproperDiphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToImproperDiphthong) <$> mVocalicSyllableABConsonantB
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.Diphthong (concat . Lens.toListOf Lens._Left . Lens.over Lens._Left Syllable.vocalicToDiphthong) <$> mVocalicSyllableABConsonantB
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Syllable) (pure . sum . fmap Syllable.getSyllableCount . Word.getSurface) <$> mVocalicSyllableABConsonantB
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.VocalicSyllableSingle) (pure . sum . fmap Syllable.getVocalicSingleCount . Word.getSurface) <$> mVocalicSyllableABConsonantB
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.ImproperDiphthong) (pure . sum . fmap Syllable.getImproperDiphthongCount . Word.getSurface) <$> mVocalicSyllableABConsonantB
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Diphthong) (pure . sum . fmap Syllable.getDiphthongCount . Word.getSurface) <$> mVocalicSyllableABConsonantB
+      , makeSurfacePartType Json.WordStageFunctionTypeKind (Type.Function Type.ConsonantBreathing Type.ConsonantRh) (Lens.toListOf Lens._Right) <$> mVocalicSyllableABConsonantRhPair
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.ConsonantRh (Lens.toListOf Lens._Right) <$> mVocalicSyllableABConsonantRh
       ]
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]
