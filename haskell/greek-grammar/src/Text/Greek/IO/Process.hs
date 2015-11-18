@@ -64,14 +64,10 @@ process = do
   let (stage1, decomposedWords) = makeStage1 composedWords
   (stage2, unicodeLetterMarks) <- handleError $ tryMakeStage2 decomposedWords
   (stage3, concreteLetterConcreteMarks) <- handleMaybe "stage3" $ tryMakeStage3 unicodeLetterMarks
-  (stage4, _) <- handleMaybe "stage4" $ tryMakeStage4 concreteLetterConcreteMarks
+  (stage4, abstractLetterConcreteMarks) <- handleMaybe "stage4" $ tryMakeStage4 concreteLetterConcreteMarks
+  (stage5, _) <- handleMaybe "stage5" $ tryMakeStage5 abstractLetterConcreteMarks
 
-  --let markedAbstractLetterMarkKindPairs = toMarkedAbstractLetterMarkKindPairs capMarkedAbstractLetters
-  --let markedAbstractLetterMarkKinds = Lens.over (wordSurfaceLens . traverse . Marked.marks . traverse) snd markedAbstractLetterMarkKindPairs
-
-  --markedAbstractLetterMarkGroupPairs <- handleMaybe "Mark Group" $ dupApply (wordSurfaceLens . traverse . Marked.marks) Mark.toMarkGroup markedAbstractLetterMarkKinds
-  --let markedAbstractLetterMarkGroups = Lens.over (wordSurfaceLens . traverse . Marked.marks) snd markedAbstractLetterMarkGroupPairs
-  --let markedVowelConsonantMarkGroupPairs = dupApply' (wordSurfaceLens . traverse . Marked.item) Abstract.toVowelConsonant markedAbstractLetterMarkGroups
+  --  mMarkedVowelConsonantMarkGroupPairs = dupApply' (Lens._Just . wordSurfaceLens . traverse . Marked.item) Abstract.toVowelConsonant mMarkedAbstractLetterMarkGroups
   --let vowelConsonantMarkGroup = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedVowelConsonantMarkGroupPairs
   --let startSyllable = Lens.over wordSurfaceLens (Syllable.makeStartVocalic . fmap (\(Marked.Unit a b) -> (a, b))) vowelConsonantMarkGroup
   --vocalicSyllableABConsonantBPair <- handleMaybe "Vocalic Syllable Consonant" $ dupApply (wordSurfaceLens . traverse) Syllable.validateVocalicConsonant startSyllable
@@ -88,15 +84,6 @@ process = do
   --let
   --  storedTypeDatas =
   --    [ 
-  --    , makeSurfacePartType Json.WordStageFunctionTypeKind (Type.Function Type.ConcreteMark Type.MarkKind) Marked._marks markedAbstractLetterMarkKindPairs
-  --    , makeSurfaceType Json.WordStageTypeKind (Type.AbstractLetterMarkKinds) markedAbstractLetterMarkKinds
-
-  --    , makeSurfacePartType Json.WordStageFunctionTypeKind (Type.Function (Type.List Type.MarkKind) (Type.MarkGroup)) (pure . Marked._marks) markedAbstractLetterMarkGroupPairs
-  --    , makeSurfaceType Json.WordStageTypeKind (Type.AbstractLetterMarkGroup) markedAbstractLetterMarkGroups
-  --    , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Accent) (pure . Mark.AccentCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._1)) . Word.getSurface) markedAbstractLetterMarkGroups
-  --    , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Breathing) (pure . Mark.BreathingCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._2)) . Word.getSurface) markedAbstractLetterMarkGroups
-  --    , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.SyllabicMark) (pure . Mark.SyllabicCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._3)) . Word.getSurface) markedAbstractLetterMarkGroups
-
   --    , makeSurfacePartType Json.WordStageFunctionTypeKind (Type.Function Type.AbstractLetter Type.VowelConsonant) (pure . Marked._item) markedVowelConsonantMarkGroupPairs
   --    , makeSurfaceType Json.WordStageTypeKind Type.VowelConsonantMarkGroup vowelConsonantMarkGroup
   --    , makeSurfacePartType Json.WordStagePartTypeKind Type.VowelConsonant (pure . Marked._item) vowelConsonantMarkGroup
@@ -137,6 +124,7 @@ process = do
       , stage2
       , stage3
       , stage4
+      , stage5
       ]
   let indexedStages = indexStages stages
   let indexedTypeDatas = getIndexedStageTypeDatas indexedStages
@@ -235,10 +223,7 @@ makeStage1 composedWords = (stage, decomposedWords)
       ]
 
 tryMakeStage2 :: WordSurface Word.Basic [Unicode.Decomposed]
-  -> Either Unicode.Error
-    ( Stage TypeData
-    , WordSurface Word.Elision [Marked.Unit Unicode.Letter [Unicode.Mark]]
-    )
+  -> Either Unicode.Error (Stage TypeData, WordSurface Word.Elision [Marked.Unit Unicode.Letter [Unicode.Mark]])
 tryMakeStage2 decomposedWords = (,) <$> mStage <*> mUnicodeLetterMarks
   where
     decomposedWordsE = splitDecomposedElision decomposedWords
@@ -257,10 +242,7 @@ tryMakeStage2 decomposedWords = (,) <$> mStage <*> mUnicodeLetterMarks
       ]
 
 tryMakeStage3 :: WordSurface a [Marked.Unit Unicode.Letter [Unicode.Mark]]
-  -> Maybe
-    ( Stage TypeData
-    , WordSurface a [Marked.Unit Concrete.Letter [Concrete.Mark]]
-    )
+  -> Maybe (Stage TypeData, WordSurface a [Marked.Unit Concrete.Letter [Concrete.Mark]])
 tryMakeStage3 unicodeLetterMarks = (,) <$> mStage <*> mConcreteLetterConcreteMarks
   where
     mMarkedUnicodeConcretePairsLM = toMarkedConcreteLetters unicodeLetterMarks >>= toMarkedConcreteMarks
@@ -278,9 +260,7 @@ tryMakeStage3 unicodeLetterMarks = (,) <$> mStage <*> mConcreteLetterConcreteMar
       ]
 
 tryMakeStage4 :: WordSurface Word.Elision [Marked.Unit Concrete.Letter [Concrete.Mark]]
-  -> Maybe ( Stage TypeData
-    , WordSurface Word.Capital [Marked.Unit Abstract.Letter [Concrete.Mark]]
-    )
+  -> Maybe (Stage TypeData, WordSurface Word.Capital [Marked.Unit Abstract.Letter [Concrete.Mark]])
 tryMakeStage4 concreteLetterConcreteMarks = (,) <$> mStage <*> mCapMarkedAbstractLetters
   where
     markedAbstractLetterPairs = Lens.over (wordSurfaceLens . traverse . Marked.item) (\x -> (x, Abstract.toLetterCaseFinal x)) concreteLetterConcreteMarks
@@ -301,6 +281,26 @@ tryMakeStage4 concreteLetterConcreteMarks = (,) <$> mStage <*> mCapMarkedAbstrac
       , makeWordPartType Json.WordPropertyTypeKind Type.WordCapitalization (pure . Lens.view (Word.info . Lens._2 . Lens._4)) <$> mCapMarkedAbstractLetters
       ]
 
+tryMakeStage5 :: WordSurface a [Marked.Unit Abstract.Letter [Concrete.Mark]]
+  -> Maybe (Stage TypeData, WordSurface a [Marked.Unit Abstract.Letter (Mark.Group Maybe)])
+tryMakeStage5 capMarkedAbstractLetters = (,) <$> mStage <*> mMarkedAbstractLetterMarkGroups
+  where
+    markedAbstractLetterMarkKindPairs = toMarkedAbstractLetterMarkKindPairs capMarkedAbstractLetters
+    markedAbstractLetterMarkKinds = Lens.over (wordSurfaceLens . traverse . Marked.marks . traverse) snd markedAbstractLetterMarkKindPairs
+
+    mMarkedAbstractLetterMarkGroupPairs = dupApply (wordSurfaceLens . traverse . Marked.marks) Mark.toMarkGroup markedAbstractLetterMarkKinds
+    mMarkedAbstractLetterMarkGroups = Lens.over (Lens._Just . wordSurfaceLens . traverse . Marked.marks) snd mMarkedAbstractLetterMarkGroupPairs
+
+    mStage = Stage <$> mPrimaryType <*> mTypeParts
+    mPrimaryType = makeSurfaceType Json.WordStageTypeKind (Type.AbstractLetterMarkGroup) <$> mMarkedAbstractLetterMarkGroups
+    mTypeParts = sequence
+      [ pure $ makeSurfacePartType Json.WordStageFunctionTypeKind (Type.Function Type.ConcreteMark Type.MarkKind) Marked._marks markedAbstractLetterMarkKindPairs
+      , pure $ makeSurfaceType Json.WordStageTypeKind (Type.AbstractLetterMarkKinds) markedAbstractLetterMarkKinds
+      , makeSurfacePartType Json.WordStageFunctionTypeKind (Type.Function (Type.List Type.MarkKind) (Type.MarkGroup)) (pure . Marked._marks) <$> mMarkedAbstractLetterMarkGroupPairs
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Accent) (pure . Mark.AccentCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._1)) . Word.getSurface) <$> mMarkedAbstractLetterMarkGroups
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.Breathing) (pure . Mark.BreathingCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._2)) . Word.getSurface) <$> mMarkedAbstractLetterMarkGroups
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.SyllabicMark) (pure . Mark.SyllabicCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._3)) . Word.getSurface) <$> mMarkedAbstractLetterMarkGroups
+      ]
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]
 getIndexedStageTypeDatas = List.sortOn fst . concatMap getTypes
