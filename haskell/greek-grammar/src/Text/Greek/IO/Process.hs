@@ -63,15 +63,12 @@ process = do
   let (stage0, composedWords) = makeStage0 sourceWords
   let (stage1, decomposedWords) = makeStage1 composedWords
   (stage2, unicodeLetterMarks) <- handleError $ tryMakeStage2 decomposedWords
-  (stage3, _) <- handleMaybe "stage3" $ tryMakeStage3 unicodeLetterMarks -- concreteLetterConcreteMarks
-
-  --let markedAbstractLetterPairs = Lens.over (wordSurfaceLens . traverse . Marked.item) (\x -> (x, Abstract.toLetterCaseFinal x)) markedConcreteLetters
-  --let markedAbstractLettersCF = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedAbstractLetterPairs
-  --capMarkedAbstractLettersF <- handleMaybe "IsCapitalized" $ toCapitalWord markedAbstractLettersCF
-  --capMarkedAbstractLetters <- handleMaybe "FinalForm" $ validateFinalForm capMarkedAbstractLettersF
+  (stage3, concreteLetterConcreteMarks) <- handleMaybe "stage3" $ tryMakeStage3 unicodeLetterMarks
+  (stage4, _) <- handleMaybe "stage4" $ tryMakeStage4 concreteLetterConcreteMarks
 
   --let markedAbstractLetterMarkKindPairs = toMarkedAbstractLetterMarkKindPairs capMarkedAbstractLetters
   --let markedAbstractLetterMarkKinds = Lens.over (wordSurfaceLens . traverse . Marked.marks . traverse) snd markedAbstractLetterMarkKindPairs
+
   --markedAbstractLetterMarkGroupPairs <- handleMaybe "Mark Group" $ dupApply (wordSurfaceLens . traverse . Marked.marks) Mark.toMarkGroup markedAbstractLetterMarkKinds
   --let markedAbstractLetterMarkGroups = Lens.over (wordSurfaceLens . traverse . Marked.marks) snd markedAbstractLetterMarkGroupPairs
   --let markedVowelConsonantMarkGroupPairs = dupApply' (wordSurfaceLens . traverse . Marked.item) Abstract.toVowelConsonant markedAbstractLetterMarkGroups
@@ -91,19 +88,6 @@ process = do
   --let
   --  storedTypeDatas =
   --    [ 
-
-  --    , makeSurfacePartType Json.WordStagePartFunctionTypeKind (Type.Function Type.ConcreteLetter Type.AbstractLetterCaseFinal) (pure . Marked._item) markedAbstractLetterPair
-  --    , makeSurfaceType Json.WordStageTypeKind Type.AbstractLetterCaseFinalMarks markedAbstractLettersCF
-  --    , makeSurfacePartType Json.WordStagePartTypeKind Type.AbstractLetter (pure . Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
-  --    , makeSurfacePartType Json.WordStagePartTypeKind Type.LetterCase (pure . Lens.view (Marked.item . Lens._2)) markedAbstractLettersCF
-  --    , makeSurfacePartType Json.WordStagePartTypeKind Type.LetterFinalForm (pure . Lens.view (Marked.item . Lens._3)) markedAbstractLettersCF
-  --    , makeIndexedSurfacePartType Json.CompositePropertyTypeKind Type.LetterCase Abstract.CaseIndex (Lens.view (Marked.item . Lens._2)) markedAbstractLettersCF
-  --    , makeReverseIndexedSurfacePartType Json.CompositePropertyTypeKind Type.LetterFinalForm Abstract.FinalReverseIndex (Lens.view (Marked.item . Lens._3)) markedAbstractLettersCF
-  --    , makeIndexedSurfacePartType Json.CompositePropertyTypeKind Type.AbstractLetter Abstract.LetterIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
-  --    , makeReverseIndexedSurfacePartType Json.CompositePropertyTypeKind Type.AbstractLetter Abstract.LetterReverseIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
-
-  --    , makeWordPartType Json.WordPropertyTypeKind Type.WordCapitalization (pure . Lens.view (Word.info . Lens._2 . Lens._4)) capMarkedAbstractLettersF
-
   --    , makeSurfacePartType Json.WordStageFunctionTypeKind (Type.Function Type.ConcreteMark Type.MarkKind) Marked._marks markedAbstractLetterMarkKindPairs
   --    , makeSurfaceType Json.WordStageTypeKind (Type.AbstractLetterMarkKinds) markedAbstractLetterMarkKinds
 
@@ -152,6 +136,7 @@ process = do
       , stage1
       , stage2
       , stage3
+      , stage4
       ]
   let indexedStages = indexStages stages
   let indexedTypeDatas = getIndexedStageTypeDatas indexedStages
@@ -209,7 +194,7 @@ type WordSurfaceBasic a = WordSurface Word.Basic a
 
 data Stage a = Stage
   { stagePrimaryType :: a
-  , stageParts :: [a]
+  , stagePartTypes :: [a]
   }
 
 getStageInfo :: Stage (Json.TypeIndex, a) -> Json.StageInfo
@@ -271,10 +256,10 @@ tryMakeStage2 decomposedWords = (,) <$> mStage <*> mUnicodeLetterMarks
       , pure $ makeWordPartType Json.WordPropertyTypeKind Type.UnicodeElision (Lens.toListOf (Word.info . Lens._2 . Lens._3 . Lens._2 . Lens._Just)) decomposedWordsE
       ]
 
-tryMakeStage3 :: WordSurface Word.Elision [Marked.Unit Unicode.Letter [Unicode.Mark]]
+tryMakeStage3 :: WordSurface a [Marked.Unit Unicode.Letter [Unicode.Mark]]
   -> Maybe
     ( Stage TypeData
-    , WordSurface Word.Elision [Marked.Unit Concrete.Letter [Concrete.Mark]]
+    , WordSurface a [Marked.Unit Concrete.Letter [Concrete.Mark]]
     )
 tryMakeStage3 unicodeLetterMarks = (,) <$> mStage <*> mConcreteLetterConcreteMarks
   where
@@ -291,6 +276,31 @@ tryMakeStage3 unicodeLetterMarks = (,) <$> mStage <*> mConcreteLetterConcreteMar
       , makeSurfacePartType Json.WordStagePartTypeKind Type.ConcreteLetter (pure . Marked._item) <$> mConcreteLetterConcreteMarks
       , makeSurfacePartType Json.WordStagePartTypeKind Type.ConcreteMark Marked._marks <$> mConcreteLetterConcreteMarks
       ]
+
+tryMakeStage4 :: WordSurface Word.Elision [Marked.Unit Concrete.Letter [Concrete.Mark]]
+  -> Maybe ( Stage TypeData
+    , WordSurface Word.Capital [Marked.Unit Abstract.Letter [Concrete.Mark]]
+    )
+tryMakeStage4 concreteLetterConcreteMarks = (,) <$> mStage <*> mCapMarkedAbstractLetters
+  where
+    markedAbstractLetterPairs = Lens.over (wordSurfaceLens . traverse . Marked.item) (\x -> (x, Abstract.toLetterCaseFinal x)) concreteLetterConcreteMarks
+    markedAbstractLettersCF = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedAbstractLetterPairs
+    mCapMarkedAbstractLetters = toCapitalWord markedAbstractLettersCF >>= validateFinalForm
+    mStage = Stage <$> mPrimaryType <*> mTypeParts
+    mPrimaryType = makeSurfaceType Json.WordStageTypeKind Type.AbstractLetterMarks <$> mCapMarkedAbstractLetters
+    mTypeParts = sequence
+      [ pure $ makeSurfacePartType Json.WordStagePartFunctionTypeKind (Type.Function Type.ConcreteLetter Type.AbstractLetterCaseFinal) (pure . Marked._item) markedAbstractLetterPairs
+      , pure $ makeSurfaceType Json.WordStageTypeKind Type.AbstractLetterCaseFinalMarks markedAbstractLettersCF
+      , pure $ makeSurfacePartType Json.WordStagePartTypeKind Type.AbstractLetter (pure . Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
+      , pure $ makeSurfacePartType Json.WordStagePartTypeKind Type.LetterCase (pure . Lens.view (Marked.item . Lens._2)) markedAbstractLettersCF
+      , pure $ makeSurfacePartType Json.WordStagePartTypeKind Type.LetterFinalForm (pure . Lens.view (Marked.item . Lens._3)) markedAbstractLettersCF
+      , pure $ makeIndexedSurfacePartType Json.CompositePropertyTypeKind Type.LetterCase Abstract.CaseIndex (Lens.view (Marked.item . Lens._2)) markedAbstractLettersCF
+      , pure $ makeReverseIndexedSurfacePartType Json.CompositePropertyTypeKind Type.LetterFinalForm Abstract.FinalReverseIndex (Lens.view (Marked.item . Lens._3)) markedAbstractLettersCF
+      , pure $ makeIndexedSurfacePartType Json.CompositePropertyTypeKind Type.AbstractLetter Abstract.LetterIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
+      , pure $ makeReverseIndexedSurfacePartType Json.CompositePropertyTypeKind Type.AbstractLetter Abstract.LetterReverseIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
+      , makeWordPartType Json.WordPropertyTypeKind Type.WordCapitalization (pure . Lens.view (Word.info . Lens._2 . Lens._4)) <$> mCapMarkedAbstractLetters
+      ]
+
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]
 getIndexedStageTypeDatas = List.sortOn fst . concatMap getTypes

@@ -55,8 +55,8 @@ data Type = Type
 instance Aeson.ToJSON Type where toJSON (Type t k vs) = Aeson.object ["title" .= t, "kind" .= k, "values" .= vs]
 
 data StageInfo = StageInfo
-  { stageInfoPrimary :: TypeIndex
-  , stageInfoParts :: [TypeIndex]
+  { stageInfoTitle :: TypeIndex
+  , stageInfoTypes :: [TypeIndex]
   }
 instance Aeson.ToJSON StageInfo where toJSON (StageInfo p ps) = Aeson.object ["primary" .= p, "parts" .= ps]
 

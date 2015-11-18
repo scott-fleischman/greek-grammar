@@ -30,6 +30,7 @@ data Name
   | LetterCase
   | LetterFinalForm
   | WordCapitalization
+  | AbstractLetterMarks
   | MarkKind
   | Accent
   | Breathing

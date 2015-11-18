@@ -61,6 +61,7 @@ instance Render Type.Name where
   render Type.Accent = "Accent"
   render Type.Breathing = "Breathing"
   render Type.SyllabicMark = "Syllabic Mark"
+  render Type.AbstractLetterMarks = "Abstract Letter, [Concrete Mark]"
   render Type.AbstractLetterMarkKinds = "Abstract Letter, [Mark Kind]"
   render Type.MarkGroup = "Mark Group"
   render Type.AbstractLetterMarkGroup = "Abstract Letter, Mark Group"
