@@ -99,7 +99,7 @@ function getViewWork(workTitle, workIndex, work, specialTypes, getWordUrl, getTy
   };
 }
 
-function getViewWord(workIndex, wordIndex, word, specialTypes, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl) {
+function getViewWord(workIndex, wordIndex, word, specialTypes, stages, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl) {
   const surfaceInfo = R.filter(x => x[0] === specialTypes.surface)(word);
   const wordText = surfaceInfo.length ? getValueTitle(surfaceInfo[0][0], surfaceInfo[0][1][0]) : 'Unknown';
   return {
@@ -109,6 +109,7 @@ function getViewWord(workIndex, wordIndex, word, specialTypes, getTypeTitle, get
         workIndex={workIndex}
         wordIndex={wordIndex}
         word={word}
+        stages={stages}
         getTypeTitle={getTypeTitle}
         getValueTitle={getValueTitle}
         getValueListUrl={getValueListUrl}
@@ -189,6 +190,7 @@ const App = ({ dispatch, visual, data, ephemeral }) => {
         visual.wordIndex,
         data.works.get(visual.workIndex).words[visual.wordIndex],
         data.index.special,
+        data.index.stages,
         getTypeTitle,
         getValueTitle,
         getValueListUrl,
