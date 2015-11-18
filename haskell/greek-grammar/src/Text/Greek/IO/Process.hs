@@ -60,9 +60,9 @@ process = do
   sourceWords <- handleIOError All.loadAll
   _ <- liftIO $ putStrLn "Processing"
 
-  --let decomposedWordPairs = toDecomposedWordPairs composedWords
-  --let decomposedWords = toDecomposedWords decomposedWordPairs
-  --let decomposedWordsE = splitDecomposedElision decomposedWords
+  let (stage0, composedWords) = makeStage0 sourceWords
+  let (stage1, _) = makeStage1 composedWords
+
   --unicodeLetterMarksPairs <- handleError $ toUnicodeLetterMarksPairs decomposedWordsE
   --let unicodeLetterMarks = toUnicodeLetterMarks unicodeLetterMarksPairs
   --markedUnicodeConcretePairsL <- handleMaybe "Concrete Letter" $ toMarkedConcreteLetters unicodeLetterMarks
@@ -96,10 +96,6 @@ process = do
   --  storedTypeDatas =
   --    [ 
 
-  --    , makeSurfaceType Json.WordStageFunctionTypeKind (Type.Function Type.UnicodeComposed (Type.List Type.UnicodeDecomposed)) decomposedWordPairs
-  --    , makeSurfaceType Json.WordStageTypeKind Type.UnicodeDecomposed decomposedWords
-
-  --    , makeWordPartType Json.WordPropertyTypeKind Type.Elision (pure . Lens.view (Word.info . Lens._2 . Lens._3)) decomposedWordsE
 
   --    , makeSurfaceType Json.WordStageFunctionTypeKind (Type.Function (Type.List Type.UnicodeDecomposed) Type.UnicodeLetterMarks) unicodeLetterMarksPairs
   --    , makeSurfaceType Json.WordStageTypeKind Type.UnicodeLetterMarks unicodeLetterMarks
@@ -170,12 +166,17 @@ process = do
   --    , makeSurfacePartType Json.CompositePropertyTypeKind Type.ConsonantRhClusterPlaceInfo (fmap (\(a, (b, c)) -> (b, c, Consonant.splitScriptSyllableInfo a)) . Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterMAI
   --    ]
 
-  let stages = [ makeStage0 sourceWords ]
+  let
+    stages =
+      [ stage0
+      , stage1
+      ]
   let indexedStages = indexStages stages
   let indexedTypeDatas = getIndexedStageTypeDatas indexedStages
   let storedTypeDatas = fmap snd indexedTypeDatas
 
   let typeNameMap = Map.fromList . fmap (\(i,t) -> (typeDataName t, i)) $ indexedTypeDatas
+
   workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $
     lookupAll typeNameMap
       [ Type.SourceWord
@@ -232,10 +233,14 @@ data Stage a = Stage
 getStageInfo :: Stage (Json.TypeIndex, a) -> Json.StageInfo
 getStageInfo (Stage p ps) = Json.StageInfo (fst p) (fmap fst ps)
 
-makeStage0 :: [Work.Indexed [Word.Indexed Word.Basic Word.SourceInfo]] -> Stage TypeData
-makeStage0 sourceWords = Stage primaryType typeParts
+makeStage0 :: [Work.Indexed [Word.Indexed Word.Basic Word.SourceInfo]]
+  -> ( Stage TypeData
+    , [Work.Indexed [Word.Indexed Word.Basic [Unicode.Composed]]]
+    )
+makeStage0 sourceWords = (stage, composedWords)
   where
     composedWords = toComposedWords sourceWords
+    stage = Stage primaryType typeParts
     primaryType = makeSurfaceType Json.WordStageTypeKind Type.UnicodeComposed composedWords
     typeParts =
       [ makeWordPartType Json.WordPropertyTypeKind Type.SourceWord (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
@@ -246,6 +251,22 @@ makeStage0 sourceWords = Stage primaryType typeParts
       , makeWordPartType Json.WordPropertyTypeKind Type.WordSuffix (pure . snd . fst . snd . Word.getInfo) sourceWords
       , makeWorkInfoType Json.WorkPropertyTypeKind Type.WorkSource (Lens.view Lens._2) sourceWords
       , makeWorkInfoType Json.WorkPropertyTypeKind Type.WorkTitle (Lens.view Lens._3) sourceWords
+      ]
+
+makeStage1 :: [Work.Indexed [Word.Indexed Word.Basic [Unicode.Composed]]]
+  -> ( Stage TypeData
+    , [Work.Indexed [Word.Indexed Word.Basic [Unicode.Decomposed]]]
+    )
+makeStage1 composedWords = (stage, decomposedWords)
+  where
+    decomposedWordPairs = toDecomposedWordPairs composedWords
+    decomposedWords = toDecomposedWords decomposedWordPairs
+    decomposedWordsE = splitDecomposedElision decomposedWords
+    stage = Stage primaryType typeParts
+    primaryType = makeSurfaceType Json.WordStageTypeKind Type.UnicodeDecomposed decomposedWords
+    typeParts =
+      [ makeSurfaceType Json.WordStageFunctionTypeKind (Type.Function Type.UnicodeComposed (Type.List Type.UnicodeDecomposed)) decomposedWordPairs
+      , makeWordPartType Json.WordPropertyTypeKind Type.Elision (pure . Lens.view (Word.info . Lens._2 . Lens._3)) decomposedWordsE
       ]
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]
