@@ -75,7 +75,7 @@ function getViewWorkList(works, getWorkUrl) {
 
 function getViewTypeList(stages, types, getTypeUrl) {
   return {
-    navTitle: `${labelNumber(types.length, 'Type', 'Types')}, ${labelNumber(stages.length, 'Stage', 'Stages')}`,
+    navTitle: `${labelNumber(stages.length, 'Stage', 'Stages')}, ${labelNumber(types.length, 'Type', 'Types')}`,
     content: (<TypeList stages={stages} types={types} getTypeUrl={getTypeUrl} />),
   };
 }

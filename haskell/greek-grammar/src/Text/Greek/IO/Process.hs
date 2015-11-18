@@ -62,12 +62,9 @@ process = do
 
   let (stage0, composedWords) = makeStage0 sourceWords
   let (stage1, decomposedWords) = makeStage1 composedWords
-  (stage2, _) <- handleError $ tryMakeStage2 decomposedWords
+  (stage2, unicodeLetterMarks) <- handleError $ tryMakeStage2 decomposedWords
+  (stage3, _) <- handleMaybe "stage3" $ tryMakeStage3 unicodeLetterMarks -- concreteLetterConcreteMarks
 
-  --markedUnicodeConcretePairsL <- handleMaybe "Concrete Letter" $ toMarkedConcreteLetters unicodeLetterMarks
-  --markedUnicodeConcretePairsLM <- handleMaybe "Concrete Mark" $ toMarkedConcreteMarks markedUnicodeConcretePairsL
-  --let markedUnicodeConcretePairsB = toMarkedUnicodeConcretePairs markedUnicodeConcretePairsLM
-  --let markedConcreteLetters = Lens.over (wordSurfaceLens . traverse) snd markedUnicodeConcretePairsB
   --let markedAbstractLetterPairs = Lens.over (wordSurfaceLens . traverse . Marked.item) (\x -> (x, Abstract.toLetterCaseFinal x)) markedConcreteLetters
   --let markedAbstractLettersCF = Lens.over (wordSurfaceLens . traverse . Marked.item) snd markedAbstractLetterPairs
   --capMarkedAbstractLettersF <- handleMaybe "IsCapitalized" $ toCapitalWord markedAbstractLettersCF
@@ -94,15 +91,8 @@ process = do
   --let
   --  storedTypeDatas =
   --    [ 
-  --    , makeSurfaceType Json.WordStageFunctionTypeKind (Type.Function Type.UnicodeLetterMarks Type.ConcreteLetterMarks) markedUnicodeConcretePairsB
-  --    , makeSurfacePartType Json.WordStagePartFunctionTypeKind (Type.Function Type.UnicodeLetter Type.ConcreteLetter) (pure . Marked._item) markedUnicodeConcretePairsLM
-  --    , makeSurfacePartType Json.WordStagePartFunctionTypeKind (Type.Function Type.UnicodeMark Type.ConcreteMark) Marked._marks markedUnicodeConcretePairsLM
 
-  --    , makeSurfaceType Json.WordStageTypeKind Type.ConcreteLetterMarks markedConcreteLetters
-  --    , makeSurfacePartType Json.WordStagePartTypeKind Type.ConcreteLetter (pure . Marked._item) markedConcreteLetters
-  --    , makeSurfacePartType Json.WordStagePartTypeKind Type.ConcreteMark Marked._marks markedConcreteLetters
-  --    , makeSurfacePartType Json.WordStagePartFunctionTypeKind (Type.Function Type.ConcreteLetter Type.AbstractLetterCaseFinal) (pure . Marked._item) markedAbstractLetterPairs
-
+  --    , makeSurfacePartType Json.WordStagePartFunctionTypeKind (Type.Function Type.ConcreteLetter Type.AbstractLetterCaseFinal) (pure . Marked._item) markedAbstractLetterPair
   --    , makeSurfaceType Json.WordStageTypeKind Type.AbstractLetterCaseFinalMarks markedAbstractLettersCF
   --    , makeSurfacePartType Json.WordStagePartTypeKind Type.AbstractLetter (pure . Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
   --    , makeSurfacePartType Json.WordStagePartTypeKind Type.LetterCase (pure . Lens.view (Marked.item . Lens._2)) markedAbstractLettersCF
@@ -161,6 +151,7 @@ process = do
       [ stage0
       , stage1
       , stage2
+      , stage3
       ]
   let indexedStages = indexStages stages
   let indexedTypeDatas = getIndexedStageTypeDatas indexedStages
@@ -277,6 +268,27 @@ tryMakeStage2 decomposedWords = (,) <$> mStage <*> mUnicodeLetterMarks
       , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.AbstractLetter) (pure . Word.LetterCount . length . Word.getSurface) <$> mUnicodeLetterMarks
       , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.ConcreteMark) (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) <$> mUnicodeLetterMarks
       , pure $ makeWordPartType Json.WordPropertyTypeKind Type.Elision (pure . Lens.view (Word.info . Lens._2 . Lens._3)) decomposedWordsE
+      ]
+
+tryMakeStage3 :: WordSurface Word.Elision [Marked.Unit Unicode.Letter [Unicode.Mark]]
+  -> Maybe
+    ( Stage TypeData
+    , WordSurface Word.Elision [Marked.Unit Concrete.Letter [Concrete.Mark]]
+    )
+tryMakeStage3 unicodeLetterMarks = (,) <$> mStage <*> mConcreteLetterConcreteMarks
+  where
+    mMarkedUnicodeConcretePairsLM = toMarkedConcreteLetters unicodeLetterMarks >>= toMarkedConcreteMarks
+    mMarkedUnicodeConcretePairsB = toMarkedUnicodeConcretePairs <$> mMarkedUnicodeConcretePairsLM
+    mConcreteLetterConcreteMarks = Lens.over (Lens._Just . wordSurfaceLens . traverse) snd mMarkedUnicodeConcretePairsB
+
+    mStage = Stage <$> mPrimaryType <*> mTypeParts
+    mPrimaryType = makeSurfaceType Json.WordStageTypeKind Type.ConcreteLetterMarks <$> mConcreteLetterConcreteMarks
+    mTypeParts = sequence
+      [ makeSurfaceType Json.WordStageFunctionTypeKind (Type.Function Type.UnicodeLetterMarks Type.ConcreteLetterMarks) <$> mMarkedUnicodeConcretePairsB
+      , makeSurfacePartType Json.WordStagePartFunctionTypeKind (Type.Function Type.UnicodeLetter Type.ConcreteLetter) (pure . Marked._item) <$> mMarkedUnicodeConcretePairsLM
+      , makeSurfacePartType Json.WordStagePartFunctionTypeKind (Type.Function Type.UnicodeMark Type.ConcreteMark) Marked._marks <$> mMarkedUnicodeConcretePairsLM
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.ConcreteLetter (pure . Marked._item) <$> mConcreteLetterConcreteMarks
+      , makeSurfacePartType Json.WordStagePartTypeKind Type.ConcreteMark Marked._marks <$> mConcreteLetterConcreteMarks
       ]
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]
