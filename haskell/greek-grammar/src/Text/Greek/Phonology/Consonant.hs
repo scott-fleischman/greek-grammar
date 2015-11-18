@@ -1,5 +1,6 @@
 module Text.Greek.Phonology.Consonant where
 
+import qualified Data.Set as Set
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Mark as Mark
 
@@ -60,3 +61,9 @@ newtype ClusterLength = ClusterLength { getClusterLength :: Int } deriving (Eq, 
 
 splitScriptSyllableInfo :: [PlusRoughRho] -> (ClusterLength, StopMuNu, IsolatedDouble, [PlusRoughRho])
 splitScriptSyllableInfo xs = (ClusterLength . length $ xs, getStopMuNu xs, getIsolatedDouble xs, xs)
+
+splitScriptSyllable :: Set.Set [PlusRoughRho] -> [PlusRoughRho] -> ([PlusRoughRho], [PlusRoughRho])
+splitScriptSyllable _ [] = ([], [])
+splitScriptSyllable a xs@(_:_) | Set.member xs a = ([], xs)
+splitScriptSyllable _ xs@(_:_:_) | IsStopMuNu <- getStopMuNu xs = ([], xs)
+splitScriptSyllable _ (x:xs) = ([x], xs)

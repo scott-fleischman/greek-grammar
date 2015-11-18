@@ -85,6 +85,9 @@ instance Render Type.Name where
   render Type.ConsonantRhClusterPlace3 = "[Consonant+ῥ], Initial, Medial, Final"
   render Type.ConsonantRhClusterPlace3Swap = "Initial, Medial, Final, [Consonant+ῥ]"
   render Type.ConsonantRhClusterPlaceInfo = "Medial, Attested Initial, Length, Stop+μ/ν, Double, [Consonant+ῥ]"
+  render Type.ScriptSyllableConsonantRhCluster_Right = "Script Syllable, [Consonant+ῥ], Medial-Right"
+  render Type.ScriptSyllableConsonantRhCluster_Approx = "Script Syllable, [Consonant+ῥ], Accent, Breathing, Approximate"
+  render Type.ScriptSyllableConsonantRhClusterAB_Approx = "Script Syllable, [Consonant+ῥ], Accent, Breathing, Approximate"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -437,3 +440,15 @@ instance Render (Consonant.ClusterLength, Consonant.StopMuNu, Consonant.Isolated
 instance Render Consonant.IsolatedDouble where
   render Consonant.IsIsolatedDouble = "Is Isolated Double"
   render Consonant.NotIsolatedDouble = "Not Isolated Double"
+
+renderVocalicIngoreMark :: Syllable.Vocalic a -> Lazy.Text
+renderVocalicIngoreMark (Syllable.VocalicSingle v _) = Format.format "{}" (Format.Only $ render v)
+renderVocalicIngoreMark (Syllable.VocalicIota d _) = Format.format "{}" (Format.Only $ render d)
+renderVocalicIngoreMark (Syllable.VocalicDiphthong d _) = Format.format "{}" (Format.Only $ render d)
+
+renderSyllable :: Render c => (Syllable.Vocalic m -> Lazy.Text) -> Syllable.Syllable m c -> Lazy.Text
+renderSyllable f (Syllable.Syllable cl v cr) = Format.format "{} {} {}" (render cl, f v, render cr)
+
+instance Render (Syllable.Syllable () [Consonant.PlusRoughRho]) where render = renderSyllable renderVocalicIngoreMark
+instance Render (Syllable.Syllable (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]) where
+  render s@(Syllable.Syllable _ v _) = Format.format "{}, {}" (renderSyllable renderVocalicIngoreMark s, render . Syllable.getVocalicMark $ v)

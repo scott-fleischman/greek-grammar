@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Text.Greek.Script.Syllable where
@@ -44,6 +45,13 @@ data Vocalic m
   | VocalicIota ImproperDiphthong m
   | VocalicDiphthong Diphthong m
   deriving (Eq, Ord, Show)
+
+getVocalicMark :: Vocalic m -> m
+getVocalicMark (VocalicSingle _ m) = m
+getVocalicMark (VocalicIota _ m) = m
+getVocalicMark (VocalicDiphthong _ m) = m
+
+type Vocalic' = Vocalic ()
 
 instance Functor Vocalic where
   fmap f (VocalicSingle v m) = VocalicSingle v (f m)
@@ -138,3 +146,31 @@ vocalicToImproperDiphthong _ = []
 vocalicToDiphthong :: Vocalic m -> [Diphthong]
 vocalicToDiphthong (VocalicDiphthong d _) = [d]
 vocalicToDiphthong _ = []
+
+data Syllable m c = Syllable
+  { syllableInitialConsonants :: c
+  , syllableVocalic :: Vocalic m
+  , syllableFinalConsonants :: c
+  } deriving (Eq, Ord, Show)
+
+mapSyllableMark :: (m -> m2) -> Syllable m c -> Syllable m2 c
+mapSyllableMark f (Syllable c1 m c2) = Syllable c1 (fmap f m) c2
+
+splitMedial :: ([c] -> ([c], [c])) -> [Syllable m [c]] -> Maybe [Syllable m [c]]
+splitMedial split = foldr go (Just [])
+  where
+    go (Syllable _ _ (_:_)) (Just (Syllable [] _ _ : _)) = Nothing
+    go (Syllable cl1 v1 []) (Just (Syllable cl2 v2 cr2 : xs)) | (l, r) <- split cl2 = Just (Syllable cl1 v1 l : Syllable r v2 cr2 : xs)
+    go x (Just xs) = Just (x : xs)
+    go _ Nothing = Nothing
+
+makeSyllableMedialNext :: [VocalicEither m [c]] -> Maybe [Syllable m [c]]
+makeSyllableMedialNext = tryGetSecond . foldr go (Just ([], []))
+  where
+    go (Left v) (Just (cs, ss)) = Just ([], Syllable [] v cs : ss)
+    go (Right csl) (Just ([], Syllable [] v csr : ss)) = Just ([], Syllable csl v csr : ss)
+    go (Right csr) (Just ([], [])) = Just (csr, [])
+    go _ _ = Nothing
+
+    tryGetSecond (Just ([], ss)) = Just ss
+    tryGetSecond _ = Nothing
