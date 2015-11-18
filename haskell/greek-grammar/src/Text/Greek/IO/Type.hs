@@ -13,9 +13,9 @@ data Name
   | SourceFileLocation
   | ParagraphNumber
   | Elision
+  | UnicodeElision
   | WordPrefix
   | WordSuffix
-  | UnicodeElision
   | UnicodeComposed
   | UnicodeDecomposed
   | UnicodeLetterMarks

@@ -267,7 +267,8 @@ tryMakeStage2 decomposedWords = (,) <$> mStage <*> mUnicodeLetterMarks
       , makeSurfacePartType Json.WordStagePartTypeKind Type.UnicodeMark Marked._marks <$> mUnicodeLetterMarks
       , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.AbstractLetter) (pure . Word.LetterCount . length . Word.getSurface) <$> mUnicodeLetterMarks
       , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.ConcreteMark) (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) <$> mUnicodeLetterMarks
-      , pure $ makeWordPartType Json.WordPropertyTypeKind Type.Elision (pure . Lens.view (Word.info . Lens._2 . Lens._3)) decomposedWordsE
+      , pure $ makeWordPartType Json.WordPropertyTypeKind Type.Elision (pure . Lens.view (Word.info . Lens._2 . Lens._3 . Lens._1)) decomposedWordsE
+      , pure $ makeWordPartType Json.WordPropertyTypeKind Type.UnicodeElision (Lens.toListOf (Word.info . Lens._2 . Lens._3 . Lens._2 . Lens._Just)) decomposedWordsE
       ]
 
 tryMakeStage3 :: WordSurface Word.Elision [Marked.Unit Unicode.Letter [Unicode.Mark]]
