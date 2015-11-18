@@ -446,13 +446,22 @@ instance Render Consonant.IsolatedDouble where
   render Consonant.IsIsolatedDouble = "Is Isolated Double"
   render Consonant.NotIsolatedDouble = "Not Isolated Double"
 
+renderVowelChar :: Abstract.Vowel -> Lazy.Text
+renderVowelChar Abstract.V_α = "α"
+renderVowelChar Abstract.V_ε = "ε"
+renderVowelChar Abstract.V_η = "η"
+renderVowelChar Abstract.V_ι = "ι"
+renderVowelChar Abstract.V_ο = "ο"
+renderVowelChar Abstract.V_υ = "υ"
+renderVowelChar Abstract.V_ω = "ω"
+
 renderVocalicIngoreMark :: Syllable.Vocalic a -> Lazy.Text
-renderVocalicIngoreMark (Syllable.VocalicSingle v _) = Format.format "{}" (Format.Only $ render v)
+renderVocalicIngoreMark (Syllable.VocalicSingle v _) = Format.format "{}" (Format.Only $ renderVowelChar v)
 renderVocalicIngoreMark (Syllable.VocalicIota d _) = Format.format "{}" (Format.Only $ render d)
 renderVocalicIngoreMark (Syllable.VocalicDiphthong d _) = Format.format "{}" (Format.Only $ render d)
 
 renderSyllable :: Render c => (Syllable.Vocalic m -> Lazy.Text) -> Syllable.Syllable m c -> Lazy.Text
-renderSyllable f (Syllable.Syllable cl v cr) = Format.format "{} {} {}" (render cl, f v, render cr)
+renderSyllable f (Syllable.Syllable cl v cr) = Format.format "{}{}{}" (render cl, f v, render cr)
 
 renderSyllableConsonant :: Render c => (Syllable.Vocalic m -> Lazy.Text) -> Syllable.SyllableConsonant m c -> Lazy.Text
 renderSyllableConsonant f = renderEitherIgnore' (renderSyllable f) render
