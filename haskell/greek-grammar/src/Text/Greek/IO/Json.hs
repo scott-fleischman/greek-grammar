@@ -1,6 +1,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Text.Greek.IO.Json where
 
@@ -53,6 +54,12 @@ data Type = Type
   }
 instance Aeson.ToJSON Type where toJSON (Type t k vs) = Aeson.object ["title" .= t, "kind" .= k, "values" .= vs]
 
+data StageInfo = StageInfo
+  { stageInfoPrimary :: TypeIndex
+  , stageInfoParts :: [TypeIndex]
+  }
+instance Aeson.ToJSON StageInfo where toJSON (StageInfo p ps) = Aeson.object ["primary" .= p, "parts" .= ps]
+
 data Value = Value
   { valueText :: Text
   , valueInstances :: [Instance]
@@ -99,8 +106,15 @@ data Index = Index
   { indexWorkInfos :: [WorkInfo]
   , indexTypeInfos :: [TypeInfo]
   , indexSpecialTypes :: SpecialTypes
+  , indexStages :: [StageInfo]
   }
-instance Aeson.ToJSON Index where toJSON (Index ws ts s) = Aeson.object ["works" .= ws, "types" .= ts, "special" .= s]
+instance Aeson.ToJSON Index where
+  toJSON (Index ws ts st ss) = Aeson.object
+    [ "works" .= ws
+    , "types" .= ts
+    , "special" .= st
+    , "stages" .= ss
+    ]
 
 data SpecialTypes = SpecialTypes
   { specialTypesWordSurface :: TypeIndex
@@ -161,7 +175,7 @@ data Word = Word
   }
 instance Aeson.ToJSON Word where toJSON (Word vs) = Aeson.toJSON vs
 
-newtype TypeIndex = TypeIndex Int deriving (Eq, Ord, Show)
+newtype TypeIndex = TypeIndex Int deriving (Eq, Ord, Show, Num)
 instance Aeson.ToJSON TypeIndex where toJSON (TypeIndex i) = Aeson.toJSON i
 
 newtype ValueIndex = ValueIndex Int deriving (Eq, Ord, Show)

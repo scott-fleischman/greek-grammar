@@ -73,10 +73,10 @@ function getViewWorkList(works, getWorkUrl) {
   };
 }
 
-function getViewTypeList(types, getTypeUrl) {
+function getViewTypeList(stages, types, getTypeUrl) {
   return {
-    navTitle: `${labelNumber(types.length, 'Type', 'Types')}`,
-    content: (<TypeList types={types} getTypeUrl={getTypeUrl} />),
+    navTitle: `${labelNumber(types.length, 'Type', 'Types')}, ${labelNumber(stages.length, 'Stage', 'Stages')}`,
+    content: (<TypeList stages={stages} types={types} getTypeUrl={getTypeUrl} />),
   };
 }
 
@@ -166,7 +166,9 @@ const App = ({ dispatch, visual, data, ephemeral }) => {
     case State.view.loadingWork: info = getLoadingWork(visual.workIndex, data.index.works); break;
     case State.view.loadingType: info = getLoadingType(); break;
     case State.view.workList: info = getViewWorkList(data.index.works, R.compose(getUrl, Action.viewWork)); break;
-    case State.view.typeList: info = getViewTypeList(data.index.types, R.compose(getUrl, Action.viewValueList)); break;
+    case State.view.typeList:
+      info = getViewTypeList(data.index.stages, data.index.types, R.compose(getUrl, Action.viewValueList));
+      break;
     case State.view.work:
       info = getViewWork(
         data.index.works[visual.workIndex].title,
