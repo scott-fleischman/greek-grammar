@@ -256,11 +256,11 @@ getIndexedStageTypeDatas = List.sortOn fst . concatMap getTypes
 indexStage :: Json.TypeIndex -> Stage TypeData -> (Json.TypeIndex, Stage (Json.TypeIndex, TypeData))
 indexStage i (Stage t parts) = (i', Stage (i, t) indexedParts)
   where
-    (i', indexedParts) = Foldable.foldl' go (i + 1, []) parts
+    (i', indexedParts) = Lens.over Lens._2 reverse . Foldable.foldl' go (i + 1, []) $ parts
     go (x, ps) p = (x + 1, (x, p) : ps)
 
 indexStages :: [Stage TypeData] -> [Stage (Json.TypeIndex, TypeData)]
-indexStages = snd . Foldable.foldl' go (0, [])
+indexStages = reverse . snd . Foldable.foldl' go (0, [])
   where
     go (i, ss) s = (i', s' : ss)
       where
