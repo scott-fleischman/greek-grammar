@@ -99,8 +99,9 @@ function getViewWork(workTitle, workIndex, work, specialTypes, getWordUrl, getTy
   };
 }
 
-function getViewWord(workIndex, wordIndex, word, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl) {
-  const wordText = getValueTitle(word[0][0], word[0][1]);
+function getViewWord(workIndex, wordIndex, word, specialTypes, getTypeTitle, getValueTitle, getValueListUrl, getInstanceListUrl) {
+  const surfaceInfo = R.filter(x => x[0] === specialTypes.surface)(word);
+  const wordText = surfaceInfo.length ? getValueTitle(surfaceInfo[0][0], surfaceInfo[0][1][0]) : 'Unknown';
   return {
     navTitle: `Word Instance: ${wordText}`,
     content: (
@@ -187,6 +188,7 @@ const App = ({ dispatch, visual, data, ephemeral }) => {
         visual.workIndex,
         visual.wordIndex,
         data.works.get(visual.workIndex).words[visual.wordIndex],
+        data.index.special,
         getTypeTitle,
         getValueTitle,
         getValueListUrl,

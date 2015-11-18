@@ -87,6 +87,13 @@ process = do
   let storedTypeDatas = fmap snd indexedTypeDatas
 
   let typeNameMap = Map.fromList . fmap (\(i,t) -> (typeDataName t, i)) $ indexedTypeDatas
+  specialTypes <- handleMaybe "special types" $ Json.SpecialTypes
+    <$> Map.lookup Type.SourceWord typeNameMap
+    <*> Map.lookup Type.WordPrefix typeNameMap
+    <*> Map.lookup Type.WordSuffix typeNameMap
+  let storedTypes = fmap typeDataJson storedTypeDatas
+  liftIO $ putStrLn "Writing types"
+  liftIO $ Json.writeTypes storedTypes
 
   workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $
     lookupAll typeNameMap
@@ -113,13 +120,6 @@ process = do
       , Type.Elision
       , Type.ParagraphNumber
       ]
-  specialTypes <- handleMaybe "special types" $ Json.SpecialTypes
-    <$> Map.lookup Type.SourceWord typeNameMap
-    <*> Map.lookup Type.WordPrefix typeNameMap
-    <*> Map.lookup Type.WordSuffix typeNameMap
-  let storedTypes = fmap typeDataJson storedTypeDatas
-  liftIO $ putStrLn "Writing types"
-  liftIO $ Json.writeTypes storedTypes
 
   let instanceMap = Json.makeInstanceMap storedTypes
   let ourWorks = getWorks summaryTypeIndexes instanceMap sourceWords
