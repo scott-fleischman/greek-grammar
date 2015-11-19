@@ -15,6 +15,7 @@ import qualified Data.Functor.Identity as Functor
 import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
+import qualified Data.Text as Text
 import qualified Data.Text.Lazy as Lazy
 import qualified Data.Tuple as Tuple
 import qualified Text.Greek.IO.Json as Json
@@ -29,6 +30,7 @@ import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Place as Place
+import qualified Text.Greek.Script.Punctuation as Punctuation
 import qualified Text.Greek.Script.Syllable as Syllable
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Script.Unicode as Unicode
@@ -69,7 +71,8 @@ process = do
   let (stage6, vowelConsonantMarkGroup) = makeStage6 abstractLetterMarkGroup
   (stage7, vocalicSyllableABConsonantRh) <- handleMaybe "stage7" $ makeStage7 vowelConsonantMarkGroup
   (stage8, syllableRhAB) <- handleMaybe "stage8" $ makeStage8 vocalicSyllableABConsonantRh
-  (stage9, _) <- handleMaybe "stage9" $ makeStage9 syllableRhAB
+  (stage9, syllableRBA) <- handleMaybe "stage9" $ makeStage9 syllableRhAB
+  (stage10, _) <- handleMaybe "stage10" $ makeStage10 syllableRBA
 
   let
     stages =
@@ -83,6 +86,7 @@ process = do
       , stage7
       , stage8
       , stage9
+      , stage10
       ]
   let indexedStages = indexStages stages
   let indexedTypeDatas = getIndexedStageTypeDatas indexedStages
@@ -107,10 +111,11 @@ process = do
   summaryTypeIndexes <- handleMaybe "summaryTypeIndexes" $
     lookupAll typeNameMap
       [ Type.SourceWord
-      , Type.ListScriptSyllableConsonantRh
+      , Type.ListScriptSyllableConsonantRB
       , (Type.Count Type.Syllable)
       , Type.WordCapitalization      
       , (Type.Count Type.Accent)
+      , Type.Crasis
       , Type.Elision
       , Type.ParagraphNumber
       ]
@@ -369,6 +374,23 @@ makeStage9 syllableApproxAB = (,) <$> mStage <*> mProcessed
       , makeSurfaceType Json.WordStagePartTypeKind Type.ScriptSyllableConsonantRB_Approx <$> mProcessedSurfaceNoMarks
       , makeWordPartType Json.WordPropertyTypeKind Type.Crasis (Lens.toListOf (Word.info . Lens._2 . Lens._5)) <$> mProcessed
       ]
+
+makeStage10 :: WordSurface Word.WithCrasis (Syllable.SyllableListOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing])
+  -> Maybe (Stage TypeData, WordSurface Word.Sentence (Syllable.SyllableListOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing]))
+makeStage10 syllableRBA = (,) <$> mStage <*> mWithSentence
+  where
+    mWithSentence = (traverse . Work.content . traverse) wordAddSentence syllableRBA
+    wordAddSentence w = do
+      pair <- Punctuation.tryGetSentencePair $ getSuffix w
+      return $ Lens.over (Word.info . Lens._2) (Word.addSentencePair pair) w
+    getSuffix (Word.Word (_, ((_,s),_,_,_,_)) _) = concatMap Text.unpack . Lens.toListOf (Lens._Just . Word.suffix) $ s
+
+    mStage = Stage <$> mPrimaryType <*> mTypeParts
+    mPrimaryType = makeWordPartType Json.WordPropertyTypeKind Type.EndOfSentence (pure . Lens.view (Word.info . Lens._2 . Lens._6 . Lens._1)) <$> mWithSentence
+    mTypeParts = sequence
+      [ makeWordPartType Json.WordPropertyTypeKind Type.UnicodeEndOfSentence (Lens.toListOf (Word.info . Lens._2 . Lens._6 . Lens._2 . Lens._Just)) <$> mWithSentence
+      ]
+
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]
 getIndexedStageTypeDatas = List.sortOn fst . concatMap getTypes

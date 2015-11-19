@@ -185,8 +185,9 @@ makeSyllableMedialNext = tryFinish . foldr go (Just ([], []))
     tryFinish (Just (cs@(_:_), [])) = Just . Right $ cs
     tryFinish _ = Nothing
 
-getCrasis :: SyllableListOrConsonants m [c] -> Word.Crasis
-getCrasis (Left ((Syllable (_:_) _ _) : _)) = Word.HasCrasis
+getCrasis :: SyllableListOrConsonants (Mark.AccentBreathing Maybe) [c] -> Word.Crasis
+getCrasis (Left ((Syllable (_:_) v _) : _))
+  | (_, Just Mark.BreathingSmooth) <- getVocalicMark v = Word.HasCrasis
 getCrasis _ = Word.NoCrasis
 
 processBreathing :: SyllableListOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]

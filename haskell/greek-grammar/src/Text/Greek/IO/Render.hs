@@ -15,6 +15,7 @@ import qualified Text.Greek.Script.Concrete as Concrete
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Place as Place
+import qualified Text.Greek.Script.Punctuation as Punctuation
 import qualified Text.Greek.Script.Syllable as Syllable
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
@@ -92,8 +93,10 @@ instance Render Type.Name where
   render Type.ListScriptSyllableConsonantRh = "Script Syllables (Consonant+ῥ)"
   render Type.Crasis = "Crasis"
   render Type.ScriptSyllableConsonantRBA_Approx = "Script Syllable (Consonant+ῥ+◌̔), Accent—Approximate"
-  render Type.ScriptSyllableConsonantRB_Approx = "Script Syllable (Consonant+ῥ+◌̔)Approximate"
+  render Type.ScriptSyllableConsonantRB_Approx = "Script Syllable (Consonant+ῥ+◌̔)—Approximate"
   render Type.ListScriptSyllableConsonantRB = "Script Syllables (Consonant+ῥ+◌̔)"
+  render Type.EndOfSentence = "End of Sentence"
+  render Type.UnicodeEndOfSentence = "Unicode End of Sentence"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -476,7 +479,7 @@ instance Render (Syllable.Syllable (Mark.AccentBreathing Maybe) [Consonant.PlusR
   render = renderSyllableMark
 
 instance Render (Syllable.SyllableOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]) where
-  render = renderSyllableConsonant renderVocalicIngoreMark
+  render = renderEitherIgnore
 
 instance Render (Either
   (Syllable.Syllable () [Consonant.PlusRoughRho])
@@ -533,3 +536,9 @@ instance Render (Syllable.Syllable (Maybe Mark.Accent) [Consonant.PlusRoughRhoRo
 
 renderSyllableMark :: (Render m, Render c) => Syllable.Syllable m c -> Lazy.Text
 renderSyllableMark s@(Syllable.Syllable _ v _) = Format.format "{}, {}" (renderSyllable renderVocalicIngoreMark s, render . Syllable.getVocalicMark $ v)
+
+instance Render Punctuation.EndOfSentence where
+  render Punctuation.IsEndOfSentence = "Is end of sentence"
+  render Punctuation.NotEndOfSentence = "Not end of sentence"
+
+instance Render Punctuation.EndOfSentenceChar where render (Punctuation.EndOfSentenceChar c) = render c

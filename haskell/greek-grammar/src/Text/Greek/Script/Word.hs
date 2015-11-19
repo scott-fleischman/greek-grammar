@@ -9,6 +9,7 @@ import Data.Aeson (ToJSON, FromJSON)
 import Data.Text (Text)
 import Text.Greek.Source.FileReference
 import qualified Text.Greek.Script.Elision as Elision
+import qualified Text.Greek.Script.Punctuation as Punctuation
 import qualified Control.Lens as Lens
 import qualified Data.Text as Text
 
@@ -69,6 +70,10 @@ instance FromJSON ConsonantCount
 
 newtype Prefix = Prefix { getPrefix :: Text } deriving (Eq, Show, Ord, Generic)
 newtype Suffix = Suffix { getSuffix :: Text } deriving (Eq, Show, Ord, Generic)
+Lens.makeLensesFor
+  [ ("getSuffix", "suffix")
+  ]
+  ''Suffix
 
 makePrefix :: Text -> Maybe Prefix
 makePrefix = fmap Prefix . nothingIfEmpty . Text.strip
@@ -86,6 +91,7 @@ type Basic = (Affix, ParagraphIndex)
 type Elision = (Affix, ParagraphIndex, Elision.Pair)
 type Capital = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized)
 type WithCrasis = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized, Crasis)
+type Sentence = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized, Crasis, Punctuation.SentencePair)
 type Indexed a = Word (Index, a)
 
 index :: [Word a s] -> [Indexed a s]
@@ -98,3 +104,6 @@ addElisionPair e = Lens.over (info . Lens._2) (\(a, p) -> (a, p, e))
 
 addCrasis :: Crasis -> Capital -> WithCrasis
 addCrasis x (a,b,c,d) = (a,b,c,d,x)
+
+addSentencePair :: Punctuation.SentencePair -> WithCrasis -> Sentence
+addSentencePair x (a,b,c,d,e) = (a,b,c,d,e,x)

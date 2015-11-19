@@ -67,4 +67,6 @@ data Name
   | ScriptSyllableConsonantRBA_Approx
   | ScriptSyllableConsonantRB_Approx
   | ListScriptSyllableConsonantRB
+  | EndOfSentence
+  | UnicodeEndOfSentence
   deriving (Eq, Ord)
