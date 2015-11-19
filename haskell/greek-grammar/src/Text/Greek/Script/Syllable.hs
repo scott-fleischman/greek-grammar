@@ -153,7 +153,12 @@ data Syllable m c = Syllable
   , syllableFinalConsonants :: c
   } deriving (Eq, Ord, Show)
 
-type SyllableConsonant m c = Either (Syllable m c) c
+type SyllableListOrConsonants m c = Either [Syllable m c] c
+type SyllableOrConsonants m c = Either (Syllable m c) c
+
+unifySyllableConsonant :: SyllableListOrConsonants m c -> [SyllableOrConsonants m c]
+unifySyllableConsonant (Left ss) = fmap Left ss
+unifySyllableConsonant (Right cs) = pure (Right cs)
 
 mapSyllableMark :: (m -> m2) -> Syllable m c -> Syllable m2 c
 mapSyllableMark f (Syllable c1 m c2) = Syllable c1 (fmap f m) c2
@@ -166,14 +171,14 @@ splitMedial split = foldr go (Just [])
     go x (Just xs) = Just (x : xs)
     go _ Nothing = Nothing
 
-makeSyllableMedialNext :: [VocalicEither m [c]] -> Maybe ([SyllableConsonant m [c]])
+makeSyllableMedialNext :: [VocalicEither m [c]] -> Maybe (SyllableListOrConsonants m [c])
 makeSyllableMedialNext = tryFinish . foldr go (Just ([], []))
   where
-    go (Left v) (Just (cs, ss)) = Just ([], Left (Syllable [] v cs) : ss)
-    go (Right csl) (Just ([], Left (Syllable [] v csr) : ss)) = Just ([], Left (Syllable csl v csr) : ss)
+    go (Left v) (Just (cs, ss)) = Just ([], Syllable [] v cs : ss)
+    go (Right csl) (Just ([], Syllable [] v csr : ss)) = Just ([], Syllable csl v csr : ss)
     go (Right csr) (Just ([], [])) = Just (csr, [])
     go _ _ = Nothing
 
-    tryFinish (Just ([], ss)) = Just ss
-    tryFinish (Just (cs@(_:_), [])) = Just . pure . Right $ cs
+    tryFinish (Just ([], ss)) = Just . Left $ ss
+    tryFinish (Just (cs@(_:_), [])) = Just . Right $ cs
     tryFinish _ = Nothing

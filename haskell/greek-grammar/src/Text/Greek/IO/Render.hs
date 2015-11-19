@@ -463,14 +463,14 @@ renderVocalicIngoreMark (Syllable.VocalicDiphthong d _) = Format.format "{}" (Fo
 renderSyllable :: Render c => (Syllable.Vocalic m -> Lazy.Text) -> Syllable.Syllable m c -> Lazy.Text
 renderSyllable f (Syllable.Syllable cl v cr) = Format.format "{}{}{}" (render cl, f v, render cr)
 
-renderSyllableConsonant :: Render c => (Syllable.Vocalic m -> Lazy.Text) -> Syllable.SyllableConsonant m c -> Lazy.Text
+renderSyllableConsonant :: Render c => (Syllable.Vocalic m -> Lazy.Text) -> Syllable.SyllableOrConsonants m c -> Lazy.Text
 renderSyllableConsonant f = renderEitherIgnore' (renderSyllable f) render
 
 instance Render (Syllable.Syllable () [Consonant.PlusRoughRho]) where render = renderSyllable renderVocalicIngoreMark
 instance Render (Syllable.Syllable (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]) where
   render s@(Syllable.Syllable _ v _) = Format.format "{}, {}" (renderSyllable renderVocalicIngoreMark s, render . Syllable.getVocalicMark $ v)
 
-instance Render (Syllable.SyllableConsonant (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]) where
+instance Render (Syllable.SyllableOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]) where
   render = renderSyllableConsonant renderVocalicIngoreMark
 
 instance Render (Either
