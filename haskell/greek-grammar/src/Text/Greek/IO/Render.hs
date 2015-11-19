@@ -222,7 +222,10 @@ getName Concrete.IotaSubscript = "Iota Subscript Mark"
 renderLetterPosition :: Int -> Lazy.Text
 renderLetterPosition = Format.format "Letter Position {}" . Format.Only . renderOneBasedIndex
 renderReverseLetterPosition :: Int -> Lazy.Text
-renderReverseLetterPosition = Format.format "Letter Reverse Position {}" . Format.Only . renderOneBasedIndex
+renderReverseLetterPosition = renderReverseLabeledPosition "Letter"
+
+renderReverseLabeledPosition :: Lazy.Text -> Int -> Lazy.Text 
+renderReverseLabeledPosition t i = Format.format "{} Reverse Position {}" (t, renderOneBasedIndex i)
 
 instance Render Abstract.Letter where render = renderRawChar . Unicode.getLetter . Abstract.letterToUnicode
 instance Render Abstract.Case where
@@ -551,3 +554,5 @@ instance Render Punctuation.EndOfSentenceChar where render (Punctuation.EndOfSen
 
 instance Render (Mark.Accent, Mark.AcuteCircumflex) where render = renderFunction
 instance Render (Punctuation.EndOfSentence, Mark.Accent) where render = renderPair
+instance Render (Mark.AcuteCircumflex, Syllable.ReverseIndex) where render = renderPair
+instance Render Syllable.ReverseIndex where render = renderReverseLabeledPosition "Syllable" . Syllable.getReverseIndex

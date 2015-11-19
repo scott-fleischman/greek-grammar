@@ -239,3 +239,5 @@ processBreathing (Left ss) = go ss >>= (pure . Left)
 processGrave :: Punctuation.EndOfSentence -> Mark.Accent -> Maybe Mark.AcuteCircumflex
 processGrave Punctuation.IsEndOfSentence = Mark.accentNotGrave
 processGrave _ = Just . Mark.convertGraveToAcute
+
+newtype ReverseIndex = ReverseIndex { getReverseIndex :: Int } deriving (Eq, Show, Ord)

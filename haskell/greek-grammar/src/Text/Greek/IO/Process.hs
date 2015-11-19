@@ -411,6 +411,13 @@ makeStage10 syllableRBA = (,) <$> mStage <*> mGraveGone
 
       , makeWordPartType Json.WordStagePartTypeKind Type.AcuteCircumflex
         (Lens.toListOf (Word.surface . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just)) <$> mGraveGone
+
+      , makeReverseIndexedSurfacePartType2
+        Json.CompositePropertyTypeKind
+        Type.AcuteCircumflex
+        Syllable.ReverseIndex
+        (Lens.toListOf (Lens._Left . traverse . Syllable.syllableMarkLens))
+        <$> mGraveGone
       ]
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]
@@ -480,6 +487,14 @@ makeIndexedSurfacePartType k t g f
   . Lens.over (traverse . Lens._2 . Lens._2) g
   . concatIndexedSnd
   . flattenWords (\_ -> fmap f . Word.getSurface)
+
+makeReverseIndexedSurfacePartType2 :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> [Maybe b]) -> WordSurface t a -> TypeData
+makeReverseIndexedSurfacePartType2 k t g f
+  = generateType k (Type.ReverseIndexed t) makeSimpleValue
+  . Lens.over (traverse . Lens._2 . Lens._2) g
+  . Maybe.mapMaybe ((Lens._2 . Lens._1) id)
+  . concatReverseIndexedSnd
+  . flattenWords (\_ -> f . Word.getSurface)
 
 makeReverseIndexedSurfacePartType :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> b) -> WordSurface t [a] -> TypeData
 makeReverseIndexedSurfacePartType k t g f
