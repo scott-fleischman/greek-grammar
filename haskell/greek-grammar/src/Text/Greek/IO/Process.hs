@@ -107,17 +107,8 @@ process = do
       [ Type.SourceWord
       , Type.ListScriptSyllableConsonantRh
       , (Type.Count Type.Syllable)
-      , (Type.Count Type.VocalicSyllableSingle)
-      , (Type.Count Type.ImproperDiphthong)
-      , (Type.Count Type.Diphthong)
-      , (Type.Count Type.Vowel)
-      , (Type.Count Type.Consonant)
       , Type.WordCapitalization      
       , (Type.Count Type.Accent)
-      , (Type.Count Type.Breathing)
-      , (Type.Count Type.SyllabicMark)
-      , (Type.Count Type.AbstractLetter)
-      , (Type.Count Type.ConcreteMark)
       , Type.Elision
       , Type.ParagraphNumber
       ]
