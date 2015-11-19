@@ -69,4 +69,5 @@ data Name
   | ListScriptSyllableConsonantRB
   | EndOfSentence
   | UnicodeEndOfSentence
+  | AcuteCircumflex
   deriving (Eq, Ord)

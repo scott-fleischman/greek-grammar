@@ -17,6 +17,10 @@ data IsCapitalized = IsCapitalized | IsNotCapitalized deriving (Eq, Ord, Show, G
 instance ToJSON IsCapitalized
 instance FromJSON IsCapitalized
 
+data LastWord = IsLastWord | NotLastWord deriving (Eq, Ord, Show, Generic)
+instance ToJSON LastWord
+instance FromJSON LastWord
+
 data Crasis = HasCrasis | NoCrasis deriving (Eq, Ord, Show, Generic)
 instance ToJSON Crasis
 instance FromJSON Crasis
@@ -107,3 +111,10 @@ addCrasis x (a,b,c,d) = (a,b,c,d,x)
 
 addSentencePair :: Punctuation.SentencePair -> WithCrasis -> Sentence
 addSentencePair x (a,b,c,d,e) = (a,b,c,d,e,x)
+
+tagLastWords :: [Word a b] -> [(Word a b, LastWord)]
+tagLastWords = reverse . go . reverse
+  where
+    go [] = []
+    go (x : xs) = (x, IsLastWord) : finish xs
+    finish = fmap (\x -> (x, NotLastWord))

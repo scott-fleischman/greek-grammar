@@ -35,3 +35,15 @@ toMarkGroup = foldr go (Just (Nothing, Nothing, Nothing))
 
 forgetSyllabic :: Group f -> AccentBreathing f
 forgetSyllabic (x, y, _) = (x, y)
+
+data AcuteCircumflex = Acute | Circumflex deriving (Eq, Ord, Show)
+
+accentNotGrave :: Accent -> Maybe AcuteCircumflex
+accentNotGrave AccentGrave = Nothing
+accentNotGrave AccentAcute = Just Acute
+accentNotGrave AccentCircumflex = Just Circumflex
+
+convertGraveToAcute :: Accent -> AcuteCircumflex
+convertGraveToAcute AccentGrave = Acute
+convertGraveToAcute AccentAcute = Acute
+convertGraveToAcute AccentCircumflex = Circumflex

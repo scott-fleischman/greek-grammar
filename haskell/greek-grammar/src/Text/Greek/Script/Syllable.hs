@@ -1,5 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Text.Greek.Script.Syllable where
 
@@ -8,6 +9,7 @@ import qualified Text.Greek.Phonology.Consonant as Consonant
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Place as Place
+import qualified Text.Greek.Script.Punctuation as Punctuation
 import qualified Text.Greek.Script.Word as Word
 
 data StartVocalic v
@@ -60,6 +62,11 @@ instance Functor Vocalic where
   fmap f (VocalicIota v m) = VocalicIota v (f m)
   fmap f (VocalicDiphthong v m) = VocalicDiphthong v (f m)
 
+vocalicMarkLens :: forall a b f. Functor f => (a -> f b) -> Vocalic a -> f (Vocalic b)
+vocalicMarkLens f (VocalicSingle v m) = (\m' -> VocalicSingle v m') <$> f m
+vocalicMarkLens f (VocalicIota v m) = (\m' -> VocalicIota v m') <$> f m
+vocalicMarkLens f (VocalicDiphthong v m) = (\m' -> VocalicDiphthong v m') <$> f m
+
 type VocalicEither mv c = Either (Vocalic mv) c
 type VocalicConsonant mv mc = VocalicEither mv (Abstract.Consonant, mc)
 
@@ -100,6 +107,9 @@ getImproperDiphthongCount _ = 0
 getDiphthongCount :: VocalicConsonant a b -> DiphthongCount
 getDiphthongCount (Left (VocalicDiphthong _ _)) = 1
 getDiphthongCount _ = 0
+
+getSyllableMark :: Syllable m a -> m
+getSyllableMark (Syllable _ v _) = getVocalicMark v
 
 validateVocalicConsonant :: Start (Mark.Group Maybe) -> Maybe (VocalicConsonant (Mark.AccentBreathing Maybe) (Maybe Mark.Breathing))
 validateVocalicConsonant x = Lens._Left validateStartVocalic x >>= Lens._Right validateConsonantBreathing
@@ -154,6 +164,9 @@ data Syllable m c = Syllable
   , syllableVocalic :: Vocalic m
   , syllableFinalConsonants :: c
   } deriving (Eq, Ord, Show)
+
+syllableMarkLens :: forall m m' c f. Functor f => (m -> f m') -> Syllable m c -> f (Syllable m' c)
+syllableMarkLens f (Syllable cl v cr) = (\m' -> Syllable cl (fmap (const m') v) cr) <$> f (getVocalicMark v)
 
 type SyllableListOrConsonants m c = Either [Syllable m c] c
 type SyllableOrConsonants m c = Either (Syllable m c) c
@@ -222,3 +235,7 @@ processBreathing (Left ss) = go ss >>= (pure . Left)
       -> Maybe (Syllable (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing])
     validateNoBreathing (Syllable cl v cr) | (_, Nothing) <- getVocalicMark v = promoteC $ (Syllable cl (dropBreathing v) cr)
     validateNoBreathing _ = Nothing
+
+processGrave :: Punctuation.EndOfSentence -> Mark.Accent -> Maybe Mark.AcuteCircumflex
+processGrave Punctuation.IsEndOfSentence = Mark.accentNotGrave
+processGrave _ = Just . Mark.convertGraveToAcute

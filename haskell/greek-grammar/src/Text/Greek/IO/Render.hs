@@ -97,6 +97,7 @@ instance Render Type.Name where
   render Type.ListScriptSyllableConsonantRB = "Script Syllables (Consonant+ῥ+◌̔)"
   render Type.EndOfSentence = "End of Sentence"
   render Type.UnicodeEndOfSentence = "Unicode End of Sentence"
+  render Type.AcuteCircumflex = "Acute or Circumflex"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -281,6 +282,10 @@ instance Render Mark.Breathing where
 instance Render Mark.Syllabic where
   render Mark.SyllabicDiaeresis = "Diaeresis"
   render Mark.SyllabicIotaSubscript = "Iota Subscript"
+
+instance Render Mark.AcuteCircumflex where
+  render Mark.Acute = "Acute"
+  render Mark.Circumflex = "Circumflex"
 
 instance Render [Mark.Kind] where render = renderSingleLineList
 instance Render (Marked.Unit Abstract.Letter [Mark.Kind]) where render = renderMarkedUnit
@@ -542,3 +547,5 @@ instance Render Punctuation.EndOfSentence where
   render Punctuation.NotEndOfSentence = "Not end of sentence"
 
 instance Render Punctuation.EndOfSentenceChar where render (Punctuation.EndOfSentenceChar c) = render c
+
+instance Render (Mark.Accent, Mark.AcuteCircumflex) where render = renderFunction
