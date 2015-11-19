@@ -28,7 +28,7 @@ instance Render Lazy.Text where
   render = id
 
 instance Render Type.Name where
-  render (Type.List a) = Format.format "[{}]" . Format.Only . render $ a
+  render (Type.List a) = Format.format "List of {}" . Format.Only . render $ a
   render (Type.Function a b) = Format.format "{} → {}" (render a, render b)
   render (Type.Indexed a) = Format.format "{}, Position" . Format.Only . render $ a
   render (Type.ReverseIndexed a) = Format.format "{}, Reverse Position" . Format.Only . render $ a
@@ -45,13 +45,13 @@ instance Render Type.Name where
   render Type.WordSuffix = "Word Suffix"
   render Type.UnicodeComposed = "Unicode Composed"
   render Type.UnicodeDecomposed = "Unicode Decomposed"
-  render Type.UnicodeLetterMarks = "Unicode Letter, [Unicode Mark]"
+  render Type.UnicodeLetterMarks = "Unicode Letter, List of Unicode Mark"
   render Type.UnicodeLetter = "Unicode Letter"
   render Type.UnicodeMark = "Unicode Mark"
   render Type.ConcreteLetter = "Concrete Letter"
   render Type.ConcreteMark = "Concrete Mark"
-  render Type.ConcreteLetterMarks = "Concrete Letter, [Concrete Mark]"
-  render Type.AbstractLetterCaseFinalMarks = "Abstract Letter, Case, Final, [Concrete Mark]"
+  render Type.ConcreteLetterMarks = "Concrete Letter, List of Concrete Mark"
+  render Type.AbstractLetterCaseFinalMarks = "Abstract Letter, Case, Final, List of Concrete Mark"
   render Type.AbstractLetter = "Abstract Letter"
   render Type.LetterCase = "Letter Case"
   render Type.LetterFinalForm   = "Letter Final Form"
@@ -61,34 +61,35 @@ instance Render Type.Name where
   render Type.Accent = "Accent"
   render Type.Breathing = "Breathing"
   render Type.SyllabicMark = "Syllabic Mark"
-  render Type.AbstractLetterMarks = "Abstract Letter, [Concrete Mark]"
-  render Type.AbstractLetterMarkKinds = "Abstract Letter, [Mark Kind]"
+  render Type.AbstractLetterMarks = "Abstract Letter, List of Concrete Mark"
+  render Type.AbstractLetterMarkKinds = "Abstract Letter, List of Mark Kind"
   render Type.MarkGroup = "Mark Group"
   render Type.AbstractLetterMarkGroup = "Abstract Letter, Mark Group"
-  render Type.VowelConsonantMarkGroup = "Vowel / Consonant, Mark Group"
-  render Type.VowelConsonant = "Vowel / Consonant"
+  render Type.VowelConsonantMarkGroup = "Vowel or Consonant, Mark Group"
+  render Type.VowelConsonant = "Vowel or Consonant"
   render Type.Vowel = "Vowel"
   render Type.Consonant = "Consonant"
-  render Type.SyllabicMarkVowelConsonant = "Syllabic Mark, Vowel / Consonant"
+  render Type.SyllabicMarkVowelConsonant = "Syllabic Mark, Vowel or Consonant"
   render Type.StartSyllable = "Start Syllable"
-  render Type.VocalicSyllableABConsonantB = "Vocalic Syllable, Accent, Breathing / Consonant, Breathing"
+  render Type.VocalicSyllableABConsonantB = "Vocalic Syllable, Accent, Breathing or Consonant, Breathing"
   render Type.VocalicSyllable = "Vocalic Syllable"
   render Type.VocalicSyllableSingle = "Vocalic Syllable Single Vowel"
   render Type.ImproperDiphthong = "Improper Diphthong"
   render Type.Diphthong = "Diphthong"
   render Type.Syllable = "Syllable"
-  render Type.VocalicSyllableABConsonantRh = "Vocalic Syllable, Accent, Breathing / Consonant+ῥ"
+  render Type.VocalicSyllableABConsonantRh = "Vocalic Syllable, Accent, Breathing or Consonant+ῥ"
   render Type.ConsonantBreathing = "Consonant, Breathing"
   render Type.ConsonantRh = "Consonant+ῥ"
-  render Type.VocalicSyllableABConsonantRhCluster = "Vocalic Syllable, Accent, Breathing / [Consonant+ῥ]"
-  render Type.ConsonantRhCluster = "[Consonant+ῥ]"
-  render Type.ConsonantRhClusterPlace3 = "[Consonant+ῥ], Initial, Medial, Final"
-  render Type.ConsonantRhClusterPlace3Swap = "Initial, Medial, Final, [Consonant+ῥ]"
-  render Type.ConsonantRhClusterPlaceInfo = "Medial, Attested Initial, Length, Stop+μ/ν, Double, [Consonant+ῥ]"
-  render Type.ScriptSyllableConsonantRhCluster_Right = "Script Syllable, [Consonant+ῥ], Medial-Right"
-  render Type.ScriptSyllableConsonantRhClusterAB_Right = "Script Syllable, [Consonant+ῥ], Accent, Breathing, Medial-Right"
-  render Type.ScriptSyllableConsonantRhCluster_Approx = "Script Syllable, [Consonant+ῥ], Approximate"
-  render Type.ScriptSyllableConsonantRhClusterAB_Approx = "Script Syllable, [Consonant+ῥ], Accent, Breathing, Approximate"
+  render Type.VocalicSyllableABConsonantRhCluster = "Vocalic Syllable, Accent, Breathing or Consonant+ῥ Cluster"
+  render Type.ConsonantRhCluster = "Consonant+ῥ Cluster"
+  render Type.ConsonantRhClusterPlace3 = "Consonant+ῥ Cluster, Initial, Medial, Final"
+  render Type.ConsonantRhClusterPlace3Swap = "Initial, Medial, Final, Consonant+ῥ Cluster"
+  render Type.ConsonantRhClusterPlaceInfo = "Medial, Attested Initial, Length, Stop+μ/ν, Double, Consonant+ῥ Cluster"
+  render Type.ScriptSyllableConsonantRh_Right = "Script Syllable (Consonant+ῥ)—Medial-Right"
+  render Type.ScriptSyllableConsonantRhAB_Right = "Script Syllable (Consonant+ῥ), Accent, Breathing—Medial-Right"
+  render Type.ScriptSyllableConsonantRh_Approx = "Script Syllable (Consonant+ῥ)—Approximate"
+  render Type.ScriptSyllableConsonantRhAB_Approx = "Script Syllable (Consonant+ῥ), Accent, Breathing—Approximate"
+  render Type.ListScriptSyllableConsonantRh = "Script Syllables (Consonant+ῥ)"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -478,3 +479,6 @@ instance Render (Either
   [Consonant.PlusRoughRho])
   where
     render = renderEitherIgnore
+
+instance Render [Syllable.Syllable () [Consonant.PlusRoughRho]] where
+  render = Lazy.intercalate "-" . fmap render

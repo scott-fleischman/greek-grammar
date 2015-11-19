@@ -58,8 +58,9 @@ data Name
   | ConsonantRhClusterPlace3
   | ConsonantRhClusterPlace3Swap
   | ConsonantRhClusterPlaceInfo
-  | ScriptSyllableConsonantRhClusterAB_Right
-  | ScriptSyllableConsonantRhCluster_Right
-  | ScriptSyllableConsonantRhCluster_Approx
-  | ScriptSyllableConsonantRhClusterAB_Approx
+  | ScriptSyllableConsonantRhAB_Right
+  | ScriptSyllableConsonantRh_Right
+  | ScriptSyllableConsonantRh_Approx
+  | ScriptSyllableConsonantRhAB_Approx
+  | ListScriptSyllableConsonantRh
   deriving (Eq, Ord)

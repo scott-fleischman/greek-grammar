@@ -105,6 +105,7 @@ process = do
   summaryTypeIndexes <- handleMaybe "summaryTypeIndexes" $
     lookupAll typeNameMap
       [ Type.SourceWord
+      , Type.ListScriptSyllableConsonantRh
       , (Type.Count Type.Syllable)
       , (Type.Count Type.VocalicSyllableSingle)
       , (Type.Count Type.ImproperDiphthong)
@@ -331,15 +332,18 @@ makeStage8 vocalicSyllableABConsonantRh = (,) <$> mStage <*> mSyllableApproxAB
     approxSplit = Consonant.splitScriptSyllable initialConsonantClusterSet
     mSyllableApproxAB :: Maybe (WordSurface a (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]))
     mSyllableApproxAB = mSyllableRightAB >>= (wordSurfaceLens . Lens._Left) (Syllable.splitMedial approxSplit)
+    mSyllableApprox :: Maybe (WordSurface a (Syllable.SyllableListOrConsonants () [Consonant.PlusRoughRho]))
+    mSyllableApprox = Lens.over (Lens._Just . wordSurfaceLens . Lens._Left . traverse) (Syllable.mapSyllableMark (const ())) mSyllableApproxAB
     mSyllableApproxABSurface = unify mSyllableRightAB
     mSyllableApproxSurface = dropMark mSyllableApproxABSurface
 
     mStage = Stage <$> mPrimaryType <*> mTypeParts
-    mPrimaryType = makeSurfaceType Json.WordStagePartTypeKind Type.ScriptSyllableConsonantRhCluster_Approx <$> mSyllableApproxSurface
+    mPrimaryType = makeSurfaceType Json.WordStagePartTypeKind Type.ScriptSyllableConsonantRhAB_Approx <$> mSyllableApproxABSurface
     mTypeParts = sequence
-      [ makeSurfaceType Json.WordStagePartTypeKind Type.ScriptSyllableConsonantRhCluster_Approx <$> mSyllableApproxSurface
-      , makeSurfaceType Json.WordStageTypeKind Type.ScriptSyllableConsonantRhClusterAB_Right <$> mSyllableRightABSurface
-      , makeSurfaceType Json.WordStagePartTypeKind Type.ScriptSyllableConsonantRhCluster_Right <$> mSyllableRightSurface
+      [ makeWordPartType Json.WordPropertyTypeKind Type.ListScriptSyllableConsonantRh (pure . Lens.toListOf (Word.surface . Lens._Left . traverse)) <$> mSyllableApprox
+      , makeSurfaceType Json.WordStagePartTypeKind Type.ScriptSyllableConsonantRh_Approx <$> mSyllableApproxSurface
+      , makeSurfaceType Json.WordStageTypeKind Type.ScriptSyllableConsonantRhAB_Right <$> mSyllableRightABSurface
+      , makeSurfaceType Json.WordStagePartTypeKind Type.ScriptSyllableConsonantRh_Right <$> mSyllableRightSurface
       , pure $ makeSurfaceType Json.WordStageTypeKind Type.VocalicSyllableABConsonantRhCluster vocalicSyllableABConsonantCluster
       , pure $ makeSurfacePartType Json.WordStagePartTypeKind Type.ConsonantRhCluster (Lens.toListOf Lens._Right) vocalicSyllableABConsonantCluster
       , pure $ makeSurfacePartType Json.CompositePropertyTypeKind Type.ConsonantRhClusterPlace3 (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace3
