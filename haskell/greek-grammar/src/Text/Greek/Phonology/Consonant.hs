@@ -67,3 +67,27 @@ splitScriptSyllable _ [] = ([], [])
 splitScriptSyllable a xs@(_:_) | Set.member xs a = ([], xs)
 splitScriptSyllable _ xs@(_:_:_) | IsStopMuNu <- getStopMuNu xs = ([], xs)
 splitScriptSyllable _ (x:xs) = ([x], xs)
+
+data PlusRoughRhoRoughBreathing
+  = RB_β | RB_γ | RB_δ | RB_ζ | RB_θ | RB_κ | RB_λ | RB_μ | RB_ν | RB_ξ | RB_π | RB_ρ | RB_ῥ | RB_σ | RB_τ | RB_φ | RB_χ | RB_ψ | RB_Rough
+  deriving (Eq, Show, Ord)
+
+promotePlusRoughRho :: PlusRoughRho -> PlusRoughRhoRoughBreathing
+promotePlusRoughRho Rh_β = RB_β
+promotePlusRoughRho Rh_γ = RB_γ
+promotePlusRoughRho Rh_δ = RB_δ
+promotePlusRoughRho Rh_ζ = RB_ζ
+promotePlusRoughRho Rh_θ = RB_θ
+promotePlusRoughRho Rh_κ = RB_κ
+promotePlusRoughRho Rh_λ = RB_λ
+promotePlusRoughRho Rh_μ = RB_μ
+promotePlusRoughRho Rh_ν = RB_ν
+promotePlusRoughRho Rh_ξ = RB_ξ
+promotePlusRoughRho Rh_π = RB_π
+promotePlusRoughRho Rh_ρ = RB_ρ
+promotePlusRoughRho Rh_ῥ = RB_ῥ
+promotePlusRoughRho Rh_σ = RB_σ
+promotePlusRoughRho Rh_τ = RB_τ
+promotePlusRoughRho Rh_φ = RB_φ
+promotePlusRoughRho Rh_χ = RB_χ
+promotePlusRoughRho Rh_ψ = RB_ψ

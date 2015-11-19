@@ -63,4 +63,8 @@ data Name
   | ScriptSyllableConsonantRh_Approx
   | ScriptSyllableConsonantRhAB_Approx
   | ListScriptSyllableConsonantRh
+  | Crasis
+  | ScriptSyllableConsonantRBA_Approx
+  | ScriptSyllableConsonantRB_Approx
+  | ListScriptSyllableConsonantRB
   deriving (Eq, Ord)

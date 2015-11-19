@@ -41,3 +41,7 @@ applyAttestation _ (c, p) = (c, addAttestedInitial p UnattestedInitial)
 
 addAttestedInitial :: Place3 -> AttestedInitial -> Place4
 addAttestedInitial (a, b, c) d = (a, b, c, d)
+
+markInitial :: [a] -> [(Initial, a)]
+markInitial [] = []
+markInitial (x : xs) = (IsInitial, x) : fmap (\y -> (NotInitial, y)) xs

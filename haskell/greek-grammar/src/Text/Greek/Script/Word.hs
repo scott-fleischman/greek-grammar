@@ -16,6 +16,10 @@ data IsCapitalized = IsCapitalized | IsNotCapitalized deriving (Eq, Ord, Show, G
 instance ToJSON IsCapitalized
 instance FromJSON IsCapitalized
 
+data Crasis = HasCrasis | NoCrasis deriving (Eq, Ord, Show, Generic)
+instance ToJSON Crasis
+instance FromJSON Crasis
+
 newtype ParagraphIndex = ParagraphIndex { getParagraphIndex :: Int } deriving (Eq, Ord, Show, Generic)
 instance ToJSON ParagraphIndex
 instance FromJSON ParagraphIndex
@@ -81,6 +85,7 @@ type Affix = (Maybe Prefix, Maybe Suffix)
 type Basic = (Affix, ParagraphIndex)
 type Elision = (Affix, ParagraphIndex, Elision.Pair)
 type Capital = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized)
+type WithCrasis = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized, Crasis)
 type Indexed a = Word (Index, a)
 
 index :: [Word a s] -> [Indexed a s]
@@ -90,3 +95,6 @@ index = fmap addIndex . zip (fmap Index [0..])
 
 addElisionPair :: Elision.Pair -> Indexed Basic a -> Indexed Elision a
 addElisionPair e = Lens.over (info . Lens._2) (\(a, p) -> (a, p, e))
+
+addCrasis :: Crasis -> Capital -> WithCrasis
+addCrasis x (a,b,c,d) = (a,b,c,d,x)

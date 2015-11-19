@@ -90,6 +90,10 @@ instance Render Type.Name where
   render Type.ScriptSyllableConsonantRh_Approx = "Script Syllable (Consonant+ῥ)—Approximate"
   render Type.ScriptSyllableConsonantRhAB_Approx = "Script Syllable (Consonant+ῥ), Accent, Breathing—Approximate"
   render Type.ListScriptSyllableConsonantRh = "Script Syllables (Consonant+ῥ)"
+  render Type.Crasis = "Crasis"
+  render Type.ScriptSyllableConsonantRBA_Approx = "Script Syllable (Consonant+ῥ+◌̔), Accent—Approximate"
+  render Type.ScriptSyllableConsonantRB_Approx = "Script Syllable (Consonant+ῥ+◌̔)Approximate"
+  render Type.ListScriptSyllableConsonantRB = "Script Syllables (Consonant+ῥ+◌̔)"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -469,7 +473,7 @@ renderSyllableConsonant f = renderEitherIgnore' (renderSyllable f) render
 
 instance Render (Syllable.Syllable () [Consonant.PlusRoughRho]) where render = renderSyllable renderVocalicIngoreMark
 instance Render (Syllable.Syllable (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]) where
-  render s@(Syllable.Syllable _ v _) = Format.format "{}, {}" (renderSyllable renderVocalicIngoreMark s, render . Syllable.getVocalicMark $ v)
+  render = renderSyllableMark
 
 instance Render (Syllable.SyllableOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]) where
   render = renderSyllableConsonant renderVocalicIngoreMark
@@ -482,3 +486,50 @@ instance Render (Either
 
 instance Render [Syllable.Syllable () [Consonant.PlusRoughRho]] where
   render = Lazy.intercalate "-" . fmap render
+
+instance Render Word.Crasis where
+  render Word.HasCrasis = "Crasis occurs"
+  render Word.NoCrasis = "No crasis"
+
+renderRBChar :: Consonant.PlusRoughRhoRoughBreathing -> Lazy.Text
+renderRBChar Consonant.RB_β = "β"
+renderRBChar Consonant.RB_γ = "γ"
+renderRBChar Consonant.RB_δ = "δ"
+renderRBChar Consonant.RB_ζ = "ζ"
+renderRBChar Consonant.RB_θ = "θ"
+renderRBChar Consonant.RB_κ = "κ"
+renderRBChar Consonant.RB_λ = "λ"
+renderRBChar Consonant.RB_μ = "μ"
+renderRBChar Consonant.RB_ν = "ν"
+renderRBChar Consonant.RB_ξ = "ξ"
+renderRBChar Consonant.RB_π = "π"
+renderRBChar Consonant.RB_ρ = "ρ"
+renderRBChar Consonant.RB_ῥ = "ῥ"
+renderRBChar Consonant.RB_σ = "σ"
+renderRBChar Consonant.RB_τ = "τ"
+renderRBChar Consonant.RB_φ = "φ"
+renderRBChar Consonant.RB_χ = "χ"
+renderRBChar Consonant.RB_ψ = "ψ"
+renderRBChar Consonant.RB_Rough = "◌̔"
+
+instance Render [Syllable.Syllable () [Consonant.PlusRoughRhoRoughBreathing]] where
+  render = Lazy.intercalate "-" . fmap render
+
+instance Render (Syllable.Syllable () [Consonant.PlusRoughRhoRoughBreathing]) where render = renderSyllable renderVocalicIngoreMark
+
+instance Render [Consonant.PlusRoughRhoRoughBreathing] where render = renderSingleLineString . fmap renderRBChar
+
+instance Render (Syllable.SyllableOrConsonants () [Consonant.PlusRoughRhoRoughBreathing]) where
+  render = renderEitherIgnore
+
+instance Render [Syllable.SyllableOrConsonants () [Consonant.PlusRoughRhoRoughBreathing]] where
+  render = Lazy.intercalate "-" . fmap render
+
+instance Render (Syllable.SyllableOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing]) where
+  render = renderEitherIgnore
+
+instance Render (Syllable.Syllable (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing]) where
+  render = renderSyllableMark
+
+renderSyllableMark :: (Render m, Render c) => Syllable.Syllable m c -> Lazy.Text
+renderSyllableMark s@(Syllable.Syllable _ v _) = Format.format "{}, {}" (renderSyllable renderVocalicIngoreMark s, render . Syllable.getVocalicMark $ v)

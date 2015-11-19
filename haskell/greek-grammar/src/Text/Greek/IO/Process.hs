@@ -68,7 +68,8 @@ process = do
   (stage5, abstractLetterMarkGroup) <- handleMaybe "stage5" $ tryMakeStage5 abstractLetterConcreteMarks
   let (stage6, vowelConsonantMarkGroup) = makeStage6 abstractLetterMarkGroup
   (stage7, vocalicSyllableABConsonantRh) <- handleMaybe "stage7" $ makeStage7 vowelConsonantMarkGroup
-  (stage8, _) <- handleMaybe "stage8" $ makeStage8 vocalicSyllableABConsonantRh
+  (stage8, syllableRhAB) <- handleMaybe "stage8" $ makeStage8 vocalicSyllableABConsonantRh
+  (stage9, _) <- handleMaybe "stage9" $ makeStage9 syllableRhAB
 
   let
     stages =
@@ -81,6 +82,7 @@ process = do
       , stage6
       , stage7
       , stage8
+      , stage9
       ]
   let indexedStages = indexStages stages
   let indexedTypeDatas = getIndexedStageTypeDatas indexedStages
@@ -310,7 +312,7 @@ makeStage8 vocalicSyllableABConsonantRh = (,) <$> mStage <*> mSyllableApproxAB
     mSyllableRightAB :: Maybe (WordSurface a (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]))
     mSyllableRightAB = wordSurfaceLens Syllable.makeSyllableMedialNext vocalicSyllableABConsonantCluster
     mSyllableRightABSurface :: Maybe (WordSurface a [Syllable.SyllableOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]])
-    mSyllableRightABSurface = unify mSyllableRightAB
+    mSyllableRightABSurface = unifySurfaceSyllables mSyllableRightAB
     mSyllableRightSurface :: Maybe (WordSurface a [Syllable.SyllableOrConsonants () [Consonant.PlusRoughRho]])
     mSyllableRightSurface = dropMark mSyllableRightABSurface
 
@@ -318,14 +320,12 @@ makeStage8 vocalicSyllableABConsonantRh = (,) <$> mStage <*> mSyllableApproxAB
        -> Maybe (WordSurface a [Syllable.SyllableOrConsonants () [Consonant.PlusRoughRho]])
     dropMark = Lens.over (Lens._Just . wordSurfaceLens . traverse . Lens._Left) (Syllable.mapSyllableMark (const ()))
 
-    unify = Lens.over (Lens._Just . wordSurfaceLens) Syllable.unifySyllableConsonant
-
     approxSplit = Consonant.splitScriptSyllable initialConsonantClusterSet
     mSyllableApproxAB :: Maybe (WordSurface a (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]))
     mSyllableApproxAB = mSyllableRightAB >>= (wordSurfaceLens . Lens._Left) (Syllable.splitMedial approxSplit)
     mSyllableApprox :: Maybe (WordSurface a (Syllable.SyllableListOrConsonants () [Consonant.PlusRoughRho]))
-    mSyllableApprox = Lens.over (Lens._Just . wordSurfaceLens . Lens._Left . traverse) (Syllable.mapSyllableMark (const ())) mSyllableApproxAB
-    mSyllableApproxABSurface = unify mSyllableRightAB
+    mSyllableApprox = stripSyllableMark mSyllableApproxAB
+    mSyllableApproxABSurface = unifySurfaceSyllables mSyllableRightAB
     mSyllableApproxSurface = dropMark mSyllableApproxABSurface
 
     mStage = Stage <$> mPrimaryType <*> mTypeParts
@@ -340,6 +340,34 @@ makeStage8 vocalicSyllableABConsonantRh = (,) <$> mStage <*> mSyllableApproxAB
       , pure $ makeSurfacePartType Json.CompositePropertyTypeKind Type.ConsonantRhClusterPlace3 (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace3
       , pure $ makeSurfacePartType Json.CompositePropertyTypeKind Type.ConsonantRhClusterPlace3Swap (Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterPlace3Swap
       , pure $ makeSurfacePartType Json.CompositePropertyTypeKind Type.ConsonantRhClusterPlaceInfo (fmap (\(a, (b, c)) -> (b, c, Consonant.splitScriptSyllableInfo a)) . Lens.toListOf Lens._Right) vocalicSyllableABConsonantClusterMAI
+      ]
+
+unifySurfaceSyllables :: Maybe (WordSurface c (Syllable.SyllableListOrConsonants m c1))
+  -> Maybe (WordSurface c [Syllable.SyllableOrConsonants m c1])
+unifySurfaceSyllables = Lens.over (Lens._Just . wordSurfaceLens) Syllable.unifySyllableConsonant
+
+stripSyllableMark :: Traversable t0 => Maybe [Work.Indexed [Word.Indexed c (Either (t0 (Syllable.Syllable b c2)) c1)]]
+  -> Maybe [Work.Indexed [Word.Indexed c (Either (t0 (Syllable.Syllable () c2)) c1)]]
+stripSyllableMark = Lens.over (Lens._Just . wordSurfaceLens . Lens._Left . traverse) (Syllable.mapSyllableMark (const ()))
+
+makeStage9 :: WordSurface Word.Capital (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho])
+  -> Maybe (Stage TypeData, WordSurface Word.WithCrasis (Syllable.SyllableListOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing]))
+makeStage9 syllableApproxAB = (,) <$> mStage <*> mProcessed
+  where
+    wordApplyCrasis :: Word.Indexed Word.Capital (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [c])
+      -> Word.Indexed Word.WithCrasis (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [c])
+    wordApplyCrasis w = Lens.over (Word.info . Lens._2) (Word.addCrasis (Syllable.getCrasis . Word.getSurface $ w)) w
+
+    withCrasis = Lens.over (traverse . Work.content . traverse) wordApplyCrasis syllableApproxAB
+    mProcessed = wordSurfaceLens Syllable.processBreathing withCrasis
+    mProcessedSurfaceNoMarks = unifySurfaceSyllables . stripSyllableMark $ mProcessed
+
+    mStage = Stage <$> mPrimaryType <*> mTypeParts
+    mPrimaryType = makeSurfaceType Json.WordStageTypeKind Type.ScriptSyllableConsonantRBA_Approx <$> unifySurfaceSyllables mProcessed
+    mTypeParts = sequence
+      [ makeWordPartType Json.WordPropertyTypeKind Type.ListScriptSyllableConsonantRB (pure . Lens.toListOf (Word.surface . traverse)) <$> mProcessedSurfaceNoMarks
+      , makeSurfaceType Json.WordStagePartTypeKind Type.ScriptSyllableConsonantRB_Approx <$> mProcessedSurfaceNoMarks
+      , makeWordPartType Json.WordPropertyTypeKind Type.Crasis (Lens.toListOf (Word.info . Lens._2 . Lens._5)) <$> mProcessed
       ]
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]

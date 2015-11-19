@@ -4,9 +4,11 @@
 module Text.Greek.Script.Syllable where
 
 import qualified Control.Lens as Lens
+import qualified Text.Greek.Phonology.Consonant as Consonant
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Mark as Mark
 import qualified Text.Greek.Script.Place as Place
+import qualified Text.Greek.Script.Word as Word
 
 data StartVocalic v
   = StartVocalicSingle v
@@ -182,3 +184,40 @@ makeSyllableMedialNext = tryFinish . foldr go (Just ([], []))
     tryFinish (Just ([], ss)) = Just . Left $ ss
     tryFinish (Just (cs@(_:_), [])) = Just . Right $ cs
     tryFinish _ = Nothing
+
+getCrasis :: SyllableListOrConsonants m [c] -> Word.Crasis
+getCrasis (Left ((Syllable (_:_) _ _) : _)) = Word.HasCrasis
+getCrasis _ = Word.NoCrasis
+
+processBreathing :: SyllableListOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]
+  -> Maybe (SyllableListOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing])
+processBreathing (Right r) = Just . Right . fmap Consonant.promotePlusRoughRho $ r
+processBreathing (Left ss) = go ss >>= (pure . Left)
+  where
+    go ((Syllable [] v cr) : ss')
+      | (_, Just Mark.BreathingRough) <- getVocalicMark v
+      = (:) <$> pure (Syllable [Consonant.RB_Rough] (dropBreathing v) (promote cr)) <*> validateAllNoBreathing ss'
+    go ((Syllable cl v cr) : ss')
+      | smoothOrNone v
+      = (:) <$> promoteC (Syllable cl (dropBreathing v) cr) <*> validateAllNoBreathing ss'
+    go _ = Nothing
+
+    promote = fmap Consonant.promotePlusRoughRho
+    promoteC :: Syllable a [Consonant.PlusRoughRho]
+      -> Maybe (Syllable a [Consonant.PlusRoughRhoRoughBreathing])
+    promoteC (Syllable cl v cr) = Just (Syllable (promote cl) v (promote cr))
+
+    dropBreathing = fmap fst
+
+    smoothOrNone v | (_, Just Mark.BreathingSmooth) <- getVocalicMark v = True
+    smoothOrNone v | (_, Nothing) <- getVocalicMark v = True
+    smoothOrNone _ = False
+
+    validateAllNoBreathing :: [Syllable (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]]
+      -> Maybe ([Syllable (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing]])
+    validateAllNoBreathing = traverse validateNoBreathing
+
+    validateNoBreathing :: Syllable (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]
+      -> Maybe (Syllable (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing])
+    validateNoBreathing (Syllable cl v cr) | (_, Nothing) <- getVocalicMark v = promoteC $ (Syllable cl (dropBreathing v) cr)
+    validateNoBreathing _ = Nothing
