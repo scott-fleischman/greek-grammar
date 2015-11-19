@@ -87,7 +87,7 @@ instance Render Type.Name where
   render Type.ConsonantRhClusterPlaceInfo = "Medial, Attested Initial, Length, Stop+μ/ν, Double, [Consonant+ῥ]"
   render Type.ScriptSyllableConsonantRhCluster_Right = "Script Syllable, [Consonant+ῥ], Medial-Right"
   render Type.ScriptSyllableConsonantRhClusterAB_Right = "Script Syllable, [Consonant+ῥ], Accent, Breathing, Medial-Right"
-  render Type.ScriptSyllableConsonantRhCluster_Approx = "Script Syllable, [Consonant+ῥ], Accent, Breathing, Approximate"
+  render Type.ScriptSyllableConsonantRhCluster_Approx = "Script Syllable, [Consonant+ῥ], Approximate"
   render Type.ScriptSyllableConsonantRhClusterAB_Approx = "Script Syllable, [Consonant+ῥ], Accent, Breathing, Approximate"
 
 instance Render Work.Source where
