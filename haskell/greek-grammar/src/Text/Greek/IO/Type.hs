@@ -70,4 +70,5 @@ data Name
   | EndOfSentence
   | UnicodeEndOfSentence
   | AcuteCircumflex
+  | EndOfSentenceAccent
   deriving (Eq, Ord)

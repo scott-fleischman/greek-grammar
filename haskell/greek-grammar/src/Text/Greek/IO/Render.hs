@@ -98,6 +98,7 @@ instance Render Type.Name where
   render Type.EndOfSentence = "End of Sentence"
   render Type.UnicodeEndOfSentence = "Unicode End of Sentence"
   render Type.AcuteCircumflex = "Acute or Circumflex"
+  render Type.EndOfSentenceAccent = "End of Sentence, Accent"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -549,3 +550,4 @@ instance Render Punctuation.EndOfSentence where
 instance Render Punctuation.EndOfSentenceChar where render (Punctuation.EndOfSentenceChar c) = render c
 
 instance Render (Mark.Accent, Mark.AcuteCircumflex) where render = renderFunction
+instance Render (Punctuation.EndOfSentence, Mark.Accent) where render = renderPair

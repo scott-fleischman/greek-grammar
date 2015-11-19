@@ -376,8 +376,8 @@ makeStage9 syllableApproxAB = (,) <$> mStage <*> mProcessed
       ]
 
 makeStage10 :: WordSurface Word.WithCrasis (Syllable.SyllableListOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing])
-  -> Maybe (Stage TypeData, WordSurface Word.Sentence (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]))
-makeStage10 syllableRBA = (,) <$> mStage <*> mGraveGone
+  -> Maybe (Stage TypeData, WordSurface Word.Sentence (Syllable.SyllableListOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing]))
+makeStage10 syllableRBA = (,) <$> mStage <*> mWithSentence
   where
     mWithSentence = (traverse . Work.content . traverse) wordAddSentence syllableRBA
     wordAddSentence w = do
@@ -385,15 +385,15 @@ makeStage10 syllableRBA = (,) <$> mStage <*> mGraveGone
       return $ Lens.over (Word.info . Lens._2) (Word.addSentencePair pair) w
     getSuffix (Word.Word (_, ((_,s),_,_,_,_)) _) = concatMap Text.unpack . Lens.toListOf (Lens._Just . Word.suffix) $ s
 
-    mGraveGonePairs :: Maybe (WordSurface Word.Sentence
-      (Syllable.SyllableListOrConsonants (Maybe (Mark.Accent, Mark.AcuteCircumflex)) [Consonant.PlusRoughRhoRoughBreathing]))
-    mGraveGonePairs = mWithSentence >>=
-      ((traverse . Work.content . traverse)
-      (\w -> dupApply
-        (Word.surface . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just)
-        (Syllable.processGrave (getEndOfSentence w))
-        w))
-    mGraveGone = Lens.over (Lens._Just . wordSurfaceLens . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just) snd mGraveGonePairs
+--    mGraveGonePairs :: Maybe (WordSurface Word.Sentence
+--      (Syllable.SyllableListOrConsonants (Maybe (Mark.Accent, Mark.AcuteCircumflex)) [Consonant.PlusRoughRhoRoughBreathing]))
+--    mGraveGonePairs = mWithSentence >>=
+--      ((traverse . Work.content . traverse)
+--      (\w -> dupApply
+--        (Word.surface . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just)
+--        (Syllable.processGrave (getEndOfSentence w))
+--        w))
+--    mGraveGone = Lens.over (Lens._Just . wordSurfaceLens . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just) snd mGraveGonePairs
     getEndOfSentence = Lens.view (Word.info . Lens._2 . Lens._6 . Lens._1)
 
     mStage = Stage <$> mPrimaryType <*> mTypeParts
@@ -402,11 +402,15 @@ makeStage10 syllableRBA = (,) <$> mStage <*> mGraveGone
       [ makeWordPartType Json.WordPropertyTypeKind Type.UnicodeEndOfSentence
         (Lens.toListOf (Word.info . Lens._2 . Lens._6 . Lens._2 . Lens._Just)) <$> mWithSentence
 
-      , makeWordPartType Json.WordStagePartFunctionTypeKind (Type.Function Type.Accent Type.AcuteCircumflex)
-        (Lens.toListOf (Word.surface . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just)) <$> mGraveGonePairs
+      , makeWordPartType Json.CompositePropertyTypeKind Type.EndOfSentenceAccent
+        (\w -> fmap (\x -> (getEndOfSentence w, x)) . Lens.toListOf (Word.surface . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just) $ w)
+        <$> mWithSentence
 
-      , makeWordPartType Json.WordStagePartTypeKind Type.AcuteCircumflex
-        (Lens.toListOf (Word.surface . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just)) <$> mGraveGone
+--      , makeWordPartType Json.WordStagePartFunctionTypeKind (Type.Function Type.Accent Type.AcuteCircumflex)
+--        (Lens.toListOf (Word.surface . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just)) <$> mGraveGonePairs
+--
+--      , makeWordPartType Json.WordStagePartTypeKind Type.AcuteCircumflex
+--        (Lens.toListOf (Word.surface . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just)) <$> mGraveGone
       ]
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]
