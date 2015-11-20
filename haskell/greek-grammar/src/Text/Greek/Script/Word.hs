@@ -25,6 +25,10 @@ data Crasis = HasCrasis | NoCrasis deriving (Eq, Ord, Show, Generic)
 instance ToJSON Crasis
 instance FromJSON Crasis
 
+data InitialEnclitic = IsEnclitic | NotEnclitic | UncertainEnclitic deriving (Eq, Ord, Show, Generic)
+instance ToJSON InitialEnclitic
+instance FromJSON InitialEnclitic
+
 newtype ParagraphIndex = ParagraphIndex { getParagraphIndex :: Int } deriving (Eq, Ord, Show, Generic)
 instance ToJSON ParagraphIndex
 instance FromJSON ParagraphIndex
@@ -96,6 +100,7 @@ type Elision = (Affix, ParagraphIndex, Elision.Pair)
 type Capital = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized)
 type WithCrasis = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized, Crasis)
 type Sentence = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized, Crasis, Punctuation.SentencePair)
+type WithEnclitic = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized, Crasis, Punctuation.SentencePair, InitialEnclitic)
 type Indexed a = Word (Index, a)
 
 index :: [Word a s] -> [Indexed a s]
@@ -118,3 +123,6 @@ tagLastWords = reverse . go . reverse
     go [] = []
     go (x : xs) = (x, IsLastWord) : finish xs
     finish = fmap (\x -> (x, NotLastWord))
+
+addInitialEnclitic :: InitialEnclitic -> Sentence -> WithEnclitic
+addInitialEnclitic x (a,b,c,d,e,f) = (a,b,c,d,e,f,x)

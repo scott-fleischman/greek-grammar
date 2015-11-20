@@ -71,4 +71,5 @@ data Name
   | UnicodeEndOfSentence
   | AcuteCircumflex
   | EndOfSentenceAccent
+  | InitialEnclitic
   deriving (Eq, Ord)

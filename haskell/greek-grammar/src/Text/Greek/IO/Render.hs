@@ -99,6 +99,7 @@ instance Render Type.Name where
   render Type.UnicodeEndOfSentence = "Unicode End of Sentence"
   render Type.AcuteCircumflex = "Acute or Circumflex"
   render Type.EndOfSentenceAccent = "End of Sentence, Accent"
+  render Type.InitialEnclitic = "Enclitic—Initial"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -556,3 +557,8 @@ instance Render (Mark.Accent, Mark.AcuteCircumflex) where render = renderFunctio
 instance Render (Punctuation.EndOfSentence, Mark.Accent) where render = renderPair
 instance Render (Mark.AcuteCircumflex, Syllable.ReverseIndex) where render = renderPair
 instance Render Syllable.ReverseIndex where render = renderReverseLabeledPosition "Syllable" . Syllable.getReverseIndex
+
+instance Render Word.InitialEnclitic where
+  render Word.IsEnclitic = "Is enclitic"
+  render Word.NotEnclitic = "Not enclitic"
+  render Word.UncertainEnclitic = "Uncertain enclitic"

@@ -1,6 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Text.Greek.Script.Syllable where
 
@@ -241,3 +242,55 @@ processGrave Punctuation.IsEndOfSentence = Mark.accentNotGrave
 processGrave _ = Just . Mark.convertGraveToAcute
 
 newtype ReverseIndex = ReverseIndex { getReverseIndex :: Int } deriving (Eq, Show, Ord)
+
+applyReverseIndex :: [a] -> [(Int, a)]
+applyReverseIndex = reverse . zip [0..] . reverse
+
+getAccents :: SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c -> [Mark.AcuteCircumflex]
+getAccents = Lens.toListOf (Lens._Left . traverse . syllableMarkLens . Lens._Just)
+
+getAccentCount :: SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c -> Int
+getAccentCount = length . getAccents
+
+isDoubleAccentWithFinalAcute :: SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c -> Bool
+isDoubleAccentWithFinalAcute s = length accents == 2 && checkLast accents
+  where
+    accents = getAccents s
+    checkLast (Mark.Acute : _) = True
+    checkLast _ = False
+
+getTopLevelSyllableCount :: SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c -> Int
+getTopLevelSyllableCount = length . Lens.toListOf (Lens._Left . traverse)
+
+dropFinalAcute :: SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c
+  -> SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c
+dropFinalAcute = Lens.over Lens._Left dropLastAcute
+  where
+    dropLastAcute = reverse . dropFirstAcute . reverse
+    dropFirstAcute (x : xs)
+      | Just Mark.Acute <- getSyllableMark x
+      = Lens.over syllableMarkLens (const Nothing) x : xs
+    dropFirstAcute xs = xs
+
+markInitialEnclitic :: [Word.Indexed Word.Sentence (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)]
+  -> [Word.Indexed Word.WithEnclitic (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)]
+markInitialEnclitic = foldr go []
+  where
+    go :: Word.Indexed Word.Sentence (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)
+      -> [Word.Indexed Word.WithEnclitic (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)]
+      -> [Word.Indexed Word.WithEnclitic (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)]
+    go w (y : ys)
+      | x <- Word.getSurface w
+      , isDoubleAccentWithFinalAcute x
+      , Word.UncertainEnclitic <- Lens.view (Word.info . Lens._2 . Lens._7) y
+      , x' <- Word.getSurface y
+      , 0 <- getAccentCount x'
+      , i <- Word.getInfo w
+      = Word.Word (Lens.over Lens._2 (Word.addInitialEnclitic Word.NotEnclitic) i) (dropFinalAcute x)
+        : (Lens.set (Word.info . Lens._2 . Lens._7) Word.IsEnclitic y) : ys
+    go w ys
+      | x <- Word.getSurface w
+      , getAccentCount x /= 0 || getTopLevelSyllableCount x == 0
+      = Lens.over (Word.info . Lens._2) (Word.addInitialEnclitic Word.NotEnclitic) w : ys
+    go w ys
+      = Lens.over (Word.info . Lens._2) (Word.addInitialEnclitic Word.UncertainEnclitic) w : ys

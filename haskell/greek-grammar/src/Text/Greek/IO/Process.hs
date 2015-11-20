@@ -376,8 +376,8 @@ makeStage9 syllableApproxAB = (,) <$> mStage <*> mProcessed
       ]
 
 makeStage10 :: WordSurface Word.WithCrasis (Syllable.SyllableListOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing])
-  -> Maybe (Stage TypeData, WordSurface Word.Sentence (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]))
-makeStage10 syllableRBA = (,) <$> mStage <*> mGraveGone
+  -> Maybe (Stage TypeData, WordSurface Word.WithEnclitic (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]))
+makeStage10 syllableRBA = (,) <$> mStage <*> mWithEnclitic
   where
     mWithSentence = (traverse . Work.content . traverse) wordAddSentence syllableRBA
     wordAddSentence w = do
@@ -395,6 +395,8 @@ makeStage10 syllableRBA = (,) <$> mStage <*> mGraveGone
         w))
     mGraveGone = Lens.over (Lens._Just . wordSurfaceLens . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just) snd mGraveGonePairs
     getEndOfSentence = Lens.view (Word.info . Lens._2 . Lens._6 . Lens._1)
+
+    mWithEnclitic = Lens.over (Lens._Just . traverse . Work.content) Syllable.markInitialEnclitic mGraveGone
 
     mStage = Stage <$> mPrimaryType <*> mTypeParts
     mPrimaryType = makeWordPartType Json.WordPropertyTypeKind Type.EndOfSentence (pure . getEndOfSentence) <$> mWithSentence
@@ -418,6 +420,9 @@ makeStage10 syllableRBA = (,) <$> mStage <*> mGraveGone
         Syllable.ReverseIndex
         (Lens.toListOf (Lens._Left . traverse . Syllable.syllableMarkLens))
         <$> mGraveGone
+
+      , makeWordPartType Json.WordPropertyTypeKind Type.InitialEnclitic
+        (Lens.toListOf (Word.info . Lens._2 . Lens._7)) <$> mWithEnclitic
       ]
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]
