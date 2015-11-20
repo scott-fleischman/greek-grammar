@@ -132,7 +132,7 @@ process = do
   liftIO $ putStrLn "Writing index"
   liftIO $ Json.writeIndex ourIndex
 
-type WordSurface a b = [Work.Indexed [Word.Indexed a b]]
+type WordSurface a b = [Work.Indexed [Word.Word a b]]
 type WordSurfaceBasic a = WordSurface Word.Basic a
 
 data Stage a = Stage
@@ -143,9 +143,9 @@ data Stage a = Stage
 getStageInfo :: Stage (Json.TypeIndex, a) -> Json.StageInfo
 getStageInfo (Stage p ps) = Json.StageInfo (fst p) (fmap fst ps)
 
-makeStage0 :: [Work.Indexed [Word.Indexed Word.Basic Word.SourceInfo]]
+makeStage0 :: [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
   -> ( Stage TypeData
-    , [Work.Indexed [Word.Indexed Word.Basic [Unicode.Composed]]]
+    , [Work.Indexed [Word.Word Word.Basic [Unicode.Composed]]]
     )
 makeStage0 sourceWords = (stage, composedWords)
   where
@@ -156,16 +156,16 @@ makeStage0 sourceWords = (stage, composedWords)
       [ makeWordPartType Json.WordPropertyTypeKind Type.SourceWord (pure . Word.getSourceInfoWord . Word.getSurface) sourceWords
       , makeWordPartType Json.WordPropertyTypeKind Type.SourceFile (pure . _fileReferencePath . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType Json.WordPropertyTypeKind Type.SourceFileLocation (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
-      , makeWordPartType Json.WordPropertyTypeKind Type.ParagraphNumber (pure . snd . snd . Word.getInfo) sourceWords
-      , makeWordPartType Json.WordPropertyTypeKind Type.WordPrefix (pure . fst . fst . snd . Word.getInfo) sourceWords
-      , makeWordPartType Json.WordPropertyTypeKind Type.WordSuffix (pure . snd . fst . snd . Word.getInfo) sourceWords
+      , makeWordPartType Json.WordPropertyTypeKind Type.ParagraphNumber (Lens.toListOf (Word.info . Word.paragraphIndexLens)) sourceWords
+      , makeWordPartType Json.WordPropertyTypeKind Type.WordPrefix (Lens.toListOf (Word.info . Word.affixLens . Lens._1)) sourceWords
+      , makeWordPartType Json.WordPropertyTypeKind Type.WordSuffix (Lens.toListOf (Word.info . Word.affixLens . Lens._2)) sourceWords
       , makeWorkInfoType Json.WorkPropertyTypeKind Type.WorkSource (Lens.view Lens._2) sourceWords
       , makeWorkInfoType Json.WorkPropertyTypeKind Type.WorkTitle (Lens.view Lens._3) sourceWords
       ]
 
-makeStage1 :: [Work.Indexed [Word.Indexed Word.Basic [Unicode.Composed]]]
+makeStage1 :: [Work.Indexed [Word.Word Word.Basic [Unicode.Composed]]]
   -> ( Stage TypeData
-    , [Work.Indexed [Word.Indexed Word.Basic [Unicode.Decomposed]]]
+    , [Work.Indexed [Word.Word Word.Basic [Unicode.Decomposed]]]
     )
 makeStage1 composedWords = (stage, decomposedWords)
   where
@@ -192,12 +192,12 @@ tryMakeStage2 decomposedWords = (,) <$> mStage <*> mUnicodeLetterMarks
       , makeSurfacePartType Json.WordStagePartTypeKind Type.UnicodeMark Marked._marks <$> mUnicodeLetterMarks
       , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.AbstractLetter) (pure . Word.LetterCount . length . Word.getSurface) <$> mUnicodeLetterMarks
       , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.ConcreteMark) (pure . Word.MarkCount . sum . fmap (length . Marked._marks) . Word.getSurface) <$> mUnicodeLetterMarks
-      , pure $ makeWordPartType Json.WordPropertyTypeKind Type.Elision (pure . Lens.view (Word.info . Lens._2 . Lens._3 . Lens._1)) decomposedWordsE
-      , pure $ makeWordPartType Json.WordPropertyTypeKind Type.UnicodeElision (Lens.toListOf (Word.info . Lens._2 . Lens._3 . Lens._2 . Lens._Just)) decomposedWordsE
+      , pure $ makeWordPartType Json.WordPropertyTypeKind Type.Elision (pure . Lens.view (Word.info . Word.elisionLens . Lens._1)) decomposedWordsE
+      , pure $ makeWordPartType Json.WordPropertyTypeKind Type.UnicodeElision (Lens.toListOf (Word.info . Word.elisionLens . Lens._2 . Lens._Just)) decomposedWordsE
       ]
 
-tryMakeStage3 :: WordSurface a [Marked.Unit Unicode.Letter [Unicode.Mark]]
-  -> Maybe (Stage TypeData, WordSurface a [Marked.Unit Concrete.Letter [Concrete.Mark]])
+tryMakeStage3 :: WordSurface (Word.IndexedP a) [Marked.Unit Unicode.Letter [Unicode.Mark]]
+  -> Maybe (Stage TypeData, WordSurface (Word.IndexedP a) [Marked.Unit Concrete.Letter [Concrete.Mark]])
 tryMakeStage3 unicodeLetterMarks = (,) <$> mStage <*> mConcreteLetterConcreteMarks
   where
     mMarkedUnicodeConcretePairsLM = toMarkedConcreteLetters unicodeLetterMarks >>= toMarkedConcreteMarks
@@ -233,11 +233,11 @@ tryMakeStage4 concreteLetterConcreteMarks = (,) <$> mStage <*> mCapMarkedAbstrac
       , pure $ makeReverseIndexedSurfacePartType Json.CompositePropertyTypeKind Type.LetterFinalForm Abstract.FinalReverseIndex (Lens.view (Marked.item . Lens._3)) markedAbstractLettersCF
       , pure $ makeIndexedSurfacePartType Json.CompositePropertyTypeKind Type.AbstractLetter Abstract.LetterIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
       , pure $ makeReverseIndexedSurfacePartType Json.CompositePropertyTypeKind Type.AbstractLetter Abstract.LetterReverseIndex (Lens.view (Marked.item . Lens._1)) markedAbstractLettersCF
-      , makeWordPartType Json.WordPropertyTypeKind Type.WordCapitalization (pure . Lens.view (Word.info . Lens._2 . Lens._4)) <$> mCapMarkedAbstractLetters
+      , makeWordPartType Json.WordPropertyTypeKind Type.WordCapitalization (pure . Lens.view (Word.info . Word.capitalLens)) <$> mCapMarkedAbstractLetters
       ]
 
-tryMakeStage5 :: WordSurface a [Marked.Unit Abstract.Letter [Concrete.Mark]]
-  -> Maybe (Stage TypeData, WordSurface a [Marked.Unit Abstract.Letter (Mark.Group Maybe)])
+tryMakeStage5 :: WordSurface (Word.IndexedP a) [Marked.Unit Abstract.Letter [Concrete.Mark]]
+  -> Maybe (Stage TypeData, WordSurface (Word.IndexedP a) [Marked.Unit Abstract.Letter (Mark.Group Maybe)])
 tryMakeStage5 capMarkedAbstractLetters = (,) <$> mStage <*> mMarkedAbstractLetterMarkGroups
   where
     markedAbstractLetterMarkKindPairs = toMarkedAbstractLetterMarkKindPairs capMarkedAbstractLetters
@@ -257,8 +257,8 @@ tryMakeStage5 capMarkedAbstractLetters = (,) <$> mStage <*> mMarkedAbstractLette
       , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.SyllabicMark) (pure . Mark.SyllabicCount . sum . fmap (maybeToOneOrZero . Lens.view (Marked.marks . Lens._3)) . Word.getSurface) <$> mMarkedAbstractLetterMarkGroups
       ]
 
-makeStage6 :: WordSurface a [Marked.Unit Abstract.Letter (Mark.Group Maybe)]
-  -> (Stage TypeData, WordSurface a [Marked.Unit Abstract.VowelConsonant (Mark.Group Maybe)])
+makeStage6 :: WordSurface (Word.IndexedP a) [Marked.Unit Abstract.Letter (Mark.Group Maybe)]
+  -> (Stage TypeData, WordSurface (Word.IndexedP a) [Marked.Unit Abstract.VowelConsonant (Mark.Group Maybe)])
 makeStage6 abstractLetterMarkGroup = (stage, vowelConsonantMarkGroup)
   where
     vowelConsonantMarkGroupPairs = dupApply' (wordSurfaceLens . traverse . Marked.item) Abstract.toVowelConsonant abstractLetterMarkGroup
@@ -275,8 +275,8 @@ makeStage6 abstractLetterMarkGroup = (stage, vowelConsonantMarkGroup)
       , makeSurfacePartType Json.CompositePropertyTypeKind  Type.SyllabicMarkVowelConsonant getSyllabicMarkVowelConsonant vowelConsonantMarkGroup
       ]
 
-makeStage7 :: WordSurface a [Marked.Unit Abstract.VowelConsonant (Mark.Group Maybe)]
-  -> Maybe (Stage TypeData, WordSurface a [Syllable.VocalicEither (Mark.AccentBreathing Maybe) Consonant.PlusRoughRho])
+makeStage7 :: WordSurface (Word.IndexedP a) [Marked.Unit Abstract.VowelConsonant (Mark.Group Maybe)]
+  -> Maybe (Stage TypeData, WordSurface (Word.IndexedP a) [Syllable.VocalicEither (Mark.AccentBreathing Maybe) Consonant.PlusRoughRho])
 makeStage7 vowelConsonantMarkGroup = (,) <$> mStage <*> mVocalicSyllableABConsonantRh
   where
     startSyllable = Lens.over wordSurfaceLens (Syllable.makeStartVocalic . fmap (\(Marked.Unit a b) -> (a, b))) vowelConsonantMarkGroup
@@ -302,8 +302,8 @@ makeStage7 vowelConsonantMarkGroup = (,) <$> mStage <*> mVocalicSyllableABConson
       , makeSurfacePartType Json.WordStagePartTypeKind Type.ConsonantRh (Lens.toListOf Lens._Right) <$> mVocalicSyllableABConsonantRh
       ]
 
-makeStage8 :: forall a. WordSurface a [Syllable.VocalicEither (Mark.AccentBreathing Maybe) Consonant.PlusRoughRho]
-  -> Maybe (Stage TypeData, WordSurface a
+makeStage8 :: forall a. WordSurface (Word.IndexedP a) [Syllable.VocalicEither (Mark.AccentBreathing Maybe) Consonant.PlusRoughRho]
+  -> Maybe (Stage TypeData, WordSurface (Word.IndexedP a)
     (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]))
 makeStage8 vocalicSyllableABConsonantRh = (,) <$> mStage <*> mSyllableApproxAB
   where
@@ -314,21 +314,21 @@ makeStage8 vocalicSyllableABConsonantRh = (,) <$> mStage <*> mSyllableApproxAB
     vocalicSyllableABConsonantClusterPlace4 = Lens.over (wordSurfaceLens . traverse . Lens._Right) (Place.applyAttestation initialConsonantClusterSet) vocalicSyllableABConsonantClusterPlace3
     vocalicSyllableABConsonantClusterMAI = Lens.over (wordSurfaceLens . traverse . Lens._Right . Lens._2) (\(_,b,_,d) -> (b,d)) vocalicSyllableABConsonantClusterPlace4
 
-    mSyllableRightAB :: Maybe (WordSurface a (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]))
+    mSyllableRightAB :: Maybe (WordSurface (Word.IndexedP a) (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]))
     mSyllableRightAB = wordSurfaceLens Syllable.makeSyllableMedialNext vocalicSyllableABConsonantCluster
-    mSyllableRightABSurface :: Maybe (WordSurface a [Syllable.SyllableOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]])
+    mSyllableRightABSurface :: Maybe (WordSurface (Word.IndexedP a) [Syllable.SyllableOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]])
     mSyllableRightABSurface = unifySurfaceSyllables mSyllableRightAB
-    mSyllableRightSurface :: Maybe (WordSurface a [Syllable.SyllableOrConsonants () [Consonant.PlusRoughRho]])
+    mSyllableRightSurface :: Maybe (WordSurface (Word.IndexedP a) [Syllable.SyllableOrConsonants () [Consonant.PlusRoughRho]])
     mSyllableRightSurface = dropMark mSyllableRightABSurface
 
-    dropMark :: Maybe (WordSurface a [Syllable.SyllableOrConsonants b [Consonant.PlusRoughRho]])
-       -> Maybe (WordSurface a [Syllable.SyllableOrConsonants () [Consonant.PlusRoughRho]])
+    dropMark :: Maybe (WordSurface (Word.IndexedP a) [Syllable.SyllableOrConsonants b [Consonant.PlusRoughRho]])
+       -> Maybe (WordSurface (Word.IndexedP a) [Syllable.SyllableOrConsonants () [Consonant.PlusRoughRho]])
     dropMark = Lens.over (Lens._Just . wordSurfaceLens . traverse . Lens._Left) (Syllable.mapSyllableMark (const ()))
 
     approxSplit = Consonant.splitScriptSyllable initialConsonantClusterSet
-    mSyllableApproxAB :: Maybe (WordSurface a (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]))
+    mSyllableApproxAB :: Maybe (WordSurface (Word.IndexedP a) (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho]))
     mSyllableApproxAB = mSyllableRightAB >>= (wordSurfaceLens . Lens._Left) (Syllable.splitMedial approxSplit)
-    mSyllableApprox :: Maybe (WordSurface a (Syllable.SyllableListOrConsonants () [Consonant.PlusRoughRho]))
+    mSyllableApprox :: Maybe (WordSurface (Word.IndexedP a) (Syllable.SyllableListOrConsonants () [Consonant.PlusRoughRho]))
     mSyllableApprox = stripSyllableMark mSyllableApproxAB
     mSyllableApproxABSurface = unifySurfaceSyllables mSyllableRightAB
     mSyllableApproxSurface = dropMark mSyllableApproxABSurface
@@ -351,17 +351,17 @@ unifySurfaceSyllables :: Maybe (WordSurface c (Syllable.SyllableListOrConsonants
   -> Maybe (WordSurface c [Syllable.SyllableOrConsonants m c1])
 unifySurfaceSyllables = Lens.over (Lens._Just . wordSurfaceLens) Syllable.unifySyllableConsonant
 
-stripSyllableMark :: Traversable t0 => Maybe [Work.Indexed [Word.Indexed c (Either (t0 (Syllable.Syllable b c2)) c1)]]
-  -> Maybe [Work.Indexed [Word.Indexed c (Either (t0 (Syllable.Syllable () c2)) c1)]]
+stripSyllableMark :: Traversable t0 => Maybe [Work.Indexed [Word.Word c (Either (t0 (Syllable.Syllable b c2)) c1)]]
+  -> Maybe [Work.Indexed [Word.Word c (Either (t0 (Syllable.Syllable () c2)) c1)]]
 stripSyllableMark = Lens.over (Lens._Just . wordSurfaceLens . Lens._Left . traverse) (Syllable.mapSyllableMark (const ()))
 
 makeStage9 :: WordSurface Word.Capital (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [Consonant.PlusRoughRho])
   -> Maybe (Stage TypeData, WordSurface Word.WithCrasis (Syllable.SyllableListOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing]))
 makeStage9 syllableApproxAB = (,) <$> mStage <*> mProcessed
   where
-    wordApplyCrasis :: Word.Indexed Word.Capital (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [c])
-      -> Word.Indexed Word.WithCrasis (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [c])
-    wordApplyCrasis w = Lens.over (Word.info . Lens._2) (Word.addCrasis (Syllable.getCrasis . Word.getSurface $ w)) w
+    wordApplyCrasis :: Word.Word Word.Capital (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [c])
+      -> Word.Word Word.WithCrasis (Syllable.SyllableListOrConsonants (Mark.AccentBreathing Maybe) [c])
+    wordApplyCrasis w = Lens.over Word.info (Word.addCrasis (Syllable.getCrasis . Word.getSurface $ w)) w
 
     withCrasis = Lens.over (traverse . Work.content . traverse) wordApplyCrasis syllableApproxAB
     mProcessed = wordSurfaceLens Syllable.processBreathing withCrasis
@@ -372,37 +372,39 @@ makeStage9 syllableApproxAB = (,) <$> mStage <*> mProcessed
     mTypeParts = sequence
       [ makeWordPartType Json.WordPropertyTypeKind Type.ListScriptSyllableConsonantRB (pure . Lens.toListOf (Word.surface . traverse)) <$> mProcessedSurfaceNoMarks
       , makeSurfaceType Json.WordStagePartTypeKind Type.ScriptSyllableConsonantRB_Approx <$> mProcessedSurfaceNoMarks
-      , makeWordPartType Json.WordPropertyTypeKind Type.Crasis (Lens.toListOf (Word.info . Lens._2 . Lens._5)) <$> mProcessed
+      , makeWordPartType Json.WordPropertyTypeKind Type.Crasis (Lens.toListOf (Word.info . Word.crasisLens)) <$> mProcessed
       ]
 
 makeStage10 :: WordSurface Word.WithCrasis (Syllable.SyllableListOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing])
   -> Maybe (Stage TypeData, WordSurface Word.WithEnclitic (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]))
 makeStage10 syllableRBA = (,) <$> mStage <*> mWithEnclitic
   where
+    mWithSentence :: Maybe (WordSurface Word.Sentence (Syllable.SyllableListOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing]))
     mWithSentence = (traverse . Work.content . traverse) wordAddSentence syllableRBA
     wordAddSentence w = do
       pair <- Punctuation.tryGetSentencePair $ getSuffix w
-      return $ Lens.over (Word.info . Lens._2) (Word.addSentencePair pair) w
-    getSuffix (Word.Word (_, ((_,s),_,_,_,_)) _) = concatMap Text.unpack . Lens.toListOf (Lens._Just . Word.suffix) $ s
+      return $ Lens.over Word.info (Word.addSentencePair pair) w
+    getSuffix w = concatMap Text.unpack . Lens.toListOf (Word.info . Word.affixLens . Lens._2 . Lens._Just . Word.suffix) $ w
 
-    mGraveGonePairs :: Maybe (WordSurface Word.Sentence
-      (Syllable.SyllableListOrConsonants (Maybe (Mark.Accent, Mark.AcuteCircumflex)) [Consonant.PlusRoughRhoRoughBreathing]))
+    mGraveGonePairs :: Maybe (WordSurface Word.Sentence (Syllable.SyllableListOrConsonants (Maybe (Mark.Accent, Mark.AcuteCircumflex)) [Consonant.PlusRoughRhoRoughBreathing]))
     mGraveGonePairs = mWithSentence >>=
       ((traverse . Work.content . traverse)
       (\w -> dupApply
         (Word.surface . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just)
         (Syllable.processGrave (getEndOfSentence w))
         w))
+    mGraveGone :: Maybe (WordSurface Word.Sentence (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]))
     mGraveGone = Lens.over (Lens._Just . wordSurfaceLens . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just) snd mGraveGonePairs
-    getEndOfSentence = Lens.view (Word.info . Lens._2 . Lens._6 . Lens._1)
+    getEndOfSentence = Lens.view (Word.info . Word.sentenceLens . Lens._1)
 
+    mWithEnclitic :: Maybe (WordSurface Word.WithEnclitic (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]))
     mWithEnclitic = Lens.over (Lens._Just . traverse . Work.content) Syllable.markInitialEnclitic mGraveGone
 
     mStage = Stage <$> mPrimaryType <*> mTypeParts
     mPrimaryType = makeWordPartType Json.WordPropertyTypeKind Type.EndOfSentence (pure . getEndOfSentence) <$> mWithSentence
     mTypeParts = sequence
       [ makeWordPartType Json.WordPropertyTypeKind Type.UnicodeEndOfSentence
-        (Lens.toListOf (Word.info . Lens._2 . Lens._6 . Lens._2 . Lens._Just)) <$> mWithSentence
+        (Lens.toListOf (Word.info . Word.sentenceLens . Lens._2 . Lens._Just)) <$> mWithSentence
 
       , makeWordPartType Json.CompositePropertyTypeKind Type.EndOfSentenceAccent
         (\w -> fmap (\x -> (getEndOfSentence w, x)) . Lens.toListOf (Word.surface . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just) $ w)
@@ -422,7 +424,7 @@ makeStage10 syllableRBA = (,) <$> mStage <*> mWithEnclitic
         <$> mGraveGone
 
       , makeWordPartType Json.WordPropertyTypeKind Type.InitialEnclitic
-        (Lens.toListOf (Word.info . Lens._2 . Lens._7)) <$> mWithEnclitic
+        (Lens.toListOf (Word.info . Word.encliticLens)) <$> mWithEnclitic
       ]
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]
@@ -450,7 +452,7 @@ maybeToOneOrZero (Just _) = 1
 lookupAll :: Ord a => Map a b -> [a] -> Maybe [b]
 lookupAll m = traverse (flip Map.lookup m)
 
-getWorks :: [Json.TypeIndex] -> Map WordLocation [(Json.TypeIndex, [Json.ValueIndex])] -> [Work.Indexed [Word.Indexed Word.Basic a]] -> [Json.Work]
+getWorks :: [Json.TypeIndex] -> Map WordLocation [(Json.TypeIndex, [Json.ValueIndex])] -> [Work.Indexed [Word.Word Word.Basic a]] -> [Json.Work]
 getWorks summaryTypes m works = workInfos
   where
     workInfos = fmap getWorkInfo works
@@ -461,8 +463,13 @@ getWorks summaryTypes m works = workInfos
 
     getWordGroups ws = [Json.WordGroup "Paragraphs" (getParagraphs ws)]
 
-    getParagraphs :: [Word.Indexed Word.Basic a] -> [[Word.Index]]
-    getParagraphs = fmap snd . Map.toAscList . (fmap . fmap) (fst . Word.getInfo) . Utility.mapGroupBy (snd . snd . Word.getInfo)
+    getParagraphs :: [Word.Word Word.Basic a] -> [[Word.Index]]
+    getParagraphs
+      = fmap snd
+      . Map.toAscList
+      . Lens.over (traverse . traverse) (Lens.view Word.indexLens)
+      . Utility.mapGroupBy (Lens.view Word.paragraphIndexLens)
+      . fmap Word.getInfo
 
 toComposedWords
   :: WordSurfaceBasic Word.SourceInfo
@@ -472,28 +479,34 @@ toComposedWords = Lens.over wordSurfaceLens (Unicode.toComposed . Word.getSource
 makeSimpleValue :: Render.Render a => a -> Value
 makeSimpleValue = ValueSimple . Lazy.toStrict . Render.render
 
-makeWorkInfoType :: (Ord a, Render.Render a) => Json.TypeKind -> Type.Name -> (Work.IndexSourceTitle -> a) -> [Work.Indexed [Word.Indexed b c]] -> TypeData
+makeWorkInfoType :: (Ord a, Render.Render a) => Json.TypeKind -> Type.Name -> (Work.IndexSourceTitle -> a)
+  -> [Work.Indexed [Word.Word (Word.IndexedP b) c]] -> TypeData
 makeWorkInfoType k t f = generateType k t makeSimpleValue . flattenWords (\x _ -> f x)
 
-makeWordPartType :: (Ord b, Render.Render b) => Json.TypeKind -> Type.Name -> (Word.Indexed t a -> [b]) -> WordSurface t a -> TypeData
+makeWordPartType :: (Ord b, Render.Render b) => Json.TypeKind -> Type.Name -> (Word.Word (Word.IndexedP c) a -> [b])
+  -> WordSurface (Word.IndexedP c) a -> TypeData
 makeWordPartType k t f = generateType k t makeSimpleValue . flatten . flattenWords (\_ x -> f x)
   where flatten = concatMap (\(l, m) -> fmap (\x -> (l, x)) m)
 
-makeSurfaceType :: (Ord a, Render.Render a) => Json.TypeKind -> Type.Name -> WordSurface t [a] -> TypeData
+makeSurfaceType :: (Ord a, Render.Render a) => Json.TypeKind -> Type.Name
+  -> WordSurface (Word.IndexedP b) [a] -> TypeData
 makeSurfaceType k t = generateType k t makeSimpleValue . flattenSurface
 
-makeSurfacePartType :: (Ord b, Render.Render b) => Json.TypeKind -> Type.Name -> (a -> [b]) -> WordSurface t [a] -> TypeData
+makeSurfacePartType :: (Ord b, Render.Render b) => Json.TypeKind -> Type.Name -> (a -> [b])
+  -> WordSurface (Word.IndexedP c) [a] -> TypeData
 makeSurfacePartType k t f = generateType k t makeSimpleValue . extract . flattenSurface
   where extract = concatMap (\(l, m) -> fmap (\x -> (l, x)) (f m))
 
-makeIndexedSurfacePartType :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> b) -> WordSurface t [a] -> TypeData
+makeIndexedSurfacePartType :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> b)
+  -> WordSurface (Word.IndexedP c) [a] -> TypeData
 makeIndexedSurfacePartType k t g f
   = generateType k (Type.Indexed t) makeSimpleValue
   . Lens.over (traverse . Lens._2 . Lens._2) g
   . concatIndexedSnd
   . flattenWords (\_ -> fmap f . Word.getSurface)
 
-makeReverseIndexedSurfacePartType2 :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> [Maybe b]) -> WordSurface t a -> TypeData
+makeReverseIndexedSurfacePartType2 :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> [Maybe b])
+  -> WordSurface (Word.IndexedP c) a -> TypeData
 makeReverseIndexedSurfacePartType2 k t g f
   = generateType k (Type.ReverseIndexed t) makeSimpleValue
   . Lens.over (traverse . Lens._2 . Lens._2) g
@@ -501,7 +514,8 @@ makeReverseIndexedSurfacePartType2 k t g f
   . concatReverseIndexedSnd
   . flattenWords (\_ -> f . Word.getSurface)
 
-makeReverseIndexedSurfacePartType :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> b) -> WordSurface t [a] -> TypeData
+makeReverseIndexedSurfacePartType :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> b)
+  -> WordSurface (Word.IndexedP c) [a] -> TypeData
 makeReverseIndexedSurfacePartType k t g f
   = generateType k (Type.ReverseIndexed t) makeSimpleValue
   . Lens.over (traverse . Lens._2 . Lens._2) g
@@ -519,12 +533,15 @@ toDecomposedWords
 toDecomposedWords = Lens.over wordSurfaceLens (concatMap snd)
 
 splitDecomposedElision
-  :: WordSurfaceBasic [Unicode.Decomposed]
+  :: WordSurface Word.Basic [Unicode.Decomposed]
   -> WordSurface Word.Elision [Unicode.Decomposed]
 splitDecomposedElision = Lens.over (traverse . Work.content . traverse) go
   where
-    go w = Word.addElisionPair e . Lens.set Word.surface as $ w
+    go :: Word.Word Word.Basic [Unicode.Decomposed] -> Word.Word Word.Elision [Unicode.Decomposed]
+    go w = newInfo
       where
+        newInfo = Lens.over Word.info (Word.addElisionPair e) newSurface
+        newSurface = Lens.set Word.surface as w
         (e, as) = Elision.split Unicode.decomposed (Word.getSurface w)
 
 toUnicodeLetterMarksPairs
@@ -560,22 +577,22 @@ toMarkedAbstractLetterMarkKindPairs
   -> WordSurface b [Marked.Unit a ([(Concrete.Mark, Mark.Kind)])]
 toMarkedAbstractLetterMarkKindPairs = dupApply' (wordSurfaceLens . traverse . Marked.marks . traverse) Mark.toKind
 
-toCapitalWord :: [Work.Indexed [Word.Indexed Word.Elision [Marked.Unit (t, Abstract.Case, t1) m0]]]
-  -> Maybe [Work.Indexed [Word.Indexed Word.Capital [Marked.Unit (t, t1) m0]]]
+toCapitalWord :: [Work.Indexed [Word.Word Word.Elision [Marked.Unit (t, Abstract.Case, t1) m0]]]
+  -> Maybe [Work.Indexed [Word.Word Word.Capital [Marked.Unit (t, t1) m0]]]
 toCapitalWord = fmap transferCapitalSurfaceToWord . toCapitalWordSurface
 
-toCapitalWordSurface :: [Work.Indexed [Word.Indexed Word.Elision [Marked.Unit (t, Abstract.Case, t1) m0]]]
- -> Maybe [Work.Indexed [Word.Indexed Word.Elision (Word.IsCapitalized, [Marked.Unit (t, t1) m0])]]
+toCapitalWordSurface :: [Work.Indexed [Word.Word Word.Elision [Marked.Unit (t, Abstract.Case, t1) m0]]]
+ -> Maybe [Work.Indexed [Word.Word Word.Elision (Word.IsCapitalized, [Marked.Unit (t, t1) m0])]]
 toCapitalWordSurface = wordSurfaceLens (Abstract.validateIsCapitalized ((\(_,x,_) -> x) . Marked._item) (Lens.over Marked.item (\(x,_,y) -> (x,y))))
 
-transferCapitalSurfaceToWord :: [Work.Indexed [Word.Indexed Word.Elision (Word.IsCapitalized, [Marked.Unit (t, t1) m0])]]
-  -> [Work.Indexed [Word.Indexed Word.Capital [Marked.Unit (t, t1) m0]]]
+transferCapitalSurfaceToWord :: [Work.Indexed [Word.Word Word.Elision (Word.IsCapitalized, [Marked.Unit (t, t1) m0])]]
+  -> [Work.Indexed [Word.Word Word.Capital [Marked.Unit (t, t1) m0]]]
 transferCapitalSurfaceToWord = Lens.over (traverse . Work.content . traverse) setCapital
   where
-    setCapital (Word.Word (wi, (a, p, e)) (c, m)) = Word.Word (wi, (a, p, e, c)) m
+    setCapital (Word.Word wi (c, m)) = Word.Word (Word.addCapital c wi) m
 
-validateFinalForm :: [Work.Indexed [Word.Indexed a [Marked.Unit (t, Abstract.Final) m0]]]
-  -> Maybe [Work.Indexed [Word.Indexed a [Marked.Unit t m0]]]
+validateFinalForm :: [Work.Indexed [Word.Word a [Marked.Unit (t, Abstract.Final) m0]]]
+  -> Maybe [Work.Indexed [Word.Word a [Marked.Unit t m0]]]
 validateFinalForm = wordSurfaceLens $ Abstract.validateLetterFinal (Lens.view $ Marked.item . Lens._2) (Lens.over Marked.item fst)
 
 getSyllabicMarkVowelConsonant :: Marked.Unit Abstract.VowelConsonant (Mark.Group Maybe) -> [(Mark.Syllabic, Abstract.VowelConsonant)]
@@ -594,8 +611,8 @@ dupApply lens f = lens (apply . dup)
 
 wordSurfaceLens :: Applicative f =>
   (a -> f b)
-  -> [Work.Indexed [Word.Indexed c a]]
-  -> f [Work.Indexed [Word.Indexed c b]]
+  -> [Work.Indexed [Word.Word c a]]
+  -> f [Work.Indexed [Word.Word c b]]
 wordSurfaceLens = traverse . Work.content . traverse . Word.surface
 
 type WordLocation = (Work.Index, Word.Index)
@@ -619,7 +636,7 @@ generateType k t f is = TypeData t $ Json.Type (Lazy.toStrict . Render.render $ 
     storeValue :: (Value, [Json.Instance]) -> Json.Value
     storeValue ((ValueSimple vt), ls) = Json.Value vt ls
 
-flattenSurface :: forall a b. [Work.Indexed [Word.Indexed a [b]]] -> [(Json.Instance, b)]
+flattenSurface :: forall a b. [Work.Indexed [Word.Word (Word.IndexedP a) [b]]] -> [(Json.Instance, b)]
 flattenSurface = concatInstanceValues . flattenWords (\_ -> Word.getSurface)
 
 concatInstanceValues :: [(Json.Instance, [b])] -> [(Json.Instance, b)]
@@ -636,23 +653,25 @@ concatIndexedSnd = concatMap (\(x, ys) -> fmap (\(i, (a, b)) -> (a, (b, i))) . z
 concatReverseIndexedSnd :: [(Json.Instance, [b])] -> [(Json.Instance, (b, Int))]
 concatReverseIndexedSnd = concatMap (\(x, ys) -> reverse . fmap (\(i, (a, b)) -> (a, (b, i))) . zip [0..] . reverse . mapAtomIndexes x $ ys)
 
-flattenWords :: forall a b c. (Work.IndexSourceTitle -> Word.Indexed a b -> c) -> [Work.Indexed [Word.Indexed a b]] -> [(Json.Instance, c)]
+flattenWords :: forall a b c. (Work.IndexSourceTitle -> Word.Word (Word.IndexedP a) b -> c)
+  -> [Work.Indexed [Word.Word (Word.IndexedP a) b]]
+  -> [(Json.Instance, c)]
 flattenWords f = concatMap getIndexedWorkProps
   where
-    getIndexedWorkProps :: Work.Indexed [Word.Indexed a b] -> [(Json.Instance, c)]
+    getIndexedWorkProps :: Work.Indexed [Word.Word (Word.IndexedP a) b] -> [(Json.Instance, c)]
     getIndexedWorkProps w = fmap (\(i, p) -> (Json.Instance (getWorkIndex w) i Nothing, p)) (getWorkProps w)
 
-    getWorkProps :: Work.Indexed [Word.Indexed a b] -> [(Word.Index, c)]
+    getWorkProps :: Work.Indexed [Word.Word (Word.IndexedP a) b] -> [(Word.Index, c)]
     getWorkProps k = fmap (getIndexedWordProp (Work.getInfo k)) . Work.getContent $ k
 
     getWorkIndex :: Work.Indexed x -> Work.Index
     getWorkIndex = Lens.view (Work.info . Lens._1)
 
-    getIndexedWordProp :: Work.IndexSourceTitle -> Word.Indexed a b -> (Word.Index, c)
+    getIndexedWordProp :: Work.IndexSourceTitle -> Word.Word (Word.IndexedP a) b -> (Word.Index, c)
     getIndexedWordProp k d = (getWordIndex d, f k d)
 
-    getWordIndex :: Word.Indexed a b -> Word.Index
-    getWordIndex = Lens.view (Word.info . Lens._1)
+    getWordIndex :: Word.Word (Word.IndexedP a) b -> Word.Index
+    getWordIndex = Lens.view (Word.info . Word.indexLens)
 
 handleResult :: Either String () -> IO ()
 handleResult (Left e) = putStrLn e

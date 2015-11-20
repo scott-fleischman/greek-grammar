@@ -95,27 +95,59 @@ nothingIfEmpty x = Just x
 
 type Affix = (Maybe Prefix, Maybe Suffix)
 
-type Basic = (Affix, ParagraphIndex)
-type Elision = (Affix, ParagraphIndex, Elision.Pair)
-type Capital = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized)
-type WithCrasis = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized, Crasis)
-type Sentence = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized, Crasis, Punctuation.SentencePair)
-type WithEnclitic = (Affix, ParagraphIndex, Elision.Pair, IsCapitalized, Crasis, Punctuation.SentencePair, InitialEnclitic)
-type Indexed a = Word (Index, a)
+type IndexedP a = (Index, a)
+type Indexed = IndexedP ()
+indexLens :: Lens.Lens (Index, a) (b, a) Index b
+indexLens = Lens._1
 
-index :: [Word a s] -> [Indexed a s]
+type BasicP a = IndexedP (Affix, ParagraphIndex, a)
+type Basic = BasicP ()
+basicLens :: Lens.Lens (IndexedP a) (IndexedP b) a b
+basicLens = Lens._2
+affixLens :: Lens.Lens (IndexedP (Affix, x, y)) (IndexedP (b, x, y)) Affix b
+affixLens = basicLens . Lens._1
+paragraphIndexLens :: Lens.Lens (IndexedP (x, ParagraphIndex, y)) (IndexedP (x, b, y)) ParagraphIndex b
+paragraphIndexLens = basicLens . Lens._2
+
+type ElisionP a = BasicP (Elision.Pair, a)
+type Elision = ElisionP ()
+elisionLens' :: Lens.Lens (BasicP a) (BasicP b) a b
+elisionLens' = basicLens . Lens._3
+elisionLens :: Lens.Lens (BasicP (a, x)) (BasicP (b, x)) a b
+elisionLens = elisionLens' . Lens._1
+
+type CapitalP a = ElisionP (IsCapitalized, a)
+type Capital = CapitalP ()
+capitalLens' :: Lens.Lens (ElisionP a) (ElisionP b) a b
+capitalLens' = elisionLens' . Lens._2
+capitalLens :: Lens.Lens (ElisionP (IsCapitalized, x)) (ElisionP (b, x)) IsCapitalized b
+capitalLens = capitalLens' . Lens._1
+
+type WithCrasisP a = CapitalP (Crasis, a)
+type WithCrasis = WithCrasisP ()
+crasisLens' :: Lens.Lens (CapitalP a) (CapitalP b) a b
+crasisLens' = capitalLens' . Lens._2
+crasisLens :: Lens.Lens (CapitalP (Crasis, x)) (CapitalP (b, x)) Crasis b
+crasisLens = crasisLens' . Lens._1
+
+type SentenceP a = WithCrasisP (Punctuation.SentencePair, a)
+type Sentence = SentenceP ()
+sentenceLens' :: Lens.Lens (WithCrasisP a) (WithCrasisP b) a b
+sentenceLens' = crasisLens' . Lens._2
+sentenceLens :: Lens.Lens (WithCrasisP (Punctuation.SentencePair, x)) (WithCrasisP (b, x)) Punctuation.SentencePair b
+sentenceLens = sentenceLens' . Lens._1
+
+type WithEncliticP a = SentenceP (InitialEnclitic, a)
+type WithEnclitic = WithEncliticP ()
+encliticLens' :: Lens.Lens (SentenceP a) (SentenceP b) a b
+encliticLens' = sentenceLens' . Lens._2
+encliticLens :: Lens.Lens (SentenceP (InitialEnclitic, x)) (SentenceP (b, x)) InitialEnclitic b
+encliticLens = encliticLens' . Lens._1
+
+index :: [Word a s] -> [Word (IndexedP a) s]
 index = fmap addIndex . zip (fmap Index [0..])
   where
     addIndex (i, Word a s) = Word (i, a) s
-
-addElisionPair :: Elision.Pair -> Indexed Basic a -> Indexed Elision a
-addElisionPair e = Lens.over (info . Lens._2) (\(a, p) -> (a, p, e))
-
-addCrasis :: Crasis -> Capital -> WithCrasis
-addCrasis x (a,b,c,d) = (a,b,c,d,x)
-
-addSentencePair :: Punctuation.SentencePair -> WithCrasis -> Sentence
-addSentencePair x (a,b,c,d,e) = (a,b,c,d,e,x)
 
 tagLastWords :: [Word a b] -> [(Word a b, LastWord)]
 tagLastWords = reverse . go . reverse
@@ -124,5 +156,17 @@ tagLastWords = reverse . go . reverse
     go (x : xs) = (x, IsLastWord) : finish xs
     finish = fmap (\x -> (x, NotLastWord))
 
+addElisionPair :: Elision.Pair -> Basic -> Elision
+addElisionPair e = Lens.set elisionLens' (e, ())
+
+addCapital :: IsCapitalized -> Elision -> Capital
+addCapital x = Lens.set capitalLens' (x, ())
+
+addCrasis :: Crasis -> Capital -> WithCrasis
+addCrasis c = Lens.set crasisLens' (c, ())
+
+addSentencePair :: Punctuation.SentencePair -> WithCrasis -> Sentence
+addSentencePair s = Lens.set sentenceLens' (s, ())
+
 addInitialEnclitic :: InitialEnclitic -> Sentence -> WithEnclitic
-addInitialEnclitic x (a,b,c,d,e,f) = (a,b,c,d,e,f,x)
+addInitialEnclitic e = Lens.set encliticLens' (e, ())
