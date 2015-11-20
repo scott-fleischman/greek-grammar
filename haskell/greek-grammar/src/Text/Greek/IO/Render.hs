@@ -101,6 +101,7 @@ instance Render Type.Name where
   render Type.EndOfSentenceAccent = "End of Sentence, Accent"
   render Type.InitialEnclitic = "Enclitic—Initial"
   render Type.WordAccent = "Word Accent"
+  render Type.WordUltimaUnaccented = "Barytone"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -564,13 +565,17 @@ instance Render Word.InitialEnclitic where
   render Word.NotEnclitic = "Not enclitic"
   render Word.UncertainEnclitic = "Uncertain enclitic"
 
-instance Render Mark.WordAccent where
-  render Mark.WordAccentNone = "No accent"
-  render Mark.WordAccentAcuteUltima = "Oxytone (acute on ultima)"
-  render Mark.WordAccentAcutePenult = "Paroxytone (acute on penult)"
-  render Mark.WordAccentAcuteAntepenult = "Proparoxytone (acute on antepenult)"
-  render Mark.WordAccentCircumflexUltima = "Perispomenon (circumflex on ultima)"
-  render Mark.WordAccentCircumflexPenult = "Properispomenon (circumflex on penult)"
+instance Render Word.Accent where
+  render Word.AccentNone = "No accent"
+  render Word.AccentAcuteUltima = "Oxytone (acute on ultima)"
+  render Word.AccentAcutePenult = "Paroxytone (acute on penult)"
+  render Word.AccentAcuteAntepenult = "Proparoxytone (acute on antepenult)"
+  render Word.AccentCircumflexUltima = "Perispomenon (circumflex on ultima)"
+  render Word.AccentCircumflexPenult = "Properispomenon (circumflex on penult)"
+
+instance Render Word.UltimaUnaccented where
+  render Word.UltimaUnaccented = "Barytone (ultima unaccented)"
+  render Word.UltimaAccented = "Not Barytone (ultima accented)"
 
 -- oxytone - acute - ultima
 -- paroxytone - acute penult

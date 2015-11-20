@@ -47,14 +47,3 @@ convertGraveToAcute :: Accent -> AcuteCircumflex
 convertGraveToAcute AccentGrave = Acute
 convertGraveToAcute AccentAcute = Acute
 convertGraveToAcute AccentCircumflex = Circumflex
-
-data WordAccent
-  = WordAccentNone
-  | WordAccentAcuteUltima
-  | WordAccentAcutePenult
-  | WordAccentAcuteAntepenult
-  | WordAccentCircumflexUltima
-  | WordAccentCircumflexPenult
-  deriving (Eq, Ord, Show)
-
-data UltimaAccented = IsUltimaAccented | NotUltimaAccented deriving (Eq, Ord, Show)

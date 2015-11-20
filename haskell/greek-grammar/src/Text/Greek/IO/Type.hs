@@ -73,4 +73,5 @@ data Name
   | EndOfSentenceAccent
   | InitialEnclitic
   | WordAccent
+  | WordUltimaUnaccented
   deriving (Eq, Ord)

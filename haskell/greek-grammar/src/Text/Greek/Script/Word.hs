@@ -95,6 +95,23 @@ nothingIfEmpty x = Just x
 
 type Affix = (Maybe Prefix, Maybe Suffix)
 
+data Accent
+  = AccentNone
+  | AccentAcuteUltima
+  | AccentAcutePenult
+  | AccentAcuteAntepenult
+  | AccentCircumflexUltima
+  | AccentCircumflexPenult
+  deriving (Eq, Ord, Show)
+
+data UltimaUnaccented = UltimaUnaccented | UltimaAccented deriving (Eq, Ord, Show)
+
+getUltimaUnaccented :: Accent -> UltimaUnaccented
+getUltimaUnaccented AccentAcuteUltima = UltimaAccented
+getUltimaUnaccented AccentCircumflexUltima = UltimaAccented
+getUltimaUnaccented _ = UltimaUnaccented
+
+
 type IndexedP a = (Index, a)
 type Indexed = IndexedP ()
 indexLens :: Lens.Lens (Index, a) (b, a) Index b
@@ -104,8 +121,10 @@ type BasicP a = IndexedP (Affix, ParagraphIndex, a)
 type Basic = BasicP ()
 basicLens :: Lens.Lens (IndexedP a) (IndexedP b) a b
 basicLens = Lens._2
-affixLens :: Lens.Lens (IndexedP (Affix, x, y)) (IndexedP (b, x, y)) Affix b
-affixLens = basicLens . Lens._1
+prefixLens :: Lens.Lens (IndexedP ((Maybe Prefix, a), x, y)) (IndexedP ((b, a), x, y)) (Maybe Prefix) b
+prefixLens = basicLens . Lens._1 . Lens._1
+suffixLens :: Lens.Lens (IndexedP ((a, Maybe Suffix), x, y)) (IndexedP ((a, b), x, y)) (Maybe Suffix) b
+suffixLens = basicLens . Lens._1 . Lens._2
 paragraphIndexLens :: Lens.Lens (IndexedP (x, ParagraphIndex, y)) (IndexedP (x, b, y)) ParagraphIndex b
 paragraphIndexLens = basicLens . Lens._2
 
@@ -144,6 +163,14 @@ encliticLens' = sentenceLens' . Lens._2
 encliticLens :: Lens.Lens (SentenceP (InitialEnclitic, x)) (SentenceP (b, x)) InitialEnclitic b
 encliticLens = encliticLens' . Lens._1
 
+type WithAccentP a = WithEncliticP (Accent, a)
+type WithAccent = WithAccentP ()
+accentLens' :: Lens.Lens (WithEncliticP a) (WithEncliticP b) a b
+accentLens' = encliticLens' . Lens._2
+accentLens :: Lens.Lens (WithEncliticP (Accent, x)) (WithEncliticP (b, x)) Accent b
+accentLens = accentLens' . Lens._1
+
+
 index :: [Word a s] -> [Word (IndexedP a) s]
 index = fmap addIndex . zip (fmap Index [0..])
   where
@@ -170,3 +197,6 @@ addSentencePair s = Lens.set sentenceLens' (s, ())
 
 addInitialEnclitic :: InitialEnclitic -> Sentence -> WithEnclitic
 addInitialEnclitic e = Lens.set encliticLens' (e, ())
+
+addAccent :: Accent -> WithEnclitic -> WithAccent
+addAccent a = Lens.set accentLens' (a, ())

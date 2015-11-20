@@ -297,15 +297,15 @@ markInitialEnclitic = foldr go []
       = Lens.over Word.info (Word.addInitialEnclitic Word.UncertainEnclitic) w : ys
 
 getWordAccent :: SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c
-   -> Maybe Mark.WordAccent
-getWordAccent (Right _) = Just Mark.WordAccentNone
+   -> Maybe Word.Accent
+getWordAccent (Right _) = Just Word.AccentNone
 getWordAccent (Left ss) = go . reverse . fmap getSyllableMark $ ss
   where
-    go (Just Mark.Acute : xs) | allEmptyAccents xs = Just Mark.WordAccentAcuteUltima
-    go (Just Mark.Circumflex : xs) | allEmptyAccents xs = Just Mark.WordAccentCircumflexUltima
-    go (Nothing : Just Mark.Acute : xs) | allEmptyAccents xs = Just Mark.WordAccentAcutePenult
-    go (Nothing : Just Mark.Circumflex : xs) | allEmptyAccents xs = Just Mark.WordAccentCircumflexPenult
-    go (Nothing : Nothing : Just Mark.Acute : xs) | allEmptyAccents xs = Just Mark.WordAccentAcuteAntepenult
+    go (Just Mark.Acute : xs) | allEmptyAccents xs = Just Word.AccentAcuteUltima
+    go (Just Mark.Circumflex : xs) | allEmptyAccents xs = Just Word.AccentCircumflexUltima
+    go (Nothing : Just Mark.Acute : xs) | allEmptyAccents xs = Just Word.AccentAcutePenult
+    go (Nothing : Just Mark.Circumflex : xs) | allEmptyAccents xs = Just Word.AccentCircumflexPenult
+    go (Nothing : Nothing : Just Mark.Acute : xs) | allEmptyAccents xs = Just Word.AccentAcuteAntepenult
     go _ = Nothing
 
 allEmptyAccents :: [Maybe Mark.AcuteCircumflex] -> Bool
