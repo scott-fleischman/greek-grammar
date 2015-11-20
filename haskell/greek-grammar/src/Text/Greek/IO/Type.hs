@@ -72,4 +72,5 @@ data Name
   | AcuteCircumflex
   | EndOfSentenceAccent
   | InitialEnclitic
+  | WordAccent
   deriving (Eq, Ord)

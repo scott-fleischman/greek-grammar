@@ -100,6 +100,7 @@ instance Render Type.Name where
   render Type.AcuteCircumflex = "Acute or Circumflex"
   render Type.EndOfSentenceAccent = "End of Sentence, Accent"
   render Type.InitialEnclitic = "Enclitic—Initial"
+  render Type.WordAccent = "Word Accent"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -562,3 +563,19 @@ instance Render Word.InitialEnclitic where
   render Word.IsEnclitic = "Is enclitic"
   render Word.NotEnclitic = "Not enclitic"
   render Word.UncertainEnclitic = "Uncertain enclitic"
+
+instance Render Mark.WordAccent where
+  render Mark.WordAccentNone = "No accent"
+  render Mark.WordAccentAcuteUltima = "Oxytone (acute on ultima)"
+  render Mark.WordAccentAcutePenult = "Paroxytone (acute on penult)"
+  render Mark.WordAccentAcuteAntepenult = "Proparoxytone (acute on antepenult)"
+  render Mark.WordAccentCircumflexUltima = "Perispomenon (circumflex on ultima)"
+  render Mark.WordAccentCircumflexPenult = "Properispomenon (circumflex on penult)"
+
+-- oxytone - acute - ultima
+-- paroxytone - acute penult
+-- proparoxytone - acute antepenult
+-- perispomenon - circum ultima
+-- properispomenon - cirucm penult
+
+-- barytone - ultima unaccented

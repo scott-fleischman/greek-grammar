@@ -6,6 +6,7 @@
 module Text.Greek.Script.Syllable where
 
 import qualified Control.Lens as Lens
+import qualified Data.Maybe as Maybe
 import qualified Text.Greek.Phonology.Consonant as Consonant
 import qualified Text.Greek.Script.Abstract as Abstract
 import qualified Text.Greek.Script.Mark as Mark
@@ -294,3 +295,18 @@ markInitialEnclitic = foldr go []
       = Lens.over (Word.info . Lens._2) (Word.addInitialEnclitic Word.NotEnclitic) w : ys
     go w ys
       = Lens.over (Word.info . Lens._2) (Word.addInitialEnclitic Word.UncertainEnclitic) w : ys
+
+getWordAccent :: SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c
+   -> Maybe Mark.WordAccent
+getWordAccent (Right _) = Just Mark.WordAccentNone
+getWordAccent (Left ss) = go . reverse . fmap getSyllableMark $ ss
+  where
+    go (Just Mark.Acute : xs) | allEmptyAccents xs = Just Mark.WordAccentAcuteUltima
+    go (Just Mark.Circumflex : xs) | allEmptyAccents xs = Just Mark.WordAccentCircumflexUltima
+    go (Nothing : Just Mark.Acute : xs) | allEmptyAccents xs = Just Mark.WordAccentAcutePenult
+    go (Nothing : Just Mark.Circumflex : xs) | allEmptyAccents xs = Just Mark.WordAccentCircumflexPenult
+    go (Nothing : Nothing : Just Mark.Acute : xs) | allEmptyAccents xs = Just Mark.WordAccentAcuteAntepenult
+    go _ = Nothing
+
+allEmptyAccents :: [Maybe Mark.AcuteCircumflex] -> Bool
+allEmptyAccents = all Maybe.isNothing
