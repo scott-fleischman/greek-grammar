@@ -113,6 +113,9 @@ process = do
       [ Type.SourceWord
       , Type.ListScriptSyllableConsonantRB
       , (Type.Count Type.Syllable)
+      , Type.WordAccent
+      , Type.WordUltimaUnaccented
+      , Type.InitialEnclitic
       , Type.WordCapitalization      
       , (Type.Count Type.Accent)
       , Type.Crasis
@@ -376,8 +379,8 @@ makeStage9 syllableApproxAB = (,) <$> mStage <*> mProcessed
       ]
 
 makeStage10 :: WordSurface Word.WithCrasis (Syllable.SyllableListOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing])
-  -> Maybe (Stage TypeData, WordSurface Word.WithEnclitic (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]))
-makeStage10 syllableRBA = (,) <$> mStage <*> mWithEnclitic
+  -> Maybe (Stage TypeData, WordSurface Word.WithAccent (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]))
+makeStage10 syllableRBA = (,) <$> mStage <*> mWithAccent
   where
     mWithSentence :: Maybe (WordSurface Word.Sentence (Syllable.SyllableListOrConsonants (Maybe Mark.Accent) [Consonant.PlusRoughRhoRoughBreathing]))
     mWithSentence = (traverse . Work.content . traverse) wordAddSentence syllableRBA
@@ -400,24 +403,24 @@ makeStage10 syllableRBA = (,) <$> mStage <*> mWithEnclitic
     mWithEnclitic :: Maybe (WordSurface Word.WithEnclitic (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]))
     mWithEnclitic = Lens.over (Lens._Just . traverse . Work.content) Syllable.markInitialEnclitic mGraveGone
 
-    --mWithAccent = mWithEnclitic >>=
-    --  ( (traverse . Work.content . traverse)
-    --    (\w -> do
-    --      a <- Syllable.getWordAccent (Word.getSurface w)
-    --      return $ Lens.over Word.info (Word.addAccent a) w
-    --    )
-    --  )
+    mWithAccent :: Maybe (WordSurface Word.WithAccent (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]))
+    mWithAccent = mWithEnclitic >>=
+      ( (traverse . Work.content . traverse)
+        (\w -> do
+          a <- Syllable.getWordAccent (Word.getSurface w)
+          return $ Lens.over Word.info (Word.addAccent a) w
+        )
+      )
 
     mStage = Stage <$> mPrimaryType <*> mTypeParts
-    mPrimaryType = makeWordPartType Json.WordPropertyTypeKind Type.EndOfSentence (pure . getEndOfSentence) <$> mWithSentence
-    --mPrimaryType = makeSurfaceType Json.WordStageTypeKind Type.ScriptSyllableConsonantRBAC_Approx <$> unifySurfaceSyllables mWithAccent
+    mPrimaryType = makeSurfaceType Json.WordStageTypeKind Type.ScriptSyllableConsonantRBAC_Approx <$> unifySurfaceSyllables mWithAccent
     mTypeParts = sequence
-      [ --makeWordPartType Json.WordPropertyTypeKind Type.WordAccent (Lens.toListOf (Word.info . Word.accentLens)) <$> mWithAccent
-      
---      , makeWordPartType Json.WordPropertyTypeKind Type.WordUltimaUnaccented
---        (Lens.over traverse Word.getUltimaUnaccented . Lens.toListOf (Word.info . Word.accentLens)) <$> mWithAccent
+      [ makeWordPartType Json.WordPropertyTypeKind Type.WordAccent (Lens.toListOf (Word.info . Word.accentLens)) <$> mWithAccent
 
-       makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.AcuteCircumflex)
+      , makeWordPartType Json.WordPropertyTypeKind Type.WordUltimaUnaccented
+        (Lens.over traverse Word.getUltimaUnaccented . Lens.toListOf (Word.info . Word.accentLens)) <$> mWithAccent
+
+      , makeWordPartType Json.WordPropertyTypeKind (Type.Count Type.AcuteCircumflex)
         (pure . Word.AcuteCircumflexCount . length . Lens.toListOf (Word.surface . Lens._Left . traverse . Syllable.syllableMarkLens . Lens._Just))
         <$> mWithEnclitic
 
