@@ -25,7 +25,16 @@ data Crasis = HasCrasis | NoCrasis deriving (Eq, Ord, Show, Generic)
 instance ToJSON Crasis
 instance FromJSON Crasis
 
-data InitialEnclitic = IsEnclitic | NotEnclitic | UncertainEnclitic deriving (Eq, Ord, Show, Generic)
+data InitialEnclitic
+  = PrecededByDoubleIsEnclitic
+  | AncestorByDoubleIsEnclitic
+  | DoubleAccentNotEnclitic
+  | AccentedUnlikelyEnclitic
+  | AccentedNotEnclitic
+  | NoSyllableNotEnclitic
+  | NoAccentUncertainEnclitic
+  | OtherUncertainEnclitic
+  deriving (Eq, Ord, Show, Generic)
 instance ToJSON InitialEnclitic
 instance FromJSON InitialEnclitic
 
@@ -75,6 +84,10 @@ instance FromJSON VowelCount
 newtype ConsonantCount = ConsonantCount { getConsonantCount :: Int } deriving (Eq, Show, Ord, Generic)
 instance ToJSON ConsonantCount
 instance FromJSON ConsonantCount
+
+newtype AcuteCircumflexCount = AcuteCircumflexCount { getAcuteCircumflexCount :: Int } deriving (Eq, Show, Ord, Generic)
+instance ToJSON AcuteCircumflexCount
+instance FromJSON AcuteCircumflexCount
 
 newtype Prefix = Prefix { getPrefix :: Text } deriving (Eq, Show, Ord, Generic)
 newtype Suffix = Suffix { getSuffix :: Text } deriving (Eq, Show, Ord, Generic)

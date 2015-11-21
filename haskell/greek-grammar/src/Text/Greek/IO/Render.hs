@@ -102,6 +102,7 @@ instance Render Type.Name where
   render Type.InitialEnclitic = "Enclitic—Initial"
   render Type.WordAccent = "Word Accent"
   render Type.WordUltimaUnaccented = "Barytone"
+  render Type.ScriptSyllableConsonantRBAC_Approx = "Script Syllable (Consonant+ῥ+◌̔), Acute or Circumflex—Approximate"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -561,9 +562,14 @@ instance Render (Mark.AcuteCircumflex, Syllable.ReverseIndex) where render = ren
 instance Render Syllable.ReverseIndex where render = renderReverseLabeledPosition "Syllable" . Syllable.getReverseIndex
 
 instance Render Word.InitialEnclitic where
-  render Word.IsEnclitic = "Is enclitic"
-  render Word.NotEnclitic = "Not enclitic"
-  render Word.UncertainEnclitic = "Uncertain enclitic"
+  render Word.PrecededByDoubleIsEnclitic = "Preceded By Double—Is Enclitic"
+  render Word.AncestorByDoubleIsEnclitic = "Ancestor By Double—Is Enclitic"
+  render Word.DoubleAccentNotEnclitic = "Double Accent—Not Enclitic"
+  render Word.AccentedUnlikelyEnclitic = "Single Acute Accent—Unlikely Enclitic"
+  render Word.AccentedNotEnclitic = "Accented—Not Enclitic"
+  render Word.NoSyllableNotEnclitic = "No Syllable—Not Enclitic"
+  render Word.NoAccentUncertainEnclitic = "No Accent—Uncertain Enclitic"
+  render Word.OtherUncertainEnclitic = "Other—Uncertain Enclitic"
 
 instance Render Word.Accent where
   render Word.AccentNone = "No accent"
@@ -577,10 +583,11 @@ instance Render Word.UltimaUnaccented where
   render Word.UltimaUnaccented = "Barytone (ultima unaccented)"
   render Word.UltimaAccented = "Not Barytone (ultima accented)"
 
--- oxytone - acute - ultima
--- paroxytone - acute penult
--- proparoxytone - acute antepenult
--- perispomenon - circum ultima
--- properispomenon - cirucm penult
+instance Render Word.AcuteCircumflexCount where
+  render = renderLabeledNumber "accent" "accents" . Word.getAcuteCircumflexCount
 
--- barytone - ultima unaccented
+instance Render (Syllable.SyllableOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]) where
+  render = renderEitherIgnore
+instance Render (Syllable.Syllable (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]) where
+  render = renderSyllableMark
+instance Render (Maybe Mark.AcuteCircumflex) where render = renderMaybe "No accent"

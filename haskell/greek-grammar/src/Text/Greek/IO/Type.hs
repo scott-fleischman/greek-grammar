@@ -74,4 +74,5 @@ data Name
   | InitialEnclitic
   | WordAccent
   | WordUltimaUnaccented
+  | ScriptSyllableConsonantRBAC_Approx
   deriving (Eq, Ord)

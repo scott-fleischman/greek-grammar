@@ -254,7 +254,7 @@ getAccentCount :: SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c -> Int
 getAccentCount = length . getAccents
 
 isDoubleAccentWithFinalAcute :: SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c -> Bool
-isDoubleAccentWithFinalAcute s = length accents == 2 && checkLast accents
+isDoubleAccentWithFinalAcute s = length accents == 2 && (checkLast . reverse $ accents)
   where
     accents = getAccents s
     checkLast (Mark.Acute : _) = True
@@ -267,45 +267,63 @@ dropFinalAcute :: SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c
   -> SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c
 dropFinalAcute = Lens.over Lens._Left dropLastAcute
   where
+    dropLastAcute :: [Syllable (Maybe Mark.AcuteCircumflex) c] -> [Syllable (Maybe Mark.AcuteCircumflex) c]
     dropLastAcute = reverse . dropFirstAcute . reverse
-    dropFirstAcute (x : xs)
-      | Just Mark.Acute <- getSyllableMark x
-      = Lens.over syllableMarkLens (const Nothing) x : xs
-    dropFirstAcute xs = xs
+
+    dropFirstAcute :: [Syllable (Maybe Mark.AcuteCircumflex) c] -> [Syllable (Maybe Mark.AcuteCircumflex) c]
+    dropFirstAcute (x : xs) = Lens.over syllableMarkLens acuteToNothing x : xs
+    dropFirstAcute [] = []
+
+    acuteToNothing :: Maybe Mark.AcuteCircumflex -> Maybe Mark.AcuteCircumflex
+    acuteToNothing (Just Mark.Acute) = Nothing
+    acuteToNothing x = x
+
+trackEncliticAccent :: [Word.Word Word.WithEnclitic (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)]
+  -> [Word.Word Word.WithEnclitic (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)]
+trackEncliticAccent (w : ws)
+  | Word.NoAccentUncertainEnclitic <- Lens.view (Word.info . Word.encliticLens) w
+  = Lens.set (Word.info . Word.encliticLens) Word.PrecededByDoubleIsEnclitic w : ws
+trackEncliticAccent (w : ws)
+  | Word.AccentedUnlikelyEnclitic <- Lens.view (Word.info . Word.encliticLens) w
+  = Lens.set (Word.info . Word.encliticLens) Word.AncestorByDoubleIsEnclitic w : trackEncliticAccent ws
+trackEncliticAccent ws = ws
 
 markInitialEnclitic :: [Word.Word Word.Sentence (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)]
   -> [Word.Word Word.WithEnclitic (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)]
 markInitialEnclitic = foldr go []
   where
-    go :: Word.Word Word.Sentence (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)
-      -> [Word.Word Word.WithEnclitic (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)]
-      -> [Word.Word Word.WithEnclitic (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)]
-    go w (y : ys)
-      | x <- Word.getSurface w
-      , isDoubleAccentWithFinalAcute x
-      , Word.UncertainEnclitic <- Lens.view (Word.info . Word.encliticLens) y
-      , x' <- Word.getSurface y
-      , 0 <- getAccentCount x'
-      , i <- Word.getInfo w
-      = Word.Word (Word.addInitialEnclitic Word.NotEnclitic i) (dropFinalAcute x)
-        : (Lens.set (Word.info . Word.encliticLens) Word.IsEnclitic y) : ys
     go w ys
-      | x <- Word.getSurface w
-      , getAccentCount x /= 0 || getTopLevelSyllableCount x == 0
-      = Lens.over Word.info (Word.addInitialEnclitic Word.NotEnclitic) w : ys
+      | s <- Word.getSurface w
+      , isDoubleAccentWithFinalAcute s
+      = Word.Word (Word.addInitialEnclitic Word.DoubleAccentNotEnclitic (Word.getInfo w)) (dropFinalAcute s)
+        : trackEncliticAccent ys
     go w ys
-      = Lens.over Word.info (Word.addInitialEnclitic Word.UncertainEnclitic) w : ys
+      | getTopLevelSyllableCount (Word.getSurface w) == 0
+      = Lens.over Word.info (Word.addInitialEnclitic Word.NoSyllableNotEnclitic) w : ys
+    go w ys
+      | getTopLevelSyllableCount (Word.getSurface w) > 2 || getAccents (Word.getSurface w) == [Mark.Circumflex]
+      = Lens.over Word.info (Word.addInitialEnclitic Word.AccentedNotEnclitic) w : ys
+    go w ys
+      | getTopLevelSyllableCount (Word.getSurface w) <= 2 && getAccents (Word.getSurface w) == [Mark.Acute]
+      = Lens.over Word.info (Word.addInitialEnclitic Word.AccentedUnlikelyEnclitic) w : ys
+    go w ys
+      | getWordAccent (Word.getSurface w) == Just Word.AccentNone
+      = Lens.over Word.info (Word.addInitialEnclitic Word.NoAccentUncertainEnclitic) w : ys
+    go w ys
+      = Lens.over Word.info (Word.addInitialEnclitic Word.OtherUncertainEnclitic) w : ys
 
 getWordAccent :: SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c
    -> Maybe Word.Accent
 getWordAccent (Right _) = Just Word.AccentNone
 getWordAccent (Left ss) = go . reverse . fmap getSyllableMark $ ss
   where
+    go :: [Maybe Mark.AcuteCircumflex] -> Maybe Word.Accent
     go (Just Mark.Acute : xs) | allEmptyAccents xs = Just Word.AccentAcuteUltima
     go (Just Mark.Circumflex : xs) | allEmptyAccents xs = Just Word.AccentCircumflexUltima
     go (Nothing : Just Mark.Acute : xs) | allEmptyAccents xs = Just Word.AccentAcutePenult
     go (Nothing : Just Mark.Circumflex : xs) | allEmptyAccents xs = Just Word.AccentCircumflexPenult
     go (Nothing : Nothing : Just Mark.Acute : xs) | allEmptyAccents xs = Just Word.AccentAcuteAntepenult
+    go xs | allEmptyAccents xs = Just Word.AccentNone
     go _ = Nothing
 
 allEmptyAccents :: [Maybe Mark.AcuteCircumflex] -> Bool
