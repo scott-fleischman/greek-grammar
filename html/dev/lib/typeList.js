@@ -37,11 +37,32 @@ const Stage = ({ stage, types, getTypeUrl }) => {
   );
 };
 
+const WordProperties = ({ typeIndexes, types, getTypeUrl }) => {
+  const wordTypes = R.compose
+    ( R.reverse
+    , R.map (x => ({ index: x, type: types[x] }))
+    )
+    (typeIndexes);
+
+  return (
+    <Panel header="Word Properties" bsStyle="primary">
+      { R.map (x => (<TypeInfo key={x.index} {...x.type} url={getTypeUrl(x.index)} />)) (wordTypes) }
+    </Panel>
+  );
+}
+
 export const TypeList = ({ stages, types, getTypeUrl }) => {
   const indexedStages = R.addIndex(R.map) ((x, i) => ({ index: i, stage: x })) (stages);
   const orderedStages = R.reverse(indexedStages);
+  const wordPropertyTypeIndexes = R.compose
+    ( R.map(x => x.index)
+    , R.filter(x => x.isWordProperty)
+    , R.addIndex(R.map) ((x, i) => ({ index: i, isWordProperty: x.kind === 'Word Property' }))
+    )
+    (types);
   return (
     <div className="listContainer">
+      <WordProperties typeIndexes={wordPropertyTypeIndexes} types={types} getTypeUrl={getTypeUrl} />
       { R.map(x => <Stage key={x.index} stage={x.stage} types={types} getTypeUrl={getTypeUrl} />) (orderedStages) }
     </div>
   );
