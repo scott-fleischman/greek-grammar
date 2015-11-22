@@ -1,5 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Text.Greek.Source.All where
 
@@ -8,6 +9,7 @@ import Text.Greek.Xml.Common
 import Text.Greek.Xml.Parse
 import qualified Control.Lens as Lens
 import qualified Control.Monad.State.Lazy as State
+import qualified Data.Foldable as Foldable
 import qualified Data.List as List
 import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.Script.Word as Word
@@ -41,10 +43,16 @@ sblgntBookToWork (SBL.Book _ t ps) = Work.Work info words
 applyVerseAllParagraphs
   :: [SBL.BookParagraph [SBL.Item]]
   -> [(Word.ParagraphIndex, [(Word.Verse, SBL.Word)])]
-applyVerseAllParagraphs
-  = zip (fmap Word.ParagraphIndex [0..])
-  . flip State.evalState (Word.Verse 0 "No Verse")
-  . mapM applyVerseParagraph
+applyVerseAllParagraphs ps = zip (fmap Word.ParagraphIndex [0..]) . reverse $ ps'
+  where
+    ps' = State.evalState topLevelState (Word.Verse 0 "No Verse")
+    topLevelState = Foldable.foldlM (flip go) [] ps
+
+    go p wss = do
+      v <- State.get
+      let (ws, v') = State.runState (applyVerseParagraph p) v
+      _ <- State.put v'
+      return $ ws : wss
 
 applyVerseParagraph
   :: SBL.BookParagraph [SBL.Item]
