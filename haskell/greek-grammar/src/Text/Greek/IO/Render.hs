@@ -562,14 +562,14 @@ instance Render (Mark.AcuteCircumflex, Syllable.ReverseIndex) where render = ren
 instance Render Syllable.ReverseIndex where render = renderReverseLabeledPosition "Syllable" . Syllable.getReverseIndex
 
 instance Render Word.InitialEnclitic where
-  render Word.PrecededByDoubleIsEnclitic = "Preceded By Double—Is Enclitic"
-  render Word.AncestorByDoubleIsEnclitic = "Ancestor By Double—Is Enclitic"
-  render Word.DoubleAccentNotEnclitic = "Double Accent—Not Enclitic"
-  render Word.AccentedUnlikelyEnclitic = "Single Acute Accent—Unlikely Enclitic"
-  render Word.AccentedNotEnclitic = "Accented—Not Enclitic"
-  render Word.NoSyllableNotEnclitic = "No Syllable—Not Enclitic"
-  render Word.NoAccentUncertainEnclitic = "No Accent—Uncertain Enclitic"
-  render Word.OtherUncertainEnclitic = "Other—Uncertain Enclitic"
+  render Word.UnaccentedAfterDoubleIsEnclitic = "Is enclitic—unaccented, preceded by double accent"
+  render Word.SandwichDoubleEncliticIsEnclitic = "Is enclitic—between double and enclitic"
+  render Word.DoubleAccentNotEnclitic = "Not enclitic—double accent"
+  render Word.AccentedUnlikelyEnclitic = "Unlikely enclitic—single acute"
+  render Word.AccentedNotEnclitic = "Not enclitic—by accent or syllables"
+  render Word.NoSyllableNotEnclitic = "Not enclitic—no syllable"
+  render Word.NoAccentUncertainEnclitic = "Uncertain enclitic—no accent"
+  render Word.OtherUncertainEnclitic = "Uncertain enclitic—other"
 
 instance Render Word.Accent where
   render Word.AccentNone = "No accent"

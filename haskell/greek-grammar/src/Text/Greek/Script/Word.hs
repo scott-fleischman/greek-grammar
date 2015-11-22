@@ -26,8 +26,8 @@ instance ToJSON Crasis
 instance FromJSON Crasis
 
 data InitialEnclitic
-  = PrecededByDoubleIsEnclitic
-  | AncestorByDoubleIsEnclitic
+  = UnaccentedAfterDoubleIsEnclitic
+  | SandwichDoubleEncliticIsEnclitic
   | DoubleAccentNotEnclitic
   | AccentedUnlikelyEnclitic
   | AccentedNotEnclitic

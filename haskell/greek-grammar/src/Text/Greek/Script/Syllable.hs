@@ -282,10 +282,10 @@ trackEncliticAccent :: [Word.Word Word.WithEnclitic (SyllableListOrConsonants (M
   -> [Word.Word Word.WithEnclitic (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)]
 trackEncliticAccent (w : ws)
   | Word.NoAccentUncertainEnclitic <- Lens.view (Word.info . Word.encliticLens) w
-  = Lens.set (Word.info . Word.encliticLens) Word.PrecededByDoubleIsEnclitic w : ws
+  = Lens.set (Word.info . Word.encliticLens) Word.UnaccentedAfterDoubleIsEnclitic w : ws
 trackEncliticAccent (w : ws)
   | Word.AccentedUnlikelyEnclitic <- Lens.view (Word.info . Word.encliticLens) w
-  = Lens.set (Word.info . Word.encliticLens) Word.AncestorByDoubleIsEnclitic w : trackEncliticAccent ws
+  = Lens.set (Word.info . Word.encliticLens) Word.SandwichDoubleEncliticIsEnclitic w : trackEncliticAccent ws
 trackEncliticAccent ws = ws
 
 markInitialEnclitic :: [Word.Word Word.Sentence (SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) c)]
