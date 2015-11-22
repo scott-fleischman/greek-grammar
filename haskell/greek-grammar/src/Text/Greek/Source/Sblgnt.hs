@@ -101,24 +101,24 @@ makePrisms ''Item
 itemParser :: EventParser Item
 itemParser = fmap ItemVerse verseParser <|> fmap ItemWord wordParser
 
-data BookParagraph = BookParagraphContent [Item] | BookParagraphMarkEnd MarkEnd deriving Show
+data BookParagraph i = BookParagraphContent i | BookParagraphMarkEnd MarkEnd deriving Show
 makePrisms ''BookParagraph
 
-bookParagraphParser :: EventParser (Maybe BookParagraph)
+bookParagraphParser :: EventParser (Maybe (BookParagraph [Item]))
 bookParagraphParser
   =   fmap (Just . BookParagraphMarkEnd) markEndParser
   <|> try (fmap (const Nothing) (emptyElement "p"))
   <|> fmap (Just . BookParagraphContent) (paragraphParser (many1 itemParser))
   <?> "Unknown book paragraph item"
 
-data Book = Book
+data Book i = Book
   { bookId :: Text
   , bookTitle :: Text
-  , bookParagraphs :: [BookParagraph]
+  , bookParagraphs :: [BookParagraph i]
   }
   deriving Show
 
-bookParser :: EventParser Book
+bookParser :: EventParser (Book [Item])
 bookParser = element "book" (simpleAttributeParser "id") bookContentParser (\i (t,p) -> Book i t p)
   where
     bookContentParser = do
@@ -129,7 +129,7 @@ bookParser = element "book" (simpleAttributeParser "id") bookContentParser (\i (
 data Sblgnt = Sblgnt
   { sblgntTitle :: Title
   , sblgntLicense :: License
-  , sblgntBooks :: [Book]
+  , sblgntBooks :: [Book [Item]]
   } deriving Show
 
 sblgntParser :: EventParser Sblgnt
