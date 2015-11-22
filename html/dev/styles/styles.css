@@ -14,6 +14,10 @@ span.instanceInfo {
   font-size: 75%;
 }
 
+a.instanceInfo {
+  color: #4b4b4b;
+}
+
 div.listContainer {
   margin: 0 1em 2em 1em;
 }

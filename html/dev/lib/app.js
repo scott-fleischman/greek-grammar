@@ -132,7 +132,7 @@ function getViewValueList(values, typeTitle, typeIndex, getInstanceListUrl, getS
   };
 }
 
-function getViewInstanceList(getWorkInfo, getTypeInfo, instances, typeIndex, valueIndex, typeTitle, valueTitle, getWordUrl, getShowItemInfo) {
+function getViewInstanceList(getWorkInfo, getTypeInfo, instances, typeIndex, valueIndex, typeTitle, valueTitle, getWordUrl, getInstanceListUrl, getShowItemInfo) {
   return {
     navTitle: `${typeTitle}, ${valueTitle}, ${labelNumber(instances.length, 'Instance', 'Instances')}`,
     content: (
@@ -143,6 +143,7 @@ function getViewInstanceList(getWorkInfo, getTypeInfo, instances, typeIndex, val
         valueIndex={valueIndex}
         instances={instances}
         getWordUrl={getWordUrl}
+        getInstanceListUrl={getInstanceListUrl}
         getShowItemInfo={getShowItemInfo}
       />),
   };
@@ -214,6 +215,7 @@ const App = ({ dispatch, visual, data, ephemeral }) => {
         getTypeTitle(visual.typeIndex),
         getValueTitle(visual.typeIndex, visual.valueIndex),
         getWordUrl,
+        getInstanceListUrl,
         getShowItemInfo);
       break;
   }
