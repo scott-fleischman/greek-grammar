@@ -40,6 +40,7 @@ instance Render Type.Name where
   render Type.SourceFile = "Source File"
   render Type.SourceFileLocation = "Source File Location"
   render Type.ParagraphNumber = "Paragraph Number"
+  render Type.Verse = "Verse"
   render Type.Elision = "Elision"
   render Type.UnicodeElision = "Unicode Elision"
   render Type.WordPrefix = "Word Prefix"
@@ -591,3 +592,5 @@ instance Render (Syllable.SyllableOrConsonants (Maybe Mark.AcuteCircumflex) [Con
 instance Render (Syllable.Syllable (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]) where
   render = renderSyllableMark
 instance Render (Maybe Mark.AcuteCircumflex) where render = renderMaybe "No accent"
+
+instance Render Word.Verse where render (Word.Verse _ t) = Lazy.fromStrict t

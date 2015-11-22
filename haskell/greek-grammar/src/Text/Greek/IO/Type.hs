@@ -12,6 +12,7 @@ data Name
   | SourceFile
   | SourceFileLocation
   | ParagraphNumber
+  | Verse
   | Elision
   | UnicodeElision
   | WordPrefix

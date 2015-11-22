@@ -1,5 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Text.Greek.Script.Word where
 
@@ -38,9 +39,18 @@ data InitialEnclitic
 instance ToJSON InitialEnclitic
 instance FromJSON InitialEnclitic
 
-newtype ParagraphIndex = ParagraphIndex { getParagraphIndex :: Int } deriving (Eq, Ord, Show, Generic)
+newtype ParagraphIndex = ParagraphIndex { getParagraphIndex :: Int } deriving (Eq, Ord, Show, Generic, Num)
 instance ToJSON ParagraphIndex
 instance FromJSON ParagraphIndex
+
+newtype VerseIndex = VerseIndex { getVerseIndex :: Int } deriving (Eq, Ord, Show, Generic, Num)
+instance ToJSON VerseIndex
+instance FromJSON VerseIndex
+
+data Verse = Verse
+  { verseIndex :: VerseIndex
+  , verseTitle :: Text
+  } deriving (Eq, Ord, Show, Generic)
 
 newtype Index = Index { getIndex :: Int } deriving (Eq, Ord, Show, Generic)
 instance ToJSON Index
@@ -130,21 +140,25 @@ type Indexed = IndexedP ()
 indexLens :: Lens.Lens (Index, a) (b, a) Index b
 indexLens = Lens._1
 
-type BasicP a = IndexedP (Affix, ParagraphIndex, a)
+type BasicInfo = (Affix, ParagraphIndex, Verse)
+
+type BasicP a = IndexedP (BasicInfo, a)
 type Basic = BasicP ()
 basicLens :: Lens.Lens (IndexedP a) (IndexedP b) a b
 basicLens = Lens._2
-prefixLens :: Lens.Lens (IndexedP ((Maybe Prefix, a), x, y)) (IndexedP ((b, a), x, y)) (Maybe Prefix) b
-prefixLens = basicLens . Lens._1 . Lens._1
-suffixLens :: Lens.Lens (IndexedP ((a, Maybe Suffix), x, y)) (IndexedP ((a, b), x, y)) (Maybe Suffix) b
-suffixLens = basicLens . Lens._1 . Lens._2
-paragraphIndexLens :: Lens.Lens (IndexedP (x, ParagraphIndex, y)) (IndexedP (x, b, y)) ParagraphIndex b
-paragraphIndexLens = basicLens . Lens._2
+prefixLens :: Lens.Lens (IndexedP (((Maybe Prefix, a), x, y), z)) (IndexedP (((b, a), x, y), z)) (Maybe Prefix) b
+prefixLens = basicLens . Lens._1 . Lens._1 . Lens._1
+suffixLens :: Lens.Lens (IndexedP (((a, Maybe Suffix), x, y), z)) (IndexedP (((a, b), x, y), z)) (Maybe Suffix) b
+suffixLens = basicLens . Lens._1 . Lens._1 . Lens._2
+paragraphIndexLens :: Lens.Lens (IndexedP ((x, ParagraphIndex, y), z)) (IndexedP ((x, b, y), z)) ParagraphIndex b
+paragraphIndexLens = basicLens . Lens._1 . Lens._2
+verseLens :: Lens.Lens (IndexedP ((x, y, Verse), z)) (IndexedP ((x, y, b), z)) Verse b
+verseLens = basicLens . Lens._1 . Lens._3
 
 type ElisionP a = BasicP (Elision.Pair, a)
 type Elision = ElisionP ()
 elisionLens' :: Lens.Lens (BasicP a) (BasicP b) a b
-elisionLens' = basicLens . Lens._3
+elisionLens' = basicLens . Lens._2
 elisionLens :: Lens.Lens (BasicP (a, x)) (BasicP (b, x)) a b
 elisionLens = elisionLens' . Lens._1
 
@@ -184,10 +198,10 @@ accentLens :: Lens.Lens (WithEncliticP (Accent, x)) (WithEncliticP (b, x)) Accen
 accentLens = accentLens' . Lens._1
 
 
-index :: [Word a s] -> [Word (IndexedP a) s]
-index = fmap addIndex . zip (fmap Index [0..])
+addIndex :: [Word a s] -> [Word (IndexedP (a, ())) s]
+addIndex = fmap arrange . zip (fmap Index [0..])
   where
-    addIndex (i, Word a s) = Word (i, a) s
+    arrange (i, Word a s) = Word (i, (a, ())) s
 
 tagLastWords :: [Word a b] -> [(Word a b, LastWord)]
 tagLastWords = reverse . go . reverse

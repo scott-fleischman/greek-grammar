@@ -57,7 +57,7 @@ newtype License = License [ParagraphLink] deriving Show
 licenseParser :: EventParser License
 licenseParser = fmap License $ elementSimple "license" (paragraphParser (many paragraphLinkParser))
 
-data Verse = Verse { verseId :: Text, verseText :: Text } deriving Show
+data Verse = Verse { verseId :: Text, verseText :: Text } deriving (Eq, Show)
 
 verseParser :: EventParser Verse
 verseParser = element "verse-number" (simpleAttributeParser "id") contentParser Verse

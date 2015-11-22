@@ -1,4 +1,5 @@
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Text.Greek.Source.All where
 
@@ -7,6 +8,7 @@ import Text.Greek.Xml.Common
 import Text.Greek.Xml.Parse
 import qualified Control.Lens as Lens
 import qualified Control.Monad.State.Lazy as State
+import qualified Data.List as List
 import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Source.Sblgnt as SBL
@@ -20,65 +22,52 @@ loadAll = do
     sblgntWorks <- sblgntResult
     let allWorks = sblgntWorks
     let indexedWorks = Work.indexBasic allWorks
-    let indexedWorksWords = Lens.over (Lens.each . Work.content) Word.index indexedWorks
+    let indexedWorksWords = Lens.over (Lens.each . Work.content) Word.addIndex indexedWorks
     return indexedWorksWords
 
-loadSblgnt :: IO (Either [XmlError] [Work.Basic [Word.Word (Word.Affix, Word.ParagraphIndex, ()) Word.SourceInfo]])
+loadSblgnt :: IO (Either [XmlError] [Work.Basic [Word.Word Word.BasicInfo Word.SourceInfo]])
 loadSblgnt = (fmap . fmap) sblgntToWorks $ readParseEvents SBL.sblgntParser Paths.sblgntXmlPath
 
-sblgntToWorks :: SBL.Sblgnt -> [Work.Basic [Word.Word (Word.Affix, Word.ParagraphIndex, ()) Word.SourceInfo]]
+sblgntToWorks :: SBL.Sblgnt -> [Work.Basic [Word.Word Word.BasicInfo Word.SourceInfo]]
 sblgntToWorks (SBL.Sblgnt _ _ bs) = fmap sblgntBookToWork bs
 
-sblgntBookToWork :: SBL.Book [SBL.Item] -> Work.Basic [Word.Word (Word.Affix, Word.ParagraphIndex, ()) Word.SourceInfo]
+sblgntBookToWork :: SBL.Book [SBL.Item] -> Work.Basic [Word.Word Word.BasicInfo Word.SourceInfo]
 sblgntBookToWork (SBL.Book _ t ps) = Work.Work info words
   where
     info = (Work.SourceSblgnt, (Work.Title t))
-    addParagraphIndex = zip (fmap Word.ParagraphIndex [0..])
-    words = (concatMap (\(i, x) -> sblgntParagraphToWords i x) . addParagraphIndex $ ps)
+    words = concatMap (\(i, xs) -> fmap (sblWordToWord i) xs) . applyVerseAllParagraphs $ ps
 
-sblgntParagraphToWords :: Word.ParagraphIndex -> SBL.BookParagraph [SBL.Item] -> [Word.Word (Word.Affix, Word.ParagraphIndex, ()) Word.SourceInfo]
-sblgntParagraphToWords i = fmap (sblWordToWord i) . concatMap (Lens.toListOf SBL._ItemWord) . concat . Lens.toListOf SBL._BookParagraphContent
 
-sblgntApplyVerses
+applyVerseAllParagraphs
   :: [SBL.BookParagraph [SBL.Item]]
-  -> [SBL.BookParagraph [(SBL.Verse, SBL.Word)]]
-sblgntApplyVerses = finish . go
-  where
-    finish
-      :: [SBL.BookParagraph [(Maybe SBL.Verse, Maybe SBL.Word)]]
-      -> [SBL.BookParagraph [(SBL.Verse, SBL.Word)]]
-    finish = Lens.over (traverse . SBL._BookParagraphContent) finishPart
+  -> [(Word.ParagraphIndex, [(Word.Verse, SBL.Word)])]
+applyVerseAllParagraphs
+  = zip (fmap Word.ParagraphIndex [0..])
+  . flip State.evalState (Word.Verse 0 "No Verse")
+  . mapM applyVerseParagraph
 
-    finishPart
-      :: [(Maybe SBL.Verse, Maybe SBL.Word)]
-      -> [(SBL.Verse, SBL.Word)]
-    finishPart = Lens.toListOf (Lens._Just . traverse) . finishPartPart
-      
-    finishPartPart
-      :: [(Maybe SBL.Verse, Maybe SBL.Word)]
-      -> Maybe [(SBL.Verse, SBL.Word)]
-    finishPartPart xs = (traverse . Lens._1) id xs >>= (traverse . Lens._2) id
-
-    go
-      :: [SBL.BookParagraph [SBL.Item]]
-      -> [SBL.BookParagraph [(Maybe SBL.Verse, Maybe SBL.Word)]]
-    go ps =
-      State.evalState
-      ( (traverse . SBL._BookParagraphContent . traverse)
-        sblgntApplyVerse ps
-      )
-      Nothing
-
-sblgntApplyVerse :: SBL.Item -> State.State (Maybe SBL.Verse) (Maybe SBL.Verse, Maybe SBL.Word)
-sblgntApplyVerse (SBL.ItemVerse v) = do
-  _ <- State.put (Just v)
-  return $ (Just v, Nothing)
-sblgntApplyVerse (SBL.ItemWord w) = do
+applyVerseParagraph
+  :: SBL.BookParagraph [SBL.Item]
+  -> State.State Word.Verse [(Word.Verse, SBL.Word)]
+applyVerseParagraph p = do
   v <- State.get
-  return $ (v, Just w)
+  let
+    (v', ws)
+      = Lens.over Lens._2 reverse
+      . List.foldl' (flip go) (v, [])
+      . Lens.toListOf (SBL._BookParagraphContent . traverse)
+      $ p
+  _ <- State.put v'
+  return ws
+  where
+    go (SBL.ItemVerse (SBL.Verse vt _)) (Word.Verse vn _, ws) = (Word.Verse (vn + 1) vt, ws)
+    go (SBL.ItemWord w) (v', ws) = (v', (v', w) : ws)
 
-sblWordToWord :: Word.ParagraphIndex -> SBL.Word -> Word.Word (Word.Affix, Word.ParagraphIndex, ()) Word.SourceInfo
-sblWordToWord i (SBL.Word (t, f) p s) = Word.Word ((unifiedPrefix, unifiedSuffix), i, ()) (Word.SourceInfo (Word.Source t) f)
+sblWordToWord :: Word.ParagraphIndex -> (Word.Verse, SBL.Word) -> Word.Word Word.BasicInfo Word.SourceInfo
+sblWordToWord i (v, SBL.Word (t, f) p s) =
+  Word.Word
+  ((unifiedPrefix, unifiedSuffix), i, v)
+  (Word.SourceInfo (Word.Source t) f)
   where
     unifiedPrefix = p >>= Word.makePrefix . SBL.stripSigla
     unifiedSuffix = Word.makeSuffix . SBL.stripSigla $ s
