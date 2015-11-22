@@ -104,22 +104,18 @@ process = do
   workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $
     lookupAll typeNameMap
       [ Type.SourceWord
-      , Type.WorkTitle
-      , Type.ParagraphNumber
+      , Type.Verse
       , Type.WorkSource
       ]
   summaryTypeIndexes <- handleMaybe "summaryTypeIndexes" $
     lookupAll typeNameMap
-      [ Type.SourceWord
-      , Type.ListScriptSyllableConsonantRB
+      [ Type.ListScriptSyllableConsonantRB
       , (Type.Count Type.Syllable)
       , Type.WordAccent
-      , Type.WordUltimaUnaccented
       , Type.InitialEnclitic
-      , Type.WordCapitalization      
-      , (Type.Count Type.Accent)
       , Type.Crasis
       , Type.Elision
+      , Type.Verse
       , Type.ParagraphNumber
       ]
 
@@ -160,6 +156,7 @@ makeStage0 sourceWords = (stage, composedWords)
       , makeWordPartType Json.WordPropertyTypeKind Type.SourceFile (pure . _fileReferencePath . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType Json.WordPropertyTypeKind Type.SourceFileLocation (pure . (\(FileReference _ l1 l2) -> (l1, l2)) . Word.getSourceInfoFile . Word.getSurface) sourceWords
       , makeWordPartType Json.WordPropertyTypeKind Type.ParagraphNumber (Lens.toListOf (Word.info . Word.paragraphIndexLens)) sourceWords
+      , makeWordPartType Json.WordPropertyTypeKind Type.Verse (Lens.toListOf (Word.info . Word.verseLens)) sourceWords
       , makeWordPartType Json.WordPropertyTypeKind Type.WordPrefix (Lens.toListOf (Word.info . Word.prefixLens)) sourceWords
       , makeWordPartType Json.WordPropertyTypeKind Type.WordSuffix (Lens.toListOf (Word.info . Word.suffixLens)) sourceWords
       , makeWorkInfoType Json.WorkPropertyTypeKind Type.WorkSource (Lens.view Lens._2) sourceWords
