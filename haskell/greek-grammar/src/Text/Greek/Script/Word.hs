@@ -13,6 +13,7 @@ import qualified Text.Greek.Script.Elision as Elision
 import qualified Text.Greek.Script.Punctuation as Punctuation
 import qualified Control.Lens as Lens
 import qualified Data.Text as Text
+import qualified Text.Greek.Source.Morphgnt as Morphgnt
 
 data IsCapitalized = IsCapitalized | IsNotCapitalized deriving (Eq, Ord, Show, Generic)
 instance ToJSON IsCapitalized
@@ -140,20 +141,22 @@ type Indexed = IndexedP ()
 indexLens :: Lens.Lens (Index, a) (b, a) Index b
 indexLens = Lens._1
 
-type BasicInfo = (Affix, ParagraphIndex, Verse)
+type BasicInfo = (Affix, ParagraphIndex, Verse, Morphgnt.Word)
 
 type BasicP a = IndexedP (BasicInfo, a)
 type Basic = BasicP ()
 basicLens :: Lens.Lens (IndexedP a) (IndexedP b) a b
 basicLens = Lens._2
-prefixLens :: Lens.Lens (IndexedP (((Maybe Prefix, a), x, y), z)) (IndexedP (((b, a), x, y), z)) (Maybe Prefix) b
+prefixLens :: Lens.Lens (IndexedP (((Maybe Prefix, a), x, y, z), p)) (IndexedP (((b, a), x, y, z), p)) (Maybe Prefix) b
 prefixLens = basicLens . Lens._1 . Lens._1 . Lens._1
-suffixLens :: Lens.Lens (IndexedP (((a, Maybe Suffix), x, y), z)) (IndexedP (((a, b), x, y), z)) (Maybe Suffix) b
+suffixLens :: Lens.Lens (IndexedP (((a, Maybe Suffix), x, y, z), p)) (IndexedP (((a, b), x, y, z), p)) (Maybe Suffix) b
 suffixLens = basicLens . Lens._1 . Lens._1 . Lens._2
-paragraphIndexLens :: Lens.Lens (IndexedP ((x, ParagraphIndex, y), z)) (IndexedP ((x, b, y), z)) ParagraphIndex b
+paragraphIndexLens :: Lens.Lens (IndexedP ((x, ParagraphIndex, y, z), p)) (IndexedP ((x, b, y, z), p)) ParagraphIndex b
 paragraphIndexLens = basicLens . Lens._1 . Lens._2
-verseLens :: Lens.Lens (IndexedP ((x, y, Verse), z)) (IndexedP ((x, y, b), z)) Verse b
+verseLens :: Lens.Lens (IndexedP ((x, y, Verse, z), p)) (IndexedP ((x, y, b, z), p)) Verse b
 verseLens = basicLens . Lens._1 . Lens._3
+morphgntWordLens :: Lens.Lens (IndexedP ((x, y, z, Morphgnt.Word), p)) (IndexedP ((x, y, z, b), p)) Morphgnt.Word b
+morphgntWordLens = basicLens . Lens._1 . Lens._4
 
 type ElisionP a = BasicP (Elision.Pair, a)
 type Elision = ElisionP ()

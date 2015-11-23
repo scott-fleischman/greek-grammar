@@ -15,7 +15,7 @@ data Morphgnt = Morphgnt
   { morphgntBooks :: [Book]
   } deriving (Eq, Ord, Show)
 
-data Book = Book [Word] deriving (Eq, Ord, Show)
+data Book = Book { bookWords :: [Word] } deriving (Eq, Ord, Show)
 data Word = Word
   { wordBookNumber :: Int
   , wordChapterNumber :: Int
@@ -31,7 +31,7 @@ data Word = Word
   , wordGender :: Maybe Char
   , wordDegree :: Maybe Char
   , wordSurface :: [Char]
-  , wordStrippedPunctuation :: [Char]
+  , wordStripped :: [Char]
   , wordNormalized :: [Char]
   , wordLemma :: [Char]
   } deriving (Eq, Ord, Show)
