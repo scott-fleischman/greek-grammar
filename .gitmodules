@@ -15,3 +15,6 @@
 	path = data/PerseusDL/canonical-greekLit
 	url = https://github.com/PerseusDL/canonical-greekLit.git
 	ignore = all
+[submodule "data/morphgnt/sblgnt"]
+	path = data/morphgnt/sblgnt
+	url = https://github.com/morphgnt/sblgnt.git
