@@ -461,15 +461,15 @@ makeStage11 accent = (stage, accent)
     primaryType = makeWordPartType Json.WordPropertyTypeKind Type.MorphgntLemma (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordLemma)) accent
     typeParts =
       [ makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPartOfSpeech1 (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPartOfSpeech1)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPartOfSpeech2 (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPartOfSpeech2 . Lens._Just)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPerson (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPerson . Lens._Just)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntTense (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordTense . Lens._Just)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntVoice (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordVoice . Lens._Just)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntMood (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordMood . Lens._Just)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntCase (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordCase . Lens._Just)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntNumber (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordNumber . Lens._Just)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntGender (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordGender . Lens._Just)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntDegree (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordDegree . Lens._Just)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPartOfSpeech2 (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPartOfSpeech2)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPerson (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPerson)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntTense (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordTense)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntVoice (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordVoice)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntMood (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordMood)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntCase (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordCase)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntNumber (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordNumber)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntGender (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordGender)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntDegree (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordDegree)) accent
       , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntText (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordTextWithPunctuation)) accent
       , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntWord (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordWordNoPunctuation)) accent
       , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntNormalizedWord (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordWordNormalized)) accent
