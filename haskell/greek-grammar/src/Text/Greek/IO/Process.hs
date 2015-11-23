@@ -59,7 +59,7 @@ runProcess = do
 
 process :: ExceptT String IO ()
 process = do
-  sourceWords <- handleIOError All.loadAll
+  sourceWords <- All.loadAll
   _ <- liftIO $ putStrLn "Processing"
 
   let (stage0, composedWords) = makeStage0 sourceWords

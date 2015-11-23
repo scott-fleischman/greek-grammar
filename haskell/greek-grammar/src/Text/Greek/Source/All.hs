@@ -8,24 +8,29 @@ import Prelude hiding (Word, words)
 import Text.Greek.Xml.Common
 import Text.Greek.Xml.Parse
 import qualified Control.Lens as Lens
+import qualified Control.Monad.Except as Except
 import qualified Control.Monad.State.Lazy as State
 import qualified Data.Foldable as Foldable
 import qualified Data.List as List
 import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Source.Sblgnt as SBL
+import qualified Text.Greek.Source.Morphgnt as Morphgnt
 import qualified Text.Greek.Source.Work as Work
 
-loadAll :: IO (Either [XmlError] [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]])
+loadAll :: Except.ExceptT String IO [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
 loadAll = do
-  _ <- putStrLn "Loading SBLGNT"
-  sblgntResult <- loadSblgnt
-  return $ do
-    sblgntWorks <- sblgntResult
-    let allWorks = sblgntWorks
-    let indexedWorks = Work.indexBasic allWorks
-    let indexedWorksWords = Lens.over (Lens.each . Work.content) Word.addIndex indexedWorks
-    return indexedWorksWords
+  _ <- Morphgnt.load
+  return $ []
+
+  -- _ <- putStrLn "Loading SBLGNT"
+  -- sblgntResult <- loadSblgnt
+  -- return $ do
+  --   sblgntWorks <- sblgntResult
+  --   let allWorks = sblgntWorks
+  --   let indexedWorks = Work.indexBasic allWorks
+  --   let indexedWorksWords = Lens.over (Lens.each . Work.content) Word.addIndex indexedWorks
+  --   return indexedWorksWords
 
 loadSblgnt :: IO (Either [XmlError] [Work.Basic [Word.Word Word.BasicInfo Word.SourceInfo]])
 loadSblgnt = (fmap . fmap) sblgntToWorks $ readParseEvents SBL.sblgntParser Paths.sblgntXmlPath

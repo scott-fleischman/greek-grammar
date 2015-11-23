@@ -84,6 +84,7 @@ library
     Text.Greek.Script.Word
     Text.Greek.Source.All
     Text.Greek.Source.FileReference
+    Text.Greek.Source.Morphgnt
     Text.Greek.Source.PerseusInventory
     Text.Greek.Source.Sblgnt
     Text.Greek.Source.SblgntApp
