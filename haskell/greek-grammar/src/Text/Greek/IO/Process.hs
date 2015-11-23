@@ -22,6 +22,7 @@ import qualified Text.Greek.IO.Json as Json
 import qualified Text.Greek.IO.Render as Render
 import qualified Text.Greek.IO.Type as Type
 import qualified Text.Greek.Source.All as All
+import qualified Text.Greek.Source.Morphgnt as Morphgnt
 import qualified Text.Greek.Source.Work as Work
 import qualified Text.Greek.Phonology.Consonant as Consonant
 import qualified Text.Greek.Script.Abstract as Abstract
@@ -72,7 +73,8 @@ process = do
   (stage7, vocalicSyllableABConsonantRh) <- handleMaybe "stage7" $ makeStage7 vowelConsonantMarkGroup
   (stage8, syllableRhAB) <- handleMaybe "stage8" $ makeStage8 vocalicSyllableABConsonantRh
   (stage9, syllableRBA) <- handleMaybe "stage9" $ makeStage9 syllableRhAB
-  (stage10, _) <- handleMaybe "stage10" $ makeStage10 syllableRBA
+  (stage10, syllableRBA') <- handleMaybe "stage10" $ makeStage10 syllableRBA
+  let (stage11, _) = makeStage11 syllableRBA'
 
   let
     stages =
@@ -87,6 +89,7 @@ process = do
       , stage8
       , stage9
       , stage10
+      , stage11
       ]
   let indexedStages = indexStages stages
   let indexedTypeDatas = getIndexedStageTypeDatas indexedStages
@@ -109,7 +112,10 @@ process = do
       ]
   summaryTypeIndexes <- handleMaybe "summaryTypeIndexes" $
     lookupAll typeNameMap
-      [ Type.ListScriptSyllableConsonantRB
+      [ Type.MorphgntLemma
+      , Type.MorphgntPartOfSpeech
+      , Type.MorphgntParsingCode
+      , Type.ListScriptSyllableConsonantRB
       , (Type.Count Type.Syllable)
       , Type.WordAccent
       , Type.InitialEnclitic
@@ -445,6 +451,48 @@ makeStage10 syllableRBA = (,) <$> mStage <*> mWithAccent
 
       , makeWordPartType Json.WordPropertyTypeKind Type.InitialEnclitic
         (Lens.toListOf (Word.info . Word.encliticLens)) <$> mWithEnclitic
+      ]
+
+makeStage11 :: WordSurface Word.WithAccent (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing])
+  -> (Stage TypeData, WordSurface Word.WithAccent (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]))
+makeStage11 accent = (stage, accent)
+  where
+    stage = Stage primaryType typeParts
+    primaryType = makeWordPartType Json.WordPropertyTypeKind Type.MorphgntLemma (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordLemma)) accent
+    typeParts =
+      [ makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPartOfSpeech1 (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPartOfSpeech1)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPartOfSpeech2 (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPartOfSpeech2 . Lens._Just)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPerson (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPerson . Lens._Just)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntTense (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordTense . Lens._Just)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntVoice (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordVoice . Lens._Just)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntMood (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordMood . Lens._Just)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntCase (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordCase . Lens._Just)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntNumber (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordNumber . Lens._Just)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntGender (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordGender . Lens._Just)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntDegree (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordDegree . Lens._Just)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntText (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordTextWithPunctuation)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntWord (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordWordNoPunctuation)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntNormalizedWord (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordWordNormalized)) accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPartOfSpeech
+        ( fmap (\w -> (Morphgnt._wordPartOfSpeech1 w, Morphgnt._wordPartOfSpeech2 w))
+          . Lens.toListOf (Word.info . Word.morphgntWordLens)
+        )
+        accent
+      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntParsingCode
+        ( fmap (\w ->
+            ( Morphgnt._wordPerson w
+            , Morphgnt._wordTense w
+            , Morphgnt._wordVoice w
+            , Morphgnt._wordMood w
+            , Morphgnt._wordCase w
+            , Morphgnt._wordNumber w
+            , Morphgnt._wordGender w
+            , Morphgnt._wordDegree w
+            )
+          )
+          . Lens.toListOf (Word.info . Word.morphgntWordLens)
+        )
+        accent
       ]
 
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]

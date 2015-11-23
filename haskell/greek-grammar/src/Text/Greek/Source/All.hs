@@ -30,11 +30,9 @@ loadAll' :: Except.ExceptT String IO [Work.Indexed [Word.Word Word.Basic Word.So
 loadAll' = do
   _ <- Except.liftIO $ putStrLn "Loading morphgnt"
   morphgnt <- Morphgnt.load
-  _ <- Except.liftIO $ putStrLn . show . length . Morphgnt.morphgntBooks $ morphgnt
-
+ 
   _ <- Except.liftIO $ putStrLn "Loading SBLGNT"
   sblgntWorks <- loadSblgnt
-  _ <- Except.liftIO $ putStrLn . show . length $ sblgntWorks
 
   let allWorks = alignMorphgnt morphgnt sblgntWorks
   validateMorphgntAlignment allWorks
@@ -89,7 +87,7 @@ validateMorphgntAlignment alignedWords = do
       = filter (\(x, y, _) -> x /= y)
       . fmap
         (\x ->
-          ( Text.pack . Decompose.decompose . Morphgnt.wordStripped . Lens.view (Word.info . Lens._4) $ x
+          ( Text.pack . Decompose.decompose . Morphgnt.getWordNoPunctuation . Lens.view (Word.info . Lens._4 . Morphgnt.wordWordNoPunctuation) $ x
           , Text.pack . Decompose.decompose . Text.unpack . Word.getSource . Word.getSourceInfoWord . Word.getSurface $ x
           , Word.getSourceInfoFile . Word.getSurface $ x
           )

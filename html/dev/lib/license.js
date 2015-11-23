@@ -11,5 +11,8 @@ export const License = () => (
     <p>
       <a href="http://sblgnt.com/license/">SBLGNT EULA</a>
     </p>
+    <p>
+      <a href="http://morphgnt.org/">MorphGNT</a> morphological parsing and lemmatization is licensed under a <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA License</a>.
+    </p>
   </div>
 );

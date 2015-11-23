@@ -20,6 +20,7 @@ import qualified Text.Greek.Script.Syllable as Syllable
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Script.Elision as Elision
+import qualified Text.Greek.Source.Morphgnt as Morphgnt
 import qualified Text.Greek.Source.Work as Work
 
 class Render a where
@@ -104,6 +105,25 @@ instance Render Type.Name where
   render Type.WordAccent = "Word Accent"
   render Type.WordUltimaUnaccented = "Barytone"
   render Type.ScriptSyllableConsonantRBAC_Approx = "Script Syllable (Consonant+ῥ+◌̔), Acute or Circumflex—Approximate"
+  render Type.MorphgntBook = "MorphGNT Book"
+  render Type.MorphgntChapter = "MorphGNT Chapter"
+  render Type.MorphgntVerse = "MorphGNT Verse"
+  render Type.MorphgntPartOfSpeech1 = "MorphGNT Part of Speech 1"
+  render Type.MorphgntPartOfSpeech2 = "MorphGNT Part of Speech 2"
+  render Type.MorphgntPerson = "MorphGNT Person"
+  render Type.MorphgntTense = "MorphGNT Tense"
+  render Type.MorphgntVoice = "MorphGNT Voice"
+  render Type.MorphgntMood = "MorphGNT Mood"
+  render Type.MorphgntCase = "MorphGNT Case"
+  render Type.MorphgntNumber = "MorphGNT Number"
+  render Type.MorphgntGender = "MorphGNT Gender"
+  render Type.MorphgntDegree = "MorphGNT Degree"
+  render Type.MorphgntText = "MorphGNT Text (including punctuation)"
+  render Type.MorphgntWord = "MorphGNT Word (with punctuation stripped)"
+  render Type.MorphgntNormalizedWord = "MorphGNT Normalized Word"
+  render Type.MorphgntLemma = "MorphGNT Lemma"
+  render Type.MorphgntPartOfSpeech = "MorphGNT Part of Speech"
+  render Type.MorphgntParsingCode = "MorphGNT Parsing Code"
 
 instance Render Work.Source where
   render Work.SourceSblgnt = "SBLGNT"
@@ -594,3 +614,58 @@ instance Render (Syllable.Syllable (Maybe Mark.AcuteCircumflex) [Consonant.PlusR
 instance Render (Maybe Mark.AcuteCircumflex) where render = renderMaybe "No accent"
 
 instance Render Word.Verse where render (Word.Verse _ t) = Lazy.fromStrict t
+
+renderOptionalChar :: Render a => Maybe a -> Lazy.Text
+renderOptionalChar Nothing = Lazy.singleton '-'
+renderOptionalChar (Just x) = render x
+
+instance Render Morphgnt.BookNumber where render (Morphgnt.BookNumber x) = Format.format "MorphGNT Book {}" (Format.Only x)
+instance Render Morphgnt.ChapterNumber where render (Morphgnt.ChapterNumber x) = Format.format "MorphGNT Chapter {}" (Format.Only x)
+instance Render Morphgnt.VerseNumber where render (Morphgnt.VerseNumber x) = Format.format "MorphGNT Verse {}" (Format.Only x)
+instance Render Morphgnt.PartOfSpeech1 where render (Morphgnt.PartOfSpeech1 x) = Lazy.singleton x
+instance Render Morphgnt.PartOfSpeech2 where render (Morphgnt.PartOfSpeech2 x) = Lazy.singleton x
+instance Render Morphgnt.Person where render (Morphgnt.Person x) = Lazy.singleton x
+instance Render Morphgnt.Tense where render (Morphgnt.Tense x) = Lazy.singleton x
+instance Render Morphgnt.Voice where render (Morphgnt.Voice x) = Lazy.singleton x
+instance Render Morphgnt.Mood where render (Morphgnt.Mood x) = Lazy.singleton x
+instance Render Morphgnt.Case where render (Morphgnt.Case x) = Lazy.singleton x
+instance Render Morphgnt.Number where render (Morphgnt.Number x) = Lazy.singleton x
+instance Render Morphgnt.Gender where render (Morphgnt.Gender x) = Lazy.singleton x
+instance Render Morphgnt.Degree where render (Morphgnt.Degree x) = Lazy.singleton x
+instance Render Morphgnt.TextWithPunctuation where render (Morphgnt.TextWithPunctuation x) = Lazy.pack x
+instance Render Morphgnt.WordNoPunctuation where render (Morphgnt.WordNoPunctuation x) = Lazy.pack x
+instance Render Morphgnt.WordNormalized where render (Morphgnt.WordNormalized x) = Lazy.pack x
+instance Render Morphgnt.Lemma where render (Morphgnt.Lemma x) = Lazy.pack x
+
+instance Render (Maybe Morphgnt.PartOfSpeech2) where render = renderOptionalChar
+instance Render (Maybe Morphgnt.Person) where render = renderOptionalChar
+instance Render (Maybe Morphgnt.Tense) where render = renderOptionalChar
+instance Render (Maybe Morphgnt.Voice) where render = renderOptionalChar
+instance Render (Maybe Morphgnt.Mood) where render = renderOptionalChar
+instance Render (Maybe Morphgnt.Case) where render = renderOptionalChar
+instance Render (Maybe Morphgnt.Number) where render = renderOptionalChar
+instance Render (Maybe Morphgnt.Gender) where render = renderOptionalChar
+instance Render (Maybe Morphgnt.Degree) where render = renderOptionalChar
+
+instance Render
+  (Maybe Morphgnt.Person,
+  Maybe Morphgnt.Tense,
+  Maybe Morphgnt.Voice,
+  Maybe Morphgnt.Mood,
+  Maybe Morphgnt.Case,
+  Maybe Morphgnt.Number,
+  Maybe Morphgnt.Gender,
+  Maybe Morphgnt.Degree)
+  where
+    render (a,b,c,d,e,f,g,h) = Format.format "{}{}{}{}{}{}{}{}"
+      ( render a
+      , render b
+      , render c
+      , render d
+      , render e
+      , render f
+      , render g
+      , render h
+      )
+instance Render (Morphgnt.PartOfSpeech1, Maybe Morphgnt.PartOfSpeech2) where
+  render (a,b) = Format.format "{}{}" (render a, render b)

@@ -1,8 +1,11 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Text.Greek.Source.Morphgnt where
 
 import Prelude hiding (Word)
 import System.FilePath ((</>))
 import Text.Parsec.Prim ((<|>))
+import qualified Control.Lens as Lens
 import qualified Control.Monad.Except as Except
 import qualified Data.Functor.Identity as Functor
 import qualified Data.List as List
@@ -16,25 +19,45 @@ data Morphgnt = Morphgnt
   } deriving (Eq, Ord, Show)
 
 data Book = Book { bookWords :: [Word] } deriving (Eq, Ord, Show)
+
+newtype BookNumber = BookNumber Int deriving (Eq, Ord, Show)
+newtype ChapterNumber = ChapterNumber Int deriving (Eq, Ord, Show)
+newtype VerseNumber = VerseNumber Int deriving (Eq, Ord, Show)
+newtype PartOfSpeech1 = PartOfSpeech1 Char deriving (Eq, Ord, Show)
+newtype PartOfSpeech2 = PartOfSpeech2 Char deriving (Eq, Ord, Show)
+newtype Person = Person Char deriving (Eq, Ord, Show)
+newtype Tense = Tense Char deriving (Eq, Ord, Show)
+newtype Voice = Voice Char deriving (Eq, Ord, Show)
+newtype Mood = Mood Char deriving (Eq, Ord, Show)
+newtype Case = Case Char deriving (Eq, Ord, Show)
+newtype Number = Number Char deriving (Eq, Ord, Show)
+newtype Gender = Gender Char deriving (Eq, Ord, Show)
+newtype Degree = Degree Char deriving (Eq, Ord, Show)
+newtype TextWithPunctuation = TextWithPunctuation [Char] deriving (Eq, Ord, Show)
+newtype WordNoPunctuation = WordNoPunctuation { getWordNoPunctuation :: [Char] } deriving (Eq, Ord, Show)
+newtype WordNormalized = WordNormalized [Char] deriving (Eq, Ord, Show)
+newtype Lemma = Lemma [Char] deriving (Eq, Ord, Show)
+
 data Word = Word
-  { wordBookNumber :: Int
-  , wordChapterNumber :: Int
-  , wordVerseNumber :: Int
-  , wordPartOfSpeech1 :: Char
-  , wordPartOfSpeech2 :: Maybe Char
-  , wordPerson :: Maybe Char
-  , wordTense :: Maybe Char
-  , wordVoice :: Maybe Char
-  , wordMood :: Maybe Char
-  , wordCase :: Maybe Char
-  , wordNumber :: Maybe Char
-  , wordGender :: Maybe Char
-  , wordDegree :: Maybe Char
-  , wordSurface :: [Char]
-  , wordStripped :: [Char]
-  , wordNormalized :: [Char]
-  , wordLemma :: [Char]
+  { _wordBookNumber :: BookNumber
+  , _wordChapterNumber :: ChapterNumber
+  , _wordVerseNumber :: VerseNumber
+  , _wordPartOfSpeech1 :: PartOfSpeech1
+  , _wordPartOfSpeech2 :: Maybe PartOfSpeech2
+  , _wordPerson :: Maybe Person
+  , _wordTense :: Maybe Tense
+  , _wordVoice :: Maybe Voice
+  , _wordMood :: Maybe Mood
+  , _wordCase :: Maybe Case
+  , _wordNumber :: Maybe Number
+  , _wordGender :: Maybe Gender
+  , _wordDegree :: Maybe Degree
+  , _wordTextWithPunctuation :: TextWithPunctuation
+  , _wordWordNoPunctuation :: WordNoPunctuation
+  , _wordWordNormalized :: WordNormalized
+  , _wordLemma :: Lemma
   } deriving (Eq, Ord, Show)
+Lens.makeLenses ''Word
 
 load :: Except.ExceptT String IO Morphgnt
 load = do
@@ -58,23 +81,23 @@ bookParser = fmap Book $ Parsec.many1 $ wordParser <* Parsec.endOfLine
 
 wordParser :: CharParser Word
 wordParser = Word
-  <$> twoDigitParser
-  <*> twoDigitParser
-  <*> (twoDigitParser <* Parsec.space)
-  <*> Parsec.upper
-  <*> (optionalUpper <* Parsec.space)
-  <*> optionalDigit
-  <*> optionalUpper
-  <*> optionalUpper
-  <*> optionalUpper
-  <*> optionalUpper
-  <*> optionalUpper
-  <*> optionalUpper
-  <*> (optionalUpper <* Parsec.space)
-  <*> (wordTextParser <* Parsec.space)
-  <*> (wordTextParser <* Parsec.space)
-  <*> (wordTextParser <* Parsec.space)
-  <*> wordTextParser
+  <$> (fmap BookNumber twoDigitParser)
+  <*> (fmap ChapterNumber twoDigitParser)
+  <*> (fmap VerseNumber twoDigitParser <* Parsec.space)
+  <*> (fmap PartOfSpeech1 Parsec.upper)
+  <*> ((fmap . fmap) PartOfSpeech2 optionalUpper <* Parsec.space)
+  <*> ((fmap . fmap) Person optionalDigit)
+  <*> ((fmap . fmap) Tense optionalUpper)
+  <*> ((fmap . fmap) Voice optionalUpper)
+  <*> ((fmap . fmap) Mood optionalUpper)
+  <*> ((fmap . fmap) Case optionalUpper)
+  <*> ((fmap . fmap) Number optionalUpper)
+  <*> ((fmap . fmap) Gender optionalUpper)
+  <*> ((fmap . fmap) Degree optionalUpper <* Parsec.space)
+  <*> (fmap TextWithPunctuation wordTextParser <* Parsec.space)
+  <*> (fmap WordNoPunctuation wordTextParser <* Parsec.space)
+  <*> (fmap WordNormalized wordTextParser <* Parsec.space)
+  <*> (fmap Lemma wordTextParser)
 
 twoDigitParser :: CharParser Int
 twoDigitParser = do

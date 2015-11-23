@@ -76,4 +76,23 @@ data Name
   | WordAccent
   | WordUltimaUnaccented
   | ScriptSyllableConsonantRBAC_Approx
+  | MorphgntBook
+  | MorphgntChapter
+  | MorphgntVerse
+  | MorphgntPartOfSpeech1
+  | MorphgntPartOfSpeech2
+  | MorphgntPerson
+  | MorphgntTense
+  | MorphgntVoice
+  | MorphgntMood
+  | MorphgntCase
+  | MorphgntNumber
+  | MorphgntGender
+  | MorphgntDegree
+  | MorphgntText
+  | MorphgntWord
+  | MorphgntNormalizedWord
+  | MorphgntLemma
+  | MorphgntPartOfSpeech
+  | MorphgntParsingCode
   deriving (Eq, Ord)
