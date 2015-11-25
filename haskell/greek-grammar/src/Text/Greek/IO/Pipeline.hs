@@ -10,6 +10,8 @@ import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.IO.Utility as Utility
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Work as Work
+import qualified Text.Greek.Script.Elision as Elision
+import qualified Text.Greek.Script.Marked as Marked
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Script.Word as Word
 import qualified System.Directory as Directory
@@ -39,6 +41,10 @@ runSblgnt = do
   let decomposedPairs = toDecomposedPairs composed
   write "decomposedPairs" decomposedPairs
 
+  let decomposedPairsE = splitDecomposedElision . toDecomposedWords $ decomposedPairs
+  unicodeLetterMarksPairs <- Utility.handleError $ toUnicodeLetterMarksPairs decomposedPairsE
+  write "unicodeLetterMarksPairs" unicodeLetterMarksPairs
+
 toComposed
   :: [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
   -> [Work.Indexed [Word.Word Word.Basic [Unicode.Composed]]]
@@ -54,3 +60,29 @@ toDecomposedPairs =
   Lens.over
   (traverse . Work.content . traverse . Word.surface . traverse)
   (\x -> (x, Unicode.decompose' x))
+
+toDecomposedWords
+  :: [Work.Indexed [Word.Word Word.Basic [(Unicode.Composed, [Unicode.Decomposed])]]]
+  -> [Work.Indexed [Word.Word Word.Basic [Unicode.Decomposed]]]
+toDecomposedWords =
+  Lens.over
+  (traverse . Work.content . traverse . Word.surface)
+  (concatMap snd)
+
+splitDecomposedElision
+  :: [Work.Indexed [Word.Word Word.Basic [Unicode.Decomposed]]]
+  -> [Work.Indexed [Word.Word Word.Elision [Unicode.Decomposed]]]
+splitDecomposedElision = Lens.over (traverse . Work.content . traverse) go
+  where
+    go :: Word.Word Word.Basic [Unicode.Decomposed] -> Word.Word Word.Elision [Unicode.Decomposed]
+    go w = newInfo
+      where
+        newInfo = Lens.over Word.info (Word.addElisionPair e) newSurface
+        newSurface = Lens.set Word.surface as w
+        (e, as) = Elision.split Unicode.decomposed (Word.getSurface w)
+
+toUnicodeLetterMarksPairs
+  :: [Work.Indexed [Word.Word b [Unicode.Decomposed]]]
+  -> Either Unicode.Error
+    [Work.Indexed [Word.Word b [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])]]]
+toUnicodeLetterMarksPairs = (traverse . Work.content . traverse . Word.surface) Unicode.parseMarkedLetters

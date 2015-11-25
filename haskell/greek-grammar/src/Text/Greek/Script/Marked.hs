@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TemplateHaskell #-}
 
@@ -5,6 +6,8 @@ module Text.Greek.Script.Marked where
 
 import Prelude hiding (Word, getLine)
 import Control.Lens
+import GHC.Generics (Generic)
+import Data.Aeson (ToJSON, FromJSON)
 import Data.Set (Set)
 import Text.Greek.Source.FileReference
 import qualified Data.Set as S
@@ -12,8 +15,10 @@ import qualified Data.Set as S
 data Unit l m = Unit
   { _item :: l
   , _marks :: m
-  } deriving (Eq, Ord, Show)
+  } deriving (Eq, Ord, Show, Generic)
 makeLenses ''Unit
+instance (ToJSON l, ToJSON m) => ToJSON (Unit l m)
+instance (FromJSON l, FromJSON m) => FromJSON (Unit l m)
 
 type MarkList r l m = Unit (l, r) [(m, r)]
 type MarkListReference l m = MarkList FileCharReference l m
