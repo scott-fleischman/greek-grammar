@@ -44,6 +44,9 @@ pagesData = projectRootPath </> "html" </> "dev" </> "data"
 buildData :: FilePath
 buildData = projectRootPath </> "build" </> "data"
 
+buildSblgnt :: FilePath
+buildSblgnt = buildData </> "sblgnt"
+
 morphgntRoot :: FilePath
 morphgntRoot = projectRootPath </> "data" </> "morphgnt"
 

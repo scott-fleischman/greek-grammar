@@ -1,8 +1,11 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Text.Greek.Source.Morphgnt where
 
 import Prelude hiding (Word)
+import GHC.Generics (Generic)
+import Data.Aeson (ToJSON, FromJSON)
 import System.FilePath ((</>))
 import Text.Parsec.Prim ((<|>))
 import qualified Control.Lens as Lens
@@ -16,27 +19,65 @@ import qualified Text.Parsec as Parsec
 
 data Morphgnt = Morphgnt
   { morphgntBooks :: [Book]
-  } deriving (Eq, Ord, Show)
+  } deriving (Eq, Ord, Show, Generic)
+instance ToJSON Morphgnt
+instance FromJSON Morphgnt
 
-data Book = Book { bookWords :: [Word] } deriving (Eq, Ord, Show)
+data Book = Book { bookWords :: [Word] } deriving (Eq, Ord, Show, Generic)
+instance ToJSON Book
+instance FromJSON Book
 
-newtype BookNumber = BookNumber Int deriving (Eq, Ord, Show)
-newtype ChapterNumber = ChapterNumber Int deriving (Eq, Ord, Show)
-newtype VerseNumber = VerseNumber Int deriving (Eq, Ord, Show)
-newtype PartOfSpeech1 = PartOfSpeech1 Char deriving (Eq, Ord, Show)
-newtype PartOfSpeech2 = PartOfSpeech2 Char deriving (Eq, Ord, Show)
-newtype Person = Person Char deriving (Eq, Ord, Show)
-newtype Tense = Tense Char deriving (Eq, Ord, Show)
-newtype Voice = Voice Char deriving (Eq, Ord, Show)
-newtype Mood = Mood Char deriving (Eq, Ord, Show)
-newtype Case = Case Char deriving (Eq, Ord, Show)
-newtype Number = Number Char deriving (Eq, Ord, Show)
-newtype Gender = Gender Char deriving (Eq, Ord, Show)
-newtype Degree = Degree Char deriving (Eq, Ord, Show)
-newtype TextWithPunctuation = TextWithPunctuation [Char] deriving (Eq, Ord, Show)
-newtype WordNoPunctuation = WordNoPunctuation { getWordNoPunctuation :: [Char] } deriving (Eq, Ord, Show)
-newtype WordNormalized = WordNormalized [Char] deriving (Eq, Ord, Show)
-newtype Lemma = Lemma [Char] deriving (Eq, Ord, Show)
+newtype BookNumber = BookNumber Int deriving (Eq, Ord, Show, Generic)
+instance ToJSON BookNumber
+instance FromJSON BookNumber
+newtype ChapterNumber = ChapterNumber Int deriving (Eq, Ord, Show, Generic)
+instance ToJSON ChapterNumber
+instance FromJSON ChapterNumber
+newtype VerseNumber = VerseNumber Int deriving (Eq, Ord, Show, Generic)
+instance ToJSON VerseNumber
+instance FromJSON VerseNumber
+newtype PartOfSpeech1 = PartOfSpeech1 Char deriving (Eq, Ord, Show, Generic)
+instance ToJSON PartOfSpeech1
+instance FromJSON PartOfSpeech1
+newtype PartOfSpeech2 = PartOfSpeech2 Char deriving (Eq, Ord, Show, Generic)
+instance ToJSON PartOfSpeech2
+instance FromJSON PartOfSpeech2
+newtype Person = Person Char deriving (Eq, Ord, Show, Generic)
+instance ToJSON Person
+instance FromJSON Person
+newtype Tense = Tense Char deriving (Eq, Ord, Show, Generic)
+instance ToJSON Tense
+instance FromJSON Tense
+newtype Voice = Voice Char deriving (Eq, Ord, Show, Generic)
+instance ToJSON Voice
+instance FromJSON Voice
+newtype Mood = Mood Char deriving (Eq, Ord, Show, Generic)
+instance ToJSON Mood
+instance FromJSON Mood
+newtype Case = Case Char deriving (Eq, Ord, Show, Generic)
+instance ToJSON Case
+instance FromJSON Case
+newtype Number = Number Char deriving (Eq, Ord, Show, Generic)
+instance ToJSON Number
+instance FromJSON Number
+newtype Gender = Gender Char deriving (Eq, Ord, Show, Generic)
+instance ToJSON Gender
+instance FromJSON Gender
+newtype Degree = Degree Char deriving (Eq, Ord, Show, Generic)
+instance ToJSON Degree
+instance FromJSON Degree
+newtype TextWithPunctuation = TextWithPunctuation [Char] deriving (Eq, Ord, Show, Generic)
+instance ToJSON TextWithPunctuation
+instance FromJSON TextWithPunctuation
+newtype WordNoPunctuation = WordNoPunctuation { getWordNoPunctuation :: [Char] } deriving (Eq, Ord, Show, Generic)
+instance ToJSON WordNoPunctuation
+instance FromJSON WordNoPunctuation
+newtype WordNormalized = WordNormalized [Char] deriving (Eq, Ord, Show, Generic)
+instance ToJSON WordNormalized
+instance FromJSON WordNormalized
+newtype Lemma = Lemma [Char] deriving (Eq, Ord, Show, Generic)
+instance ToJSON Lemma
+instance FromJSON Lemma
 
 data Word = Word
   { _wordBookNumber :: BookNumber
@@ -56,8 +97,10 @@ data Word = Word
   , _wordWordNoPunctuation :: WordNoPunctuation
   , _wordWordNormalized :: WordNormalized
   , _wordLemma :: Lemma
-  } deriving (Eq, Ord, Show)
+  } deriving (Eq, Ord, Show, Generic)
 Lens.makeLenses ''Word
+instance ToJSON Word
+instance FromJSON Word
 
 load :: Except.ExceptT String IO Morphgnt
 load = do

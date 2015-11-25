@@ -52,6 +52,8 @@ data Verse = Verse
   { verseIndex :: VerseIndex
   , verseTitle :: Text
   } deriving (Eq, Ord, Show, Generic)
+instance ToJSON Verse
+instance FromJSON Verse
 
 newtype Index = Index { getIndex :: Int } deriving (Eq, Ord, Show, Generic)
 instance ToJSON Index
@@ -101,11 +103,15 @@ instance ToJSON AcuteCircumflexCount
 instance FromJSON AcuteCircumflexCount
 
 newtype Prefix = Prefix { getPrefix :: Text } deriving (Eq, Show, Ord, Generic)
+instance ToJSON Prefix
+instance FromJSON Prefix
 newtype Suffix = Suffix { getSuffix :: Text } deriving (Eq, Show, Ord, Generic)
 Lens.makeLensesFor
   [ ("getSuffix", "suffix")
   ]
   ''Suffix
+instance ToJSON Suffix
+instance FromJSON Suffix
 
 makePrefix :: Text -> Maybe Prefix
 makePrefix = fmap Prefix . nothingIfEmpty . Text.strip
@@ -126,9 +132,13 @@ data Accent
   | AccentAcuteAntepenult
   | AccentCircumflexUltima
   | AccentCircumflexPenult
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord, Show, Generic)
+instance ToJSON Accent
+instance FromJSON Accent
 
-data UltimaUnaccented = UltimaUnaccented | UltimaAccented deriving (Eq, Ord, Show)
+data UltimaUnaccented = UltimaUnaccented | UltimaAccented deriving (Eq, Ord, Show, Generic)
+instance ToJSON UltimaUnaccented
+instance FromJSON UltimaUnaccented
 
 getUltimaUnaccented :: Accent -> UltimaUnaccented
 getUltimaUnaccented AccentAcuteUltima = UltimaAccented
