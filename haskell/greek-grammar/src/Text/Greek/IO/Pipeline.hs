@@ -24,34 +24,68 @@ readCompressed n = do
   bytes <- Monad.liftIO $ fmap GZip.decompress . ByteString.readFile $ n
   Utility.handleMaybe ("readCompressed " ++ n) $ Aeson.decode bytes
 
+
+data StageName
+  = StageName_SourceInfo
+  | StageName_Composed
+  | StageName_DecomposedPairs
+  | StageName_UnicodeLetterMarksPairs
+
+stageNameToFileNamePart :: StageName -> String
+stageNameToFileNamePart StageName_SourceInfo = "SourceInfo"
+stageNameToFileNamePart StageName_Composed = "Composed"
+stageNameToFileNamePart StageName_DecomposedPairs = "DecomposedPairs"
+stageNameToFileNamePart StageName_UnicodeLetterMarksPairs = "UnicodeLetterMarksPairs"
+
+data Stage a b = Stage
+  { stageName :: StageName
+  , stageMap :: a -> Either String b
+  }
+
 runSblgnt :: Monad.ExceptT String IO ()
 runSblgnt = do
   Monad.liftIO $ Directory.createDirectoryIfMissing True Paths.buildSblgnt
   let
-    write n x = do
-      _ <- Monad.liftIO . putStrLn $ "Writing " ++ n
-      Monad.liftIO $ writeCompressed (Paths.buildSblgnt </> n ++ ".json.gz") x
+    write s x = do
+      let fileNamePart = stageNameToFileNamePart . stageName $ s
+      _ <- Monad.liftIO . putStrLn $ "Writing " ++ fileNamePart
+      Monad.liftIO $ writeCompressed (Paths.buildSblgnt </> fileNamePart ++ ".json.gz") x
+  let
+    step s x = do
+      next <- Utility.handleError $ stageMap s x
+      write s next
+      return next
 
-  sourceInfo <- All.loadSblgnt
-  write "sourceInfo" sourceInfo
+  start <- All.loadSblgnt
+  sourceInfo <- step sourceInfoStage start
+  _ <- step composedStage sourceInfo
+  Monad.liftIO $ putStrLn "Complete"
 
-  let composed = toComposed sourceInfo
-  write "composed" composed
+  --let decomposedPairs = toDecomposedPairs composed
+  --write StageName_DecomposedPairs decomposedPairs
 
-  let decomposedPairs = toDecomposedPairs composed
-  write "decomposedPairs" decomposedPairs
+  --let decomposedPairsE = splitDecomposedElision . toDecomposedWords $ decomposedPairs
+  --unicodeLetterMarksPairs <- Utility.handleError $ toUnicodeLetterMarksPairs decomposedPairsE
+  --write StageName_UnicodeLetterMarksPairs unicodeLetterMarksPairs
 
-  let decomposedPairsE = splitDecomposedElision . toDecomposedWords $ decomposedPairs
-  unicodeLetterMarksPairs <- Utility.handleError $ toUnicodeLetterMarksPairs decomposedPairsE
-  write "unicodeLetterMarksPairs" unicodeLetterMarksPairs
+sourceInfoStage :: Stage
+  [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
+  [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
+sourceInfoStage = Stage
+  { stageName = StageName_SourceInfo
+  , stageMap = pure
+  }
 
-toComposed
-  :: [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
-  -> [Work.Indexed [Word.Word Word.Basic [Unicode.Composed]]]
-toComposed =
-  Lens.over
-  (traverse . Work.content . traverse . Word.surface)
-  (Unicode.toComposed . Word.getSource . Word.getSourceInfoWord)
+composedStage :: Stage
+  [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
+  [Work.Indexed [Word.Word Word.Basic [Unicode.Composed]]]
+composedStage = Stage
+  { stageName = StageName_Composed
+  , stageMap = pure .
+    Lens.over
+    (traverse . Work.content . traverse . Word.surface)
+    (Unicode.toComposed . Word.getSource . Word.getSourceInfoWord)
+  }
 
 toDecomposedPairs
   :: [Work.Indexed [Word.Word Word.Basic [Unicode.Composed]]]
