@@ -36,6 +36,9 @@ runSblgnt = do
   let composed = toComposed sourceInfo
   write "composed" composed
 
+  let decomposedPairs = toDecomposedPairs composed
+  write "decomposedPairs" decomposedPairs
+
 toComposed
   :: [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
   -> [Work.Indexed [Word.Word Word.Basic [Unicode.Composed]]]
@@ -43,3 +46,11 @@ toComposed =
   Lens.over
   (traverse . Work.content . traverse . Word.surface)
   (Unicode.toComposed . Word.getSource . Word.getSourceInfoWord)
+
+toDecomposedPairs
+  :: [Work.Indexed [Word.Word Word.Basic [Unicode.Composed]]]
+  -> [Work.Indexed [Word.Word Word.Basic [(Unicode.Composed, [Unicode.Decomposed])]]]
+toDecomposedPairs =
+  Lens.over
+  (traverse . Work.content . traverse . Word.surface . traverse)
+  (\x -> (x, Unicode.decompose' x))
