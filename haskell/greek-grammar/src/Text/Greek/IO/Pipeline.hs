@@ -25,7 +25,10 @@ readCompressed n = do
 runSblgnt :: Monad.ExceptT String IO ()
 runSblgnt = do
   Monad.liftIO $ Directory.createDirectoryIfMissing True Paths.buildSblgnt
-  let write n x = Monad.liftIO $ writeCompressed (Paths.buildSblgnt </> n ++ ".json.gz") x
+  let
+    write n x = do
+      _ <- Monad.liftIO . putStrLn $ "Writing " ++ n
+      Monad.liftIO $ writeCompressed (Paths.buildSblgnt </> n ++ ".json.gz") x
 
   sourceInfo <- All.loadSblgnt
   write "sourceInfo" sourceInfo
