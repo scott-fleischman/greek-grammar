@@ -43,7 +43,7 @@ library
     Text.Greek.IO.Json
     Text.Greek.IO.Paths
     Text.Greek.IO.Pipeline
---    Text.Greek.IO.Process
+    Text.Greek.IO.Process
     Text.Greek.IO.Render
     Text.Greek.IO.Type
     Text.Greek.IO.Utility

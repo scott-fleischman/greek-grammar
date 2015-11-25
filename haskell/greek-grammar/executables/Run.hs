@@ -5,10 +5,10 @@ module Main where
 
 import Prelude hiding (Word)
 import Control.Monad.Except
-import qualified Text.Greek.IO.Pipeline as Pipeline
+import qualified Text.Greek.IO.Process as Process
 
 main :: IO ()
-main = runExceptIO Pipeline.runSblgnt
+main = runExceptIO Process.processSblgnt
 
 runExceptIO :: ExceptT String IO () -> IO ()
 runExceptIO x = do
