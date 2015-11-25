@@ -21,6 +21,7 @@ import qualified Data.Tuple as Tuple
 import qualified Text.Greek.IO.Json as Json
 import qualified Text.Greek.IO.Render as Render
 import qualified Text.Greek.IO.Type as Type
+import qualified Text.Greek.IO.Utility as Utility
 import qualified Text.Greek.Source.All as All
 import qualified Text.Greek.Source.Morphgnt as Morphgnt
 import qualified Text.Greek.Source.Work as Work
@@ -37,43 +38,22 @@ import qualified Text.Greek.Script.Word as Word
 import qualified Text.Greek.Script.Unicode as Unicode
 import qualified Text.Greek.Utility as Utility
 
-runProcess :: IO ()
-runProcess = do
-  result <- runExceptT process
-  handleResult result
-
---import qualified Data.Aeson as Aeson
---import qualified Data.ByteString.Lazy.Char8 as BL
---import qualified System.Directory as Directory
---import qualified Text.Greek.IO.Paths as Paths
---import System.FilePath ((</>))
---import qualified Codec.Compression.GZip as GZip
---  _ <- liftIO $ Directory.createDirectoryIfMissing True Paths.buildData
-
---writeCompressed :: Aeson.ToJSON a => String -> a -> IO ()
---writeCompressed n = BL.writeFile (Paths.buildData </> n) . GZip.compress . Aeson.encode
-
---readCompressed :: Aeson.FromJSON a => String -> ExceptT String IO a
---readCompressed n = do
---  bytes <- liftIO $ fmap GZip.decompress . BL.readFile $ Paths.buildData </> n
---  handleMaybe ("readCompressed " ++ n) $ Aeson.decode bytes
-
-process :: ExceptT String IO ()
-process = do
-  sourceWords <- All.loadAll
+processSblgnt :: ExceptT String IO ()
+processSblgnt = do
+  sourceWords <- All.loadSblgnt
   _ <- liftIO $ putStrLn "Processing"
 
   let (stage0, composedWords) = makeStage0 sourceWords
   let (stage1, decomposedWords) = makeStage1 composedWords
-  (stage2, unicodeLetterMarks) <- handleError $ tryMakeStage2 decomposedWords
-  (stage3, concreteLetterConcreteMarks) <- handleMaybe "stage3" $ tryMakeStage3 unicodeLetterMarks
-  (stage4, abstractLetterConcreteMarks) <- handleMaybe "stage4" $ tryMakeStage4 concreteLetterConcreteMarks
-  (stage5, abstractLetterMarkGroup) <- handleMaybe "stage5" $ tryMakeStage5 abstractLetterConcreteMarks
+  (stage2, unicodeLetterMarks) <- Utility.handleError $ tryMakeStage2 decomposedWords
+  (stage3, concreteLetterConcreteMarks) <- Utility.handleMaybe "stage3" $ tryMakeStage3 unicodeLetterMarks
+  (stage4, abstractLetterConcreteMarks) <- Utility.handleMaybe "stage4" $ tryMakeStage4 concreteLetterConcreteMarks
+  (stage5, abstractLetterMarkGroup) <- Utility.handleMaybe "stage5" $ tryMakeStage5 abstractLetterConcreteMarks
   let (stage6, vowelConsonantMarkGroup) = makeStage6 abstractLetterMarkGroup
-  (stage7, vocalicSyllableABConsonantRh) <- handleMaybe "stage7" $ makeStage7 vowelConsonantMarkGroup
-  (stage8, syllableRhAB) <- handleMaybe "stage8" $ makeStage8 vocalicSyllableABConsonantRh
-  (stage9, syllableRBA) <- handleMaybe "stage9" $ makeStage9 syllableRhAB
-  (stage10, syllableRBA') <- handleMaybe "stage10" $ makeStage10 syllableRBA
+  (stage7, vocalicSyllableABConsonantRh) <- Utility.handleMaybe "stage7" $ makeStage7 vowelConsonantMarkGroup
+  (stage8, syllableRhAB) <- Utility.handleMaybe "stage8" $ makeStage8 vocalicSyllableABConsonantRh
+  (stage9, syllableRBA) <- Utility.handleMaybe "stage9" $ makeStage9 syllableRhAB
+  (stage10, syllableRBA') <- Utility.handleMaybe "stage10" $ makeStage10 syllableRBA
   let (stage11, _) = makeStage11 syllableRBA'
 
   let
@@ -95,47 +75,47 @@ process = do
   let indexedTypeDatas = getIndexedStageTypeDatas indexedStages
   let storedTypeDatas = fmap snd indexedTypeDatas
 
-  let typeNameMap = Map.fromList . fmap (\(i,t) -> (typeDataName t, i)) $ indexedTypeDatas
-  specialTypes <- handleMaybe "special types" $ Json.SpecialTypes
-    <$> Map.lookup Type.SourceWord typeNameMap
-    <*> Map.lookup Type.WordPrefix typeNameMap
-    <*> Map.lookup Type.WordSuffix typeNameMap
   let storedTypes = fmap typeDataJson storedTypeDatas
   liftIO $ putStrLn "Writing types"
   liftIO $ Json.writeTypes storedTypes
 
-  workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $
-    lookupAll typeNameMap
-      [ Type.SourceWord
-      , Type.Verse
-      , Type.WorkSource
-      ]
-  summaryTypeIndexes <- handleMaybe "summaryTypeIndexes" $
-    lookupAll typeNameMap
-      [ Type.MorphgntLemma
-      , Type.MorphgntPartOfSpeech
-      , Type.MorphgntParsingCode
-      , Type.ListScriptSyllableConsonantRB
-      , (Type.Count Type.Syllable)
-      , Type.WordAccent
-      , Type.InitialEnclitic
-      , Type.Crasis
-      , Type.Elision
-      , Type.Verse
-      , Type.ParagraphNumber
-      ]
+  --let typeNameMap = Map.fromList . fmap (\(i,t) -> (typeDataName t, i)) $ indexedTypeDatas
+  --specialTypes <- handleMaybe "special types" $ Json.SpecialTypes
+  --  <$> Map.lookup Type.SourceWord typeNameMap
+  --  <*> Map.lookup Type.WordPrefix typeNameMap
+  --  <*> Map.lookup Type.WordSuffix typeNameMap
+  --workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $
+  --  lookupAll typeNameMap
+  --    [ Type.SourceWord
+  --    , Type.Verse
+  --    , Type.WorkSource
+  --    ]
+  --summaryTypeIndexes <- handleMaybe "summaryTypeIndexes" $
+  --  lookupAll typeNameMap
+  --    [ Type.MorphgntLemma
+  --    , Type.MorphgntPartOfSpeech
+  --    , Type.MorphgntParsingCode
+  --    , Type.ListScriptSyllableConsonantRB
+  --    , (Type.Count Type.Syllable)
+  --    , Type.WordAccent
+  --    , Type.InitialEnclitic
+  --    , Type.Crasis
+  --    , Type.Elision
+  --    , Type.Verse
+  --    , Type.ParagraphNumber
+  --    ]
 
-  let instanceMap = Json.makeInstanceMap storedTypes
-  let ourWorks = getWorks summaryTypeIndexes instanceMap sourceWords
-  liftIO $ putStrLn "Writing works"
-  liftIO $ Json.writeWorks ourWorks
+  --let instanceMap = Json.makeInstanceMap storedTypes
+  --let ourWorks = getWorks summaryTypeIndexes instanceMap sourceWords
+  --liftIO $ putStrLn "Writing works"
+  --liftIO $ Json.writeWorks ourWorks
 
-  let ourWorkInfos = fmap (Json.workToWorkInfo workInfoTypeIndexes) ourWorks
-  let ourTypeInfos = fmap Json.makeTypeInfo storedTypes
-  let ourStageInfos = fmap getStageInfo indexedStages
-  let ourIndex = Json.Index ourWorkInfos ourTypeInfos specialTypes ourStageInfos
-  liftIO $ putStrLn "Writing index"
-  liftIO $ Json.writeIndex ourIndex
+  --let ourWorkInfos = fmap (Json.workToWorkInfo workInfoTypeIndexes) ourWorks
+  --let ourTypeInfos = fmap Json.makeTypeInfo storedTypes
+  --let ourStageInfos = fmap getStageInfo indexedStages
+  --let ourIndex = Json.Index ourWorkInfos ourTypeInfos specialTypes ourStageInfos
+  --liftIO $ putStrLn "Writing index"
+  --liftIO $ Json.writeIndex ourIndex
 
 type WordSurface a b = [Work.Indexed [Word.Word a b]]
 type WordSurfaceBasic a = WordSurface Word.Basic a
@@ -740,20 +720,3 @@ flattenWords f = concatMap getIndexedWorkProps
 
     getWordIndex :: Word.Word (Word.IndexedP a) b -> Word.Index
     getWordIndex = Lens.view (Word.info . Word.indexLens)
-
-handleResult :: Either String () -> IO ()
-handleResult (Left e) = putStrLn e
-handleResult (Right ()) = putStrLn "Complete"
-
-handleIOError :: Show a => IO (Either a b) -> ExceptT String IO b
-handleIOError x = liftIO x >>= handleError
-
-handleMaybe :: String -> Maybe a -> ExceptT String IO a
-handleMaybe s = handleError . Utility.maybeToEither s
-
-handleError :: Show a => Either a b -> ExceptT String IO b
-handleError (Left x) = throwError . show $ x
-handleError (Right x) = return x
-
-showError :: Show a => Either a b -> Either String b
-showError = Lens.over Lens._Left show

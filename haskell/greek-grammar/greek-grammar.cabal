@@ -43,9 +43,11 @@ library
 --    Text.Greek.IO
     Text.Greek.IO.Json
     Text.Greek.IO.Paths
+    Text.Greek.IO.Pipeline
     Text.Greek.IO.Process
     Text.Greek.IO.Render
     Text.Greek.IO.Type
+    Text.Greek.IO.Utility
     Text.Greek.Morphology.Noun
     Text.Greek.Mounce.Adjective
     Text.Greek.Mounce.Euphony
@@ -129,7 +131,8 @@ executable run
     xml-conduit,
     lens,
     greek-grammar,
-    parsec
+    parsec,
+    mtl
   main-is: Run.hs
   ghc-options: -Wall -fwarn-tabs -O2
   hs-source-dirs: executables

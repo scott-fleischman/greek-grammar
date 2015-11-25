@@ -23,16 +23,13 @@ import qualified Text.Greek.Source.Sblgnt as SBL
 import qualified Text.Greek.Source.Morphgnt as Morphgnt
 import qualified Text.Greek.Source.Work as Work
 
-loadAll :: Except.ExceptT String IO [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
-loadAll = loadAll'
-
-loadAll' :: Except.ExceptT String IO [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
-loadAll' = do
+loadSblgnt :: Except.ExceptT String IO [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
+loadSblgnt = do
   _ <- Except.liftIO $ putStrLn "Loading morphgnt"
   morphgnt <- Morphgnt.load
  
   _ <- Except.liftIO $ putStrLn "Loading SBLGNT"
-  sblgntWorks <- loadSblgnt
+  sblgntWorks <- loadSblgntWorks
 
   let allWorks = alignMorphgnt morphgnt sblgntWorks
   validateMorphgntAlignment allWorks
@@ -99,8 +96,8 @@ validateMorphgntAlignment alignedWords = do
     filtered
   Monad.when (length filtered /= 0) (Except.throwError "morphgnt and sblgnt don't align")
 
-loadSblgnt :: Except.ExceptT String IO [Work.Basic [Word.Word (Word.Affix, Word.ParagraphIndex, Word.Verse) Word.SourceInfo]]
-loadSblgnt = do
+loadSblgntWorks :: Except.ExceptT String IO [Work.Basic [Word.Word (Word.Affix, Word.ParagraphIndex, Word.Verse) Word.SourceInfo]]
+loadSblgntWorks = do
   sbl <- Except.liftIO $ readParseEvents SBL.sblgntParser Paths.sblgntXmlPath
   case sbl of
     Left e -> Except.throwError . show $ e
