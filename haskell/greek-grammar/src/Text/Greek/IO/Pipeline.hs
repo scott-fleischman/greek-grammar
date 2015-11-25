@@ -37,9 +37,9 @@ stageNameToFileNamePart StageName_Composed = "Composed"
 stageNameToFileNamePart StageName_DecomposedPairs = "DecomposedPairs"
 stageNameToFileNamePart StageName_UnicodeLetterMarksPairs = "UnicodeLetterMarksPairs"
 
-data Stage a b = Stage
+data Stage a b e = Stage
   { stageName :: StageName
-  , stageMap :: a -> Either String b
+  , stageMap :: a -> Either e b
   }
 
 runSblgnt :: Monad.ExceptT String IO ()
@@ -58,19 +58,15 @@ runSblgnt = do
 
   start <- All.loadSblgnt
   sourceInfo <- step sourceInfoStage start
-  _ <- step composedStage sourceInfo
+  composed <- step composedStage sourceInfo
+  decomposed <- step decomposedPairsStage composed
+  _ <- step unicodeLetterMarksPairsStage decomposed
   Monad.liftIO $ putStrLn "Complete"
-
-  --let decomposedPairs = toDecomposedPairs composed
-  --write StageName_DecomposedPairs decomposedPairs
-
-  --let decomposedPairsE = splitDecomposedElision . toDecomposedWords $ decomposedPairs
-  --unicodeLetterMarksPairs <- Utility.handleError $ toUnicodeLetterMarksPairs decomposedPairsE
-  --write StageName_UnicodeLetterMarksPairs unicodeLetterMarksPairs
 
 sourceInfoStage :: Stage
   [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
   [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
+  ()
 sourceInfoStage = Stage
   { stageName = StageName_SourceInfo
   , stageMap = pure
@@ -79,6 +75,7 @@ sourceInfoStage = Stage
 composedStage :: Stage
   [Work.Indexed [Word.Word Word.Basic Word.SourceInfo]]
   [Work.Indexed [Word.Word Word.Basic [Unicode.Composed]]]
+  ()
 composedStage = Stage
   { stageName = StageName_Composed
   , stageMap = pure .
@@ -87,13 +84,17 @@ composedStage = Stage
     (Unicode.toComposed . Word.getSource . Word.getSourceInfoWord)
   }
 
-toDecomposedPairs
-  :: [Work.Indexed [Word.Word Word.Basic [Unicode.Composed]]]
-  -> [Work.Indexed [Word.Word Word.Basic [(Unicode.Composed, [Unicode.Decomposed])]]]
-toDecomposedPairs =
-  Lens.over
-  (traverse . Work.content . traverse . Word.surface . traverse)
-  (\x -> (x, Unicode.decompose' x))
+decomposedPairsStage :: Stage
+  [Work.Indexed [Word.Word Word.Basic [Unicode.Composed]]]
+  [Work.Indexed [Word.Word Word.Basic [(Unicode.Composed, [Unicode.Decomposed])]]]
+  ()
+decomposedPairsStage = Stage
+  { stageName = StageName_DecomposedPairs
+  , stageMap = pure .
+    Lens.over
+    (traverse . Work.content . traverse . Word.surface . traverse)
+    (\x -> (x, Unicode.decompose' x))
+  }
 
 toDecomposedWords
   :: [Work.Indexed [Word.Word Word.Basic [(Unicode.Composed, [Unicode.Decomposed])]]]
@@ -120,3 +121,12 @@ toUnicodeLetterMarksPairs
   -> Either Unicode.Error
     [Work.Indexed [Word.Word b [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])]]]
 toUnicodeLetterMarksPairs = (traverse . Work.content . traverse . Word.surface) Unicode.parseMarkedLetters
+
+unicodeLetterMarksPairsStage :: Stage
+  [Work.Indexed [Word.Word Word.Basic [(Unicode.Composed, [Unicode.Decomposed])]]]
+  [Work.Indexed [Word.Word Word.Elision [([Unicode.Decomposed], Marked.Unit Unicode.Letter [Unicode.Mark])]]]
+  Unicode.Error
+unicodeLetterMarksPairsStage = Stage
+  { stageName = StageName_UnicodeLetterMarksPairs
+  , stageMap = toUnicodeLetterMarksPairs . splitDecomposedElision . toDecomposedWords
+  }
