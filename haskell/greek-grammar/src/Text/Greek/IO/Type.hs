@@ -79,8 +79,6 @@ data Name
   | MorphgntBook
   | MorphgntChapter
   | MorphgntVerse
-  | MorphgntPartOfSpeech1
-  | MorphgntPartOfSpeech2
   | MorphgntPerson
   | MorphgntTense
   | MorphgntVoice

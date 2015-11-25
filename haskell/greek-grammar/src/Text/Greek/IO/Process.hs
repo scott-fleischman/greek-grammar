@@ -79,43 +79,43 @@ processSblgnt = do
   liftIO $ putStrLn "Writing types"
   liftIO $ Json.writeTypes storedTypes
 
-  --let typeNameMap = Map.fromList . fmap (\(i,t) -> (typeDataName t, i)) $ indexedTypeDatas
-  --specialTypes <- handleMaybe "special types" $ Json.SpecialTypes
-  --  <$> Map.lookup Type.SourceWord typeNameMap
-  --  <*> Map.lookup Type.WordPrefix typeNameMap
-  --  <*> Map.lookup Type.WordSuffix typeNameMap
-  --workInfoTypeIndexes <- handleMaybe "workInfoTypeIndexes" $
-  --  lookupAll typeNameMap
-  --    [ Type.SourceWord
-  --    , Type.Verse
-  --    , Type.WorkSource
-  --    ]
-  --summaryTypeIndexes <- handleMaybe "summaryTypeIndexes" $
-  --  lookupAll typeNameMap
-  --    [ Type.MorphgntLemma
-  --    , Type.MorphgntPartOfSpeech
-  --    , Type.MorphgntParsingCode
-  --    , Type.ListScriptSyllableConsonantRB
-  --    , (Type.Count Type.Syllable)
-  --    , Type.WordAccent
-  --    , Type.InitialEnclitic
-  --    , Type.Crasis
-  --    , Type.Elision
-  --    , Type.Verse
-  --    , Type.ParagraphNumber
-  --    ]
+  let typeNameMap = Map.fromList . fmap (\(i,t) -> (typeDataName t, i)) $ indexedTypeDatas
+  specialTypes <- Utility.handleMaybe "special types" $ Json.SpecialTypes
+    <$> Map.lookup Type.SourceWord typeNameMap
+    <*> Map.lookup Type.WordPrefix typeNameMap
+    <*> Map.lookup Type.WordSuffix typeNameMap
+  workInfoTypeIndexes <- Utility.handleMaybe "workInfoTypeIndexes" $
+    lookupAll typeNameMap
+      [ Type.SourceWord
+      , Type.Verse
+      , Type.WorkSource
+      ]
+  summaryTypeIndexes <- Utility.handleMaybe "summaryTypeIndexes" $
+    lookupAll typeNameMap
+      [ Type.MorphgntLemma
+      , Type.MorphgntPartOfSpeech
+      , Type.MorphgntParsingCode
+      , Type.ListScriptSyllableConsonantRB
+      , (Type.Count Type.Syllable)
+      , Type.WordAccent
+      , Type.InitialEnclitic
+      , Type.Crasis
+      , Type.Elision
+      , Type.Verse
+      , Type.ParagraphNumber
+      ]
 
-  --let instanceMap = Json.makeInstanceMap storedTypes
-  --let ourWorks = getWorks summaryTypeIndexes instanceMap sourceWords
-  --liftIO $ putStrLn "Writing works"
-  --liftIO $ Json.writeWorks ourWorks
+  let instanceMap = Json.makeInstanceMap storedTypes
+  let ourWorks = getWorks summaryTypeIndexes instanceMap sourceWords
+  liftIO $ putStrLn "Writing works"
+  liftIO $ Json.writeWorks ourWorks
 
-  --let ourWorkInfos = fmap (Json.workToWorkInfo workInfoTypeIndexes) ourWorks
-  --let ourTypeInfos = fmap Json.makeTypeInfo storedTypes
-  --let ourStageInfos = fmap getStageInfo indexedStages
-  --let ourIndex = Json.Index ourWorkInfos ourTypeInfos specialTypes ourStageInfos
-  --liftIO $ putStrLn "Writing index"
-  --liftIO $ Json.writeIndex ourIndex
+  let ourWorkInfos = fmap (Json.workToWorkInfo workInfoTypeIndexes) ourWorks
+  let ourTypeInfos = fmap Json.makeTypeInfo storedTypes
+  let ourStageInfos = fmap getStageInfo indexedStages
+  let ourIndex = Json.Index ourWorkInfos ourTypeInfos specialTypes ourStageInfos
+  liftIO $ putStrLn "Writing index"
+  liftIO $ Json.writeIndex ourIndex
 
 type WordSurface a b = [Work.Indexed [Word.Word a b]]
 type WordSurfaceBasic a = WordSurface Word.Basic a
@@ -440,8 +440,7 @@ makeStage11 accent = (stage, accent)
     stage = Stage primaryType typeParts
     primaryType = makeWordPartType Json.WordPropertyTypeKind Type.MorphgntLemma (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordLemma)) accent
     typeParts =
-      [ makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPartOfSpeech1 (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPartOfSpeech1)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPartOfSpeech2 (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPartOfSpeech2)) accent
+      [ makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPartOfSpeech (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPartOfSpeech)) accent
       , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPerson (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPerson)) accent
       , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntTense (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordTense)) accent
       , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntVoice (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordVoice)) accent
@@ -453,11 +452,6 @@ makeStage11 accent = (stage, accent)
       , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntText (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordTextWithPunctuation)) accent
       , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntWord (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordWordNoPunctuation)) accent
       , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntNormalizedWord (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordWordNormalized)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPartOfSpeech
-        ( fmap (\w -> (Morphgnt._wordPartOfSpeech1 w, Morphgnt._wordPartOfSpeech2 w))
-          . Lens.toListOf (Word.info . Word.morphgntWordLens)
-        )
-        accent
       , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntParsingCode
         ( fmap (\w ->
             ( Morphgnt._wordPerson w

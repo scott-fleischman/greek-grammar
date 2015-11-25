@@ -108,8 +108,6 @@ instance Render Type.Name where
   render Type.MorphgntBook = "MorphGNT Book"
   render Type.MorphgntChapter = "MorphGNT Chapter"
   render Type.MorphgntVerse = "MorphGNT Verse"
-  render Type.MorphgntPartOfSpeech1 = "MorphGNT Part of Speech 1"
-  render Type.MorphgntPartOfSpeech2 = "MorphGNT Part of Speech 2"
   render Type.MorphgntPerson = "MorphGNT Person"
   render Type.MorphgntTense = "MorphGNT Tense"
   render Type.MorphgntVoice = "MorphGNT Voice"
@@ -622,30 +620,72 @@ renderOptionalChar (Just x) = render x
 instance Render Morphgnt.BookNumber where render (Morphgnt.BookNumber x) = Format.format "MorphGNT Book {}" (Format.Only x)
 instance Render Morphgnt.ChapterNumber where render (Morphgnt.ChapterNumber x) = Format.format "MorphGNT Chapter {}" (Format.Only x)
 instance Render Morphgnt.VerseNumber where render (Morphgnt.VerseNumber x) = Format.format "MorphGNT Verse {}" (Format.Only x)
-instance Render Morphgnt.PartOfSpeech1 where render (Morphgnt.PartOfSpeech1 x) = Lazy.singleton x
-instance Render Morphgnt.PartOfSpeech2 where render (Morphgnt.PartOfSpeech2 x) = Lazy.singleton x
-instance Render Morphgnt.Person where render (Morphgnt.Person x) = Lazy.singleton x
-instance Render Morphgnt.Tense where render (Morphgnt.Tense x) = Lazy.singleton x
-instance Render Morphgnt.Voice where render (Morphgnt.Voice x) = Lazy.singleton x
-instance Render Morphgnt.Mood where render (Morphgnt.Mood x) = Lazy.singleton x
-instance Render Morphgnt.Case where render (Morphgnt.Case x) = Lazy.singleton x
-instance Render Morphgnt.Number where render (Morphgnt.Number x) = Lazy.singleton x
-instance Render Morphgnt.Gender where render (Morphgnt.Gender x) = Lazy.singleton x
-instance Render Morphgnt.Degree where render (Morphgnt.Degree x) = Lazy.singleton x
+instance Render Morphgnt.PartOfSpeech where
+  render Morphgnt.Adjective = "Adjective"
+  render Morphgnt.Conjunction = "Conjunction"
+  render Morphgnt.Adverb = "Adverb"
+  render Morphgnt.Interjection = "Interjection"
+  render Morphgnt.Noun = "Noun"
+  render Morphgnt.Preposition = "Preposition"
+  render Morphgnt.DefiniteArticle = "Definite Article"
+  render Morphgnt.DemonstrativePronoun = "Demonstrative Pronoun"
+  render Morphgnt.InterrogativeIndefinitePronoun = "Interrogative/Indefinite Pronoun"
+  render Morphgnt.PersonalPronoun = "Personal Pronoun"
+  render Morphgnt.RelativePronoun = "Relative Pronoun"
+  render Morphgnt.Verb = "Verb"
+  render Morphgnt.Particle = "Particle"
+
+instance Render Morphgnt.Person where
+   render Morphgnt.Person1 = "1st Person"
+   render Morphgnt.Person2 = "2nd Person"
+   render Morphgnt.Person3 = "3rd Person"
+instance Render Morphgnt.Tense where
+  render Morphgnt.Imperfect = "Imperfect"
+  render Morphgnt.Future = "Future"
+  render Morphgnt.Pluperfect = "Pluperfect"
+  render Morphgnt.Perfect = "Perfect"
+  render Morphgnt.Present = "Present"
+  render Morphgnt.Aorist = "Aorist"
+instance Render Morphgnt.Voice where
+  render Morphgnt.Active = "Active"
+  render Morphgnt.Middle = "Middle"
+  render Morphgnt.Passive = "Passive"
+instance Render Morphgnt.Mood where
+  render Morphgnt.Indicative = "Indicative"
+  render Morphgnt.Infinitive = "Infinitive"
+  render Morphgnt.Optative = "Optative"
+  render Morphgnt.Imperative = "Imperative"
+  render Morphgnt.Subjunctive = "Subjunctive"
+  render Morphgnt.Participial = "Participial"
+instance Render Morphgnt.Case where
+  render Morphgnt.Nominative = "Nominative"
+  render Morphgnt.Genitive = "Genitive"
+  render Morphgnt.Dative = "Dative"
+  render Morphgnt.Vocative = "Vocative"
+  render Morphgnt.Accusative = "Accusative"
+instance Render Morphgnt.Number where
+  render Morphgnt.Singular = "Singular"
+  render Morphgnt.Plural = "Plural"
+instance Render Morphgnt.Gender where
+  render Morphgnt.Masculine = "Masculine"
+  render Morphgnt.Feminine = "Feminine"
+  render Morphgnt.Neuter = "Neuter"
+instance Render Morphgnt.Degree where
+  render Morphgnt.Comparative = "Comparative"
+  render Morphgnt.Superlative = "Superlative"
 instance Render Morphgnt.TextWithPunctuation where render (Morphgnt.TextWithPunctuation x) = Lazy.pack x
 instance Render Morphgnt.WordNoPunctuation where render (Morphgnt.WordNoPunctuation x) = Lazy.pack x
 instance Render Morphgnt.WordNormalized where render (Morphgnt.WordNormalized x) = Lazy.pack x
 instance Render Morphgnt.Lemma where render (Morphgnt.Lemma x) = Lazy.pack x
 
-instance Render (Maybe Morphgnt.PartOfSpeech2) where render = renderOptionalChar
-instance Render (Maybe Morphgnt.Person) where render = renderOptionalChar
-instance Render (Maybe Morphgnt.Tense) where render = renderOptionalChar
-instance Render (Maybe Morphgnt.Voice) where render = renderOptionalChar
-instance Render (Maybe Morphgnt.Mood) where render = renderOptionalChar
-instance Render (Maybe Morphgnt.Case) where render = renderOptionalChar
-instance Render (Maybe Morphgnt.Number) where render = renderOptionalChar
-instance Render (Maybe Morphgnt.Gender) where render = renderOptionalChar
-instance Render (Maybe Morphgnt.Degree) where render = renderOptionalChar
+instance Render (Maybe Morphgnt.Person) where render = renderMaybe "No person"
+instance Render (Maybe Morphgnt.Tense) where render = renderMaybe "No tense"
+instance Render (Maybe Morphgnt.Voice) where render = renderMaybe "No voice"
+instance Render (Maybe Morphgnt.Mood) where render = renderMaybe "No mood"
+instance Render (Maybe Morphgnt.Case) where render = renderMaybe "No case"
+instance Render (Maybe Morphgnt.Number) where render = renderMaybe "No number"
+instance Render (Maybe Morphgnt.Gender) where render = renderMaybe "No gender"
+instance Render (Maybe Morphgnt.Degree) where render = renderMaybe "No degree"
 
 instance Render
   (Maybe Morphgnt.Person,
@@ -657,7 +697,7 @@ instance Render
   Maybe Morphgnt.Gender,
   Maybe Morphgnt.Degree)
   where
-    render (a,b,c,d,e,f,g,h) = Format.format "{}{}{}{}{}{}{}{}"
+    render (a,b,c,d,e,f,g,h) = Format.format "{}, {}, {}, {}, {}, {}, {}, {}"
       ( render a
       , render b
       , render c
@@ -667,5 +707,3 @@ instance Render
       , render g
       , render h
       )
-instance Render (Morphgnt.PartOfSpeech1, Maybe Morphgnt.PartOfSpeech2) where
-  render (a,b) = Format.format "{}{}" (render a, render b)
