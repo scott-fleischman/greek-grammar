@@ -70,13 +70,13 @@ partOfSpeechParser
   <|> Parsec.string "I-" *> return Interjection
   <|> Parsec.string "N-" *> return Noun
   <|> Parsec.string "P-" *> return Preposition
-  <|> Parsec.string "RA" *> return DefiniteArticle
-  <|> Parsec.string "RD" *> return DemonstrativePronoun
-  <|> Parsec.string "RI" *> return InterrogativeIndefinitePronoun
-  <|> Parsec.string "RP" *> return PersonalPronoun
-  <|> Parsec.string "RR" *> return RelativePronoun
   <|> Parsec.string "V-" *> return Verb
   <|> Parsec.string "X-" *> return Particle
+  <|> Parsec.try (Parsec.string "RA" *> return DefiniteArticle)
+  <|> Parsec.try (Parsec.string "RD" *> return DemonstrativePronoun)
+  <|> Parsec.try (Parsec.string "RI" *> return InterrogativeIndefinitePronoun)
+  <|> Parsec.try (Parsec.string "RP" *> return PersonalPronoun)
+  <|> Parsec.string "RR" *> return RelativePronoun
 
 data Person = Person1 | Person2 | Person3 deriving (Eq, Ord, Show, Generic)
 instance ToJSON Person
