@@ -1,5 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Text.Greek.Source.Morphgnt where
 
@@ -248,3 +250,22 @@ twoDigitParser = do
 
 wordTextParser :: CharParser [Char]
 wordTextParser = Parsec.many1 (Parsec.noneOf " \n\r")
+
+data Parse a = Parse (a Person) (a Tense) (a Voice) (a Mood) (a Case) (a Number) (a Gender) (a Degree)
+deriving instance Eq (Parse Maybe)
+deriving instance Ord (Parse Maybe)
+deriving instance Show (Parse Maybe)
+
+expandWord :: [Word] -> [Parse Maybe]
+expandWord =
+  fmap
+    (\w -> Parse
+     (_wordPerson w)
+     (_wordTense w)
+     (_wordVoice w)
+     (_wordMood w)
+     (_wordCase w)
+     (_wordNumber w)
+     (_wordGender w)
+     (_wordDegree w)
+    )

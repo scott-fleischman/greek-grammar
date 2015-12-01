@@ -41,10 +41,12 @@ library
     Text.Greek.Corpus.Bible.Stats
     Text.Greek.Grammar
     Text.Greek.IO.Json
+    Text.Greek.IO.Morphgnt
     Text.Greek.IO.Paths
     Text.Greek.IO.Pipeline
     Text.Greek.IO.Process
     Text.Greek.IO.Render
+    Text.Greek.IO.Stage
     Text.Greek.IO.Type
     Text.Greek.IO.Utility
     Text.Greek.Morphology.Noun

@@ -7,23 +7,20 @@ module Text.Greek.IO.Process where
 import Prelude hiding (words)
 import Control.Monad.Except
 import Data.Map (Map)
-import Data.Text (Text)
+import Text.Greek.IO.Stage
 import Text.Greek.Source.FileReference
 import qualified Control.Lens as Lens
 import qualified Data.Foldable as Foldable
-import qualified Data.Functor.Identity as Functor
 import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Text as Text
-import qualified Data.Text.Lazy as Lazy
 import qualified Data.Tuple as Tuple
 import qualified Text.Greek.IO.Json as Json
-import qualified Text.Greek.IO.Render as Render
+import qualified Text.Greek.IO.Morphgnt as Morphgnt
 import qualified Text.Greek.IO.Type as Type
 import qualified Text.Greek.IO.Utility as Utility
 import qualified Text.Greek.Source.All as All
-import qualified Text.Greek.Source.Morphgnt as Morphgnt
 import qualified Text.Greek.Source.Work as Work
 import qualified Text.Greek.Phonology.Consonant as Consonant
 import qualified Text.Greek.Script.Abstract as Abstract
@@ -54,7 +51,7 @@ processSblgnt = do
   (stage8, syllableRhAB) <- Utility.handleMaybe "stage8" $ makeStage8 vocalicSyllableABConsonantRh
   (stage9, syllableRBA) <- Utility.handleMaybe "stage9" $ makeStage9 syllableRhAB
   (stage10, syllableRBA') <- Utility.handleMaybe "stage10" $ makeStage10 syllableRBA
-  let (stage11, _) = makeStage11 syllableRBA'
+  let (stage11, _) = Morphgnt.makeStage syllableRBA'
 
   let
     stages =
@@ -116,14 +113,6 @@ processSblgnt = do
   let ourIndex = Json.Index ourWorkInfos ourTypeInfos specialTypes ourStageInfos
   liftIO $ putStrLn "Writing index"
   liftIO $ Json.writeIndex ourIndex
-
-type WordSurface a b = [Work.Indexed [Word.Word a b]]
-type WordSurfaceBasic a = WordSurface Word.Basic a
-
-data Stage a = Stage
-  { stagePrimaryType :: a
-  , stagePartTypes :: [a]
-  }
 
 getStageInfo :: Stage (Json.TypeIndex, a) -> Json.StageInfo
 getStageInfo (Stage p ps) = Json.StageInfo (fst p) (fmap fst ps)
@@ -433,42 +422,6 @@ makeStage10 syllableRBA = (,) <$> mStage <*> mWithAccent
         (Lens.toListOf (Word.info . Word.encliticLens)) <$> mWithEnclitic
       ]
 
-makeStage11 :: WordSurface Word.WithAccent (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing])
-  -> (Stage TypeData, WordSurface Word.WithAccent (Syllable.SyllableListOrConsonants (Maybe Mark.AcuteCircumflex) [Consonant.PlusRoughRhoRoughBreathing]))
-makeStage11 accent = (stage, accent)
-  where
-    stage = Stage primaryType typeParts
-    primaryType = makeWordPartType Json.WordPropertyTypeKind Type.MorphgntLemma (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordLemma)) accent
-    typeParts =
-      [ makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPartOfSpeech (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPartOfSpeech)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntPerson (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordPerson)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntTense (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordTense)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntVoice (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordVoice)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntMood (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordMood)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntCase (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordCase)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntNumber (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordNumber)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntGender (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordGender)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntDegree (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordDegree)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntText (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordTextWithPunctuation)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntWord (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordWordNoPunctuation)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntNormalizedWord (Lens.toListOf (Word.info . Word.morphgntWordLens . Morphgnt.wordWordNormalized)) accent
-      , makeWordPartType Json.WordPropertyTypeKind Type.MorphgntParsingCode
-        ( fmap (\w ->
-            ( Morphgnt._wordPerson w
-            , Morphgnt._wordTense w
-            , Morphgnt._wordVoice w
-            , Morphgnt._wordMood w
-            , Morphgnt._wordCase w
-            , Morphgnt._wordNumber w
-            , Morphgnt._wordGender w
-            , Morphgnt._wordDegree w
-            )
-          )
-          . Lens.toListOf (Word.info . Word.morphgntWordLens)
-        )
-        accent
-      ]
-
 getIndexedStageTypeDatas :: [Stage (Json.TypeIndex, TypeData)] -> [(Json.TypeIndex, TypeData)]
 getIndexedStageTypeDatas = List.sortOn fst . concatMap getTypes
   where
@@ -517,52 +470,6 @@ toComposedWords
   :: WordSurfaceBasic Word.SourceInfo
   -> WordSurfaceBasic [Unicode.Composed]
 toComposedWords = Lens.over wordSurfaceLens (Unicode.toComposed . Word.getSource . Word.getSourceInfoWord)
-
-makeSimpleValue :: Render.Render a => a -> Value
-makeSimpleValue = ValueSimple . Lazy.toStrict . Render.render
-
-makeWorkInfoType :: (Ord a, Render.Render a) => Json.TypeKind -> Type.Name -> (Work.IndexSourceTitle -> a)
-  -> [Work.Indexed [Word.Word (Word.IndexedP b) c]] -> TypeData
-makeWorkInfoType k t f = generateType k t makeSimpleValue . flattenWords (\x _ -> f x)
-
-makeWordPartType :: (Ord b, Render.Render b) => Json.TypeKind -> Type.Name -> (Word.Word (Word.IndexedP c) a -> [b])
-  -> WordSurface (Word.IndexedP c) a -> TypeData
-makeWordPartType k t f = generateType k t makeSimpleValue . flatten . flattenWords (\_ x -> f x)
-  where flatten = concatMap (\(l, m) -> fmap (\x -> (l, x)) m)
-
-makeSurfaceType :: (Ord a, Render.Render a) => Json.TypeKind -> Type.Name
-  -> WordSurface (Word.IndexedP b) [a] -> TypeData
-makeSurfaceType k t = generateType k t makeSimpleValue . flattenSurface
-
-makeSurfacePartType :: (Ord b, Render.Render b) => Json.TypeKind -> Type.Name -> (a -> [b])
-  -> WordSurface (Word.IndexedP c) [a] -> TypeData
-makeSurfacePartType k t f = generateType k t makeSimpleValue . extract . flattenSurface
-  where extract = concatMap (\(l, m) -> fmap (\x -> (l, x)) (f m))
-
-makeIndexedSurfacePartType :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> b)
-  -> WordSurface (Word.IndexedP c) [a] -> TypeData
-makeIndexedSurfacePartType k t g f
-  = generateType k (Type.Indexed t) makeSimpleValue
-  . Lens.over (traverse . Lens._2 . Lens._2) g
-  . concatIndexedSnd
-  . flattenWords (\_ -> fmap f . Word.getSurface)
-
-makeReverseIndexedSurfacePartType2 :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> [Maybe b])
-  -> WordSurface (Word.IndexedP c) a -> TypeData
-makeReverseIndexedSurfacePartType2 k t g f
-  = generateType k (Type.ReverseIndexed t) makeSimpleValue
-  . Lens.over (traverse . Lens._2 . Lens._2) g
-  . Maybe.mapMaybe ((Lens._2 . Lens._1) id)
-  . concatReverseIndexedSnd
-  . flattenWords (\_ -> f . Word.getSurface)
-
-makeReverseIndexedSurfacePartType :: (Ord (b, i), Render.Render (b, i)) => Json.TypeKind -> Type.Name -> (Int -> i) -> (a -> b)
-  -> WordSurface (Word.IndexedP c) [a] -> TypeData
-makeReverseIndexedSurfacePartType k t g f
-  = generateType k (Type.ReverseIndexed t) makeSimpleValue
-  . Lens.over (traverse . Lens._2 . Lens._2) g
-  . concatReverseIndexedSnd
-  . flattenWords (\_ -> fmap f . Word.getSurface)
 
 toDecomposedWordPairs
   :: WordSurfaceBasic [Unicode.Composed]
@@ -640,77 +547,3 @@ validateFinalForm = wordSurfaceLens $ Abstract.validateLetterFinal (Lens.view $ 
 getSyllabicMarkVowelConsonant :: Marked.Unit Abstract.VowelConsonant (Mark.Group Maybe) -> [(Mark.Syllabic, Abstract.VowelConsonant)]
 getSyllabicMarkVowelConsonant (Marked.Unit vc (_, _, Just m)) = pure (m, vc)
 getSyllabicMarkVowelConsonant _ = mempty
-
-
-dupApply' :: ((d -> Functor.Identity (d, b)) -> a -> Functor.Identity c) -> (d -> b) -> a -> c
-dupApply' a b = Functor.runIdentity . dupApply a (Functor.Identity . b)
-
-dupApply :: Functor f => ((a -> f (a, b)) -> t) -> (a -> f b) -> t
-dupApply lens f = lens (apply . dup)
-  where
-    apply = Lens._2 f
-    dup x = (x, x)
-
-wordSurfaceLens :: Applicative f =>
-  (a -> f b)
-  -> [Work.Indexed [Word.Word c a]]
-  -> f [Work.Indexed [Word.Word c b]]
-wordSurfaceLens = traverse . Work.content . traverse . Word.surface
-
-type WordLocation = (Work.Index, Word.Index)
-data Value
-  = ValueSimple Text
-  deriving (Eq, Ord, Show)
-data TypeData = TypeData
-  { typeDataName :: Type.Name
-  , typeDataJson :: Json.Type
-  }
-
-generateType :: forall a. Ord a => Json.TypeKind -> Type.Name -> (a -> Value) -> [(Json.Instance, a)] -> TypeData
-generateType k t f is = TypeData t $ Json.Type (Lazy.toStrict . Render.render $ t) k (fmap storeValue typedValueInstances)
-  where
-    valueInstances :: [(a, [Json.Instance])]
-    valueInstances = Lens.over (traverse . Lens._2 . traverse) fst . Map.assocs . Utility.mapGroupBy snd $ is
-
-    typedValueInstances :: [(Value, [Json.Instance])]
-    typedValueInstances = Lens.over (traverse . Lens._1) f valueInstances
-
-    storeValue :: (Value, [Json.Instance]) -> Json.Value
-    storeValue ((ValueSimple vt), ls) = Json.Value vt ls
-
-flattenSurface :: forall a b. [Work.Indexed [Word.Word (Word.IndexedP a) [b]]] -> [(Json.Instance, b)]
-flattenSurface = concatInstanceValues . flattenWords (\_ -> Word.getSurface)
-
-concatInstanceValues :: [(Json.Instance, [b])] -> [(Json.Instance, b)]
-concatInstanceValues = concatMap (\(x, ys) -> mapAtomIndexes x ys)
-
-mapAtomIndexes :: Json.Instance -> [t] -> [(Json.Instance, t)]
-mapAtomIndexes a = fmap (\(i, y) -> (setAtomIndex i a, y)) . zip [0..]
-  where
-    setAtomIndex z (Json.Instance x y _) = Json.Instance x y (Just . Json.AtomIndex $ z)
-
-concatIndexedSnd :: [(Json.Instance, [b])] -> [(Json.Instance, (b, Int))]
-concatIndexedSnd = concatMap (\(x, ys) -> fmap (\(i, (a, b)) -> (a, (b, i))) . zip [0..] . mapAtomIndexes x $ ys)
-
-concatReverseIndexedSnd :: [(Json.Instance, [b])] -> [(Json.Instance, (b, Int))]
-concatReverseIndexedSnd = concatMap (\(x, ys) -> reverse . fmap (\(i, (a, b)) -> (a, (b, i))) . zip [0..] . reverse . mapAtomIndexes x $ ys)
-
-flattenWords :: forall a b c. (Work.IndexSourceTitle -> Word.Word (Word.IndexedP a) b -> c)
-  -> [Work.Indexed [Word.Word (Word.IndexedP a) b]]
-  -> [(Json.Instance, c)]
-flattenWords f = concatMap getIndexedWorkProps
-  where
-    getIndexedWorkProps :: Work.Indexed [Word.Word (Word.IndexedP a) b] -> [(Json.Instance, c)]
-    getIndexedWorkProps w = fmap (\(i, p) -> (Json.Instance (getWorkIndex w) i Nothing, p)) (getWorkProps w)
-
-    getWorkProps :: Work.Indexed [Word.Word (Word.IndexedP a) b] -> [(Word.Index, c)]
-    getWorkProps k = fmap (getIndexedWordProp (Work.getInfo k)) . Work.getContent $ k
-
-    getWorkIndex :: Work.Indexed x -> Work.Index
-    getWorkIndex = Lens.view (Work.info . Lens._1)
-
-    getIndexedWordProp :: Work.IndexSourceTitle -> Word.Word (Word.IndexedP a) b -> (Word.Index, c)
-    getIndexedWordProp k d = (getWordIndex d, f k d)
-
-    getWordIndex :: Word.Word (Word.IndexedP a) b -> Word.Index
-    getWordIndex = Lens.view (Word.info . Word.indexLens)

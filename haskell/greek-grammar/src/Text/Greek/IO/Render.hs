@@ -282,6 +282,12 @@ renderTriple (a, b, c) = Format.format "{}, {}, {}" (render a, render b, render 
 renderQuad :: (Render a, Render b, Render c, Render d) => (a, b, c, d) -> Lazy.Text
 renderQuad (a, b, c, d) = Format.format "{}, {}, {}, {}" (render a, render b, render c, render d)
 
+renderDoubleQuad
+  :: (Render a, Render b, Render c, Render d, Render e, Render f, Render g, Render h)
+  => (a, b, c, d, e, f, g, h) -> Lazy.Text
+renderDoubleQuad (a, b, c, d, e, f, g, h) = Format.format "{}, {}, {}, {}, {}, {}, {}, {}"
+  (render a, render b, render c, render d, render e, render f, render g, render h)
+
 instance Render (Concrete.Letter, (Abstract.Letter, Abstract.Case, Abstract.Final)) where render = renderFunction
 instance Render (Abstract.Letter, Abstract.Case, Abstract.Final) where render = renderTriple
 instance Render (Marked.Unit (Abstract.Letter, Abstract.Case, Abstract.Final) [Concrete.Mark]) where render = renderMarkedUnit
@@ -698,9 +704,22 @@ instance Render
   Maybe Morphgnt.Degree)
   where
     render (a,b,c,d,e,f,g,h) = Format.format "{}, {}, {}, {}, {}, {}, {}, {}"
+      ( renderMaybe "No person" a
+      , renderMaybe "No tense" b
+      , renderMaybe "No voice" c
+      , renderMaybe "No mood" d
+      , renderMaybe "No case" e
+      , renderMaybe "No number" f
+      , renderMaybe "No gender" g
+      , renderMaybe "No degree" h
+      )
+
+instance Render (Morphgnt.Parse Maybe)
+  where
+    render (Morphgnt.Parse a b c d e f g h) = Format.format "{}, {}, {}, {}, {}, {}, {}, {}"
       ( render a
       , render b
-      , render c
+      , render c 
       , render d
       , render e
       , render f
