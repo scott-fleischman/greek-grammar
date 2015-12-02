@@ -21,4 +21,5 @@ stack exec sblgnt
 
 ### Documents
 [SBL 2015 proposal](docs/2015-03 SBL Proposal.md)
+
 [SBL 2015 slides](docs/2015-11 SBL Slides.pdf)
