@@ -14,10 +14,12 @@ stack build
 ```
 
 ### Running
-Dump SBLGNT stats:
+Generate data:
 ```Shell
-stack exec sblgnt
+stack exec run
 ```
+
+View data: start a web server in the `html/dev` directory.
 
 ### Documents
 [SBL 2015 proposal](docs/2015-03 SBL Proposal.md)
