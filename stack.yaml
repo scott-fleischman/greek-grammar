@@ -5,5 +5,5 @@ packages:
 - location: 'haskell/ucd'
   extra-dep: true
 - 'haskell/greek-grammar'
-extra-deps:
+extra-deps: []
 resolver: nightly-2015-11-13
