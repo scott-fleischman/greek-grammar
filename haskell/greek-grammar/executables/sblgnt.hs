@@ -40,7 +40,7 @@ formatVerse v = format' "{}\n{}" (name, T.concat . fmap formatVariant $ variants
 
 mainDocumentToXml :: IO ()
 mainDocumentToXml = do
-  result <- readParseEvents S.inventoryParser perseusInventoryXmlPath
+  result <- readParseEvents S.inventoryParser perseusInventoryXml
   case result of
     Left es -> mapM_ (T.putStrLn . T.pack . show) es
     Right xs -> T.putStrLn $ format' "groups: {}, Greek works: {}"

@@ -139,6 +139,16 @@ executable run
   hs-source-dirs: executables
   default-language: Haskell2010
 
+executable perseus
+  build-depends:
+    base,
+    text,
+    greek-grammar
+  main-is: Perseus.hs
+  ghc-options: -Wall -fwarn-tabs -O2
+  hs-source-dirs: executables
+  default-language: Haskell2010
+
 test-suite hunit
   type: exitcode-stdio-1.0
   main-is: hunit.hs
