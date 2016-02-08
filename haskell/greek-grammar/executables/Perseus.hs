@@ -14,16 +14,38 @@ main = do
   perseusCatalog <- Parse.readParseEvents Inventory.inventoryParser Paths.perseusInventoryXml
   case perseusCatalog of
     Left es -> mapM_ (Text.putStrLn . Text.pack . show) es
-    Right inventory -> mapM_ Text.putStrLn greekWorkInfo
+    Right inventory -> mapM_ Text.putStrLn editionInfo
       where
-        greekWorks = getGreekWorks inventory
-        greekWorkInfo = fmap (\x -> Format.format' "Work: {}, Editions: {}" x) greekWorks
+        works = getWorks inventory
+        editions = concatMap (\w -> (fmap (\e -> (workTitle w, e)) (workEditions w))) works
+        editionInfo = fmap (\(t, e) -> Format.format' "Work:{}, Title:{}, Desc:{}" (t, editionLabel e, editionDescription e)) editions
 
-getGreekWorks :: Inventory.Inventory -> [(Text.Text, Int)]
-getGreekWorks inventory = presentGreekWorks
+data Work = Work
+  { workTitle :: Text.Text
+  , workEditions :: [Edition]
+  }
+
+data Edition = Edition
+  { editionLabel :: Text.Text
+  , editionDescription :: Text.Text
+  , editionRelativePath :: [Text.Text]
+  }
+
+makeWork :: Inventory.Work -> Work
+makeWork (Inventory.Work _ _ _ t es) = Work t (fmap makeEdition es)
+
+makeEdition :: Inventory.Edition -> Edition
+makeEdition (Inventory.Edition _ u l d _) = Edition l d (makeRelativePath u)
+
+makeRelativePath :: Inventory.CtsUrn -> [Text.Text]
+makeRelativePath (Inventory.CtsUrn ("greekLit" : ns)) = ns
+makeRelativePath _ = []
+
+getWorks :: Inventory.Inventory -> [Work]
+getWorks inventory = presentGreekWorks
   where
     textGroups = Inventory.inventoryTextGroups inventory
     flatWorks = concatMap Inventory.textGroupWorks textGroups
     greekWorks = filter ((== "grc") . Inventory.workLang) flatWorks
-    greekWorkEditionCount = fmap (\x -> (Inventory.workTitle x, length $ Inventory.workEditions x)) greekWorks
-    presentGreekWorks = filter (\x -> snd x /= 0) greekWorkEditionCount
+    greekWorkEditionCount = fmap makeWork greekWorks
+    presentGreekWorks = filter ((/= 0) . length . workEditions) greekWorkEditionCount
