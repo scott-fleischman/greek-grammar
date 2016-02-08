@@ -143,6 +143,8 @@ executable perseus
   build-depends:
     base,
     text,
+    filepath,
+    text-format,
     greek-grammar
   main-is: Perseus.hs
   ghc-options: -Wall -fwarn-tabs -O2

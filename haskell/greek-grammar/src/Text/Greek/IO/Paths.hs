@@ -32,8 +32,8 @@ perseusFolder = projectRootPath </> "data" </> "PerseusDL"
 perseusCatalog :: FilePath
 perseusCatalog = perseusFolder </> "catalog_data"
 
-perseusGreek :: FilePath
-perseusGreek = perseusFolder </> "canonical-greekLit"
+perseusGreekData :: FilePath
+perseusGreekData = perseusFolder </> "canonical-greekLit" </> "data"
 
 perseusInventoryXml :: FilePath
 perseusInventoryXml = perseusCatalog </> "perseus" </> "perseuscts.xml"
