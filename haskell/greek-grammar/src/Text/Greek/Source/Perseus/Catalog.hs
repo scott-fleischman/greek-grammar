@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Text.Greek.Source.PerseusInventory where
+module Text.Greek.Source.Perseus.Catalog where
 
 import Data.Map (Map)
 import Data.Text (Text)

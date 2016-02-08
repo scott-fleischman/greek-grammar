@@ -19,7 +19,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Text.XML as X
 import qualified Text.Greek.Source.SblgntApp as App
-import qualified Text.Greek.Source.PerseusInventory as S
+import qualified Text.Greek.Source.Perseus.Catalog as S
 
 load :: IO (Either SBLError Bible)
 load = do
