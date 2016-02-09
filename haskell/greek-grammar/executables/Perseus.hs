@@ -10,7 +10,7 @@ import qualified Data.Text.IO as Text
 import qualified Data.Text.Format.Strict as Format
 import System.FilePath ((</>), (<.>))
 import qualified System.FilePath.Find as FilePath
-import System.FilePath.Find ((==?))
+import System.FilePath.Find ((~~?))
 import qualified System.Directory as Directory
 import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.Source.Perseus.Catalog as Catalog
@@ -18,7 +18,7 @@ import qualified Text.Greek.Xml.Parse as Parse
 
 main :: IO ()
 main = do
-  paths <- FilePath.find FilePath.always (FilePath.extension ==? ".xml") Paths.perseusGreekData
+  paths <- FilePath.find FilePath.always (FilePath.fileName ~~? "*-grc?.xml") Paths.perseusGreekData
   mapM_ putStrLn paths
 
 loadCatalog :: IO ()
