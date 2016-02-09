@@ -144,6 +144,7 @@ executable perseus
     base,
     text,
     filepath,
+    directory,
     text-format,
     greek-grammar
   main-is: Perseus.hs

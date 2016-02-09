@@ -3,11 +3,13 @@
 module Main where
 
 import qualified Data.Maybe as Maybe
+import qualified Data.Function as Function
+import qualified Data.List as List
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
-import qualified Data.Text.Format as Format
 import qualified Data.Text.Format.Strict as Format
 import System.FilePath ((</>), (<.>))
+import qualified System.Directory as Directory
 import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.Source.Perseus.Catalog as Catalog
 import qualified Text.Greek.Xml.Parse as Parse
@@ -17,11 +19,20 @@ main = do
   perseusCatalog <- Parse.readParseEvents Catalog.inventoryParser Paths.perseusInventoryXml
   case perseusCatalog of
     Left es -> mapM_ (Text.putStrLn . Text.pack . show) es
-    Right inventory -> mapM_ Text.putStrLn editionInfo
+    Right inventory -> do
+      infos <- editionInfos
+      let sortedInfos = List.sortBy (compare `Function.on` snd) infos
+      mapM_ (Text.putStrLn . printEditionInfo) sortedInfos
       where
         works = getWorks inventory
-        editions = concatMap (\w -> (fmap (\e -> (workTitle w, e)) (workEditions w))) works
-        editionInfo = fmap (\(_, e) -> Format.format' "{}" (Format.Only $ editionPath e)) editions
+        editions = concatMap workEditions works
+        editionFiles = fmap editionPath editions
+        editionInfos = traverse getEditionInfo editionFiles
+        getEditionInfo x = do
+          fileExists <- Directory.doesFileExist x
+          return (x, fileExists)
+        printEditionInfo (x, fileExists) = Format.format' "{}-{}" (existsMessage, x)
+          where existsMessage = if fileExists then "Ok" else "Missing" :: Text.Text
 
 data Work = Work
   { workTitle :: Text.Text
@@ -35,13 +46,17 @@ data Edition = Edition
   }
 
 makeWork :: Catalog.Work -> Work
-makeWork (Catalog.Work _ _ _ t es) = Work t $ Maybe.catMaybes $ fmap makeEdition es
+makeWork (Catalog.Work _ _ _ t es) = Work t $ Maybe.catMaybes $ fmap makeOpenEdition es
 
-makeEdition :: Catalog.Edition -> Maybe Edition
-makeEdition (Catalog.Edition _ u l d _) = Edition l d <$> (makeRelativePath u)
+makeOpenEdition :: Catalog.Edition -> Maybe Edition
+makeOpenEdition (Catalog.Edition _ u l d m) | m /= protectedGroup = Edition l d <$> (makeRelativePath u)
+makeOpenEdition _ = Nothing
 
 greekLitUrnPrefix :: Text.Text
 greekLitUrnPrefix = "greekLit"
+
+protectedGroup :: Text.Text
+protectedGroup = "Perseus:collection:Greco-Roman-protected"
 
 makeRelativePath :: Catalog.CtsUrn -> Maybe FilePath
 makeRelativePath (Catalog.CtsUrn [p, f]) | p == greekLitUrnPrefix =
