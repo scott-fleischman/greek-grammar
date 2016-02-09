@@ -9,6 +9,8 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import qualified Data.Text.Format.Strict as Format
 import System.FilePath ((</>), (<.>))
+import qualified System.FilePath.Find as FilePath
+import System.FilePath.Find ((==?))
 import qualified System.Directory as Directory
 import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.Source.Perseus.Catalog as Catalog
@@ -16,6 +18,11 @@ import qualified Text.Greek.Xml.Parse as Parse
 
 main :: IO ()
 main = do
+  paths <- FilePath.find FilePath.always (FilePath.extension ==? ".xml") Paths.perseusGreekData
+  mapM_ putStrLn paths
+
+loadCatalog :: IO ()
+loadCatalog = do
   perseusCatalog <- Parse.readParseEvents Catalog.inventoryParser Paths.perseusInventoryXml
   case perseusCatalog of
     Left es -> mapM_ (Text.putStrLn . Text.pack . show) es
