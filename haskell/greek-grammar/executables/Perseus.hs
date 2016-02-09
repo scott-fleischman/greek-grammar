@@ -14,32 +14,45 @@ import System.FilePath.Find ((~~?))
 import qualified System.Directory as Directory
 import qualified Text.Greek.IO.Paths as Paths
 import qualified Text.Greek.Source.Perseus.Catalog as Catalog
+import qualified Text.Greek.Source.Perseus.TEI as TEI
 import qualified Text.Greek.Xml.Parse as Parse
+import qualified Text.Greek.Xml.Common as Xml
 
 main :: IO ()
 main = do
-  paths <- FilePath.find FilePath.always (FilePath.fileName ~~? "*-grc?.xml") Paths.perseusGreekData
-  mapM_ putStrLn paths
+  paths <- greekFilePaths
+  documents <- mapM tryLoadDocument paths
+  mapM_ (printResult (\_ -> putStrLn "Success")) documents
+
+printResult :: Show e => (a -> IO ()) -> Either [e] a -> IO ()
+printResult _ (Left es) = mapM_ (Text.putStrLn . Text.pack . show) es
+printResult f (Right x) = f x
+
+tryLoadDocument :: FilePath -> IO (Either [Xml.XmlError] TEI.Document)
+tryLoadDocument = Parse.readParseEvents TEI.documentParser
+
+greekFilePaths :: IO [FilePath]
+greekFilePaths = FilePath.find FilePath.always (FilePath.fileName ~~? "*-grc?.xml") Paths.perseusGreekData
 
 loadCatalog :: IO ()
 loadCatalog = do
   perseusCatalog <- Parse.readParseEvents Catalog.inventoryParser Paths.perseusInventoryXml
-  case perseusCatalog of
-    Left es -> mapM_ (Text.putStrLn . Text.pack . show) es
-    Right inventory -> do
-      infos <- editionInfos
-      let sortedInfos = List.sortBy (compare `Function.on` snd) infos
-      mapM_ (Text.putStrLn . printEditionInfo) sortedInfos
-      where
-        works = getWorks inventory
-        editions = concatMap workEditions works
-        editionFiles = fmap editionPath editions
-        editionInfos = traverse getEditionInfo editionFiles
-        getEditionInfo x = do
-          fileExists <- Directory.doesFileExist x
-          return (x, fileExists)
-        printEditionInfo (x, fileExists) = Format.format' "{}-{}" (existsMessage, x)
-          where existsMessage = if fileExists then "Ok" else "Missing" :: Text.Text
+  printResult getMessage perseusCatalog
+    where
+      getMessage inventory = do
+        infos <- editionInfos
+        let sortedInfos = List.sortBy (compare `Function.on` snd) infos
+        mapM_ (Text.putStrLn . printEditionInfo) sortedInfos
+        where
+          works = getWorks inventory
+          editions = concatMap workEditions works
+          editionFiles = fmap editionPath editions
+          editionInfos = traverse getEditionInfo editionFiles
+          getEditionInfo x = do
+            fileExists <- Directory.doesFileExist x
+            return (x, fileExists)
+          printEditionInfo (x, fileExists) = Format.format' "{}-{}" (existsMessage, x)
+            where existsMessage = if fileExists then "Ok" else "Missing" :: Text.Text
 
 data Work = Work
   { workTitle :: Text.Text

@@ -148,6 +148,7 @@ executable perseus
     directory,
     text-format,
     filemanip,
+    either,
     greek-grammar
   main-is: Perseus.hs
   ghc-options: -Wall -fwarn-tabs -O2
