@@ -6,4 +6,4 @@ packages:
   extra-dep: true
 - 'haskell/greek-grammar'
 extra-deps: []
-resolver: nightly-2015-11-13
+resolver: nightly-2016-02-08
