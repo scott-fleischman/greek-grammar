@@ -14,12 +14,14 @@ stack build
 ```
 
 ### Running
-Generate data:
+#### Generate data
 ```Shell
 stack exec run
 ```
 
-View data: start a web server in the `html/dev` directory.
+#### View data
+* Start a web server in the `html/dev` directory.
+* You may also view it at: https://scott-fleischman.github.io/greek-grammar
 
 ### Documents
 [SBL 2015 proposal](docs/2015-03 SBL Proposal.md)
