@@ -1,5 +1,4 @@
 import 'bootstrap/css/bootstrap.css!'
-import 'fixed-data-table/dist/fixed-data-table.css!'
 import '../styles/styles.css!'
 
 import React from 'react';

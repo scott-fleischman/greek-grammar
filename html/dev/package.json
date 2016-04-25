@@ -2,19 +2,15 @@
   "jspm": {
     "dependencies": {
       "bootstrap": "github:twbs/bootstrap@^3.3.5",
-      "clean-css": "npm:clean-css@^3.4.5",
       "css": "github:systemjs/plugin-css@^0.1.18",
       "fetch": "github:github/fetch@^0.9.0",
-      "fixed-data-table": "npm:fixed-data-table@^0.4.7",
       "query-string": "npm:query-string@^2.4.2",
       "ramda": "npm:ramda@^0.17.1",
       "react": "npm:react@^0.14.1",
       "react-bootstrap": "npm:react-bootstrap@^0.27.3",
       "react-dom": "npm:react-dom@^0.14.0",
       "react-redux": "npm:react-redux@^4.0.0",
-      "react-waypoint": "npm:react-waypoint@^1.0.6",
       "redux": "npm:redux@^3.0.4",
-      "redux-logger": "npm:redux-logger@^2.0.4",
       "redux-thunk": "npm:redux-thunk@^1.0.0"
     },
     "devDependencies": {
