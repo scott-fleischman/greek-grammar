@@ -24,6 +24,8 @@ stack exec run
 * You may also view it at: https://scott-fleischman.github.io/greek-grammar
 
 ### Documents
-[SBL 2015 proposal](docs/2015-03 SBL Proposal.md)
+[LambdaConf 2016 slides](docs/2016-05 LambdaConf Slides.pdf)
 
 [SBL 2015 slides](docs/2015-11 SBL Slides.pdf)
+
+[SBL 2015 proposal](docs/2015-03 SBL Proposal.md)
